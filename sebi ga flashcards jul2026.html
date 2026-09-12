@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SEBI GA Flashcards — Jul 2026</title>
+<style>
+  :root {
+    --ink: #1A2438;
+    --paper: #EFE9DA;
+    --card: #FBFAF6;
+    --brass: #8C6B3F;
+    --green: #3B6B4A;
+    --rust: #A8482B;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: Georgia, 'Iowan Old Style', Charter, serif;
+    min-height: 100vh;
+  }
+  .ui { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 40px 18px 56px;
+  }
+  .header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+  }
+  h1 {
+    font-size: 28px;
+    margin: 0;
+    letter-spacing: -0.01em;
+    font-weight: normal;
+  }
+  .sub {
+    font-size: 14px;
+    margin: 4px 0 0;
+    color: rgba(26,36,56,0.6);
+  }
+  .stat {
+    font-size: 14px;
+    color: rgba(26,36,56,0.8);
+  }
+  .pills {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+    scrollbar-width: thin;
+  }
+  .pills::-webkit-scrollbar { height: 6px; }
+  .pills::-webkit-scrollbar-thumb { background: rgba(140,107,63,0.35); border-radius: 3px; }
+  .pill {
+    flex-shrink: 0;
+    font-size: 14px;
+    padding: 7px 13px;
+    border: 1px solid rgba(26,36,56,0.27);
+    background: transparent;
+    color: var(--ink);
+    border-radius: 3px;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: inherit;
+  }
+  .pill.active {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .pill .count { opacity: 0.7; margin-left: 6px; }
+  .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    font-size: 14px;
+  }
+  .checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(26,36,56,0.8);
+    cursor: pointer;
+    user-select: none;
+  }
+  .checkbox input { accent-color: var(--brass); width: 15px; height: 15px; }
+  .toolbar-actions { display: flex; gap: 14px; }
+  .toolbar-actions button, .link-btn {
+    background: none;
+    border: none;
+    color: rgba(26,36,56,0.8);
+    font-size: 14px;
+    cursor: pointer;
+    padding: 4px 2px;
+    font-family: inherit;
+  }
+  .toolbar-actions button:hover, .link-btn:hover { color: var(--ink); }
+  #reset-progress-btn { color: rgba(168,72,43,0.75); }
+  #reset-progress-btn:hover { color: var(--rust); }
+
+  #card-area {
+    position: relative;
+    margin-bottom: 20px;
+    min-height: 300px;
+  }
+  .stack {
+    position: absolute;
+    inset: 0;
+    background: var(--card);
+    border: 1px solid rgba(26,36,56,0.13);
+    border-radius: 4px;
+  }
+  .stack.s2 { transform: translate(10px, 10px) rotate(1.2deg); z-index: 0; }
+  .stack.s1 { transform: translate(5px, 5px) rotate(-0.8deg); z-index: 1; }
+  .flip-outer {
+    position: relative;
+    z-index: 2;
+    min-height: 300px;
+    perspective: 1400px;
+    cursor: pointer;
+  }
+  .flip-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 300px;
+    transition: transform 0.5s cubic-bezier(.4,.2,.2,1);
+    transform-style: preserve-3d;
+  }
+  .flip-inner.flipped { transform: rotateY(180deg); }
+  .face {
+    position: absolute;
+    inset: 0;
+    border-radius: 4px;
+    border: 1.5px solid var(--ink);
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  .face.front { background: var(--card); color: var(--ink); }
+  .face.back { background: var(--ink); color: var(--paper); transform: rotateY(180deg); }
+  .face-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 22px;
+  }
+  .face-header, .hint, .tag, .topic-tag, .answer-label { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; }
+  .topic-tag {
+    font-size: 12px;
+    padding: 4px 8px;
+    background: var(--brass);
+    color: var(--card);
+    border-radius: 2px;
+  }
+  .answer-label { font-size: 12px; color: rgba(239,233,218,0.6); }
+  .tag { font-size: 12px; color: rgba(26,36,56,0.55); }
+  .face.back .tag { color: rgba(239,233,218,0.55); }
+  .face-body { flex: 1; display: flex; align-items: center; }
+  .face.front .face-body p { font-size: 19px; line-height: 1.4; margin: 0; }
+  .face.back .face-body p { font-size: 22px; line-height: 1.4; margin: 0; }
+  .hint {
+    font-size: 12px;
+    text-align: center;
+    margin: 22px 0 0;
+    color: rgba(26,36,56,0.45);
+  }
+  .face.back .hint { color: rgba(239,233,218,0.45); }
+
+  .mark-row { display: flex; gap: 12px; margin-bottom: 20px; }
+  .mark-row button {
+    flex: 1;
+    font-family: inherit;
+    font-size: 14px;
+    padding: 11px;
+    border-radius: 3px;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  #mark-learning { border: 1px solid var(--rust); color: var(--rust); }
+  #mark-known { border: 1px solid var(--green); color: var(--green); }
+
+  .nav-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 14px;
+  }
+  .nav-row button {
+    background: none;
+    border: none;
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 6px 10px;
+  }
+  #pos-counter { color: rgba(26,36,56,0.6); }
+
+  #empty-state {
+    text-align: center;
+    padding: 70px 20px;
+    border: 1px solid rgba(26,36,56,0.2);
+    border-radius: 4px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  }
+  #empty-state .muted { color: rgba(26,36,56,0.6); font-size: 14px; }
+
+  .footer-hint {
+    text-align: center;
+    font-size: 12px;
+    color: rgba(26,36,56,0.4);
+    margin-top: 30px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  }
+  .footer-hint.warn { color: var(--rust); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .flip-inner { transition: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div>
+      <h1>SEBI GA Flashcards</h1>
+      <p class="sub ui" id="subtitle"></p>
+    </div>
+    <div class="stat ui tabular" id="known-stat"></div>
+  </div>
+
+  <div class="pills ui" id="topic-pills"></div>
+
+  <div class="toolbar ui">
+    <label class="checkbox">
+      <input type="checkbox" id="review-toggle">
+      Review only (hide cards marked known)
+    </label>
+    <div class="toolbar-actions">
+      <button id="shuffle-btn">Shuffle</button>
+      <button id="reset-order-btn">Reset order</button>
+      <button id="reset-progress-btn">Reset progress</button>
+    </div>
+  </div>
+
+  <div id="card-area">
+    <div class="stack s2"></div>
+    <div class="stack s1"></div>
+    <div class="flip-outer" id="flip-outer">
+      <div class="flip-inner" id="flip-inner">
+        <div class="face front">
+          <div class="face-header">
+            <span class="topic-tag" id="front-topic"></span>
+            <span class="tag" id="front-tag"></span>
+          </div>
+          <div class="face-body"><p id="front-text"></p></div>
+          <p class="hint">Tap to reveal answer</p>
+        </div>
+        <div class="face back">
+          <div class="face-header">
+            <span class="answer-label">Answer</span>
+            <span class="tag" id="back-tag"></span>
+          </div>
+          <div class="face-body"><p id="back-text" class="tabular"></p></div>
+          <p class="hint">Tap to flip back</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mark-row ui" id="mark-row" style="display:none;">
+    <button id="mark-learning">&#10005; Still learning</button>
+    <button id="mark-known">&#10003; Know it</button>
+  </div>
+
+  <div class="nav-row ui" id="nav-row">
+    <button id="prev-btn">&larr; Prev</button>
+    <span id="pos-counter" class="tabular"></span>
+    <button id="next-btn">Next &rarr;</button>
+  </div>
+
+  <div id="empty-state">
+    <p style="margin:0 0 4px;">Nothing left to review here.</p>
+    <p class="muted" style="margin:0;">Every card in this topic is marked known. Uncheck "Review only" to see them again.</p>
+  </div>
+
+  <p class="footer-hint" id="footer-hint">Space to flip &middot; &larr; &rarr; to move</p>
+</div>
+
+<script>
+/* ===== CARD DATA (verified extract — do not hand-edit without re-checking count) ===== */
+const TOPICS = [
+  "Government Schemes",
+  "Finance & Banking \u2014 Current Affairs",
+  "Reports & Indices",
+  "Finance & Banking \u2014 Concepts",
+  "Appointments",
+  "Awards",
+  "First in News",
+  "Sports & Persons in News",
+  "Places in News",
+  "Days in News",
+  "BRICS & Corporate"
+];
+
+const CARDS_RAW = [
+[0,"What is the monthly wage ceiling for mandatory EPS 2026 contributions?","\u20b915,000"],
+[0,"Under EPS 2026, what percentage of wages does the employer divert from its 12% EPF contribution into the pension fund?","8.33%"],
+[0,"What is the minimum guaranteed monthly pension under EPS 2026?","\u20b91,000"],
+[0,"How many years of eligible service must an EPS 2026 member complete to qualify for pension benefits?","10 years"],
+[0,"EPS 2026 supersedes which two earlier schemes?","The Employees' Pension Scheme, 1995, and the Employees' Family Pension Scheme, 1971"],
+[0,"At what age does the EPS 2026 superannuation pension become payable?","58 years"],
+[0,"Under the Employees' Provident Funds Scheme, 2026, what is the standard contribution rate for both employee and employer?","12% of wages each"],
+[0,"What legal basis (2020 code) does the Employees' Provident Funds Scheme, 2026 rest on, replacing the 1952 scheme?","The Code on Social Security, 2020"],
+[0,"What is the maximum Employees' Deposit Linked Insurance (EDLI) assurance benefit?","\u20b97,00,000"],
+[0,"What is the minimum guaranteed EDLI benefit for a member in continuous employment for 12 months before death?","\u20b92,50,000"],
+[0,"What is the total outlay of the Modified UDAN scheme for 2026\u201327 to 2035\u201336?","\u20b928,840 crore"],
+[0,"Over how many years does the Modified UDAN scheme run?","10 years"],
+[0,"Under Modified UDAN, how many airports are targeted for development from unserved airstrips over eight years?","100"],
+[0,"What is the financial outlay of the Pradhan Mantri Matsya Sampada Yojana (PMMSY), extended up to 30 September 2026?","\u20b920,050 crore"],
+[0,"What is PMMSY's motto for the fisheries sector?","'Reform, Perform and Transform'"],
+[0,"What is the outlay of PM-USHA (Pradhan Mantri Uchchatar Shiksha Abhiyan)?","\u20b912,926.10 crore"],
+[0,"PM-USHA is the restructured third phase of which earlier scheme?","Rashtriya Uchchatar Shiksha Abhiyan (RUSA)"],
+[0,"Which scheme succeeded the PLI Scheme for Large-Scale Electronics Manufacturing (which ended 31 March 2026)?","The Mobile Phone Manufacturing Scheme"],
+[0,"What is the financial assistance outlay of the Mobile Phone Manufacturing Scheme, FY27\u2013FY31?","\u20b962,500 crore"],
+[0,"What is the financial allocation for PM Garib Kalyan Anna Yojana (PMGKAY) over its current five-year period (Jan 2024\u2013Dec 2028)?","~\u20b911.80 lakh crore"],
+[0,"How many NFSA beneficiaries does PMGKAY currently cover?","About 81.35 crore"],
+[0,"What additional storage capacity does the World's Largest Grain Storage Plan (Cooperative Sector) target over five years?","~700 lakh metric tonnes"],
+[0,"Which ministry implements the Grain Storage Plan, through NCDC?","Ministry of Cooperation"],
+[0,"What is the total outlay of the Pradhan Mantri Surya Sarovar Yojana (floating solar)?","\u20b95,070 crore"],
+[0,"What floating solar PV capacity does the Pradhan Mantri Surya Sarovar Yojana target?","5,000 MW"],
+[0,"How much central assistance has been earmarked under the Urban Challenge Fund (UCF)?","\u20b91 lakh crore"],
+[0,"Which ministry launched the Urban Challenge Fund's operational guidelines?","Ministry of Housing and Urban Affairs"],
+[0,"The Urban Challenge Fund was first announced in which Union Budget?","Union Budget 2025\u201326"],
+[0,"What is the outlay of the BHAVYA\u2013Rasayan Scheme, approved to develop three dedicated chemical parks?","\u20b93,030 crore"],
+[0,"VISHWAS 2026 offers a one-time settlement mechanism for EPFO damages disputes under which section of the EPF & MP Act, 1952?","Section 14B"],
+[0,"What is the budget allocation for the 'Scholarships for Higher Education for Young Achievers' scheme (SC students) for 2026\u201327?","\u20b9495 crore"],
+[1,"By how much did India's GDP grow in FY 2025\u201326?","7.7%"],
+[1,"What was India's Q4 FY26 GDP growth rate?","7.8%"],
+[1,"What was India's Current Account position in Q4 FY26?","A surplus of $7.1 billion (0.7% of GDP)"],
+[1,"What was India's Current Account Deficit for the full FY26?","$25.2 billion (0.6% of GDP)"],
+[1,"What was the Centre's fiscal deficit for April\u2013May FY27?","\u20b91.62 trillion (9.6% of the Budget Estimate)"],
+[1,"What is the FY27 fiscal deficit target as a share of GDP?","4.3%"],
+[1,"What record surplus did RBI transfer to the Central Government, aiding the FY27 fiscal position?","\u20b92.87 trillion"],
+[1,"What was the Centre's fiscal deficit as a percentage of the FY27 Budget Estimate at the end of Q1 (April\u2013June 2026)?","18.2% (vs 17.9% in the same period of FY26)"],
+[1,"What was Indian Public Sector Banks' combined net profit in FY 2025\u201326 \u2014 an all-time high?","\u20b91.98 lakh crore"],
+[1,"To what level did PSBs' Gross NPAs decline in FY26 \u2014 a historic low?","1.9%"],
+[1,"How many Indian companies had a market capitalisation of at least \u20b91 trillion in 2026, up from 110 in 2025?","114"],
+[1,"Which firm is the frontrunner to acquire a combined ~60.7% stake in IDBI Bank from the Centre and LIC?","Fairfax Financial Holdings (Prem Watsa)"],
+[1,"What is the approximate value of the proposed Fairfax\u2013IDBI Bank transaction?","$5.5\u20135.7 billion"],
+[1,"How much did SBI raise through its first Basel III-compliant AT1 bond issue of FY27?","\u20b94,691 crore"],
+[1,"What coupon rate do SBI's FY27 AT1 bonds carry?","7.75% per annum"],
+[1,"Which bank became the first Indian private-sector bank to receive an international investment-grade issuer rating (BBB-) from S&P?","Federal Bank"],
+[1,"What is RBI's Financial Inclusion Index reading for March 2026, up from 67.0 a year earlier?","70.0"],
+[1,"As of June 2026, roughly how many users had onboarded onto UPI?","~55.49 crore"],
+[1,"What was UPI's transaction value in FY 2025\u201326?","\u20b9314.23 lakh crore"],
+[1,"SEBI's Specialised Investment Fund (SIF) framework drew how much in net assets, across 56,000+ investor folios?","\u20b913,814 crore"],
+[1,"SEBI shifted FPI and FVCI fee payments away from US Dollars to which currency?","Indian Rupees (INR)"],
+[1,"SEBI approved F&O contracts on which new NSE index, designed specifically for Foreign Portfolio Investors?","The Nifty India FPI 150 Index"],
+[1,"By when must depositories implement SEBI's ISIN-level freeze framework for promoter shareholdings during buybacks?","1 August 2026"],
+[1,"Under SEBI's proposed MF-PMS framework, what would the minimum investment threshold become, down from \u20b950 lakh?","\u20b925 lakh"],
+[1,"How many investor complaints did SEBI resolve through its SCORES platform in June 2026?","5,037"],
+[1,"The Delhi High Court ruled that NSE is a 'public authority' and must comply with which Act?","The Right to Information Act, 2005"],
+[1,"In what year was the National Stock Exchange (NSE) incorporated?","1992"],
+[1,"NSE's new natural gas futures contract \u2014 India's first linked to a domestic benchmark \u2014 trades under which price benchmark?","The GIXI\u2013Dahej price, published by the Indian Gas Exchange"],
+[1,"Which mutual fund is launching India's first index fund focused primarily on listed REITs?","Edelweiss Mutual Fund (Edelweiss Nifty REITs & Realty Index Fund)"],
+[1,"NCDEX launched which mutual fund distribution platform in 2026?","'Nidhi'"],
+[1,"Which bank processed India's first cross-border remittance under SWIFT's new retail payments framework?","Standard Chartered Bank"],
+[1,"What is the Cost Inflation Index (CII) notified for FY 2026\u201327?","384"],
+[1,"What was the Cost Inflation Index (CII) for FY 2025\u201326?","376"],
+[1,"Within what maximum period must banks now dispose of immovable assets acquired from bad-loan recovery, per new RBI norms effective 1 October 2026?","7 years"],
+[1,"K. Rajaraman's tenure as IFSCA Chairman has been extended until when?","October 2028"],
+[1,"Which non-bank entity became India's first to receive RBI approval to undertake trade remittances?","EbixCash World Money Limited"],
+[1,"EbixCash's expanded AD Category-II licence caps trade remittances at what amount per transaction?","\u20b925 lakh"],
+[1,"How many individuals reported a Gross Total Income above \u20b9100 crore in AY 2025\u201326, up from 415 the year before?","576"],
+[1,"What is the name of India's windfall-tax instrument on petroleum product exports?","Special Additional Excise Duty (SAED)"],
+[1,"In which year did India first introduce the windfall tax on petroleum exports?","2022 (1 July 2022)"],
+[1,"CBDT's crypto-tax reporting framework, developed by the OECD at the G20's request, is called:","The Crypto-Asset Reporting Framework (CARF)"],
+[1,"Under CARF, crypto exchanges must report prescribed transactions annually to the CBDT through which form?","Form 167"],
+[1,"What NBFC classification did RBI approve for Delhivery's financial-services subsidiary?","Type II NBFC \u2013 Non-Deposit Taking (NBFC-ND)"],
+[1,"ICICI Bank's proposed $500 million international bond issue would use which new RBI facility to hedge currency risk?","RBI's concessional US Dollar\u2013Rupee Forex Swap Facility"],
+[2,"Who released the World Investment Report 2026?","UNCTAD (United Nations Conference on Trade and Development)"],
+[2,"By how much did global FDI flows increase in 2025, reaching $1.6 trillion?","6% (from $1.5 trillion in 2024)"],
+[2,"By how much did India's FDI inflows rise in 2025, to $39 billion?","44%"],
+[2,"Which country topped the Global Passport Index (GPI) 2026 for the third consecutive year?","Sweden"],
+[2,"What was India's rank in the Global Passport Index 2026, out of 197 countries?","125th"],
+[2,"Who releases the Global Passport Index?","Global Citizen Solutions (GCS)"],
+[2,"In the Performance Grading Index (PGI) 2.0 for States/UTs 2025\u201326, which was the only State/UT to reach the top grade, Uttam-3?","Chandigarh"],
+[2,"Who releases the Performance Grading Index for States/UTs?","Department of School Education and Literacy, Ministry of Education"],
+[2,"What was India's overall Labour Force Participation Rate (LFPR) per the PLFS for June 2026?","54.4%"],
+[2,"Which edition of the Periodic Labour Force Survey (PLFS) covered June 2026?","15th"],
+[2,"Per the Asian Development Bank's July 2026 outlook, what is India's revised GDP growth forecast for FY27, down from 6.9%?","6.6%"],
+[2,"Per the same ADB outlook, what is India's revised FY27 inflation forecast, up from 4.5%?","5.2%"],
+[2,"Who tops the Brand Finance India 100 2026 report by brand value?","Tata Group"],
+[2,"Which company was named India's fastest-growing brand in the Brand Finance India 100 2026 report?","Suzlon Energy"],
+[2,"NITI Aayog's Investment Friendliness Index assesses States/UTs across how many key pillars?","8"],
+[2,"Which state ranked first among large states in NITI Aayog's Investment Friendliness Index?","Gujarat"],
+[2,"Which city topped TimeOut's World's Happiest Cities 2026 list?","Bath, United Kingdom"],
+[2,"Which country was ranked the world's largest supplier of seafarers in the 2026 Seafarer Workforce Report?","Philippines"],
+[2,"What was India's rank and share in the 2026 Seafarer Workforce Report (BIMCO/ICS)?","2nd, with a 12.16% share"],
+[2,"Per the Global Air Powers Ranking 2026, what rank does the Indian Air Force hold among the world's air forces, behind only the US and Russia?","3rd"],
+[2,"Which real estate company topped the India Real Estate 150 (Grohe-Hurun) list?","DLF"],
+[2,"Who topped Fortune India's 'India's Most Powerful Women 2026' list?","Nita Ambani"],
+[2,"Who released the Global Liveability Index 2026?","Economist Intelligence Unit (EIU)"],
+[2,"Which region remained the most liveable in the Global Liveability Index 2026?","Western Europe"],
+[2,"Per the SOFI 2026 report, what share of the world's population experienced hunger in 2025?","7.8% (~645 million people)"],
+[2,"Which economy showed the fastest-growing intangible investment per the WIPO/Luiss World Intangible Investment Highlights 2026 report?","India"],
+[2,"Per the EAC-PM's 'Relative Economic Performance of Indian States' report, what was India's estimated per-capita income for FY2025\u201326?","\u20b92,19,575"],
+[2,"Which university topped the Times Higher Education Sustainability Impact Rankings 2026?","University of Manchester"],
+[2,"Per the ILO, what share of India's population was covered by social protection systems in 2026, up from 19% in 2015?","68.4% (over one billion people)"],
+[2,"Per the SDG-NIF Progress Report 2026, India's Maternal Mortality Ratio declined from 122 to what figure, per 100,000 live births?","87 (between 2015\u201317 and 2022\u201324)"],
+[2,"Who releases the SDG\u2013National Indicator Framework Progress Report?","National Statistical Office (NSO), MoSPI"],
+[3,"What is the base year for the Cost Inflation Index (CII), where the index value is set at 100?","2001\u201302"],
+[3,"Under RBI's Basel III framework, what is the minimum CET1 ratio required, as a share of Risk-Weighted Assets?","5.5%"],
+[3,"What is the minimum Tier 1 capital ratio under RBI's Basel III framework?","7%"],
+[3,"Including the Capital Conservation Buffer, what is the total capital requirement under RBI's Basel III framework?","11.5% of Risk-Weighted Assets"],
+[3,"AT1 (Additional Tier 1) bonds are typically structured as:","Perpetual, subordinated, and unsecured"],
+[3,"What does SARFAESI stand for?","Securitisation and Reconstruction of Financial Assets and Enforcement of Security Interest Act, 2002"],
+[3,"In which year was the SARFAESI Act enacted?","2002"],
+[3,"Under RBI's NBFC classification, what minimum share of total assets must a Housing Finance Company deploy in housing finance?","At least 60%"],
+[3,"What minimum net worth defines a Core Investment Company (CIC) under RBI's NBFC framework?","\u20b9100 crore"],
+[3,"REITs (Real Estate Investment Trusts) are registered and regulated by which body?","SEBI"],
+[3,"CKYC assigns each customer a unique KYC Identification Number (KIN) of how many digits?","14"],
+[3,"In which year did RBI introduce TReDS (Trade Receivables Discounting System)?","2014"],
+[3,"What is the minimum net worth requirement for TReDS platform applicants?","\u20b925 crore"],
+[3,"What does GMTN \u2014 the programme ICICI Bank needed to renew before its proposed $500 million bond issue \u2014 stand for?","Global Medium-Term Note programme"],
+[3,"What does ISIN stand for?","International Securities Identification Number \u2014 a 12-character unique ID for each security"],
+[3,"Under SEBI's PMS Regulations, what are the three types of Portfolio Management Service?","Discretionary, Non-Discretionary, and Advisory"],
+[3,"What is the minimum investment for regular (non-MF) Portfolio Management Services under current SEBI rules?","\u20b950 lakh"],
+[3,"What is the minimum investment for a SEBI Specialised Investment Fund (SIF)?","\u20b910 lakh"],
+[4,"Who was appointed the new CEO of NITI Aayog, replacing Nidhi Chhibber?","Anurag Jain"],
+[4,"Ravi Agrawal was re-appointed for a six-month term as Chairman of which body?","The Central Board of Direct Taxes (CBDT)"],
+[4,"Who was appointed Director of the Financial Intelligence Unit\u2013India (FIU-IND)?","Satya Pal Kumar"],
+[4,"Who was appointed Interim President of FIDE (International Chess Federation), succeeding Arkady Dvorkovich?","Viswanathan Anand"],
+[4,"NPCI's MD & CEO, Dilip Asbe, was appointed to which global body's Supervisory Board?","SWIFT's Global Supervisory Board"],
+[4,"Who was given additional charge of the Union Ministry of Education, succeeding Dharmendra Pradhan?","Pralhad Joshi"],
+[4,"Former ISRO Chairman Dr. S. Somanath joined the board of which spacetech startup, as an Observer ahead of its Mission 02 booster-recovery attempt?","Agnikul Cosmos"],
+[4,"Per this booster, who became UK Prime Minister and Labour Party leader, succeeding Keir Starmer?","Andy Burnham"],
+[5,"At the Best Egmont Case Award (BECA) 2026, which Indian agency won the runner-up position?","The Financial Intelligence Unit\u2013India (FIU-IND)"],
+[5,"Which film won Best Feature Film at the 72nd National Film Awards (for 2024)?","Article 370"],
+[5,"The US-India Strategic Partnership Forum's 2026 Leadership Award went to which Bharti Enterprises founder?","Sunil Bharti Mittal"],
+[5,"Yu Deng, John Pardon, and which other mathematician were among the 2026 Fields Medal recipients?","Jacob Tsimerman"],
+[5,"The AAPI Humanitarian Award 2026 was given to which Reliance Foundation chairperson?","Nita M. Ambani"],
+[5,"Which state received the Agriculture Leadership Award 2026, for excellence in horticulture?","Gujarat"],
+[5,"The 2025 UNESCO Asia-Pacific Award of Merit for Cultural Heritage Conservation went to a restored Buddhist monastery in which country?","Nepal (Jestha Varna Mahavihar, Lalitpur)"],
+[5,"Which institute swept first place in all four categories of the Bharat 6G Alliance's 5G Labs Excellence Awards?","IIITDM Kurnool"],
+[6,"What is the name of India's first privately developed orbital rocket, launched by Skyroot Aerospace?","Vikram-1"],
+[6,"India's first hydrogen-powered train, piloted on the Jind\u2013Sonipat section in Haryana, is known as the:","NaMo Green Rail"],
+[6,"India's first-ever statutory nationwide wage benchmark, now being fixed by the Centre, is called the:","National Floor Wage (under the Code on Wages, 2019)"],
+[6,"NSE's first exchange-traded natural-gas futures contract, linked to a domestic benchmark, trades under which symbol?","NATGASIND"],
+[6,"Which company became India's first non-bank entity to receive RBI approval for trade remittances?","EbixCash World Money Limited"],
+[6,"Which port became India's second Major Port with 18-metre draft capability, after Visakhapatnam?","Kamarajar Port, Chennai"],
+[6,"India's first dedicated academic and operational department focused exclusively on military medicine was set up at which hospital?","Command Hospital (Central Command), Lucknow"],
+[6,"Aswath S became India's how-many-th Chess Grandmaster?","98th"],
+[6,"Which private-sector bank received its first-ever international investment-grade issuer rating in 2026?","Federal Bank"],
+[7,"Who broke Sachin Tendulkar's 37-year-old record to become the youngest player to make an international debut for India (T20I, age 15 years 99 days)?","Vaibhav Sooryavanshi"],
+[7,"Which Spain goalkeeper set the longest shutout streak in World Cup history \u2014 519 consecutive minutes \u2014 breaking Walter Zenga's 36-year-old record?","Unai Sim\u00f3n"],
+[7,"Who became the oldest goalscorer in FIFA World Cup knockout-stage history, at 41 years and 147 days, surpassing Lionel Messi?","Cristiano Ronaldo"],
+[7,"Sourav Ganguly, Anjum Chopra, and Kevin Pietersen were inducted into which body's Hall of Fame as the Class of 2026?","The ICC (International Cricket Council)"],
+[7,"Anjum Chopra became only the third Indian woman cricketer inducted into the ICC Hall of Fame, after Diana Edulji and which other pioneer?","Neetu David"],
+[7,"Which Nagaland-born Para athlete became World No. 1 in men's Shot Put F57 and the first Paralympian to receive the Ati Vishisht Seva Medal?","Hokato Hotozhe Sema"],
+[7,"Which state will host the 8th Khelo India Youth Games 2026, becoming the second southern state to host it within three years?","Telangana"],
+[8,"The Geological Survey of India discovered significant thorium deposits in Gundlupet taluk \u2014 in which state?","Karnataka"],
+[8,"India and Indonesia agreed to jointly develop which strategically located port near the Strait of Malacca?","Sabang Port"],
+[8,"'Pickaxe Mountain' (K\u016bh-e Kolang) \u2014 an underground nuclear facility in the news \u2014 is located in which country?","Iran"],
+[8,"The Himalayan Chandra Telescope, marking 25 years of operations, is located at Hanle in which Union Territory?","Ladakh"],
+[9,"What was the theme of International Day of Cooperatives 2026 (4 July)?","'Cooperatives for a Peaceful World!'"],
+[9,"What was the theme of World Population Day 2026 (11 July)?","'Realizing the hopes and aspirations of young people \u2013 today and for the future'"],
+[9,"What was the theme of World Youth Skills Day 2026 (15 July)?","'Skills for a shared future'"],
+[9,"What was the theme of AI Appreciation Day 2026 (16 July)?","'Responsible AI for a human-first future'"],
+[9,"Day of International Criminal Justice (17 July) marks the anniversary of the adoption of which 1998 statute?","The Rome Statute"],
+[9,"National CA Day (1 July) commemorates the founding of ICAI \u2014 established in which year?","1949"],
+[9,"National Fish Farmers Day (10 July) commemorates a 1957 breakthrough by Dr. Hiralal Chaudhury and which other scientist?","Dr. K.H. Alikunhi"],
+[10,"India holds the BRICS Chairship for 2026 under what theme?","'Building for Resilience, Innovation, Cooperation and Sustainability'"],
+[10,"How many times had India previously held the BRICS Chairship before 2026?","3 times (2012, 2016, 2021)"],
+[10,"Where is the BRICS New Development Bank (NDB) headquartered?","Shanghai, China"],
+[10,"Who is the current President of the New Development Bank (NDB)?","Dilma Rousseff"],
+[10,"The CCI approved the \u20b916,660-crore acquisition of which IPL franchise?","Royal Challengers Bangalore (RCB)"],
+[10,"BPCL raised its ownership in IBV Brasil Petr\u00f3leo Limitada to 100% through a deal worth approximately how much?","\u20b92,312 crore"],
+[10,"MECON Limited was granted which upgraded CPSE status, based on its \u20b9535.42 crore net worth?","Miniratna Category-I"]
+];
+
+/* ===== END CARD DATA ===== */
+
+const TAG = "Jul 2026";
+const STORAGE_KEY = "sebi-ga-jul2026-progress";
+
+const CARDS = CARDS_RAW.map(function (row, i) {
+  return { id: i, topic: TOPICS[row[0]], front: row[1], back: row[2] };
+});
+
+const TOPIC_COUNTS = {};
+TOPICS.forEach(function (t) {
+  TOPIC_COUNTS[t] = CARDS.filter(function (c) { return c.topic === t; }).length;
+});
+
+function loadProgress() {
+  try {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) {
+    return {};
+  }
+}
+var storageOK = true;
+function saveProgress(p) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  } catch (e) {
+    storageOK = false;
+    updateFooter();
+  }
+}
+
+function shuffleArray(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+  }
+  return a;
+}
+
+var state = {
+  activeTopic: "All",
+  reviewOnly: false,
+  order: CARDS.map(function (c) { return c.id; }),
+  pos: 0,
+  flipped: false,
+  progress: loadProgress()
+};
+
+function getFilteredIds() {
+  var list = CARDS;
+  if (state.activeTopic !== "All") {
+    list = list.filter(function (c) { return c.topic === state.activeTopic; });
+  }
+  if (state.reviewOnly) {
+    list = list.filter(function (c) { return state.progress[c.id] !== "known"; });
+  }
+  return list.map(function (c) { return c.id; });
+}
+
+function getVisibleOrder() {
+  var filtered = getFilteredIds();
+  return state.order.filter(function (id) { return filtered.indexOf(id) !== -1; });
+}
+
+function byId(id) {
+  return CARDS[id];
+}
+
+function knownCount() {
+  var n = 0;
+  for (var k in state.progress) {
+    if (state.progress[k] === "known") n++;
+  }
+  return n;
+}
+
+/* ---------- DOM refs ---------- */
+var el = {
+  subtitle: document.getElementById("subtitle"),
+  knownStat: document.getElementById("known-stat"),
+  pills: document.getElementById("topic-pills"),
+  reviewToggle: document.getElementById("review-toggle"),
+  shuffleBtn: document.getElementById("shuffle-btn"),
+  resetOrderBtn: document.getElementById("reset-order-btn"),
+  resetProgressBtn: document.getElementById("reset-progress-btn"),
+  cardArea: document.getElementById("card-area"),
+  flipOuter: document.getElementById("flip-outer"),
+  flipInner: document.getElementById("flip-inner"),
+  frontTopic: document.getElementById("front-topic"),
+  frontTag: document.getElementById("front-tag"),
+  frontText: document.getElementById("front-text"),
+  backTag: document.getElementById("back-tag"),
+  backText: document.getElementById("back-text"),
+  markRow: document.getElementById("mark-row"),
+  markLearning: document.getElementById("mark-learning"),
+  markKnown: document.getElementById("mark-known"),
+  navRow: document.getElementById("nav-row"),
+  prevBtn: document.getElementById("prev-btn"),
+  nextBtn: document.getElementById("next-btn"),
+  posCounter: document.getElementById("pos-counter"),
+  emptyState: document.getElementById("empty-state"),
+  footerHint: document.getElementById("footer-hint")
+};
+
+function updateFooter() {
+  if (!storageOK) {
+    el.footerHint.textContent = "Space to flip \u00b7 \u2190 \u2192 to move \u00b7 progress isn't saving in this browser, but the deck still works";
+    el.footerHint.classList.add("warn");
+  } else {
+    el.footerHint.textContent = "Space to flip \u00b7 \u2190 \u2192 to move";
+    el.footerHint.classList.remove("warn");
+  }
+}
+
+function renderPills() {
+  el.pills.innerHTML = "";
+  var all = ["All"].concat(TOPICS);
+  all.forEach(function (topic) {
+    var btn = document.createElement("button");
+    btn.className = "pill" + (state.activeTopic === topic ? " active" : "");
+    var count = topic === "All" ? CARDS.length : TOPIC_COUNTS[topic];
+    btn.innerHTML = topic + ' <span class="count">' + count + "</span>";
+    btn.addEventListener("click", function () {
+      state.activeTopic = topic;
+      state.pos = 0;
+      state.flipped = false;
+      render();
+    });
+    el.pills.appendChild(btn);
+  });
+}
+
+function render() {
+  el.subtitle.textContent = "General Awareness \u00b7 " + TAG + " booster \u00b7 " + CARDS.length + " cards";
+  el.knownStat.textContent = knownCount() + " of " + CARDS.length + " marked known";
+  el.reviewToggle.checked = state.reviewOnly;
+
+  var visible = getVisibleOrder();
+  var total = visible.length;
+  var safePos = total === 0 ? 0 : Math.min(state.pos, total - 1);
+  state.pos = safePos;
+
+  Array.prototype.forEach.call(el.pills.children, function (btn, idx) {
+    var topic = (["All"].concat(TOPICS))[idx];
+    btn.classList.toggle("active", state.activeTopic === topic);
+  });
+
+  if (total === 0) {
+    el.cardArea.style.display = "none";
+    el.markRow.style.display = "none";
+    el.navRow.style.display = "none";
+    el.emptyState.style.display = "block";
+    return;
+  }
+
+  el.cardArea.style.display = "block";
+  el.navRow.style.display = "flex";
+  el.emptyState.style.display = "none";
+
+  var currentId = visible[safePos];
+  var current = byId(currentId);
+
+  el.frontTopic.textContent = current.topic;
+  el.frontTag.textContent = TAG;
+  el.frontText.textContent = current.front;
+  el.backTag.textContent = TAG;
+  el.backText.textContent = current.back;
+
+  el.flipInner.classList.toggle("flipped", state.flipped);
+  el.markRow.style.display = state.flipped ? "flex" : "none";
+  el.posCounter.textContent = (safePos + 1) + " / " + total;
+}
+
+function goNext() {
+  var visible = getVisibleOrder();
+  var total = visible.length;
+  state.flipped = false;
+  state.pos = total === 0 ? 0 : (state.pos + 1) % total;
+  render();
+}
+function goPrev() {
+  var visible = getVisibleOrder();
+  var total = visible.length;
+  state.flipped = false;
+  state.pos = total === 0 ? 0 : (state.pos - 1 + total) % total;
+  render();
+}
+function toggleFlip() {
+  var visible = getVisibleOrder();
+  if (visible.length === 0) return;
+  state.flipped = !state.flipped;
+  render();
+}
+function mark(value) {
+  var visible = getVisibleOrder();
+  if (visible.length === 0) return;
+  var currentId = visible[Math.min(state.pos, visible.length - 1)];
+  state.progress[currentId] = value;
+  saveProgress(state.progress);
+  goNext();
+}
+
+el.flipOuter.addEventListener("click", toggleFlip);
+el.reviewToggle.addEventListener("change", function (e) {
+  state.reviewOnly = e.target.checked;
+  state.pos = 0;
+  state.flipped = false;
+  render();
+});
+el.shuffleBtn.addEventListener("click", function () {
+  state.order = shuffleArray(CARDS.map(function (c) { return c.id; }));
+  state.pos = 0;
+  state.flipped = false;
+  render();
+});
+el.resetOrderBtn.addEventListener("click", function () {
+  state.order = CARDS.map(function (c) { return c.id; });
+  state.pos = 0;
+  state.flipped = false;
+  render();
+});
+el.resetProgressBtn.addEventListener("click", function () {
+  if (window.confirm("Clear all saved progress for this deck? This can't be undone.")) {
+    state.progress = {};
+    saveProgress(state.progress);
+    render();
+  }
+});
+el.markLearning.addEventListener("click", function (e) { e.stopPropagation(); mark("learning"); });
+el.markKnown.addEventListener("click", function (e) { e.stopPropagation(); mark("known"); });
+el.prevBtn.addEventListener("click", function (e) { e.stopPropagation(); goPrev(); });
+el.nextBtn.addEventListener("click", function (e) { e.stopPropagation(); goNext(); });
+
+document.addEventListener("keydown", function (e) {
+  if (e.code === "Space") { e.preventDefault(); toggleFlip(); }
+  else if (e.code === "ArrowRight") { goNext(); }
+  else if (e.code === "ArrowLeft") { goPrev(); }
+});
+
+renderPills();
+updateFooter();
+render();
+</script>
+</body>
+</html>
