@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lean System &amp; Innovation flashcards (Oct 2026)</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#EEF1F5; --surface:#FFFFFF; --surface-2:#F5F7FA; --ink:#18233A; --muted:#5B6578; --line:#D5DBE5;
+  --fact:#2F4B7C; --trap:#7A3E9D; --concept:#0F766E; --changed:#D9480F;
+  --known:#2B8A3E; --learning:#A35F00; --star:#8A6A00; --focus:#2F6FEB; --on-solid:#FFFFFF;
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0F1522; --surface:#182133; --surface-2:#1E293D; --ink:#E7EBF2; --muted:#A3ACBE; --line:#2C3852;
+  --fact:#9DB8EA; --trap:#D1A3EC; --concept:#5ED0C2; --changed:#FF8A4C;
+  --known:#6CC77D; --learning:#F0B44C; --star:#E8C547; --focus:#7AA7FF; --on-solid:#0F1522;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans","Helvetica Neue",Arial,sans-serif;
+  font-size:16px; line-height:1.5; -webkit-text-size-adjust:100%; overflow-x:hidden;
+}
+.wrap{max-width:640px;margin:0 auto;padding:16px 14px calc(28px + env(safe-area-inset-bottom,0px))}
+header h1{font-size:1.3rem;line-height:1.25;margin:0;font-weight:750;letter-spacing:-0.01em}
+header p{margin:4px 0 0;color:var(--muted);font-size:.875rem}
+.banner{margin:12px 0 0;padding:10px 12px;border:1px solid var(--learning);border-radius:10px;color:var(--ink);background:var(--surface);font-size:.875rem}
+.banner[hidden]{display:none}
+
+.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:14px 0}
+.stat{background:var(--surface);padding:8px 2px 6px;text-align:center;min-width:0}
+.stat b{display:block;font-size:1.05rem;font-variant-numeric:tabular-nums;line-height:1.3}
+.stat span{display:block;font-size:.7rem;color:var(--muted);line-height:1.25}
+.stat.k b{color:var(--known)} .stat.l b{color:var(--learning)}
+
+details.filters{background:var(--surface);border:1px solid var(--line);border-radius:10px;margin-bottom:14px}
+details.filters>summary{cursor:pointer;padding:10px 14px;font-weight:650;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:48px}
+details.filters>summary::-webkit-details-marker{display:none}
+details.filters>summary::after{content:"";width:9px;height:9px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);margin-right:4px;flex:none}
+details.filters[open]>summary::after{transform:rotate(-135deg)}
+.fsum{font-weight:500;color:var(--muted);font-size:.85rem;margin-left:auto;text-align:right}
+.fbody{padding:2px 14px 14px;border-top:1px solid var(--line)}
+fieldset{border:0;margin:14px 0 0;padding:0;min-width:0}
+legend{font-size:.82rem;color:var(--muted);font-weight:650;margin-bottom:4px;padding:0}
+.chk{display:flex;align-items:flex-start;gap:10px;padding:7px 0;min-height:40px;cursor:pointer;font-size:.92rem}
+.chk input{width:20px;height:20px;margin:1px 0 0;flex:none;accent-color:var(--fact)}
+.chk .lbl{flex:1;min-width:0;overflow-wrap:anywhere}
+.chk .cnt{color:var(--muted);font-variant-numeric:tabular-nums;padding-left:8px;flex:none}
+.topiclist{border-top:1px solid var(--line);margin-top:4px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg label{position:relative}
+.seg input{position:absolute;opacity:0;width:1px;height:1px}
+.seg span{display:inline-flex;align-items:center;min-height:40px;padding:6px 14px;border:1px solid var(--line);border-radius:999px;font-size:.9rem;cursor:pointer;background:var(--surface-2)}
+.seg input:checked+span{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.seg input:focus-visible+span{outline:3px solid var(--focus);outline-offset:2px}
+.fclear{margin-top:14px;width:100%}
+
+.card{
+  --accent:var(--fact);
+  background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--accent);border-radius:12px;
+  padding:14px 16px 14px;min-height:min(52vh,460px);display:flex;flex-direction:column;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;outline:none;user-select:text;
+}
+.card[data-type="trap"]{--accent:var(--trap)}
+.card[data-type="concept"]{--accent:var(--concept)}
+.card:focus-visible{box-shadow:0 0 0 3px var(--focus)}
+.card.empty{cursor:default;border-left-color:var(--line);justify-content:center;align-items:flex-start;gap:12px}
+.meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.badge{font-size:.74rem;font-weight:650;padding:2px 8px;border-radius:999px;border:1px solid currentColor;line-height:1.35;max-width:100%;overflow-wrap:anywhere}
+.b-type{color:var(--accent)}
+.b-star{color:var(--star)}
+.b-pyq{color:var(--muted);font-weight:550;border-radius:8px}
+.b-changed{color:var(--changed);border:2px solid var(--changed);border-radius:4px;font-weight:800;letter-spacing:.06em;transform:rotate(-2.5deg);padding:1px 7px}
+.topic{font-size:.8rem;color:var(--muted);margin:8px 0 0;overflow-wrap:anywhere}
+.q{font-size:1.2rem;font-weight:650;line-height:1.42;margin:14px 0 0;overflow-wrap:anywhere}
+.hint{margin-top:auto;padding-top:18px;color:var(--muted);font-size:.85rem}
+.a{display:none;margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.card.flipped .a{display:block}
+.card.flipped .hint{display:none}
+.ans{font-size:1.14rem;line-height:1.5;overflow-wrap:anywhere}
+.ans strong{font-weight:800}
+.card[data-type="concept"] .ans{font-size:1.02rem;line-height:1.6}
+.note{margin-top:10px;font-size:.82rem;line-height:1.45;color:var(--muted);overflow-wrap:anywhere}
+.cfoot{display:flex;justify-content:space-between;gap:10px;margin-top:16px;font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.cfoot .s-known{color:var(--known);font-weight:650}
+.cfoot .s-learning{color:var(--learning);font-weight:650}
+@media (prefers-reduced-motion:no-preference){
+  .card.flipped .a{animation:reveal .16s ease-out}
+  @keyframes reveal{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+}
+
+.controls{display:grid;gap:8px;margin-top:12px}
+.row{display:grid;gap:8px}
+.row.nav{grid-template-columns:1fr 1.35fr 1fr}
+.row.mark{grid-template-columns:1fr 1fr}
+.row.tools{grid-template-columns:repeat(4,minmax(0,1fr))}
+button{
+  font:inherit;min-height:48px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  font-weight:650;padding:8px 10px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+}
+button:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+button:disabled{opacity:.45;cursor:default}
+.b-flip{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.b-known{background:var(--known);border-color:var(--known);color:var(--on-solid)}
+.b-learn{background:var(--surface);border:2px solid var(--learning);color:var(--learning)}
+.row.tools button{font-size:.82rem;font-weight:550;color:var(--muted);min-height:44px;padding:6px 4px}
+.kbd{display:none;margin:12px 0 0;font-size:.8rem;color:var(--muted)}
+@media (hover:hover) and (pointer:fine){.kbd{display:block}}
+@media (max-width:380px){
+  .row.tools{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .q{font-size:1.12rem}
+}
+.modal{position:fixed;inset:0;background:rgba(10,14,24,.55);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+.modal[hidden]{display:none}
+.mbox{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:18px;max-width:420px;width:100%}
+.mbox h2{font-size:1.1rem;margin:0 0 6px}
+.mbox p{margin:0 0 16px;color:var(--muted);font-size:.92rem}
+.b-danger{background:var(--changed);border-color:var(--changed);color:var(--on-solid)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Lean System &amp; Innovation</h1>
+    <p id="sub">PFRDA Phase I Paper 2, Costing</p>
+    <p class="banner" id="banner" hidden>Progress can't be saved in this browser view, so your marks will reset when the page closes.</p>
+  </header>
+
+  <div class="stats" aria-live="polite">
+    <div class="stat"><b id="sTotal">0</b><span>In filter</span></div>
+    <div class="stat"><b id="sUnseen">0</b><span>Unseen</span></div>
+    <div class="stat l"><b id="sLearn">0</b><span>Still learning</span></div>
+    <div class="stat k"><b id="sKnown">0</b><span>Known</span></div>
+    <div class="stat"><b id="sPct">0%</b><span>Known</span></div>
+  </div>
+
+  <details class="filters" id="filters">
+    <summary><span>Filters</span><span class="fsum" id="fsum">All cards</span></summary>
+    <div class="fbody">
+      <fieldset>
+        <legend>Topic</legend>
+        <label class="chk"><input type="checkbox" id="tAll" checked><span class="lbl">All topics</span><span class="cnt" id="tAllCnt"></span></label>
+        <div class="topiclist" id="topicList"></div>
+      </fieldset>
+      <fieldset>
+        <legend>Card type</legend>
+        <div class="seg" id="typeSeg">
+          <label><input type="radio" name="type" value="all" checked><span>All</span></label>
+          <label><input type="radio" name="type" value="fact"><span>Fact</span></label>
+          <label><input type="radio" name="type" value="trap"><span>Trap</span></label>
+          <label><input type="radio" name="type" value="concept"><span>Concept</span></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Status</legend>
+        <div class="seg" id="statusSeg">
+          <label><input type="radio" name="status" value="all" checked><span>All</span></label>
+          <label><input type="radio" name="status" value="unseen"><span>Unseen</span></label>
+          <label><input type="radio" name="status" value="learning"><span>Still learning</span></label>
+          <label><input type="radio" name="status" value="known"><span>Known</span></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Only show</legend>
+        <label class="chk"><input type="checkbox" id="fHi"><span class="lbl">★ High-yield cards</span></label>
+        <label class="chk"><input type="checkbox" id="fPyq"><span class="lbl">Cards tagged as asked or reported in a PYQ</span></label>
+      </fieldset>
+      <button type="button" class="fclear" id="fClear">Clear filters</button>
+    </div>
+  </details>
+
+  <main>
+    <div class="card" id="card" tabindex="0" role="button" aria-expanded="false"></div>
+  </main>
+
+  <div class="controls">
+    <div class="row nav">
+      <button type="button" id="bPrev">Prev</button>
+      <button type="button" class="b-flip" id="bFlip">Show answer</button>
+      <button type="button" id="bNext">Next</button>
+    </div>
+    <div class="row mark">
+      <button type="button" class="b-learn" id="bLearn">Still learning</button>
+      <button type="button" class="b-known" id="bKnown">Known</button>
+    </div>
+    <div class="row tools">
+      <button type="button" id="bShuffle">Shuffle</button>
+      <button type="button" id="bOrder">Reset order</button>
+      <button type="button" id="bReset">Reset progress</button>
+      <button type="button" id="bTheme">Dark theme</button>
+    </div>
+  </div>
+  <p class="kbd">Keyboard: left and right arrows to move, Space or Enter to flip, K for known, L for still learning.</p>
+</div>
+
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="mbox">
+    <h2 id="mTitle">Reset progress?</h2>
+    <p id="mText">This clears every Known and Still learning mark saved in this browser.</p>
+    <div class="row mark">
+      <button type="button" id="mCancel">Cancel</button>
+      <button type="button" class="b-danger" id="mOk">Reset progress</button>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" id="cards-data">[{"id": "L01-01", "section": "1 Introduction", "topic": "1 Lean — Meaning & Pillars", "type": "fact", "star": "md", "front": "What is 'Lean', in one line?", "back": "Doing **more and more with less and less** (less human effort, equipment, time and space) while coming closer to giving customers exactly what they want.", "pyq": "Asked: PFRDA 2022 Ph-I", "changed": false, "note": "PYQ wording of the same idea (a true statement): maximizing productivity while simultaneously minimizing waste."}, {"id": "L01-02", "section": "1 Introduction", "topic": "1 Lean — Meaning & Pillars", "type": "fact", "star": "md", "front": "What are the two main pillars of the Lean methodology?", "back": "**Respect for people** and **continuous improvement**.", "pyq": "Asked: PFRDA 2025 Ph-I", "changed": false, "note": ""}, {"id": "L02-01", "section": "2 Lean Manufacturing", "topic": "2 Lean Manufacturing — TPS & Waste", "type": "fact", "star": "md", "front": "Lean manufacturing grew out of which production system?", "back": "The **Toyota Production System (TPS)**.", "pyq": "", "changed": false, "note": ""}, {"id": "L02-02", "section": "2 Lean Manufacturing", "topic": "2 Lean Manufacturing — TPS & Waste", "type": "fact", "star": "md", "front": "Who developed the Toyota Production System?", "back": "**Taiichi Ohno**", "pyq": "", "changed": false, "note": ""}, {"id": "L02-03", "section": "2 Lean Manufacturing", "topic": "2 Lean Manufacturing — TPS & Waste", "type": "fact", "star": "md", "front": "Who renamed TPS 'Lean Manufacturing'?", "back": "**John Krafcik**", "pyq": "", "changed": false, "note": ""}, {"id": "L02-04", "section": "2 Lean Manufacturing", "topic": "2 Lean Manufacturing — TPS & Waste", "type": "fact", "star": "hi", "front": "In Lean, what counts as waste?", "back": "Any activity that **consumes resources but adds no value** the customer is willing to pay for.", "pyq": "Asked: PFRDA 2022 Ph-I", "changed": false, "note": ""}, {"id": "L02-05", "section": "2 Lean Manufacturing", "topic": "2 Lean Manufacturing — TPS & Waste", "type": "fact", "star": "hi", "front": "How many types of waste (Muda) does Lean manufacturing identify?", "back": "**7**", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "The PYQ answer key prints Option A (3); its own explanation and the summary both give 7."}, {"id": "L02-06", "section": "2 Lean Manufacturing", "topic": "2 Lean Manufacturing — TPS & Waste", "type": "fact", "star": "md", "front": "Name the 7 wastes (Muda).", "back": "Overproduction, waiting, transport, incorrect (over-)processing, excess inventory, motion, defects.", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "The PYQ explanation's order (Transport, Inventory, Motion, Waiting, Overproduction, Over-processing, Defects) gives the initials T-I-M-W-O-O-D."}, {"id": "L02-07", "section": "2 Lean Manufacturing", "topic": "2 Lean Manufacturing — TPS & Waste", "type": "trap", "star": "hi", "front": "Lean 'waste' numbers 3, 6, 7 and 10: what does each count?", "back": "**7** = the classic wastes (Muda). **3** = Muda, Mura, Muri. **6** = TPM's big losses. **10** = EduTap's extended waste list (the 7 plus 3 people-related wastes).", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "PYQ options were 3, 6, 7, 8 and 9."}, {"id": "L02-08", "section": "2 Lean Manufacturing", "topic": "2 Lean Manufacturing — TPS & Waste", "type": "fact", "star": "md", "front": "What does Muda mean?", "back": "**Waste**: wastefulness, uselessness; any activity that adds no value.", "pyq": "", "changed": false, "note": "A wrong option for 'change for better' in SEBI 2022 Ph-I."}, {"id": "L02-09", "section": "2 Lean Manufacturing", "topic": "2 Lean Manufacturing — TPS & Waste", "type": "trap", "star": "md", "front": "Muda, Mura, Muri: which is waste, which is unevenness, which is overburden?", "back": "**Muda** = waste. **Mura** = unevenness, irregularity (and it drives Muda). **Muri** = overburden on people or machines.", "pyq": "", "changed": false, "note": "The PDF's truck picture (6 t to move, trucks hold 3 t): Muri = one overloaded truck; Mura = uneven loads; Muda = three part-filled trucks; ideal = two full trucks."}, {"id": "L03-01", "section": "2 Lean Manufacturing", "topic": "2.1 Principles of Lean Manufacturing", "type": "fact", "star": "hi", "front": "List the 5 principles of Lean manufacturing, in order.", "back": "Identify value → Value stream mapping → Create flow → Create a pull system → Continuous improvement (perfection).", "pyq": "Asked: SEBI 2022 Ph-I", "changed": false, "note": ""}, {"id": "L03-02", "section": "2 Lean Manufacturing", "topic": "2.1 Principles of Lean Manufacturing", "type": "fact", "star": "hi", "front": "Is Lean based on a push or a pull system?", "back": "**Pull**: work starts only when there is actual demand for it.", "pyq": "Asked: SEBI 2022 Ph-I, PFRDA 2022 Ph-I, PFRDA 2025 Ph-I", "changed": false, "note": "'Push system' was the planted wrong answer all three times."}, {"id": "L03-03", "section": "2 Lean Manufacturing", "topic": "2.1 Principles of Lean Manufacturing", "type": "trap", "star": "md", "front": "Push vs pull: what triggers production in each?", "back": "**Push**: a forecast. Goods are made, then pushed to market, causing overproduction and excess inventory. **Pull**: actual demand. Nothing is made until an order or signal arrives.", "pyq": "Asked: PFRDA 2025 Ph-I", "changed": false, "note": "Push description: PYQ explanation (PFRDA 2025 Ph-I)."}, {"id": "L04-01", "section": "3 Tools of Lean", "topic": "3 Tools of Lean — The Lean House", "type": "fact", "star": "hi", "front": "What are the two pillars of the Lean tools house?", "back": "**JIT** and **Jidoka**.", "pyq": "", "changed": false, "note": ""}, {"id": "L04-02", "section": "3 Tools of Lean", "topic": "3 Tools of Lean — The Lean House", "type": "trap", "star": "md", "front": "'The two pillars of Lean': the methodology pair or the tools pair?", "back": "**Methodology**: respect for people + continuous improvement. **Tools house**: JIT + Jidoka, standing on a base of stability and standardization (5S, TPM, standard operations, Kaizen).", "pyq": "", "changed": false, "note": ""}, {"id": "L04-03", "section": "3 Tools of Lean", "topic": "3 Tools of Lean — The Lean House", "type": "trap", "star": "md", "front": "Heijunka, SMED, takt time vs Poka-yoke, Andon, 5 Whys: which pillar holds each group?", "back": "**JIT**: pull, flow, takt time, Heijunka, cell design, SMED. **Jidoka**: Poka-yoke, Andon, autonomation, 5 Whys, line stops, built-in quality.", "pyq": "", "changed": false, "note": ""}, {"id": "L05-01", "section": "3 Tools of Lean", "topic": "3.1 5S & CANDO", "type": "fact", "star": "hi", "front": "5S is primarily a tool for what?", "back": "**Workplace organization**.", "pyq": "Asked: SEBI 2025 Ph-I", "changed": false, "note": "Wrong options: inventory, production, system and supply organization."}, {"id": "L05-02", "section": "3 Tools of Lean", "topic": "3.1 5S & CANDO", "type": "fact", "star": "hi", "front": "List the 5S in order, Japanese → English.", "back": "Seiri – Sort; Seiton – Set in order; Seiso – Shine; Seiketsu – Standardize; Shitsuke – Sustain.", "pyq": "Asked: SEBI 2022 Ph-I, PFRDA 2022 Ph-I, SEBI 2025 Ph-I", "changed": false, "note": ""}, {"id": "L05-03", "section": "3 Tools of Lean", "topic": "3.1 5S & CANDO", "type": "fact", "star": "md", "front": "Seiri means?", "back": "**Sort** (1st S): keep what's needed, throw out what's useless.", "pyq": "Asked: PFRDA 2022 Ph-I", "changed": false, "note": ""}, {"id": "L05-04", "section": "3 Tools of Lean", "topic": "3.1 5S & CANDO", "type": "fact", "star": "md", "front": "Seiton means?", "back": "**Set in order / Straighten** (2nd S): every item has its own place.", "pyq": "Asked: PFRDA 2022 Ph-I", "changed": false, "note": ""}, {"id": "L05-05", "section": "3 Tools of Lean", "topic": "3.1 5S & CANDO", "type": "fact", "star": "md", "front": "Seiso means?", "back": "**Shine** (3rd S): sweep, clean and check the workplace.", "pyq": "Asked: PFRDA 2022 Ph-I", "changed": false, "note": ""}, {"id": "L05-06", "section": "3 Tools of Lean", "topic": "3.1 5S & CANDO", "type": "fact", "star": "md", "front": "Seiketsu means?", "back": "**Standardize** (4th S): standard rules that turn the first three S into habits.", "pyq": "Asked: PFRDA 2022 Ph-I", "changed": false, "note": ""}, {"id": "L05-07", "section": "3 Tools of Lean", "topic": "3.1 5S & CANDO", "type": "fact", "star": "md", "front": "Shitsuke means?", "back": "**Sustain** (5th S): self-discipline.", "pyq": "Asked: PFRDA 2022 Ph-I", "changed": false, "note": "PFRDA 2022's planted wrong meaning: 'Sincerity'."}, {"id": "L05-08", "section": "3 Tools of Lean", "topic": "3.1 5S & CANDO", "type": "fact", "star": "md", "front": "What is the 6th S added to 5S?", "back": "**Safety** (the system is then called 6S).", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "The answer key prints Option C (Support); its own explanation and the summary give Safety (Option A)."}, {"id": "L05-09", "section": "3 Tools of Lean", "topic": "3.1 5S & CANDO", "type": "trap", "star": "hi", "front": "Support, Sincerity, Sustainability, Standardization: which are genuine 5S/6S words?", "back": "Only **Standardization** (4th S). The 5th S is **Sustain**, not Sustainability; the 6th is **Safety**. **Support** (SEBI 2022) and **Sincerity** (PFRDA 2022) were planted fakes.", "pyq": "Asked: SEBI 2022 Ph-I, PFRDA 2022 Ph-I, SEBI 2025 Ph-II", "changed": false, "note": ""}, {"id": "L05-10", "section": "3 Tools of Lean", "topic": "3.1 5S & CANDO", "type": "fact", "star": "md", "front": "What is CANDO?", "back": "The American version of 5S: **Clean up, Arrange, Neatness, Discipline, On-going improvement**.", "pyq": "", "changed": false, "note": "Renamed so US firms wouldn't be accused of imitating Japan."}, {"id": "L06-01", "section": "3 Tools of Lean", "topic": "3.2 Kaizen, PDCA & Quality Circles", "type": "fact", "star": "hi", "front": "What does Kaizen mean?", "back": "**Change for the better**, leading to continuous improvement.", "pyq": "Asked: SEBI 2022 Ph-I, PFRDA 2022 Ph-I", "changed": false, "note": "SEBI 2022 wrong options: Genchi Genbutsu, Poka-yoke, Muda."}, {"id": "L06-02", "section": "3 Tools of Lean", "topic": "3.2 Kaizen, PDCA & Quality Circles", "type": "fact", "star": "md", "front": "What is the main aim of Kaizen costing?", "back": "To reduce costs **even below standard costs**.", "pyq": "", "changed": false, "note": ""}, {"id": "L06-03", "section": "3 Tools of Lean", "topic": "3.2 Kaizen, PDCA & Quality Circles", "type": "fact", "star": "hi", "front": "What kind of improvement does Kaizen emphasize?", "back": "**Gradual, incremental** improvement through small changes.", "pyq": "Asked: PFRDA 2025 Ph-I", "changed": false, "note": "Wrong options: radical, one-time, technological, process redesign."}, {"id": "L06-04", "section": "3 Tools of Lean", "topic": "3.2 Kaizen, PDCA & Quality Circles", "type": "fact", "star": "md", "front": "Kaizen originated from which of Deming's 14 principles?", "back": "The **5th principle**: improvement must be constant and forever.", "pyq": "", "changed": false, "note": "Japan adopted the idea after Deming's post-war visit."}, {"id": "L06-05", "section": "3 Tools of Lean", "topic": "3.2 Kaizen, PDCA & Quality Circles", "type": "trap", "star": "hi", "front": "Kaizen costing vs standard costing: which is long-term, and how often are targets set?", "back": "**Kaizen costing**: long-term and ongoing; cost-reduction targets set **monthly**. **Standard costing**: short-term cost control; standards set **annually or semi-annually**.", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "SEBI 2025's incorrect statement: 'Kaizen costing is only for short term'."}, {"id": "L06-06", "section": "3 Tools of Lean", "topic": "3.2 Kaizen, PDCA & Quality Circles", "type": "trap", "star": "md", "front": "Cutting electricity use in every department vs cutting every resource in a washing machine: which Kaizen type is which?", "back": "**Asset-specific**: one chosen asset or resource, organization-wide (electricity). **Product-specific**: all resources of one product (washing machine).", "pyq": "", "changed": false, "note": ""}, {"id": "L06-07", "section": "3 Tools of Lean", "topic": "3.2 Kaizen, PDCA & Quality Circles", "type": "fact", "star": "md", "front": "List the principles of Kaizen costing.", "back": "No emphasis on the existing situation (starts afresh); gradual improvement at acceptable cost, not perfection; collective decision-making; no limit to improvement, consistently followed; set standards, then keep improving them; all employees participate; waste elimination.", "pyq": "Asked: PFRDA 2021 Ph-II", "changed": false, "note": "The last two come from the PYQ explanation."}, {"id": "L06-08", "section": "3 Tools of Lean", "topic": "3.2 Kaizen, PDCA & Quality Circles", "type": "fact", "star": "md", "front": "Who participates in Kaizen costing?", "back": "**All employees**: every level, department and unit.", "pyq": "Asked: PFRDA 2021 Ph-II, SEBI 2025 Ph-II", "changed": false, "note": "PFRDA 2021's planted fake principle: 'All unskilled employees'."}, {"id": "L06-09", "section": "3 Tools of Lean", "topic": "3.2 Kaizen, PDCA & Quality Circles", "type": "fact", "star": "md", "front": "List the 7 steps of the Kaizen costing process.", "back": "Involve employees → Find problems → Think and find solutions → Implement (small scale first) → Check → Standardize → Repeat.", "pyq": "", "changed": false, "note": ""}, {"id": "L06-10", "section": "3 Tools of Lean", "topic": "3.2 Kaizen, PDCA & Quality Circles", "type": "fact", "star": "md", "front": "PDCA stands for?", "back": "**Plan, Do, Check, Act**", "pyq": "", "changed": false, "note": ""}, {"id": "L06-11", "section": "3 Tools of Lean", "topic": "3.2 Kaizen, PDCA & Quality Circles", "type": "fact", "star": "md", "front": "What is a quality circle?", "back": "A **participatory** management technique: employees meet at intervals to solve **quality problems in their own jobs**.", "pyq": "", "changed": false, "note": ""}, {"id": "L06-12", "section": "3 Tools of Lean", "topic": "3.2 Kaizen, PDCA & Quality Circles", "type": "trap", "star": "hi", "front": "'Aimed at eliminating waste': when is the answer Lean, and when Kaizen?", "back": "If **Lean system** is an option, pick it (SEBI 2024). If not, pick **Kaizen** (SEBI 2020, PFRDA 2022), not Six Sigma (defects, variation) or BPR (radical redesign).", "pyq": "Asked: SEBI 2020 Ph-II, PFRDA 2022 Ph-I, SEBI 2024 Ph-I", "changed": false, "note": ""}, {"id": "L07-01", "section": "3 Tools of Lean", "topic": "3.3 TQM", "type": "fact", "star": "md", "front": "What is TQM?", "back": "An **organization-wide philosophy** of continually improving the quality of products, services and processes to meet and exceed customer expectations.", "pyq": "", "changed": false, "note": ""}, {"id": "L07-02", "section": "3 Tools of Lean", "topic": "3.3 TQM", "type": "fact", "star": "md", "front": "List the 5 principles of TQM.", "back": "Produce quality work the first time; focus on customers; have a strategic approach to improvement; improve continuously; encourage mutual respect and teamwork.", "pyq": "", "changed": false, "note": ""}, {"id": "L07-03", "section": "3 Tools of Lean", "topic": "3.3 TQM", "type": "fact", "star": "md", "front": "List the 6 Cs of TQM.", "back": "Commitment, Culture, Continuous improvement, Co-operation, Customer focus, Control.", "pyq": "", "changed": false, "note": ""}, {"id": "L07-04", "section": "3 Tools of Lean", "topic": "3.3 TQM", "type": "fact", "star": "md", "front": "TQM's 'Co-operation' C envisages what?", "back": "**Total Employee Involvement (TEI)**.", "pyq": "", "changed": false, "note": ""}, {"id": "L07-05", "section": "3 Tools of Lean", "topic": "3.3 TQM", "type": "trap", "star": "md", "front": "TQM vs Kaizen: which is the broad philosophy?", "back": "**TQM**: a broad management philosophy (quality system, standards, measurement). **Kaizen**: one specific method of small, continuous changes.", "pyq": "", "changed": false, "note": ""}, {"id": "L07-06", "section": "3 Tools of Lean", "topic": "3.3 TQM", "type": "fact", "star": "hi", "front": "What is Deming's point on inspection?", "back": "**Cease dependence on inspection; build quality in.**", "pyq": "Asked: PFRDA 2025 Ph-II", "changed": false, "note": "Source: PYQ. The planted 'not a Deming point' was 'Dependence on inspection to ensure quality'. The answer key prints Option D; the explanation correctly gives C."}, {"id": "L07-07", "section": "3 Tools of Lean", "topic": "3.3 TQM", "type": "fact", "star": "md", "front": "Name three other Deming points cited in the PYQ.", "back": "Drive out fear; institute training on the job; break down barriers (work as a team).", "pyq": "Asked: PFRDA 2025 Ph-II", "changed": false, "note": "Source: PYQ."}, {"id": "L08-01", "section": "3 Tools of Lean", "topic": "3.4 TPM", "type": "fact", "star": "hi", "front": "Which approach targets equipment maintenance and productivity improvement?", "back": "**TPM: Total Productive Maintenance**.", "pyq": "Asked: SEBI 2024 Ph-I", "changed": false, "note": ""}, {"id": "L08-02", "section": "3 Tools of Lean", "topic": "3.4 TPM", "type": "trap", "star": "md", "front": "TPM: Total Productive Maintenance, Total Productivity Management or Total Product Management?", "back": "**Total Productive Maintenance** (equipment). The other two were planted fakes (PFRDA 2022, SEBI 2024). TQM is the separate quality philosophy.", "pyq": "Asked: PFRDA 2022 Ph-I, SEBI 2024 Ph-I", "changed": false, "note": ""}, {"id": "L08-03", "section": "3 Tools of Lean", "topic": "3.4 TPM", "type": "fact", "star": "hi", "front": "TPM maintains and improves the ___ of the production and quality system.", "back": "**Integrity**", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "Wrong options: efficiency, availability, productivity, flexibility."}, {"id": "L08-04", "section": "3 Tools of Lean", "topic": "3.4 TPM", "type": "fact", "star": "md", "front": "Who is regarded as the father of TPM?", "back": "**Seiichi Nakajima**", "pyq": "", "changed": false, "note": ""}, {"id": "L08-05", "section": "3 Tools of Lean", "topic": "3.4 TPM", "type": "fact", "star": "hi", "front": "How is TPM's effectiveness measured?", "back": "**OEE: Overall Equipment Effectiveness**.", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": ""}, {"id": "L08-06", "section": "3 Tools of Lean", "topic": "3.4 TPM", "type": "fact", "star": "hi", "front": "OEE formula, with a worked example.", "back": "**OEE = Availability × Performance × Quality.** e.g. 0.95 × 0.97 × 0.98 = **90.3%**.", "pyq": "", "changed": false, "note": "Worked numbers are the summary PDF's own example."}, {"id": "L08-07", "section": "3 Tools of Lean", "topic": "3.4 TPM", "type": "fact", "star": "md", "front": "List TPM's 6 big losses.", "back": "Breakdowns; setup and adjustment; start-up; idling and minor stoppages; reduced speed; defects and rework.", "pyq": "", "changed": false, "note": ""}, {"id": "L08-08", "section": "3 Tools of Lean", "topic": "3.4 TPM", "type": "fact", "star": "hi", "front": "What are TPM's three goals?", "back": "**Zero unplanned failures, zero product defects, zero accidents.**", "pyq": "Asked: PFRDA 2022 Ph-II", "changed": false, "note": "Wrong options were a benefit (safer working environment) and two pillars (early management of new equipment; education & training)."}, {"id": "L08-09", "section": "3 Tools of Lean", "topic": "3.4 TPM", "type": "fact", "star": "hi", "front": "Which maintenance type is NOT part of TPM?", "back": "**Breakdown maintenance**: TPM is proactive.", "pyq": "Asked: SEBI 2022 Ph-I", "changed": false, "note": "True options: preventive, predictive, maintenance prevention."}, {"id": "L08-10", "section": "3 Tools of Lean", "topic": "3.4 TPM", "type": "fact", "star": "md", "front": "List the 8 pillars of TPM.", "back": "Autonomous maintenance; process & machine improvement; preventive maintenance; early management of new equipment; process quality management; administrative work; education & training; safety & sustained success.", "pyq": "", "changed": false, "note": ""}, {"id": "L08-11", "section": "3 Tools of Lean", "topic": "3.4 TPM", "type": "trap", "star": "md", "front": "Preventive vs predictive maintenance?", "back": "**Preventive**: predefined schedules and activities. **Predictive**: data analysis of the equipment's actual condition to anticipate failure (TPM pillar 4, early management of new equipment).", "pyq": "Asked: SEBI 2022 Ph-I", "changed": false, "note": "Both appeared as true options."}, {"id": "L09-01", "section": "3 Tools of Lean", "topic": "3.5 JIT, Kanban, Takt & Heijunka", "type": "fact", "star": "md", "front": "What does JIT call for?", "back": "Producing **what** the customer wants, in the **quantity**, **when** and **where** they want it, without holding inventory.", "pyq": "", "changed": false, "note": ""}, {"id": "L09-02", "section": "3 Tools of Lean", "topic": "3.5 JIT, Kanban, Takt & Heijunka", "type": "fact", "star": "hi", "front": "JIT is primarily used in which area?", "back": "**Inventory management**.", "pyq": "Asked: SEBI 2020 Ph-I, SEBI 2025 Ph-I, IFSCA 2025 Ph-I", "changed": false, "note": "SEBI 2025 wrong options: BPR, ABC analysis, Six Sigma, Kaizen."}, {"id": "L09-03", "section": "3 Tools of Lean", "topic": "3.5 JIT, Kanban, Takt & Heijunka", "type": "fact", "star": "md", "front": "Where, and by whom, was JIT invented?", "back": "At **Toyota**, by **Taiichi Ohno**.", "pyq": "", "changed": false, "note": ""}, {"id": "L09-04", "section": "3 Tools of Lean", "topic": "3.5 JIT, Kanban, Takt & Heijunka", "type": "fact", "star": "hi", "front": "Is a large safety stock of raw materials a JIT prerequisite?", "back": "**No**: it contradicts JIT's aim of minimal inventory.", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": ""}, {"id": "L09-05", "section": "3 Tools of Lean", "topic": "3.5 JIT, Kanban, Takt & Heijunka", "type": "fact", "star": "md", "front": "Per the PYQ, what four things does JIT need?", "back": "Reliable suppliers and timely delivery; high quality with minimal defects; stable production schedules and demand; strong coordination between production and suppliers.", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "Source: PYQ explanation."}, {"id": "L09-06", "section": "3 Tools of Lean", "topic": "3.5 JIT, Kanban, Takt & Heijunka", "type": "fact", "star": "md", "front": "How is pull implemented in JIT?", "back": "Through **Kanbans**: signals (cards, flags) telling the previous process what needs to be made.", "pyq": "", "changed": false, "note": ""}, {"id": "L09-07", "section": "3 Tools of Lean", "topic": "3.5 JIT, Kanban, Takt & Heijunka", "type": "fact", "star": "hi", "front": "Does the number of Kanban cards in progress rise over time?", "back": "**No, it is limited** (work-in-progress limits).", "pyq": "Asked: SEBI 2022 Ph-I", "changed": false, "note": "Why: few active cards make the process sensitive and expose inefficiencies (Toyota's 6th Kanban rule)."}, {"id": "L09-08", "section": "3 Tools of Lean", "topic": "3.5 JIT, Kanban, Takt & Heijunka", "type": "trap", "star": "md", "front": "JIT vs Kanban: what's the difference?", "back": "**JIT** is the philosophy: make only what is demanded, when it is demanded. **Kanban** is the signalling tool that runs JIT's pull.", "pyq": "", "changed": false, "note": ""}, {"id": "L09-09", "section": "3 Tools of Lean", "topic": "3.5 JIT, Kanban, Takt & Heijunka", "type": "fact", "star": "hi", "front": "What is takt time?", "back": "The **maximum time allowed per unit**: the rate at which a product must be finished to meet customer demand.", "pyq": "Asked: PFRDA 2025 Ph-I", "changed": false, "note": ""}, {"id": "L09-10", "section": "3 Tools of Lean", "topic": "3.5 JIT, Kanban, Takt & Heijunka", "type": "fact", "star": "hi", "front": "Takt time formula, with a worked line.", "back": "**Takt time = available working time per day ÷ customer demand per day.** e.g. 480 min ÷ 100 hats = **4.8 min per hat**.", "pyq": "", "changed": false, "note": "100 hats a day is the PDF's own hat demand (500 a week over 5 days); the 480-minute day is assumed for the illustration."}, {"id": "L09-11", "section": "3 Tools of Lean", "topic": "3.5 JIT, Kanban, Takt & Heijunka", "type": "trap", "star": "md", "front": "Takt time vs cycle time vs lead time?", "back": "**Takt**: time *allowed* per unit, set by demand. **Cycle**: time *actually taken* to complete the process. **Lead**: total time from order to delivery.", "pyq": "Asked: PFRDA 2025 Ph-I", "changed": false, "note": "Cycle and lead time: PYQ explanation."}, {"id": "L09-12", "section": "3 Tools of Lean", "topic": "3.5 JIT, Kanban, Takt & Heijunka", "type": "fact", "star": "md", "front": "What is Heijunka?", "back": "**Leveling the volume and type (mix)** of production; the technique used to meet takt time.", "pyq": "", "changed": false, "note": ""}, {"id": "L09-13", "section": "3 Tools of Lean", "topic": "3.5 JIT, Kanban, Takt & Heijunka", "type": "fact", "star": "hi", "front": "MRP II is a type of what technique?", "back": "**Production design technique**.", "pyq": "Asked: SEBI 2020 Ph-II", "changed": false, "note": "Source: PYQ. Wrong options: selling & distribution development, price reduction, efficient marketing."}, {"id": "L09-14", "section": "3 Tools of Lean", "topic": "3.5 JIT, Kanban, Takt & Heijunka", "type": "fact", "star": "md", "front": "What does MRP II stand for?", "back": "**Manufacturing Resource Planning**, an extension of MRP I (Materials Requirements Planning).", "pyq": "", "changed": false, "note": "Source: PYQ explanation."}, {"id": "L09-15", "section": "3 Tools of Lean", "topic": "3.5 JIT, Kanban, Takt & Heijunka", "type": "trap", "star": "md", "front": "MRP vs JIT: what drives each?", "back": "**MRP**: a sales forecast; material deliveries are scheduled to fulfil it. **JIT**: actual demand; materials are bought and made only when needed.", "pyq": "Asked: IFSCA 2025 Ph-I", "changed": false, "note": "Source: PYQ explanations (SEBI 2020 Ph-II; IFSCA 2025 Ph-I, where MRP was a wrong option)."}, {"id": "L10-01", "section": "3 Tools of Lean", "topic": "3.5.2 Cellular Manufacturing", "type": "fact", "star": "hi", "front": "Which group technology is a subsection of Lean and JIT?", "back": "**Cellular manufacturing**.", "pyq": "Asked: SEBI 2024 Ph-I", "changed": false, "note": "Wrong options: batch production, flexible manufacturing systems, automated assembly, process engineering."}, {"id": "L10-02", "section": "3 Tools of Lean", "topic": "3.5.2 Cellular Manufacturing", "type": "fact", "star": "md", "front": "Group technology, the basis of cellular manufacturing, was invented by whom and when?", "back": "**Flanders, 1925**.", "pyq": "", "changed": false, "note": ""}, {"id": "L10-03", "section": "3 Tools of Lean", "topic": "3.5.2 Cellular Manufacturing", "type": "fact", "star": "md", "front": "In what layout are a cell's machines arranged?", "back": "A **U-shape**.", "pyq": "", "changed": false, "note": ""}, {"id": "L10-04", "section": "3 Tools of Lean", "topic": "3.5.2 Cellular Manufacturing", "type": "trap", "star": "md", "front": "Batch production vs cellular manufacturing: how does work move?", "back": "**Batch**: large lots (e.g. 100 units) move between machines, so lead times are longer. **Cellular**: **one-piece flow** (1 unit at a time), so lead times are shorter and flexibility higher.", "pyq": "", "changed": false, "note": ""}, {"id": "L10-05", "section": "3 Tools of Lean", "topic": "3.5.2 Cellular Manufacturing", "type": "fact", "star": "hi", "front": "Does cellular manufacturing increase waste?", "back": "**No, it reduces waste**: one-piece flow lets operators catch defects early.", "pyq": "Asked: SEBI 2022 Ph-II", "changed": false, "note": "True options in the same PYQ: short, focused paths in a concentrated space; facilitates both production and quality control."}, {"id": "L10-06", "section": "3 Tools of Lean", "topic": "3.5.2 Cellular Manufacturing", "type": "fact", "star": "md", "front": "SMED stands for?", "back": "**Single-Minute Exchange of Die**: quick changeover of a machine to a different product.", "pyq": "", "changed": false, "note": ""}, {"id": "L11-01", "section": "3 Tools of Lean", "topic": "3.6 Jidoka", "type": "fact", "star": "hi", "front": "What is Jidoka?", "back": "Giving machines and operators the ability to **detect an abnormal condition and stop work immediately**.", "pyq": "", "changed": false, "note": ""}, {"id": "L11-02", "section": "3 Tools of Lean", "topic": "3.6 Jidoka", "type": "fact", "star": "md", "front": "Jidoka is also called what?", "back": "**Autonomation**: automation with human intelligence (machines tell good parts from bad on their own).", "pyq": "", "changed": false, "note": ""}, {"id": "L11-03", "section": "3 Tools of Lean", "topic": "3.6 Jidoka", "type": "fact", "star": "md", "front": "List Jidoka's 4 principles in order.", "back": "Discover an abnormality → **Stop** → Fix the immediate problem → Investigate and correct the root cause.", "pyq": "", "changed": false, "note": ""}, {"id": "L11-04", "section": "3 Tools of Lean", "topic": "3.6 Jidoka", "type": "fact", "star": "md", "front": "What is Poka-yoke?", "back": "**Mistake-proofing**: a device that prevents incorrect parts being made or assembled, or flags the error.", "pyq": "", "changed": false, "note": "A wrong option for 'change for better' in SEBI 2022 Ph-I."}, {"id": "L11-05", "section": "3 Tools of Lean", "topic": "3.6 Jidoka", "type": "fact", "star": "md", "front": "What is Andon?", "back": "Japanese for **'light' or 'lamp'**: a signal that alerts workers to a problem in the process.", "pyq": "", "changed": false, "note": ""}, {"id": "L11-06", "section": "3 Tools of Lean", "topic": "3.6 Jidoka", "type": "fact", "star": "md", "front": "What is 'line stop' in Jidoka?", "back": "Every worker has the authority, in fact the requirement, to **stop the process** on finding an abnormality.", "pyq": "", "changed": false, "note": ""}, {"id": "L12-01", "section": "3 Tools of Lean", "topic": "3.7 Backflush Accounting", "type": "fact", "star": "hi", "front": "What is backflush accounting?", "back": "Costing where product cost and inventory consumed are recorded **only at completion** of production, with no step-by-step or work-in-progress entries.", "pyq": "Asked: IFSCA 2025 Ph-I", "changed": false, "note": ""}, {"id": "L12-02", "section": "3 Tools of Lean", "topic": "3.7 Backflush Accounting", "type": "fact", "star": "md", "front": "Backflush accounting computes cost using what?", "back": "**Predetermined standard costs** (standard material and labour usage).", "pyq": "", "changed": false, "note": ""}, {"id": "L12-03", "section": "3 Tools of Lean", "topic": "3.7 Backflush Accounting", "type": "fact", "star": "md", "front": "Which setting suits backflush accounting?", "back": "**High-volume, repetitive manufacturing**, typically JIT.", "pyq": "", "changed": false, "note": "The JIT link comes from the PYQ explanation (IFSCA 2025)."}, {"id": "L13-01", "section": "4 Six Sigma", "topic": "4 Six Sigma — Basics & vs Lean", "type": "fact", "star": "md", "front": "What is Six Sigma?", "back": "A set of techniques and tools for process improvement that aims to **eliminate defects** affecting customer satisfaction.", "pyq": "", "changed": false, "note": ""}, {"id": "L13-02", "section": "4 Six Sigma", "topic": "4 Six Sigma — Basics & vs Lean", "type": "fact", "star": "md", "front": "Who introduced Six Sigma, and where?", "back": "**Bill Smith**, at **Motorola**.", "pyq": "", "changed": false, "note": ""}, {"id": "L13-03", "section": "4 Six Sigma", "topic": "4 Six Sigma — Basics & vs Lean", "type": "fact", "star": "md", "front": "Who made Six Sigma well known, and where?", "back": "**Jack Welch**, at **General Electric (GE)**.", "pyq": "", "changed": false, "note": ""}, {"id": "L13-04", "section": "4 Six Sigma", "topic": "4 Six Sigma — Basics & vs Lean", "type": "fact", "star": "hi", "front": "What defect level does Six Sigma quality allow?", "back": "**3.4 defects per million** (opportunities).", "pyq": "Asked: SEBI 2025 Ph-II, PFRDA 2025 Ph-II", "changed": false, "note": "PFRDA answer key prints Option C (5.3); its explanation and the summary give 3.4 per million (Option A). Wrong options seen: 3.4 per 10 million, 5.3, 6, 7.2, 8.2, 63, 233, 2,700."}, {"id": "L13-05", "section": "4 Six Sigma", "topic": "4 Six Sigma — Basics & vs Lean", "type": "fact", "star": "md", "front": "3.4 defects per million equals what percentage defect-free?", "back": "**99.99966%**", "pyq": "", "changed": false, "note": ""}, {"id": "L13-06", "section": "4 Six Sigma", "topic": "4 Six Sigma — Basics & vs Lean", "type": "trap", "star": "hi", "front": "Lean vs Six Sigma: what does each attack?", "back": "**Lean**: waste; improves flow and **shortens cycle time**. **Six Sigma**: variation and defects, using statistics; **improves process capability**.", "pyq": "Asked: SEBI 2020 Ph-II, SEBI 2024 Ph-I", "changed": false, "note": ""}, {"id": "L13-07", "section": "4 Six Sigma", "topic": "4 Six Sigma — Basics & vs Lean", "type": "concept", "star": "md", "front": "What does Lean Six Sigma achieve that neither does alone?", "back": "Lean exposes sources of process variation and cuts waste; Six Sigma then reduces that variation. Together, waste falls **and** defects are caught in time.", "pyq": "", "changed": false, "note": ""}, {"id": "L14-01", "section": "4 Six Sigma", "topic": "4.4 DMAIC & DMADV", "type": "fact", "star": "hi", "front": "DMAIC stands for?", "back": "**Define, Measure, Analyze, Improve, Control**.", "pyq": "Asked: SEBI 2022 Ph-I, PFRDA 2025 Ph-I, IFSCA 2025 Ph-I", "changed": false, "note": ""}, {"id": "L14-02", "section": "4 Six Sigma", "topic": "4.4 DMAIC & DMADV", "type": "fact", "star": "md", "front": "DMAIC is used for what kind of project?", "back": "**Improving an existing** business process.", "pyq": "", "changed": false, "note": ""}, {"id": "L14-03", "section": "4 Six Sigma", "topic": "4.4 DMAIC & DMADV", "type": "fact", "star": "md", "front": "In DMAIC, what does D stand for?", "back": "**Define**", "pyq": "Asked: IFSCA 2025 Ph-I, PFRDA 2025 Ph-I", "changed": false, "note": "'Design' is the planted misreading; it belongs to DMADV."}, {"id": "L14-04", "section": "4 Six Sigma", "topic": "4.4 DMAIC & DMADV", "type": "fact", "star": "md", "front": "In DMAIC, what does C stand for?", "back": "**Control**: ensuring variances are corrected before they result in defects.", "pyq": "Asked: SEBI 2022 Ph-I", "changed": false, "note": "'Correct' was the planted fake."}, {"id": "L14-05", "section": "4 Six Sigma", "topic": "4.4 DMAIC & DMADV", "type": "fact", "star": "hi", "front": "DMADV stands for?", "back": "**Define, Measure, Analyze, Design, Verify**.", "pyq": "Asked: PFRDA 2022 Ph-I", "changed": false, "note": "'Diagnose' was the planted fake."}, {"id": "L14-06", "section": "4 Six Sigma", "topic": "4.4 DMAIC & DMADV", "type": "fact", "star": "md", "front": "DMADV is used for what kind of project?", "back": "**Creating new** product or process designs.", "pyq": "", "changed": false, "note": ""}, {"id": "L14-07", "section": "4 Six Sigma", "topic": "4.4 DMAIC & DMADV", "type": "fact", "star": "md", "front": "CTQ, identified in DMADV's Measure step, stands for?", "back": "**Critical To Quality** (characteristics).", "pyq": "", "changed": false, "note": ""}, {"id": "L14-08", "section": "4 Six Sigma", "topic": "4.4 DMAIC & DMADV", "type": "trap", "star": "hi", "front": "DMAIC vs DMADV: how do you tell them apart?", "back": "Shared: Define, Measure, Analyze. **DMAIC** ends Improve, Control: improves an **existing** process. **DMADV** ends Design, Verify: creates a **new** design. 'Design' is never in DMAIC; 'Diagnose' and 'Correct' are in neither.", "pyq": "Asked: SEBI 2022 Ph-I, PFRDA 2022 Ph-I, PFRDA 2025 Ph-I", "changed": false, "note": ""}, {"id": "L14-09", "section": "4 Six Sigma", "topic": "4.4 DMAIC & DMADV", "type": "fact", "star": "md", "front": "DMAIC and DMADV are inspired by which cycle?", "back": "**Deming's Plan–Do–Check–Act (PDCA)** cycle.", "pyq": "", "changed": false, "note": ""}, {"id": "L14-10", "section": "4 Six Sigma", "topic": "4.4 DMAIC & DMADV", "type": "fact", "star": "hi", "front": "SIPOC stands for?", "back": "**Suppliers, Inputs, Process, Outputs, Customers**.", "pyq": "Asked: PFRDA 2022 Ph-I", "changed": false, "note": "Source: PYQ. Planted fakes: Product, Services, Outcast, Campus."}, {"id": "L14-11", "section": "4 Six Sigma", "topic": "4.4 DMAIC & DMADV", "type": "fact", "star": "md", "front": "What is SIPOC used for?", "back": "Defining a business process **from beginning to end before work begins**, as a table summarizing its inputs and outputs.", "pyq": "Asked: PFRDA 2022 Ph-I", "changed": false, "note": "Source: PYQ."}, {"id": "L15-01", "section": "4 Six Sigma", "topic": "4.5–4.6 Six Sigma Roles & Sigma", "type": "fact", "star": "md", "front": "List the Six Sigma roles, top to bottom.", "back": "Executive leadership → Champion → Sponsor → Master Black Belt → Black Belt → Green Belt → Yellow Belt.", "pyq": "", "changed": false, "note": ""}, {"id": "L15-02", "section": "4 Six Sigma", "topic": "4.5–4.6 Six Sigma Roles & Sigma", "type": "fact", "star": "hi", "front": "Who works on Six Sigma projects alongside their regular job?", "back": "**Green Belts**: part-time, under Black Belt guidance.", "pyq": "Asked: PFRDA 2025 Ph-I", "changed": false, "note": ""}, {"id": "L15-03", "section": "4 Six Sigma", "topic": "4.5–4.6 Six Sigma Roles & Sigma", "type": "fact", "star": "md", "front": "What is a Master Black Belt?", "back": "A **full-time, in-house expert coach**, identified by Champions, who teaches, consults and oversees multiple projects.", "pyq": "", "changed": false, "note": ""}, {"id": "L15-04", "section": "4 Six Sigma", "topic": "4.5–4.6 Six Sigma Roles & Sigma", "type": "trap", "star": "md", "front": "Black vs Green vs Yellow Belt: who is full-time, who is part-time?", "back": "**Black** (like Master Black): full-time (100%), leads projects. **Green**: part-time, alongside the regular job. **Yellow**: basic training, supports projects only.", "pyq": "Asked: PFRDA 2025 Ph-I", "changed": false, "note": ""}, {"id": "L15-05", "section": "4 Six Sigma", "topic": "4.5–4.6 Six Sigma Roles & Sigma", "type": "concept", "star": "md", "front": "Why is it called 'six' sigma?", "back": "Six **standard deviations** fit between the process average and the acceptable limit. The more that fit, the less likely the process strays outside the limits.", "pyq": "", "changed": false, "note": ""}, {"id": "L16-01", "section": "5 BPR", "topic": "5 BPR & Process Innovation", "type": "fact", "star": "md", "front": "What is Business Process Re-engineering (BPR)?", "back": "A **complete rethink and radical redesign** of existing processes, not small improvements.", "pyq": "", "changed": false, "note": ""}, {"id": "L16-02", "section": "5 BPR", "topic": "5 BPR & Process Innovation", "type": "fact", "star": "md", "front": "Who founded BPR?", "back": "**Michael Hammer**", "pyq": "", "changed": false, "note": ""}, {"id": "L16-03", "section": "5 BPR", "topic": "5 BPR & Process Innovation", "type": "fact", "star": "md", "front": "What was Hammer's BPR slogan?", "back": "**'Don't automate, obliterate.'** Reinvent the process first, rather than automate it.", "pyq": "", "changed": false, "note": ""}, {"id": "L16-04", "section": "5 BPR", "topic": "5 BPR & Process Innovation", "type": "fact", "star": "hi", "front": "Which framework does BPR use to identify inefficient processes?", "back": "**Porter's Value Chain**.", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "Wrong options: Deming cycle, Porter's Process Chain, Kaizen cycle, value engineering framework."}, {"id": "L16-05", "section": "5 BPR", "topic": "5 BPR & Process Innovation", "type": "fact", "star": "md", "front": "Name the six pillars of BPR.", "back": "Rethink, Redesign, Reduce costs, Improve productivity, Optimize, Automate.", "pyq": "", "changed": false, "note": ""}, {"id": "L16-06", "section": "5 BPR", "topic": "5 BPR & Process Innovation", "type": "trap", "star": "md", "front": "Lean/Kaizen vs BPR: size of change and risk?", "back": "**Lean/Kaizen**: small incremental steps; lower risk, lower reward. **BPR**: a giant leap from a blank sheet; high risk, high reward.", "pyq": "Asked: PFRDA 2025 Ph-I", "changed": false, "note": "PFRDA 2025: 'process redesign' was a wrong option for Kaizen."}, {"id": "L16-07", "section": "5 BPR", "topic": "5 BPR & Process Innovation", "type": "fact", "star": "hi", "front": "What is process innovation?", "back": "Implementing a **new or significantly improved production or delivery method**, including significant changes in techniques, equipment and/or software.", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": ""}, {"id": "L16-08", "section": "5 BPR", "topic": "5 BPR & Process Innovation", "type": "trap", "star": "md", "front": "Rebuilding a car supply chain (parts in Africa, assembly in India) vs adding software that auto-checks engine efficiency: BPR or process innovation?", "back": "Supply-chain rebuild = **BPR** (whole process redesigned). Engine-check software = **process innovation** (small change to an existing process).", "pyq": "", "changed": false, "note": ""}, {"id": "L16-09", "section": "5 BPR", "topic": "5 BPR & Process Innovation", "type": "trap", "star": "md", "front": "Product vs process vs business-model vs organizational innovation?", "back": "**Product**: new or improved products. **Process**: new or improved production or delivery methods. **Business model**: how a firm creates, delivers and captures value. **Organizational**: structure or management practices.", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": "Source: PYQ explanation."}, {"id": "L16-10", "section": "5 BPR", "topic": "5 BPR & Process Innovation", "type": "fact", "star": "md", "front": "Per the IFSCA PYQ: BPR focuses on ___ of processes, while process innovation focuses on renovation.", "back": "**Amendment** (verify)", "pyq": "Asked: IFSCA 2025 Ph-I", "changed": false, "note": "Source: PYQ only. The summary frames BPR as complete redesign and process innovation as a small change; treat this key with caution."}]</script>
+<script type="application/json" id="topics-data">["1 Lean — Meaning & Pillars", "2 Lean Manufacturing — TPS & Waste", "2.1 Principles of Lean Manufacturing", "3 Tools of Lean — The Lean House", "3.1 5S & CANDO", "3.2 Kaizen, PDCA & Quality Circles", "3.3 TQM", "3.4 TPM", "3.5 JIT, Kanban, Takt & Heijunka", "3.5.2 Cellular Manufacturing", "3.6 Jidoka", "3.7 Backflush Accounting", "4 Six Sigma — Basics & vs Lean", "4.4 DMAIC & DMADV", "4.5–4.6 Six Sigma Roles & Sigma", "5 BPR & Process Innovation"]</script>
+<script>
+(function(){
+'use strict';
+var KEY='pfrda_lean_oct2026_progress';
+var THEME_KEY='pfrda_lean_oct2026_theme';
+var CARDS=JSON.parse(document.getElementById('cards-data').textContent);
+var TOPICS=JSON.parse(document.getElementById('topics-data').textContent);
+var $=function(id){return document.getElementById(id);};
+
+/* ---------- storage (never required) ---------- */
+var storageOk=true;
+function sGet(k){try{return window.localStorage.getItem(k);}catch(e){storageOk=false;return null;}}
+function sSet(k,v){try{window.localStorage.setItem(k,v);return true;}catch(e){storageOk=false;showBanner();return false;}}
+function sDel(k){try{window.localStorage.removeItem(k);}catch(e){storageOk=false;}}
+function showBanner(){ $('banner').hidden=false; }
+(function probe(){try{var t='__pfrda_probe__';window.localStorage.setItem(t,'1');window.localStorage.removeItem(t);}catch(e){storageOk=false;}})();
+
+var progress={};
+(function(){
+  var raw=sGet(KEY);
+  if(!raw) return;
+  try{
+    var o=JSON.parse(raw);
+    if(o && typeof o==='object'){
+      for(var k in o){ if(Object.prototype.hasOwnProperty.call(o,k) && (o[k]==='known'||o[k]==='learning')) progress[k]=o[k]; }
+    }
+  }catch(e){}
+})();
+function saveProgress(){ sSet(KEY,JSON.stringify(progress)); }
+
+/* ---------- theme ---------- */
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  $('bTheme').textContent = t==='dark' ? 'Light theme' : 'Dark theme';
+}
+var theme=sGet(THEME_KEY);
+if(theme!=='light' && theme!=='dark'){
+  theme=(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';
+}
+applyTheme(theme);
+
+/* ---------- state ---------- */
+var byId={};
+CARDS.forEach(function(c){byId[c.id]=c;});
+var baseOrder=CARDS.map(function(c){return c.id;});
+var order=baseOrder.slice();
+var filters={topics:[],type:'all',status:'all',hi:false,pyq:false,changed:false};
+var view=[], pos=0, flipped=false;
+
+function statusOf(id){var s=progress[id];return (s==='known'||s==='learning')?s:'unseen';}
+function matches(c){
+  if(filters.topics.length && filters.topics.indexOf(c.topic)<0) return false;
+  if(filters.type!=='all' && c.type!==filters.type) return false;
+  if(filters.hi && c.star!=='hi') return false;
+  if(filters.pyq && !c.pyq) return false;
+  if(filters.changed && !c.changed) return false;
+  if(filters.status!=='all' && statusOf(c.id)!==filters.status) return false;
+  return true;
+}
+function rebuild(keepId){
+  view=order.filter(function(id){return matches(byId[id]);});
+  var i=keepId?view.indexOf(keepId):-1;
+  pos=i>=0?i:0;
+  flipped=false;
+  render();
+}
+
+/* ---------- rendering ---------- */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmt(s){return esc(s).replace(/\*\*([\s\S]+?)\*\*/g,'<strong>$1</strong>');}
+var TYPE_LABEL={fact:'Fact',trap:'Trap',concept:'Concept'};
+var STATUS_LABEL={unseen:'Unseen',learning:'Still learning',known:'Known'};
+
+function renderStats(){
+  var n=view.length,k=0,l=0;
+  view.forEach(function(id){var s=statusOf(id); if(s==='known')k++; else if(s==='learning')l++;});
+  $('sTotal').textContent=n;
+  $('sUnseen').textContent=n-k-l;
+  $('sLearn').textContent=l;
+  $('sKnown').textContent=k;
+  $('sPct').textContent=(n?Math.round(k*100/n):0)+'%';
+}
+function renderCard(){
+  var el=$('card');
+  if(!view.length){
+    el.className='card empty';
+    el.removeAttribute('data-type');
+    el.setAttribute('aria-expanded','false');
+    el.setAttribute('aria-label','No cards match these filters');
+    el.innerHTML='<p class="q" style="margin:0">No cards match these filters.</p><p class="note" style="margin:0">Clear a filter or open the filter panel to widen the set.</p><button type="button" id="emptyClear">Clear filters</button>';
+    var b=$('emptyClear'); if(b) b.addEventListener('click',function(e){e.stopPropagation();clearFilters();});
+    return;
+  }
+  var c=byId[view[pos]], st=statusOf(c.id);
+  var h='<div class="meta">';
+  h+='<span class="badge b-type">'+TYPE_LABEL[c.type]+'</span>';
+  if(c.star==='hi') h+='<span class="badge b-star">★ High-yield</span>';
+  else if(c.star==='md') h+='<span class="badge b-star">☆ Medium</span>';
+  if(c.changed) h+='<span class="badge b-changed">CHANGED</span>';
+  if(c.pyq) h+='<span class="badge b-pyq">'+esc(c.pyq)+'</span>';
+  h+='</div>';
+  h+='<div class="topic">'+esc(c.topic)+'</div>';
+  h+='<div class="q">'+fmt(c.front)+'</div>';
+  h+='<div class="hint">Tap the card or press Space to reveal the answer.</div>';
+  h+='<div class="a"><div class="ans">'+fmt(c.back)+'</div>';
+  if(c.note) h+='<div class="note">'+fmt(c.note)+'</div>';
+  h+='</div>';
+  h+='<div class="cfoot"><span>'+(pos+1)+' of '+view.length+(pos===view.length-1?' (end of set)':'')+'</span><span class="s-'+st+'">'+STATUS_LABEL[st]+'</span></div>';
+  el.className='card'+(flipped?' flipped':'');
+  el.setAttribute('data-type',c.type);
+  el.setAttribute('aria-expanded',flipped?'true':'false');
+  el.setAttribute('aria-label','Card '+(pos+1)+' of '+view.length+'. Press Space or Enter to '+(flipped?'hide':'show')+' the answer.');
+  el.innerHTML=h;
+}
+function renderControls(){
+  var has=view.length>0;
+  $('bPrev').disabled=!has||pos===0;
+  $('bNext').disabled=!has||pos>=view.length-1;
+  $('bFlip').disabled=!has;
+  $('bKnown').disabled=!has;
+  $('bLearn').disabled=!has;
+  $('bFlip').textContent=flipped?'Hide answer':'Show answer';
+}
+function render(){ renderCard(); renderControls(); renderStats(); renderFilterSummary(); }
+
+/* ---------- actions ---------- */
+function focusCard(){ try{$('card').focus({preventScroll:true});}catch(e){$('card').focus();} }
+function flip(){
+  if(!view.length) return;
+  flipped=!flipped;
+  var el=$('card');
+  el.classList.toggle('flipped',flipped);
+  el.setAttribute('aria-expanded',flipped?'true':'false');
+  $('bFlip').textContent=flipped?'Hide answer':'Show answer';
+}
+function go(d){
+  if(!view.length) return;
+  var p=pos+d;
+  if(p<0||p>=view.length) return;
+  pos=p; flipped=false; render();
+}
+function mark(val){
+  if(!view.length) return;
+  progress[view[pos]]=val;
+  saveProgress();
+  if(pos<view.length-1){pos++;flipped=false;}
+  render();
+}
+function shuffle(){
+  var keep=null;
+  for(var i=order.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=order[i];order[i]=order[j];order[j]=t;}
+  rebuild(keep);
+}
+function resetOrder(){ order=baseOrder.slice(); rebuild(null); }
+
+/* ---------- modal ---------- */
+var lastFocus=null;
+function openModal(){
+  lastFocus=document.activeElement;
+  $('mText').textContent='This clears every Known and Still learning mark for all '+CARDS.length+' cards saved in this browser.';
+  $('modal').hidden=false;
+  $('mCancel').focus();
+}
+function closeModal(){ $('modal').hidden=true; if(lastFocus&&lastFocus.focus) lastFocus.focus(); else focusCard(); }
+function doReset(){
+  progress={}; sDel(KEY);
+  var cur=view.length?view[pos]:null;
+  $('modal').hidden=true;
+  rebuild(cur);
+  focusCard();
+}
+
+/* ---------- filters UI ---------- */
+var topicCounts={};
+CARDS.forEach(function(c){topicCounts[c.topic]=(topicCounts[c.topic]||0)+1;});
+(function buildTopics(){
+  var box=$('topicList'), h='';
+  TOPICS.forEach(function(t,i){
+    if(!topicCounts[t]) return;
+    h+='<label class="chk"><input type="checkbox" class="tchk" data-i="'+i+'"><span class="lbl">'+esc(t)+'</span><span class="cnt">'+topicCounts[t]+'</span></label>';
+  });
+  box.innerHTML=h;
+  $('tAllCnt').textContent=CARDS.length;
+})();
+function readTopics(){
+  var sel=[];
+  Array.prototype.forEach.call(document.querySelectorAll('.tchk'),function(cb){ if(cb.checked) sel.push(TOPICS[+cb.getAttribute('data-i')]); });
+  return sel;
+}
+function onFilterChange(){
+  var cur=view.length?view[pos]:null;
+  rebuild(cur);
+}
+$('tAll').addEventListener('change',function(){
+  if(this.checked){
+    Array.prototype.forEach.call(document.querySelectorAll('.tchk'),function(cb){cb.checked=false;});
+    filters.topics=[];
+  } else if(!readTopics().length){
+    this.checked=true;
+  }
+  onFilterChange();
+});
+$('topicList').addEventListener('change',function(e){
+  if(!e.target.classList.contains('tchk')) return;
+  filters.topics=readTopics();
+  $('tAll').checked=filters.topics.length===0;
+  onFilterChange();
+});
+$('typeSeg').addEventListener('change',function(e){ if(e.target.name==='type'){filters.type=e.target.value;onFilterChange();} });
+$('statusSeg').addEventListener('change',function(e){ if(e.target.name==='status'){filters.status=e.target.value;onFilterChange();} });
+$('fHi').addEventListener('change',function(){filters.hi=this.checked;onFilterChange();});
+$('fPyq').addEventListener('change',function(){filters.pyq=this.checked;onFilterChange();});
+function clearFilters(){
+  filters={topics:[],type:'all',status:'all',hi:false,pyq:false,changed:false};
+  $('tAll').checked=true;
+  Array.prototype.forEach.call(document.querySelectorAll('.tchk'),function(cb){cb.checked=false;});
+  document.querySelector('#typeSeg input[value="all"]').checked=true;
+  document.querySelector('#statusSeg input[value="all"]').checked=true;
+  $('fHi').checked=false; $('fPyq').checked=false;
+  onFilterChange();
+}
+$('fClear').addEventListener('click',clearFilters);
+function renderFilterSummary(){
+  var n=0;
+  if(filters.topics.length) n++;
+  if(filters.type!=='all') n++;
+  if(filters.status!=='all') n++;
+  if(filters.hi) n++;
+  if(filters.pyq) n++;
+  if(filters.changed) n++;
+  $('fsum').textContent = n ? (n===1?'1 filter on':n+' filters on') : 'All cards';
+}
+
+/* ---------- wiring ---------- */
+$('card').addEventListener('click',function(e){
+  if(!view.length) return;
+  var sel=window.getSelection && String(window.getSelection());
+  if(sel && sel.length>0 && flipped) return;
+  flip();
+});
+function bind(id,fn){ $(id).addEventListener('click',function(){ fn(); if(id!=='bReset') focusCard(); }); }
+bind('bPrev',function(){go(-1);});
+bind('bNext',function(){go(1);});
+bind('bFlip',flip);
+bind('bKnown',function(){mark('known');});
+bind('bLearn',function(){mark('learning');});
+bind('bShuffle',shuffle);
+bind('bOrder',resetOrder);
+bind('bReset',openModal);
+bind('bTheme',function(){ theme=theme==='dark'?'light':'dark'; applyTheme(theme); sSet(THEME_KEY,theme); });
+$('mCancel').addEventListener('click',closeModal);
+$('mOk').addEventListener('click',doReset);
+$('modal').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
+
+document.addEventListener('keydown',function(e){
+  if(!$('modal').hidden){ if(e.key==='Escape'){e.preventDefault();closeModal();} return; }
+  if(e.ctrlKey||e.metaKey||e.altKey) return;
+  var t=e.target, tag=(t&&t.tagName||'').toLowerCase();
+  if(tag==='input'||tag==='select'||tag==='textarea'||tag==='summary'||(t&&t.isContentEditable)) return;
+  var k=e.key;
+  if(k===' '||k==='Spacebar'||k==='Enter'){
+    if(tag==='button') return;
+    e.preventDefault(); flip(); return;
+  }
+  if(k==='ArrowRight'){e.preventDefault();go(1);focusCard();return;}
+  if(k==='ArrowLeft'){e.preventDefault();go(-1);focusCard();return;}
+  if(k==='k'||k==='K'){e.preventDefault();mark('known');focusCard();return;}
+  if(k==='l'||k==='L'){e.preventDefault();mark('learning');focusCard();return;}
+});
+
+$('sub').textContent='PFRDA Phase I Paper 2, Costing. '+CARDS.length+' cards from the EduTap summary and PYQ PDFs.';
+if(!storageOk) showBanner();
+rebuild(null);
+})();
+</script>
+</body>
+</html>
