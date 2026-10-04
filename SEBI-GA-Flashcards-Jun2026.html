@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SEBI &amp; PFRDA GA Flashcards — June 2026</title>
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABF0lEQVR4nO2ayw0CMQxEA6IPqAjoA4kLlAEXJPoAKoJK4LQXpCTryInXm/eum8/MrB3lkBAAAAAAAKBHFpLB6+3lW0uINp/XeZS3UYM8Gf8nF8Qyt4Bn8yHk9ScD8G5+IOUjWwFzJxrAXP7+QMwPFWAtwJpVyaT386StI8pmd626vrgCWppvsV/3LUAA0gm1e7L1fkWHYOsQakILWAuwhgCsBVhTdAg+bgdtHWrsj3fReHEFTNl8CHJ93beAOABpibVGqq/oDJh6CBJoAWsB1nQfgNt7gNY55PYeoKWj+xZwew/Q0sE9wFqANQRgLcAaArAWYE00gLFvbLwQ80MFpD7OpQpSPrIV4D2EnP7u3wkCAAAAAHTKD7jBQv69ExN2AAAAAElFTkSuQmCC">
+<style>
+:root{
+  --bg:#EEF1F5; --surface:#FFFFFF; --surface-2:#F6F8FB; --ink:#172033; --ink-2:#4A5568; --line:#D5DCE6;
+  --accent:#1F4E8C; --accent-ink:#FFFFFF; --known:#2E7D5B; --learn:#B7791F; --unseen:#A8B3C3;
+  --trap:#B4462D; --concept:#5A4AA6; --back:#EAF1FB; --focus:#2B6CD8;
+  --serif:"Iowan Old Style","Charter","Bitstream Charter","Sitka Text",Cambria,Georgia,serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans","Helvetica Neue",Arial,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1420; --surface:#172033; --surface-2:#1C2740; --ink:#E7ECF4; --ink-2:#A9B4C6; --line:#2C3A55;
+    --accent:#7FA7E6; --accent-ink:#0E1420; --known:#5FBF93; --learn:#E0A84A; --unseen:#56637A;
+    --trap:#E88A6F; --concept:#A99BEA; --back:#1A2A47; --focus:#8CB4FF; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1420; --surface:#172033; --surface-2:#1C2740; --ink:#E7ECF4; --ink-2:#A9B4C6; --line:#2C3A55;
+  --accent:#7FA7E6; --accent-ink:#0E1420; --known:#5FBF93; --learn:#E0A84A; --unseen:#56637A;
+  --trap:#E88A6F; --concept:#A99BEA; --back:#1A2A47; --focus:#8CB4FF; color-scheme:dark;
+}
+*{box-sizing:border-box}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.45}
+body{min-height:100%}
+button,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.wrap{max-width:760px;margin:0 auto;padding:12px 14px 28px}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0 10px}
+.title{margin:0;font-family:var(--serif);font-size:1.3rem;font-weight:600;letter-spacing:.005em}
+.title small{display:block;font-family:var(--sans);font-size:.8rem;font-weight:400;color:var(--ink-2)}
+.iconbtn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:7px 11px;cursor:pointer;font-size:.9rem;white-space:nowrap}
+.banner{display:none;margin:0 0 10px;padding:10px 12px;border-radius:10px;border:1px solid var(--trap);background:var(--surface);color:var(--ink);font-size:.92rem}
+.banner.show{display:block}
+.banner strong{color:var(--trap)}
+.progress{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px}
+.bar{display:flex;height:10px;border-radius:6px;overflow:hidden;background:var(--unseen)}
+.bar span{display:block;height:100%;transition:width .25s}
+.bar .k{background:var(--known)} .bar .l{background:var(--learn)}
+.counts{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:8px;font-size:.88rem;color:var(--ink-2)}
+.counts b{color:var(--ink);font-variant-numeric:tabular-nums}
+.sw{display:inline-block;width:.7em;height:.7em;border-radius:2px;margin-right:5px;vertical-align:baseline}
+.filters{background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-bottom:12px}
+.filters summary{cursor:pointer;padding:10px 12px;font-weight:600;font-size:.95rem;list-style:none;display:flex;justify-content:space-between;gap:10px}
+.filters summary::-webkit-details-marker{display:none}
+.filters summary .sum{font-weight:400;color:var(--ink-2);font-size:.85rem;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;padding:0 12px 12px}
+.fgrid label{display:flex;flex-direction:column;gap:4px;font-size:.82rem;color:var(--ink-2)}
+.fgrid .full{grid-column:1/-1}
+select{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2)}
+.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{flex:1;border:0;background:var(--surface-2);padding:8px 4px;cursor:pointer;font-size:.88rem}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);font-weight:600}
+.orderrow{display:flex;gap:8px;flex-wrap:wrap}
+.orderrow .iconbtn{flex:1}
+.pos{display:flex;justify-content:space-between;align-items:baseline;font-size:.85rem;color:var(--ink-2);margin:0 2px 6px}
+.pos b{color:var(--ink);font-variant-numeric:tabular-nums}
+.stage{perspective:1400px}
+.card{position:relative;min-height:320px;cursor:pointer;transform-style:preserve-3d;transition:transform .45s cubic-bezier(.2,.7,.2,1);border-radius:16px}
+.card.flipped{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:16px;border:1px solid var(--line);background:var(--surface);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 1px 0 var(--line)}
+.face.back{transform:rotateY(180deg);background:var(--back)}
+.band{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--line);font-size:.8rem;color:var(--ink-2)}
+.band .topic{font-weight:600;color:var(--ink)}
+.chip{border:1px solid currentColor;border-radius:999px;padding:1px 8px;font-size:.74rem;line-height:1.5}
+.chip.fact{color:var(--accent)} .chip.trap{color:var(--trap)} .chip.concept{color:var(--concept)}
+.chip.tag{color:var(--ink-2)}
+.chip.st{margin-left:auto;border:0;padding:1px 0;font-weight:600}
+.st.k{color:var(--known)} .st.l{color:var(--learn)} .st.u{color:var(--ink-2)}
+.body{flex:1;display:flex;align-items:center;padding:18px 20px 22px;overflow:auto}
+.q,.a{font-family:var(--serif);margin:0;width:100%}
+.q{font-size:1.28rem;line-height:1.45}
+.a{font-size:1.2rem;line-height:1.55;white-space:pre-line}
+.face.back .body{align-items:flex-start}
+.kind-concept .a{font-size:1rem;line-height:1.6}
+.card.kind-concept{min-height:440px}
+.hint{text-align:center;font-size:.78rem;color:var(--ink-2);padding:0 12px 10px}
+.controls{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:8px;margin-top:12px}
+.marks{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 8px;font-size:.98rem;cursor:pointer;min-height:48px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.learn{border-color:var(--learn);color:var(--learn);font-weight:600}
+.btn.known{border-color:var(--known);color:var(--known);font-weight:600}
+.btn.learn.on{background:var(--learn);color:var(--surface)} .btn.known.on{background:var(--known);color:var(--surface)}
+.btn kbd{font-family:var(--sans);font-size:.72rem;border:1px solid currentColor;border-radius:4px;padding:0 4px;margin-left:6px;opacity:.8}
+.empty{display:none;border:1px dashed var(--line);border-radius:16px;padding:28px 18px;text-align:center;background:var(--surface)}
+.empty.show{display:block}
+.empty p{margin:0 0 12px}
+.foot{margin-top:18px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.8rem;color:var(--ink-2)}
+.danger{border-color:var(--trap);color:var(--trap)}
+.modal{display:none;position:fixed;inset:0;background:rgba(10,15,25,.45);align-items:center;justify-content:center;padding:16px;z-index:10}
+.modal.show{display:flex}
+.modal .box{background:var(--surface);border:1px solid var(--line);border-radius:14px;max-width:380px;width:100%;padding:18px}
+.modal h2{margin:0 0 6px;font-family:var(--serif);font-size:1.15rem}
+.modal p{margin:0 0 14px;color:var(--ink-2);font-size:.92rem}
+.modal .row{display:flex;gap:8px;justify-content:flex-end}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (max-width:520px){
+  .fgrid{grid-template-columns:1fr}
+  .q{font-size:1.14rem}.a{font-size:1.08rem}
+  .card{min-height:360px}
+  .card.kind-concept{min-height:560px}
+  .title{font-size:1.1rem}
+}
+@media (prefers-reduced-motion: reduce){.card,.bar span{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1 class="title">GA Flashcards — June 2026<small>SEBI Grade A &amp; PFRDA Grade A, Phase 1</small></h1>
+    <button class="iconbtn" id="themeBtn" type="button" aria-label="Switch colour theme">Dark theme</button>
+  </header>
+
+  <div class="banner" id="storageBanner" role="alert"><strong>Progress won't be saved.</strong> This browser is blocking site storage, so your marks and filters last only until you close the page. Allow site data (or leave private browsing) to keep them.</div>
+
+  <section class="progress" aria-label="Progress">
+    <div class="bar" aria-hidden="true"><span class="k" id="barK"></span><span class="l" id="barL"></span></div>
+    <div class="counts">
+      <span><span class="sw" style="background:var(--known)"></span>Known <b id="cK">0</b></span>
+      <span><span class="sw" style="background:var(--learn)"></span>Still learning <b id="cL">0</b></span>
+      <span><span class="sw" style="background:var(--unseen)"></span>Unseen <b id="cU">0</b></span>
+      <span>Total <b id="cT">0</b></span>
+    </div>
+  </section>
+
+  <details class="filters" id="filters">
+    <summary><span>Filters &amp; order</span><span class="sum" id="filterSum"></span></summary>
+    <div class="fgrid">
+      <label class="full">Topic<select id="fTopic"></select></label>
+      <label>Status<select id="fStatus">
+        <option value="all">All cards</option>
+        <option value="learning">Still learning</option>
+        <option value="unseen">Unseen</option>
+        <option value="known">Known</option>
+        <option value="unseen_learning">Unseen + still learning</option>
+      </select></label>
+      <label>Card type<div class="seg" id="fType" role="group" aria-label="Card type">
+        <button type="button" data-v="all">All</button><button type="button" data-v="fact">Facts</button><button type="button" data-v="trap">Traps</button><button type="button" data-v="concept">Concepts</button>
+      </div></label>
+      <div class="full orderrow">
+        <button class="iconbtn" id="shuffleBtn" type="button">Shuffle</button>
+        <button class="iconbtn" id="orderBtn" type="button">Reset order</button>
+      </div>
+    </div>
+  </details>
+
+  <div class="pos"><span>Card <b id="posI">0</b> of <b id="posN">0</b> in view</span><span id="orderLabel">Topic order</span></div>
+
+  <div class="stage" id="stage">
+    <div class="card" id="card" role="button" tabindex="0" aria-live="polite" aria-label="Flashcard. Press Space or tap to flip.">
+      <div class="face front">
+        <div class="band"><span class="topic" id="fTopicName"></span><span class="chip" id="fKind"></span><span class="chip tag">Jun 2026</span><span class="chip st" id="fSt"></span></div>
+        <div class="body"><p class="q" id="qText"></p></div>
+        <div class="hint">Tap or press Space to see the answer</div>
+      </div>
+      <div class="face back">
+        <div class="band"><span class="topic" id="bTopicName"></span><span class="chip" id="bKind"></span><span class="chip tag">Jun 2026</span></div>
+        <div class="body"><p class="a" id="aText"></p></div>
+      </div>
+    </div>
+  </div>
+  <div class="empty" id="empty"><p>No cards match these filters.</p><button class="btn primary" id="showAllBtn" type="button">Show all cards</button></div>
+
+  <div class="controls">
+    <button class="btn" id="prevBtn" type="button" aria-label="Previous card">← Prev</button>
+    <button class="btn primary" id="flipBtn" type="button">Flip<kbd>Space</kbd></button>
+    <button class="btn" id="nextBtn" type="button" aria-label="Next card">Next →</button>
+  </div>
+  <div class="marks">
+    <button class="btn known" id="knownBtn" type="button">Known<kbd>1</kbd></button>
+    <button class="btn learn" id="learnBtn" type="button">Still learning<kbd>2</kbd></button>
+  </div>
+
+  <div class="foot">
+    <span>Keys: Space flip, ← → move, 1 known, 2 still learning</span>
+    <button class="iconbtn danger" id="resetBtn" type="button">Reset progress</button>
+  </div>
+</div>
+
+<div class="modal" id="confirm" role="dialog" aria-modal="true" aria-labelledby="cfTitle">
+  <div class="box">
+    <h2 id="cfTitle">Reset all progress?</h2>
+    <p>This clears every Known and Still learning mark in this deck. Your filters and theme stay as they are.</p>
+    <div class="row"><button class="iconbtn" id="cfCancel" type="button">Cancel</button><button class="iconbtn danger" id="cfOk" type="button">Reset progress</button></div>
+  </div>
+</div>
+
+<script type="application/json" id="deckData">{"topics":["SEBI & Capital Markets","RBI, Banking & NBFC","Pension & Social Security","Insurance & IRDAI","Fintech & Payments","Economy, Trade & Statistics","Budget & Fiscal","Appointments","Reports & Indices","Government Schemes","Polity & Law","Science, Tech & Space","Awards","International","Environment","Defence","Sports"],"cards":[{"id":"j005","i":4,"t":12,"y":"fact","q":"Which country conferred the Order of the White Double Cross (First Class) on PM Modi — his 33rd international honour?","a":"Slovakia"},{"id":"j011","i":10,"t":16,"y":"fact","q":"Where will the 20th Asian Games (2026) be held?","a":"Aichi–Nagoya, Japan"},{"id":"j015","i":14,"t":5,"y":"fact","q":"What is India's bioeconomy target for 2030?","a":"$300 billion"},{"id":"j016","i":15,"t":15,"y":"fact","q":"What was India's record annual defence production in FY 2025-26?","a":"₹1.78 lakh crore"},{"id":"j018","i":17,"t":7,"y":"fact","q":"Who is the current Chief of the Army Staff (as of Jun 2026)?","a":"Dhiraj Seth (31st COAS)"},{"id":"j020","i":19,"t":5,"y":"fact","q":"Statistics Day (June 29) marks whose birth anniversary?","a":"Prof. P.C. Mahalanobis"},{"id":"j024","i":23,"t":16,"y":"fact","q":"Who hosts the 2026 FIFA World Cup, the first with 48 teams?","a":"USA, Mexico and Canada"},{"id":"j025","i":24,"t":12,"y":"fact","q":"Which Indian initiative won the 2026 Food Planet Prize — the first Indian winner?","a":"Andhra Pradesh Community Managed Natural Farming (APCNF)"},{"id":"j030","i":29,"t":12,"y":"fact","q":"Who became the first Indian global winner of the Cambridge Dedicated Teacher Awards (2026)?","a":"Soma Mandal"},{"id":"j031","i":30,"t":16,"y":"fact","q":"Who became the first Indian to win the Norway Chess title (2026)?","a":"R Praggnanandhaa"},{"id":"j034","i":33,"t":11,"y":"fact","q":"CODENE, India's first dedicated nuclear engineering design centre, is being set up by?","a":"IIT Hyderabad"},{"id":"j035","i":34,"t":10,"y":"fact","q":"Which law opened India's civil nuclear sector to private companies?","a":"The SHANTI Act"},{"id":"j036","i":35,"t":5,"y":"fact","q":"India's nuclear power capacity target for 2047?","a":"100 GW"},{"id":"j037","i":36,"t":7,"y":"fact","q":"Who is the current global head of WhatsApp — its first Indian chief executive?","a":"Kunal Shah (founder of CRED)"},{"id":"j038","i":37,"t":7,"y":"fact","q":"Who is the current President of the World Bank Group (first person of Indian origin)?","a":"Ajay Banga"},{"id":"j041","i":40,"t":12,"y":"fact","q":"Who became the first person of Indian origin to win the Wolf Prize in Physics?","a":"Jainendra K. Jain"},{"id":"j044","i":43,"t":5,"y":"fact","q":"Which company will build India's next Strategic Petroleum Reserve at Mangaluru?","a":"ONGC — the first PSU oil producer given this task"},{"id":"j049","i":48,"t":9,"y":"fact","q":"Punyashlok Ahilyadevi Holkar Shetkari Karjamukti Yojana (Maharashtra) is a farm loan waiver of what size?","a":"₹36,585 crore"},{"id":"j050","i":49,"t":4,"y":"fact","q":"Which I4C portal helps cyber-fraud victims get frozen or recovered money restored?","a":"Money Restoration Module (MRM)"},{"id":"j052","i":51,"t":0,"y":"fact","q":"Which country overtook India as the world's sixth-largest stock market in June 2026 (Bloomberg data)?","a":"South Korea"},{"id":"j053","i":52,"t":0,"y":"fact","q":"India's global rank by stock market capitalisation after South Korea overtook it (June 2026)?","a":"7th"},{"id":"j062","i":61,"t":0,"y":"fact","q":"Which firm received SEBI's final approval to start a mutual fund business (June 2026)?","a":"Nuvama Wealth Management"},{"id":"j069","i":68,"t":15,"y":"fact","q":"Value of the BrahMos export deal signed with Vietnam?","a":"$629 million"},{"id":"j071","i":70,"t":16,"y":"fact","q":"Who won IPL 2026 (19th edition)?","a":"Royal Challengers Bengaluru (defending champions)"},{"id":"j080","i":79,"t":16,"y":"fact","q":"How did India's women's cricket team qualify for the LA 2028 Olympics?","a":"As Asia's highest-placed eligible finisher at the ICC Women's T20 World Cup 2026"},{"id":"j084","i":83,"t":7,"y":"fact","q":"Who is the President of the 81st session of the UN General Assembly (from Sep 2026)?","a":"Dr. Khalilur Rahman (Bangladesh)"},{"id":"j085","i":84,"t":7,"y":"trap","q":"UNGA presidents: 80th session vs 81st session?","a":"80th: Annalena Baerbock (Germany); 81st: Khalilur Rahman (Bangladesh)"},{"id":"j086","i":85,"t":7,"y":"fact","q":"Who is the current Chairperson of CBSE (as of Jun 2026)?","a":"Lokhande Prashant Sitaram"},{"id":"j087","i":86,"t":7,"y":"fact","q":"Who is the current MD & CEO of Canara Bank (as of Jun 2026)?","a":"Brajesh Kumar"},{"id":"j088","i":87,"t":7,"y":"fact","q":"Who holds additional charge as Secretary DDR&D and Chairman of DRDO (as of Jun 2026)?","a":"Rajesh Kumar Singh"},{"id":"j090","i":89,"t":7,"y":"fact","q":"Who is the current Chief Minister of Karnataka (as of Jun 2026)?","a":"D.K. Shivakumar"},{"id":"j091","i":90,"t":7,"y":"fact","q":"Who is the current MD & CEO of Protean eGov Technologies (as of Jun 2026)?","a":"Ajay Rajan"},{"id":"j092","i":91,"t":7,"y":"fact","q":"Who is the current CEO of UIDAI, who also holds charge as CEO of the IndiaAI Mission (as of Jun 2026)?","a":"Saurabh Vijay"},{"id":"j093","i":92,"t":7,"y":"fact","q":"Whose term as HDFC Bank's interim part-time chairman did RBI extend by three months?","a":"Keki Mistry"},{"id":"j094","i":93,"t":7,"y":"fact","q":"Who is the current CMD of General Insurance Corporation of India (GIC Re) (as of Jun 2026)?","a":"Hitesh Joshi"},{"id":"j095","i":94,"t":7,"y":"fact","q":"Who is the current Chair of the International Chamber of Commerce (as of Jun 2026)?","a":"Harsh Pati Singhania"},{"id":"j097","i":96,"t":7,"y":"fact","q":"Who is the current Solicitor General of India (reappointed for 3 years)?","a":"Tushar Mehta"},{"id":"j103","i":102,"t":1,"y":"fact","q":"In the PSU NBFC merger approved in June 2026, which company merges into which?","a":"REC Ltd merges into Power Finance Corporation (PFC)"},{"id":"j108","i":107,"t":9,"y":"fact","q":"Samagra Shishu Bal Swasthya Karyakram (SSBSK), launched by the Health Ministry, covers children of what age?","a":"Birth to 36 months"},{"id":"j110","i":109,"t":9,"y":"fact","q":"Benefit under Nikshay Poshan Yojana (2018)?","a":"₹1,000 per month nutritional support to every notified TB patient"},{"id":"j113","i":112,"t":9,"y":"fact","q":"Outlay of ANRF's MAHA Water Mission over five years?","a":"₹200 crore"},{"id":"j115","i":114,"t":5,"y":"fact","q":"What is the ethanol content of E85 fuel, launched by the Petroleum Ministry in June 2026?","a":"80–85% ethanol"},{"id":"j118","i":117,"t":5,"y":"fact","q":"India's global rank in installed wind power capacity?","a":"4th"},{"id":"j120","i":119,"t":5,"y":"fact","q":"India's wind capacity target for 2030?","a":"100 GW"},{"id":"j124","i":123,"t":14,"y":"fact","q":"Under which article of the Paris Agreement did India and Japan adopt Rules of Implementation for the Joint Crediting Mechanism (JCM)?","a":"Article 6.2"},{"id":"j125","i":124,"t":14,"y":"concept","q":"Concept — Article 6 of the Paris Agreement: what do 6.2, 6.4 and 6.8 cover?","a":"6.2: bilateral/multilateral cooperation; carbon credits transferred as ITMOs (Internationally Transferred Mitigation Outcomes) to meet NDCs.\n6.4: a UN-supervised global carbon market mechanism.\n6.8: non-market approaches to climate cooperation.\nIndia–Japan JCM (RoI adopted 8 Jun 2026) runs under 6.2, governed by a bilateral Joint Committee."},{"id":"j126","i":125,"t":6,"y":"fact","q":"By when must Panchayats prepare GPDPs to access 16th Finance Commission grants?","a":"15 August 2026"},{"id":"j130","i":129,"t":5,"y":"fact","q":"When did the India–Oman CEPA come into force (signed 18 Dec 2025)?","a":"1 June 2026"},{"id":"j131","i":130,"t":5,"y":"fact","q":"Share of India's exports (by value) getting duty-free access to Oman under the CEPA?","a":"99.38%"},{"id":"j132","i":131,"t":5,"y":"fact","q":"India is the ___ country to conclude a CEPA with Oman.","a":"Second, after the United States"},{"id":"j135","i":134,"t":5,"y":"trap","q":"India–Oman CEPA vs India–UK CETA: which entered into force when?","a":"Oman CEPA: 1 June 2026. UK CETA (with DCC): 15 July 2026"},{"id":"j137","i":136,"t":13,"y":"fact","q":"Theme of India's BRICS Presidency 2026?","a":"'Building for Resilience, Innovation, Cooperation and Sustainability'"},{"id":"j139","i":138,"t":13,"y":"fact","q":"The UN General Assembly has designated 2026 as the International Year of?","a":"The Woman Farmer (IYWF)"},{"id":"j141","i":140,"t":5,"y":"fact","q":"When was the India–UK CETA signed?","a":"24 July 2025 (in London)"},{"id":"j142","i":141,"t":5,"y":"fact","q":"India–UK bilateral trade target by 2030 under CETA?","a":"US$100 billion"},{"id":"j145","i":144,"t":5,"y":"fact","q":"Scotch whisky duty path under India–UK CETA?","a":"150% cut to 75% immediately, then to 40% over 10 years"},{"id":"j147","i":146,"t":2,"y":"fact","q":"What does the India–UK Double Contribution Convention (DCC) do?","a":"Exempts Indian employees/employers from dual social-security contributions in the UK on temporary assignment"},{"id":"j148","i":147,"t":2,"y":"fact","q":"Exemption period for Indian workers under the India–UK DCC?","a":"5 years (raised from 3 years)"},{"id":"j152","i":151,"t":2,"y":"fact","q":"What is the India–UK DCC also officially called?","a":"Agreement on Social Security Contributions (ASSC)"},{"id":"j153","i":152,"t":2,"y":"fact","q":"When was the India–UK Double Contribution Convention signed?","a":"10 February 2026"},{"id":"j156","i":155,"t":13,"y":"fact","q":"Who has been elected Vice-President of FATF for July 2026–June 2027 — India's first time in the post?","a":"Vivek Aggarwal"},{"id":"j162","i":161,"t":13,"y":"trap","q":"FATF grey list vs black list?","a":"Grey: jurisdictions under increased monitoring. Black: high-risk jurisdictions subject to a 'Call for Action'"},{"id":"j164","i":163,"t":2,"y":"fact","q":"India's social protection coverage per ILO estimates (2025)?","a":"64.3% (up from 19% in 2015)"},{"id":"j166","i":165,"t":10,"y":"fact","q":"How many central labour laws were consolidated into four Labour Codes?","a":"29"},{"id":"j167","i":166,"t":5,"y":"fact","q":"India's unemployment rate per data cited at the 114th ILC?","a":"3.1% (2025), down from 6% (2017)"},{"id":"j173","i":172,"t":6,"y":"fact","q":"New Income-tax Act, 2025: number of sections vs the 1961 Act?","a":"536 sections (down from ~800)"},{"id":"j174","i":173,"t":6,"y":"fact","q":"What replaces 'Assessment Year' and 'Previous Year' under the Income-tax Act, 2025?","a":"A single 'Tax Year'"},{"id":"j187","i":186,"t":0,"y":"fact","q":"STT on futures after the Budget 2026-27 hike?","a":"0.05% (from 0.02%)"},{"id":"j188","i":187,"t":0,"y":"fact","q":"STT on options premium after the Budget 2026-27 hike?","a":"0.15% (from 0.1%)"},{"id":"j196","i":195,"t":2,"y":"fact","q":"Bhavishya, the online pension processing and sanction platform, was developed by?","a":"Department of Pension & Pensioners' Welfare (DoPPW)"},{"id":"j199","i":198,"t":2,"y":"fact","q":"How many Pension Payment Orders (PPOs) had Bhavishya issued as of 19 June 2026?","a":"More than 3.28 lakh"},{"id":"j204","i":203,"t":2,"y":"fact","q":"What is Form 6-A, notified by DoPPW on 16 July 2024?","a":"A single simplified pension application form, integrated with Bhavishya"},{"id":"j208","i":207,"t":2,"y":"fact","q":"What is PFRDA's 'Pension Sahayak'?","a":"An AI-enabled, multilingual grievance redressal platform for pension subscribers"},{"id":"j209","i":208,"t":2,"y":"fact","q":"How many languages does PFRDA Pension Sahayak support?","a":"22 Indian languages"},{"id":"j211","i":210,"t":2,"y":"trap","q":"Bhavishya vs Pension Sahayak — who runs each, and for what?","a":"Bhavishya: DoPPW — pension processing/PPOs for central govt employees. Pension Sahayak: PFRDA — AI grievance redressal for subscribers"},{"id":"j215","i":214,"t":5,"y":"fact","q":"When will MoSPI launch the Index of Services Production (ISP)?","a":"July 2026"},{"id":"j217","i":216,"t":5,"y":"fact","q":"Base year of the Index of Services Production?","a":"2024–25"},{"id":"j228","i":227,"t":5,"y":"fact","q":"IIP growth in April 2026 — first release under the new 2022–23 series?","a":"4.9%"},{"id":"j242","i":241,"t":5,"y":"fact","q":"Which three new producer price indices are introduced alongside the revised WPI?","a":"Output PPI, trial Input PPI and Service PPI"},{"id":"j245","i":244,"t":5,"y":"fact","q":"WPI inflation in May 2026 (new series)?","a":"9.68% (from 8.26% in April)"},{"id":"j252","i":251,"t":5,"y":"concept","q":"Concept — India's new price and production statistics (2026): what changed?","a":"IIP: base 2011-12→2022-23; 1,042 products/463 groups; NIC 2025; gas, water, sewerage, waste added; Output PPI replaces WPI as deflator for value items.\nWPI: base 2022-23 (released 15 Jun 2026, OEA-DPIIT); 957 items; GVO weights; chain-based; crude & gas → Fuel & Power.\nNew: Output PPI & trial Input PPI (monthly), Service PPI (quarterly). WPI + PPI run together 5 yrs, then WPI ends.\nISP: services counterpart of IIP, base 2024-25, from July 2026."},{"id":"j264","i":263,"t":14,"y":"fact","q":"Which wetland became India's 100th Ramsar site?","a":"Jai Prakash Narayan Bird Sanctuary (Surha Tal), Ballia, UP"},{"id":"j269","i":268,"t":14,"y":"fact","q":"Where will COP31 be held?","a":"Antalya, Türkiye"},{"id":"j284","i":283,"t":13,"y":"fact","q":"Which five countries were elected non-permanent UNSC members for 2027–28?","a":"Austria, Kyrgyzstan (first time), Portugal, Trinidad and Tobago, Zimbabwe"},{"id":"j287","i":286,"t":13,"y":"fact","q":"Where was the 52nd G7 Summit (2026) held?","a":"Evian-les-Bains, France"},{"id":"j290","i":289,"t":13,"y":"fact","q":"Which country became the 10th member of the New Development Bank (effective 5 June 2026)?","a":"Uzbekistan (first Central Asian member)"},{"id":"j295","i":294,"t":13,"y":"fact","q":"When did India join the US-led Pax Silica initiative on AI supply chains?","a":"February 2026, on the sidelines of the AI Impact Summit, New Delhi"},{"id":"j302","i":301,"t":6,"y":"fact","q":"Size of the ATF Price Stabilisation Fund approved by the Cabinet for airlines?","a":"₹10,000 crore"},{"id":"j306","i":305,"t":0,"y":"fact","q":"What tax relief did the government give FPIs on Government Securities (Ordinance, effective 1 Apr 2026)?","a":"Exempted interest income and capital gains on G-Secs from income tax"},{"id":"j308","i":307,"t":0,"y":"fact","q":"Through which routes does the FPI G-Sec tax exemption apply?","a":"General Route and Fully Accessible Route (FAR)"},{"id":"j310","i":309,"t":0,"y":"fact","q":"Which new securities were added to the Fully Accessible Route (FAR)?","a":"New 15-, 30- and 40-year G-Secs and Sovereign Green Bonds (eligible tenors)"},{"id":"j311","i":310,"t":0,"y":"fact","q":"Which three limits on FPI investment in G-Secs under the General Route were removed?","a":"Short-term investment limit, concentration limit and security-wise limit"},{"id":"j312","i":311,"t":0,"y":"fact","q":"Revised PROI investment limits in a company?","a":"Single PROI: 5% → 10% of paid-up capital. All PROIs combined: 10% → 24%"},{"id":"j314","i":313,"t":10,"y":"fact","q":"From when must approved vegan food products carry FSSAI's green 'Vegan' logo?","a":"1 July 2027"},{"id":"j319","i":318,"t":10,"y":"fact","q":"Under which Articles did the Supreme Court hold the right to walk on footpaths a fundamental right?","a":"Article 21 and Article 19(1)(d)"},{"id":"j321","i":320,"t":3,"y":"fact","q":"What stake in GIC Re did the government sell via OFS in June 2026?","a":"5%"},{"id":"j323","i":322,"t":6,"y":"fact","q":"Government's FY27 disinvestment and asset monetisation target?","a":"₹80,000 crore"},{"id":"j327","i":326,"t":3,"y":"fact","q":"Who chairs IRDAI's Working Group on Artificial Intelligence?","a":"Prof. Sandeep K. Shukla, Director, IIIT Hyderabad"},{"id":"j328","i":327,"t":7,"y":"fact","q":"Who has been appointed IRDAI Member (Actuary)?","a":"Dinesh Pant (MD, LIC)"},{"id":"j329","i":328,"t":7,"y":"fact","q":"Who has been appointed IRDAI Member (Distribution)?","a":"Girija Subramanian (CMD, New India Assurance)"},{"id":"j330","i":329,"t":3,"y":"fact","q":"Name of IRDAI's draft regulations (2026) providing structured public consultation and economic impact analysis?","a":"IRDAI (Procedure for Making Regulations and Subsidiary Instructions) Regulations, 2026"},{"id":"j331","i":330,"t":3,"y":"fact","q":"IRDAI's 2026 draft rule-making regulations are based on which Act?","a":"Sabka Bima Sabki Raksha (Amendment of Insurance Laws) Act, 2025"},{"id":"j338","i":337,"t":6,"y":"fact","q":"Centre's FY26 fiscal deficit as % of GDP (provisional)?","a":"4.4% (target met)"},{"id":"j341","i":340,"t":6,"y":"fact","q":"Centre's debt-to-GDP target for FY31?","a":"50%"},{"id":"j349","i":348,"t":5,"y":"fact","q":"Which two Maharatna CPSEs were placed under a one-year review for failing the profitability criterion?","a":"BHEL and SAIL"},{"id":"j351","i":350,"t":5,"y":"concept","q":"Concept — Maharatna criteria and powers?","a":"3-year averages: PAT > ₹5,000 cr; turnover > ₹25,000 cr; net worth > ₹15,000 cr; plus significant global presence.\nPower: equity investment up to ₹5,000 cr without prior government approval.\nFailing: one-year review, then possible downgrade to Navratna (BHEL, SAIL under review in 2026)."},{"id":"j354","i":353,"t":7,"y":"fact","q":"Who is the current Cabinet Secretary (headed the Maharatna review committee)?","a":"T.V. Somanathan"},{"id":"j355","i":354,"t":6,"y":"fact","q":"Gross GST collection in May 2026?","a":"₹1.94 lakh crore (+3.2% YoY)"},{"id":"j361","i":360,"t":0,"y":"trap","q":"Which two Asian markets pushed India down the global market-cap table in June 2026, and in what order?","a":"Taiwan first (now 5th, $5.15 tn), then South Korea a week later (6th); India fell to 7th"},{"id":"j365","i":364,"t":5,"y":"fact","q":"IMD's 2026 monsoon forecast cited as an inflation risk?","a":"90% of normal rainfall"},{"id":"j366","i":365,"t":0,"y":"fact","q":"Which scheme, earlier open only to NRIs/OCIs, now lets individual PROIs invest in listed Indian equity?","a":"Portfolio Investment Scheme (PIS)"},{"id":"j369","i":368,"t":0,"y":"concept","q":"Concept — June 2026 package for FPIs and PROIs: what changed?","a":"Tax: FPI interest & capital gains on G-Secs exempt from 1 Apr 2026 (earlier 20%/30%/12.5%); also for BIS.\nFAR: adds new 15/30/40-yr G-Secs and Sovereign Green Bonds.\nGeneral Route: short-term, concentration and security-wise limits removed; 'general' + 'long-term' merged; overall caps stay 6% (Central) / 2% (State).\nPROIs: can use PIS; single 5%→10%, aggregate 10%→24% (FEM NDI Third Amendment Rules 2026)."},{"id":"j370","i":369,"t":0,"y":"fact","q":"India's first Saatvik-themed stock index, launched by BSE Index Services?","a":"BSE Saatvik 100"},{"id":"j376","i":375,"t":0,"y":"fact","q":"From when do SEBI's revised ETF trading rules (dynamic price bands) apply?","a":"1 September 2026"},{"id":"j378","i":377,"t":0,"y":"fact","q":"Price band for equity and debt ETFs under SEBI's new framework?","a":"Starts at ±10%, expandable gradually up to ±20%"},{"id":"j379","i":378,"t":0,"y":"trap","q":"SEBI ETF price bands by type: equity/debt vs gold/silver vs overnight/liquid?","a":"Equity & debt: ±10% → up to ±20%. Gold & silver: ±6% (widenable) + pre-open auction. Overnight & liquid: fixed ±5%"},{"id":"j381","i":380,"t":0,"y":"fact","q":"From when does SEBI's reintroduced open-market (stock exchange route) share buyback apply?","a":"1 August 2026"},{"id":"j384","i":383,"t":0,"y":"fact","q":"For what purpose alone can mutual funds now borrow intraday?","a":"Temporary liquidity mismatches from settlement obligations (same day only)"},{"id":"j385","i":384,"t":0,"y":"fact","q":"What does GARUDA stand for in SEBI's AIF framework?","a":"Generating Asset Records and Unified Digital Access"},{"id":"j387","i":386,"t":0,"y":"fact","q":"SEBI's Quick Transmission Processing (QTP) raises the simplified-transmission threshold from what to what?","a":"From ₹5 lakh to ₹25 lakh"},{"id":"j388","i":387,"t":0,"y":"fact","q":"What key change did SEBI approve for municipal debt securities?","a":"Refinancing of municipal debt permitted, with more flexibility in using proceeds"},{"id":"j391","i":390,"t":0,"y":"concept","q":"Concept — SEBI Board reforms (June 2026) at a glance?","a":"1. Open-market buybacks back from 1 Aug 2026: 66 working days, ≥40% used in first half, promoters locked, 25% MPS kept.\n2. MF intraday borrowing only for settlement mismatches.\n3. GARUDA for AIFs: launch ~10 working days after PM (was 30 days).\n4. QTP: simplified transmission limit ₹5 lakh → ₹25 lakh.\n5. Municipal debt refinancing allowed.\n6. SDI framework simplified.\n7. SME IPO framework review."},{"id":"j392","i":391,"t":0,"y":"fact","q":"How many new sectoral indices did NSE Indices launch in June 2026?","a":"11 (taking the total to 34)"},{"id":"j398","i":397,"t":5,"y":"fact","q":"Total government commitment to NIIF after the Cabinet's June 2026 approval?","a":"₹60,000 crore (₹30,000 crore added)"},{"id":"j404","i":403,"t":0,"y":"fact","q":"Name of IEPFA's national initiative/panel on unclaimed financial assets (June 2026)?","a":"'Aapki Poonji Aapka Adhikaar'"},{"id":"j405","i":404,"t":0,"y":"trap","q":"Unclaimed dividends vs unclaimed bank deposits: after how long and to which fund?","a":"Dividend: 7 years → IEPF. Bank deposit: 10 years → RBI's Depositor Education and Awareness (DEA) Fund"},{"id":"j408","i":407,"t":7,"y":"fact","q":"Who is the current Chairperson of IEPFA (as of Jun 2026)?","a":"Deepti Gaur Mukerjee"},{"id":"j411","i":410,"t":6,"y":"fact","q":"Which Constitutional Amendment Act introduced GST?","a":"101st Constitutional Amendment Act, 2016"},{"id":"j413","i":412,"t":6,"y":"trap","q":"GST constitutional articles: 246A vs 269A vs 279A?","a":"246A: concurrent power of Centre & States to levy GST. 269A: IGST on inter-state trade. 279A: GST Council"},{"id":"j415","i":414,"t":6,"y":"fact","q":"Who chairs the GST Council?","a":"Union Finance Minister"},{"id":"j416","i":415,"t":5,"y":"fact","q":"HSBC India Manufacturing PMI for May 2026?","a":"55 (from 54.7 in April)"},{"id":"j422","i":421,"t":4,"y":"fact","q":"Which fintech got NPCI Bharat BillPay certification as a Biller Operating Unit (BOU)?","a":"Viyona Fintech India"},{"id":"j423","i":422,"t":4,"y":"fact","q":"What is BBPS now branded as?","a":"Bharat Connect"},{"id":"j426","i":425,"t":4,"y":"fact","q":"India–Nepal P2P cross-border remittance links which two systems?","a":"India's UPI with Nepal's National Payments Interface (NPI)"},{"id":"j428","i":427,"t":3,"y":"fact","q":"When did Parliament pass the Sabka Bima Sabki Raksha (Amendment of Insurance Laws) Act?","a":"17 December 2025"},{"id":"j429","i":428,"t":3,"y":"fact","q":"From when is the Sabka Bima Sabki Raksha Act in effect?","a":"5 February 2026"},{"id":"j430","i":429,"t":3,"y":"fact","q":"Which three laws does the Sabka Bima Sabki Raksha Act, 2025 amend?","a":"Insurance Act 1938, LIC Act 1956 and IRDAI Act 1999"},{"id":"j431","i":430,"t":3,"y":"fact","q":"FDI limit in insurance under the Sabka Bima Sabki Raksha Act, 2025?","a":"100% (raised from 74%)"},{"id":"j434","i":433,"t":3,"y":"fact","q":"Which new fund does the Sabka Bima Sabki Raksha Act create?","a":"Policyholders' Education and Protection Fund"},{"id":"j438","i":437,"t":3,"y":"concept","q":"Concept — Sabka Bima Sabki Raksha (Amendment of Insurance Laws) Act, 2025?","a":"Passed 17 Dec 2025; effective 5 Feb 2026; amends Insurance Act 1938, LIC Act 1956, IRDAI Act 1999.\nFDI 74% → 100%. Foreign reinsurance branch NOF ₹5,000 cr → ₹1,000 cr.\nPrior approval for share transfer: 1% → 5%. LIC: autonomy for zonal offices.\nNew Policyholders' Education and Protection Fund. Basis for IRDAI's 2026 rule-making regulations."},{"id":"j446","i":445,"t":0,"y":"fact","q":"Who launched India's first Target-Date (Life Cycle) Funds?","a":"Zerodha Fund House"},{"id":"j448","i":447,"t":1,"y":"fact","q":"What does ARIFAC stand for?","a":"Alliance of Reporting Entities in AML/CFT"},{"id":"j451","i":450,"t":1,"y":"fact","q":"Under which law are 'Reporting Entities' (members of ARIFAC) obligated?","a":"Prevention of Money Laundering Act, 2002 (PMLA)"},{"id":"j454","i":453,"t":5,"y":"fact","q":"Goldman Sachs' revised FY27 real GDP growth forecast for India?","a":"6.5% (from 6.1%)"},{"id":"j457","i":456,"t":7,"y":"fact","q":"Who is the current Chairman of IRDAI (as of Jun 2026)?","a":"Ajay Seth"},{"id":"j458","i":457,"t":3,"y":"fact","q":"By when is Bima Sugam expected to launch its initial products?","a":"End-September 2026"},{"id":"j460","i":459,"t":3,"y":"trap","q":"IRDAI's 'Bima Trinity': Sugam vs Vahak vs Vistaar?","a":"Sugam: digital insurance marketplace. Vahak: women-centric distribution network. Vistaar: simple bundled product for the underserved"},{"id":"j462","i":461,"t":0,"y":"fact","q":"Minimum investment in a Specialised Investment Fund (SIF), e.g. JioBlackRock's Prism Hybrid Long-Short Fund?","a":"₹10 lakh"},{"id":"j463","i":462,"t":0,"y":"concept","q":"Concept — Specialised Investment Fund (SIF)?","a":"A SEBI-regulated pooled product within the MF framework.\nLets AMCs run long-short equity, hybrid, derivative-hedged and multi-asset strategies.\nTargets HNIs; minimum ₹10 lakh.\nBridges simple mutual funds and high-ticket PMS/AIFs. Example: JioBlackRock Prism Hybrid Long-Short Fund."},{"id":"j464","i":463,"t":1,"y":"fact","q":"Which body did RBI recognise as the Self-Regulatory Organisation for the Account Aggregator ecosystem?","a":"Sahamati Foundation"},{"id":"j465","i":464,"t":4,"y":"fact","q":"How many Account Aggregators are operational (June 2026)?","a":"17"},{"id":"j470","i":469,"t":4,"y":"concept","q":"Concept — Account Aggregator (AA) ecosystem?","a":"AAs are RBI-regulated NBFC-AAs that move financial data between institutions only with the customer's consent.\nFIPs (data holders: banks, insurers, MFs) → AA → FIUs (data users, e.g. lenders).\nJune 2026: Sahamati Foundation recognised by RBI as SRO-AA (standards, disputes, interoperability).\nScale: 17 AAs, 176 FIPs, 1,020 FIUs; 450 mn+ consents; 294 mn+ linked accounts."},{"id":"j471","i":470,"t":4,"y":"fact","q":"Value of UPI transactions in May 2026 (record)?","a":"₹29.90 lakh crore"},{"id":"j472","i":471,"t":4,"y":"fact","q":"Volume of UPI transactions in May 2026 (record)?","a":"23.2 billion (+24% YoY)"},{"id":"j474","i":473,"t":4,"y":"fact","q":"Which NPCI arm partnered with which bank to launch UPI in Cambodia?","a":"NPCI International Payments Ltd (NIPL) with ACLEDA Bank"},{"id":"j476","i":475,"t":4,"y":"fact","q":"Cambodia is the ___ country to accept UPI.","a":"Ninth"},{"id":"j491","i":490,"t":1,"y":"fact","q":"Which four co-operative banks were added to the Second Schedule of the RBI Act in June 2026?","a":"Contai Co-op (Contai), Prime Co-op (Surat), Shri Veershaiv Co-op (Kolhapur), Varachha Co-op (Surat)"},{"id":"j492","i":491,"t":4,"y":"fact","q":"On what date was India–Cambodia QR payment connectivity launched in Phnom Penh?","a":"2 June 2026"},{"id":"j499","i":498,"t":1,"y":"fact","q":"New deadline to realise and repatriate export proceeds under the FEM (Export of Goods and Services) Amendment Regulations, 2026?","a":"9 months from date of export (cut from 15 months)"},{"id":"j500","i":499,"t":7,"y":"fact","q":"Which RBI Deputy Governor was re-appointed for two years from 26 June 2026?","a":"Swaminathan Janakiraman"},{"id":"j505","i":504,"t":1,"y":"fact","q":"Which MPC meeting was held on 3–5 June 2026?","a":"The 61st"},{"id":"j506","i":505,"t":1,"y":"fact","q":"Repo rate after the June 2026 MPC?","a":"5.25% (unchanged)"},{"id":"j507","i":506,"t":1,"y":"fact","q":"Standing Deposit Facility (SDF) rate after the June 2026 MPC?","a":"5.00%"},{"id":"j508","i":507,"t":1,"y":"fact","q":"MSF rate and Bank Rate after the June 2026 MPC?","a":"Both 5.50%"},{"id":"j509","i":508,"t":1,"y":"fact","q":"Monetary policy stance after the June 2026 MPC?","a":"Neutral (unchanged)"},{"id":"j510","i":509,"t":1,"y":"trap","q":"June 2026 policy corridor: SDF vs Repo vs MSF/Bank Rate?","a":"SDF 5.00% (floor) < Repo 5.25% < MSF = Bank Rate 5.50% (ceiling)"},{"id":"j511","i":510,"t":1,"y":"fact","q":"RBI's real GDP growth projection for FY 2026-27 (June 2026 MPC)?","a":"6.6%"},{"id":"j512","i":511,"t":1,"y":"fact","q":"Real GDP growth for FY 2025-26 cited by the MPC (NSO Second Advance Estimates)?","a":"7.6%"},{"id":"j513","i":512,"t":1,"y":"fact","q":"RBI's CPI inflation projection for FY 2026-27 (June 2026)?","a":"5.1%"},{"id":"j516","i":515,"t":1,"y":"fact","q":"India's forex reserves as on 29 May 2026?","a":"US$682.3 billion"},{"id":"j522","i":521,"t":1,"y":"concept","q":"Concept — June 2026 MPC (61st meeting) in one card?","a":"Rates unchanged: Repo 5.25%; SDF 5.00%; MSF = Bank Rate 5.50%; stance Neutral.\nGrowth: FY26 7.6% (NSO SAE); FY27 projected 6.6% (Q1 6.6, Q2 6.3, Q3 6.5, Q4 6.8).\nInflation: CPI Apr 3.5%; FY27 CPI 5.1%, core 4.7%.\nLiquidity: LAF surplus ₹2.63 lakh cr/day. Reserves $682.3 bn (29 May) ≈ 11 months of imports."},{"id":"j530","i":529,"t":1,"y":"fact","q":"Which deposits did RBI exempt from CRR and SLR in June 2026?","a":"Fresh FCNR(B) deposits of 3–5 years mobilised between 8 June and 30 September 2026"},{"id":"j532","i":531,"t":1,"y":"trap","q":"CRR vs SLR: under which Act is each maintained?","a":"CRR: RBI Act, 1934 (cash with RBI). SLR: Banking Regulation Act, 1949 (cash, gold, G-Secs)"},{"id":"j542","i":541,"t":1,"y":"trap","q":"RBI's two June 2026 dollar swap facilities: FCNR(B) swap vs ECB swap?","a":"FCNR(B): AD-I banks' fresh 3–5 yr NRI deposits; open to 16 Oct 2026. ECB: PSU/bank foreign borrowings; fixed 1.5%; open to 15 Jan 2027"},{"id":"j546","i":545,"t":2,"y":"fact","q":"Can Urban Cooperative Banks act as Points of Presence (PoP) for NPS under RBI's 2026 directions?","a":"Yes — UCBs may provide PoP services for NPS"},{"id":"j550","i":549,"t":2,"y":"fact","q":"Which NBFCs may act as NPS Points of Presence, and on what conditions?","a":"Non-Base-Layer NBFCs meeting CRAR and profit norms, registered with PFRDA"},{"id":"j551","i":550,"t":2,"y":"concept","q":"Concept — Who can be an NPS Point of Presence under RBI's 2026 Undertaking of Financial Services directions?","a":"UCBs: may provide PoP services for NPS (but no PMS).\nNBFCs: only those above the Base Layer, if they meet prescribed CRAR, made a net profit last year, and register with PFRDA.\nThe PoP must also be registered with PFRDA — RBI sets entity eligibility, PFRDA regulates the NPS role."},{"id":"j557","i":556,"t":1,"y":"fact","q":"What lending change did RBI propose for Real Estate Investment Trusts (REITs)?","a":"Allow commercial banks to lend to REITs (earlier prohibited)"},{"id":"j565","i":564,"t":1,"y":"concept","q":"Concept — RBI's 2026 REIT/InvIT lending framework?","a":"Banks may now lend to REITs (InvITs already allowed) — SEBI-registered, listed, ≥80% assets cash-positive for 1 yr.\nNo bullet/balloon repayments; no funding stressed SPVs; refinancing only for completed projects.\nAll banks' exposure ≤49% of trust assets; bank's REIT exposure ≤10% of eligible capital (from 1 Oct 2026).\nRisk weight 100% (CRE), 125% if CME, 150% via overseas branches. REIT loans fully secured."},{"id":"j578","i":577,"t":1,"y":"fact","q":"Which NRI deposit had its interest rate ceiling temporarily withdrawn (17 Jun–30 Sep 2026)?","a":"Fresh FCNR(B) deposits of 3 to 5 years"},{"id":"j580","i":579,"t":1,"y":"fact","q":"Which rupee NRI deposits got relaxed interest-rate rules (17 Jun–30 Sep 2026)?","a":"Fresh NRE deposits of 3 years and above"},{"id":"j582","i":581,"t":1,"y":"trap","q":"NRE vs NRO vs FCNR(B) deposits?","a":"NRE: rupee deposit from foreign income. NRO: rupee deposit of income earned in India. FCNR(B): foreign-currency deposit"},{"id":"j583","i":582,"t":7,"y":"fact","q":"Who is the current Secretary, Department of Financial Services, nominated to the RBI and SBI central boards?","a":"Sanjay Lohiya"},{"id":"j587","i":586,"t":5,"y":"fact","q":"India's current account deficit for full-year 2025-26?","a":"US$25.2 billion (0.6% of GDP)"},{"id":"j603","i":602,"t":1,"y":"fact","q":"New criterion for identifying NBFCs in the Upper Layer (2026)?","a":"Asset size of ₹1,00,000 crore and above"},{"id":"j606","i":605,"t":1,"y":"fact","q":"What changed for Government-owned NBFCs under SBR in 2026?","a":"They are no longer barred from the Upper Layer"},{"id":"j612","i":611,"t":1,"y":"concept","q":"Concept — RBI's 2026 changes to NBFC Scale Based Regulation?","a":"Layers: Base, Middle, Upper, Top.\nUpper Layer now purely by size: assets ≥ ₹1,00,000 cr (threshold reviewed every 3 yrs), replacing 70:30 scoring + top-10 rule.\nGovt-owned NBFCs can now be Upper Layer; their concentration-norm exemptions are withdrawn (existing excess exposures run to maturity).\nNBFC-UL must list within 3 yrs — except fully govt-owned ones."},{"id":"j615","i":614,"t":1,"y":"fact","q":"From when does RBI's 'Customer Protection in Fraudulent Electronic Banking Transactions' framework apply?","a":"EBTs on or after 1 January 2027"},{"id":"j622","i":621,"t":1,"y":"fact","q":"Small-value digital fraud compensation amount (customer-negligence cases, loss up to ₹50,000)?","a":"85% of net loss or ₹25,000, whichever is lower"},{"id":"j627","i":626,"t":1,"y":"concept","q":"Concept — RBI's framework for fraudulent electronic banking transactions (from 1 Jan 2027)?","a":"Scope: CBs, SFBs, PBs, LABs, RRBs, UCBs, rural co-ops.\nSMS alerts mandatory above ₹500. Burden of proof on the bank.\nZero liability: bank's fault (always) or third-party breach reported within 5 days.\nResolution: 45 days domestic / 60 days cross-border; credit card shadow reversal in 5 days.\nSmall-value compensation (customer negligence, loss ≤ ₹50,000): lower of 85% or ₹25,000, once per lifetime; RBI 65% / own bank 10% / beneficiary bank 10%; paid in 5 days."},{"id":"j640","i":639,"t":2,"y":"fact","q":"What changed for NPS subscribers joining after age 60?","a":"The vesting period has been removed"},{"id":"j650","i":649,"t":2,"y":"fact","q":"Which reasons were removed as valid grounds for NPS partial withdrawal?","a":"Skill development and start-up/own venture"},{"id":"j654","i":653,"t":2,"y":"fact","q":"NPS subscribers as of 31 March 2026?","a":"Over 2.17 crore"},{"id":"j655","i":654,"t":2,"y":"fact","q":"NPS assets under management as of 31 March 2026?","a":"About ₹15.95 lakh crore"},{"id":"j656","i":655,"t":2,"y":"fact","q":"From when may NPS invest in rupee-denominated bonds of the New Development Bank?","a":"13 May 2026"},{"id":"j657","i":656,"t":2,"y":"fact","q":"What is NPS Sanchay?","a":"A simplified NPS for informal-sector workers (All-Citizen Model)"},{"id":"j658","i":657,"t":2,"y":"fact","q":"Who developed StAR NPS, the fully digital onboarding platform?","a":"BSE Technologies Pvt Ltd"},{"id":"j660","i":659,"t":2,"y":"fact","q":"Retirement Income Scheme (RIS Steady): equity allocation path?","a":"35% at age 60, sliding down to 10% by age 75"},{"id":"j662","i":661,"t":2,"y":"concept","q":"Concept — NPS exit and withdrawal rules (current)?","a":"Normal exit: ≤₹8 lakh → 100% lump sum / SLW / SUR; ₹8–12 lakh → up to ₹6 lakh lump sum, rest annuity or SUR; >₹12 lakh → up to 60% lump sum + ≥40% annuity.\nPremature: full withdrawal if corpus <₹5 lakh. Death: 100% lump sum.\nPartial (non-govt): up to 25% of own contribution, max 4 times, 4-yr gap (3-yr after 60); no longer for skilling or start-ups.\nLien up to 25% for loans. RIS Steady keeps corpus invested after 60 (equity 35%→10% by 75)."},{"id":"j663","i":662,"t":14,"y":"fact","q":"Under which law was the Carbon Credit Trading Scheme notified (2023)?","a":"Energy Conservation Act, 2001"},{"id":"j676","i":675,"t":14,"y":"concept","q":"Concept — India's Carbon Credit Trading Scheme (CCTS)?","a":"Legal base: Energy Conservation Act 2001 (2023); Ministry of Power.\nRoles: BEE sets targets and issues certificates; CERC regulates trading; Grid-India runs registry; NSC-ICM (Power + MoEFCC secretaries) oversees.\nCompliance: 9 sectors, 490 entities (aluminium, cement, chlor-alkali, pulp & paper + refineries, petrochem, textiles, secondary aluminium). Thermal power stays under PAT.\nOffset route for voluntary projects. 1 credit = 1 tCO2e; floor/forbearance prices; no re-trading."},{"id":"j677","i":676,"t":9,"y":"fact","q":"Central outlay of SARTHAK-PDS for the 16th Finance Commission cycle (to 31 March 2031)?","a":"₹25,530 crore (Central share)"},{"id":"j684","i":683,"t":9,"y":"fact","q":"From where was PMUY launched in 2016?","a":"Ballia, Uttar Pradesh"},{"id":"j689","i":688,"t":9,"y":"fact","q":"New annual cap on subsidised refills under PMUY?","a":"4 cylinders a year (cut from 9)"},{"id":"j692","i":691,"t":9,"y":"fact","q":"Samagra Shiksha allocation for 2026-27?","a":"₹42,100 crore (+11%)"},{"id":"j695","i":694,"t":1,"y":"fact","q":"What was PMJDY launched as, in 2014?","a":"National Mission on Financial Inclusion (Ministry of Finance)"},{"id":"j711","i":710,"t":1,"y":"concept","q":"Concept — PMJDY: pillars and current benefits?","a":"Launched 2014 (MoF) as National Mission on Financial Inclusion; for persons with no other account.\nSix pillars: universal access, basic savings account, financial literacy, credit guarantee fund, insurance, pension for unorganised workers.\nBenefits: RuPay card with ₹2 lakh accident cover (post-28.08.2018); OD ₹10,000 (₹2,000 unconditional), age 18–65, after 6 months.\nInoperative after 2 years without customer-induced transactions. 580 mn+ accounts; 56% women."},{"id":"j713","i":712,"t":1,"y":"fact","q":"Which committee reviewed the Lead Bank Scheme in 2009, shifting focus to financial inclusion?","a":"Usha Thorat Committee"},{"id":"j730","i":729,"t":1,"y":"concept","q":"Concept — Lead Bank Scheme (revised 2026 guidelines)?","a":"1969 (Gadgil Study Group, F.K.F. Nariman); reviewed by Usha Thorat Committee (2009).\nTiers: BLBC (chaired by LDM) → DCC (DM/Collector) + DLRC (with MPs/MLAs; can't be clubbed) → SLBC (Convenor Bank MD/ED + Chief Secretary). All quarterly.\nSLBC sub-committees: Agriculture, MSMEs, FI, Digital Payments.\nCD ratio target 60%; <40% special sub-committee; <20% special category.\nPlanning: NABARD PLP → branch → block → district → state credit plan."},{"id":"j731","i":730,"t":9,"y":"fact","q":"Outlay of DISHA 2.0 (access to justice), 2026–31?","a":"₹255 crore"},{"id":"j736","i":735,"t":1,"y":"fact","q":"Nodal agency of the Kisan Credit Card scheme (1998)?","a":"NABARD"},{"id":"j741","i":740,"t":1,"y":"fact","q":"Maximum KCC tenure under the 2026 guidelines?","a":"6 years"},{"id":"j743","i":742,"t":1,"y":"fact","q":"Collateral-free limit for KCC agricultural loans?","a":"₹2 lakh"},{"id":"j752","i":751,"t":1,"y":"concept","q":"Concept — Revised KCC Directions 2026?","a":"Finalised 19 Jun 2026; apply to KCCs sanctioned from 1 Jan 2027. Nodal: NABARD (scheme since 1998).\nTenure capped at 6 years; crop seasons: short ≤12 months, long 12–18 months.\nCollateral-free ₹2 lakh (₹3 lakh with tie-up); Flexi KCC ₹10,000–50,000 for ≤1 ha.\nLimit: cost + 10% + 20% (incl. soil testing, drones); +10% a year.\nEffective 4% = 9% − 2% subvention − 3% PRI. Excluded: PBs, LABs, overseas branches."},{"id":"j756","i":755,"t":2,"y":"fact","q":"ABVKY has been extended till when?","a":"30 June 2027"},{"id":"j761","i":760,"t":2,"y":"fact","q":"At which ESIC meeting was ABVKY extended?","a":"The 198th (chaired by Dr. Mansukh Mandaviya)"},{"id":"j764","i":763,"t":9,"y":"fact","q":"Launch date of PMSMA?","a":"9 June 2016"},{"id":"j769","i":768,"t":8,"y":"fact","q":"Who released the National Health Accounts (NHA) estimates for 2022-23?","a":"Ministry of Health and Family Welfare"},{"id":"j777","i":776,"t":8,"y":"fact","q":"Who releases the World Energy Investment 2026 report?","a":"International Energy Agency (IEA)"},{"id":"j782","i":781,"t":8,"y":"fact","q":"Who topped Bloomberg's Billionaires Index 2026 list of Asia's richest?","a":"Gautam Adani"},{"id":"j783","i":782,"t":8,"y":"fact","q":"Who publishes the Global Wealth Report 2026?","a":"Boston Consulting Group (BCG)"},{"id":"j788","i":787,"t":8,"y":"fact","q":"Who released the 'State of India's Digital Economy 2026' report?","a":"ICRIER and the Prosus Centre for Internet and Digital Economy (IPCIDE)"},{"id":"j789","i":788,"t":8,"y":"fact","q":"India's rank in the CHIPS digitalisation index (State of India's Digital Economy 2026)?","a":"5th (8th in 2025)"},{"id":"j794","i":793,"t":8,"y":"fact","q":"World Bank's FY 2026-27 growth forecast for India (June 2026 GEP)?","a":"6.6% (raised from 6.5%)"},{"id":"j798","i":797,"t":8,"y":"trap","q":"India FY27 growth forecasts: RBI vs World Bank vs Goldman Sachs?","a":"RBI (June MPC): 6.6%. World Bank (GEP): 6.6%. Goldman Sachs: 6.5%"},{"id":"j804","i":803,"t":8,"y":"fact","q":"India's rank in military spending, 2025 (SIPRI)?","a":"5th ($92.1 billion)"},{"id":"j810","i":809,"t":8,"y":"fact","q":"India's best-performing container port in CPPI 2025, and its rank?","a":"JNPA — 22nd globally"},{"id":"j812","i":811,"t":6,"y":"fact","q":"How many states exceeded the 3% of GSDP fiscal deficit ceiling in FY25 (CAG State Finances report)?","a":"18 of 28"},{"id":"j813","i":812,"t":6,"y":"fact","q":"State with the highest fiscal deficit in FY25 (CAG)?","a":"Meghalaya — 8.69% of GSDP"},{"id":"j819","i":818,"t":8,"y":"fact","q":"India's rank in global digital wallet app downloads (2025)?","a":"1st (440 million+ downloads)"},{"id":"j822","i":821,"t":4,"y":"fact","q":"India's digital wallet market size projected for 2035?","a":"$75.8 billion (from $20.1 billion in 2025)"},{"id":"j824","i":823,"t":1,"y":"fact","q":"Microfinance portfolio outstanding as of 31 March 2026?","a":"About ₹2.77 lakh crore"},{"id":"j830","i":829,"t":8,"y":"fact","q":"Who releases the Global Peace Index?","a":"Institute for Economics and Peace (IEP)"},{"id":"j833","i":832,"t":8,"y":"fact","q":"India's rank in the Global Peace Index 2026?","a":"127th (115th in 2025)"},{"id":"j840","i":839,"t":0,"y":"fact","q":"What first happened for India in the MSCI EM Index in May 2026?","a":"No Indian company in the top 10 — first time since at least 2000"},{"id":"j843","i":842,"t":8,"y":"fact","q":"Who released the Global Startup Ecosystem Report 2026?","a":"Govt of Karnataka / KDEM, with Startup Genome"},{"id":"j844","i":843,"t":8,"y":"fact","q":"Bengaluru's global rank in GSER 2026?","a":"15th (14th in 2025)"},{"id":"j846","i":845,"t":8,"y":"fact","q":"Who releases the Sustainable Development Report 2026 (SDG Index)?","a":"UN Sustainable Development Solutions Network (SDSN)"},{"id":"j848","i":847,"t":8,"y":"fact","q":"India's rank in the 2026 SDG Index?","a":"94th — its highest ever (99th in 2025)"},{"id":"j852","i":851,"t":8,"y":"fact","q":"Who releases the Energy Transition Index 2026?","a":"World Economic Forum, with Accenture"},{"id":"j854","i":853,"t":8,"y":"fact","q":"India's rank in the Energy Transition Index 2026?","a":"70th (up 2 places)"},{"id":"j857","i":856,"t":5,"y":"fact","q":"India's total merchandise + services trade in FY 2025-26 (NITI Trade Watch)?","a":"$1.84 trillion"},{"id":"j858","i":857,"t":5,"y":"fact","q":"India's rank as a services exporter in 2025 (NITI Trade Watch)?","a":"8th largest"},{"id":"j860","i":859,"t":8,"y":"fact","q":"Top university in the QS World University Rankings 2027?","a":"MIT"},{"id":"j861","i":860,"t":8,"y":"fact","q":"Top Indian institution in QS WUR 2027, and its rank?","a":"IIT Delhi — 118th"},{"id":"j866","i":865,"t":8,"y":"fact","q":"India's rank in the QS World Future Skills Index 2027?","a":"13th (score 89.4)"},{"id":"j868","i":867,"t":8,"y":"fact","q":"Who topped Prix Versailles' World's Most Beautiful Airports 2026?","a":"Guangzhou Baiyun International Airport, Terminal 3 (China)"},{"id":"j870","i":869,"t":8,"y":"fact","q":"Who released the list of 500 most valuable non-state-run companies in India?","a":"Axis Bank's Burgundy Private and Hurun India"},{"id":"j871","i":870,"t":8,"y":"fact","q":"Most valuable non-state-run company in India (Burgundy Private–Hurun India 500)?","a":"Reliance Industries"},{"id":"j876","i":875,"t":6,"y":"fact","q":"What is Securities Transaction Tax (STT) levied on?","a":"Value of securities traded on a recognised stock exchange (excl. commodities & currency)"}]}</script>
+<script>
+(function(){
+  'use strict';
+  var PROGRESS_KEY='sebiGA_jun2026_progress', PREFS_KEY='sebiGA_jun2026_prefs';
+  var raw=JSON.parse(document.getElementById('deckData').textContent);
+  var TOPICS=raw.topics, CARDS=raw.cards; // card: {id,t,y,q,a}
+  var TYPE_LABEL={fact:'Fact',trap:'Trap',concept:'Concept'};
+  var byId={}; CARDS.forEach(function(c){byId[c.id]=c;});
+  var defaultOrder=CARDS.slice().sort(function(a,b){return (a.t-b.t)||(a.i-b.i);}).map(function(c){return c.id;});
+
+  // ---------- storage with fallback ----------
+  var mem={}, storageOK=true, ls=null;
+  try{ ls=window.localStorage; var probe='__sebiGA_probe'; ls.setItem(probe,'1'); ls.removeItem(probe); }
+  catch(e){ storageOK=false; ls=null; }
+  function sGet(k){ if(storageOK){ try{return ls.getItem(k);}catch(e){} } return Object.prototype.hasOwnProperty.call(mem,k)?mem[k]:null; }
+  function sSet(k,v){ if(storageOK){ try{ls.setItem(k,v);return;}catch(e){ storageOK=false; showBanner(); } } mem[k]=v; }
+  function sDel(k){ if(storageOK){ try{ls.removeItem(k);}catch(e){} } delete mem[k]; }
+  function showBanner(){ document.getElementById('storageBanner').classList.add('show'); }
+  if(!storageOK) showBanner();
+
+  function readJSON(k){ var v=sGet(k); if(!v) return null; try{return JSON.parse(v);}catch(e){return null;} }
+  var progress=readJSON(PROGRESS_KEY); if(!progress||typeof progress!=='object'||!progress.s) progress={v:1,s:{}};
+  Object.keys(progress.s).forEach(function(id){ if(!byId[id]||(progress.s[id]!=='k'&&progress.s[id]!=='l')) delete progress.s[id]; });
+  var prefs=readJSON(PREFS_KEY)||{};
+  var state={
+    topic: (typeof prefs.topic==='number'&&prefs.topic>=-1&&prefs.topic<TOPICS.length)?prefs.topic:-1,
+    status: ['all','learning','unseen','known','unseen_learning'].indexOf(prefs.status)>=0?prefs.status:'all',
+    type: ['all','fact','trap','concept'].indexOf(prefs.type)>=0?prefs.type:'all',
+    order: validOrder(prefs.order)?prefs.order:null,
+    theme: (prefs.theme==='light'||prefs.theme==='dark')?prefs.theme:null,
+    current: prefs.current||null
+  };
+  function validOrder(o){ if(!Array.isArray(o)||o.length!==CARDS.length) return false; var seen={}; for(var i=0;i<o.length;i++){ if(!byId[o[i]]||seen[o[i]]) return false; seen[o[i]]=1; } return true; }
+  function savePrefs(){ sSet(PREFS_KEY,JSON.stringify({topic:state.topic,status:state.status,type:state.type,order:state.order,theme:state.theme,current:state.current})); }
+  function saveProgress(){ sSet(PROGRESS_KEY,JSON.stringify(progress)); }
+
+  function statusOf(id){ return progress.s[id]||'u'; }
+  function matches(c,ignore){
+    if(ignore!=='topic' && state.topic>=0 && c.t!==state.topic) return false;
+    if(ignore!=='type' && state.type!=='all' && c.y!==state.type) return false;
+    if(ignore!=='status'){
+      var s=statusOf(c.id);
+      if(state.status==='learning'&&s!=='l') return false;
+      if(state.status==='unseen'&&s!=='u') return false;
+      if(state.status==='known'&&s!=='k') return false;
+      if(state.status==='unseen_learning'&&s==='k') return false;
+    }
+    return true;
+  }
+  var list=[], idx=0, flipped=false;
+  function currentOrder(){ return state.order||defaultOrder; }
+  function rebuild(keepId){
+    list=currentOrder().filter(function(id){return matches(byId[id]);});
+    var target=keepId||state.current;
+    var k=target?list.indexOf(target):-1;
+    idx=k>=0?k:0;
+  }
+
+  // ---------- DOM ----------
+  var $=function(id){return document.getElementById(id);};
+  var cardEl=$('card'), fTopic=$('fTopic'), fStatus=$('fStatus');
+  function buildTopicOptions(){
+    var keep=state.topic;
+    fTopic.innerHTML='';
+    var allN=CARDS.filter(function(c){return matches(c,'topic');}).length;
+    var o=document.createElement('option'); o.value='-1'; o.textContent='All topics ('+allN+')'; fTopic.appendChild(o);
+    TOPICS.forEach(function(name,i){
+      var n=CARDS.filter(function(c){return c.t===i&&matches(c,'topic');}).length;
+      var op=document.createElement('option'); op.value=String(i); op.textContent=name+' ('+n+')'; fTopic.appendChild(op);
+    });
+    fTopic.value=String(keep);
+  }
+  function setFlip(v){ flipped=v; cardEl.classList.toggle('flipped',v); }
+  function render(){
+    var K=0,L=0; Object.keys(progress.s).forEach(function(id){ if(progress.s[id]==='k')K++; else if(progress.s[id]==='l')L++; });
+    var T=CARDS.length, U=T-K-L;
+    $('cK').textContent=K; $('cL').textContent=L; $('cU').textContent=U; $('cT').textContent=T;
+    $('barK').style.width=(K/T*100)+'%'; $('barL').style.width=(L/T*100)+'%';
+    buildTopicOptions();
+    fStatus.value=state.status;
+    Array.prototype.forEach.call(document.querySelectorAll('#fType button'),function(b){ b.setAttribute('aria-pressed',String(b.getAttribute('data-v')===state.type)); });
+    var sum=[state.topic>=0?TOPICS[state.topic]:'All topics', fStatus.options[fStatus.selectedIndex].text, state.type==='all'?'All types':TYPE_LABEL[state.type]+'s'];
+    $('filterSum').textContent=sum.join(', ');
+    $('orderLabel').textContent=state.order?'Shuffled':'Topic order';
+    var empty=list.length===0;
+    $('empty').classList.toggle('show',empty);
+    $('stage').style.display=empty?'none':'';
+    ['prevBtn','nextBtn','flipBtn','knownBtn','learnBtn'].forEach(function(b){ $(b).disabled=empty; });
+    $('posI').textContent=empty?0:idx+1; $('posN').textContent=list.length;
+    if(empty){ state.current=null; return; }
+    var c=byId[list[idx]]; state.current=c.id;
+    var tn=TOPICS[c.t];
+    $('fTopicName').textContent=tn; $('bTopicName').textContent=tn;
+    ['fKind','bKind'].forEach(function(k){ var el=$(k); el.textContent=TYPE_LABEL[c.y]; el.className='chip '+c.y; });
+    var s=statusOf(c.id), st=$('fSt');
+    st.textContent=s==='k'?'Known':s==='l'?'Still learning':'Unseen'; st.className='chip st '+s;
+    $('qText').textContent=c.q; $('aText').textContent=c.a;
+    cardEl.className='card kind-'+c.y+(flipped?' flipped':'');
+    cardEl.setAttribute('data-id',c.id);
+    $('knownBtn').classList.toggle('on',s==='k'); $('learnBtn').classList.toggle('on',s==='l');
+    $('knownBtn').setAttribute('aria-pressed',String(s==='k')); $('learnBtn').setAttribute('aria-pressed',String(s==='l'));
+  }
+  function go(delta){ if(!list.length) return; idx=(idx+delta+list.length)%list.length; setFlip(false); render(); savePrefs(); }
+  function mark(v){
+    if(!list.length) return;
+    var id=list[idx];
+    var nextId=list.length>1?list[(idx+1)%list.length]:null;
+    progress.s[id]=v; saveProgress();
+    rebuild(nextId);
+    if(nextId===null||list.indexOf(nextId)<0){ /* current may have left the view */ if(list.length){ var k=list.indexOf(id); idx=k>=0?(k+1)%list.length:Math.min(idx,list.length-1);} }
+    setFlip(false); render(); savePrefs();
+  }
+  function applyFilters(){ var keep=state.current; rebuild(keep); setFlip(false); render(); savePrefs(); }
+  function shuffle(){
+    var o=defaultOrder.slice();
+    for(var i=o.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=o[i]; o[i]=o[j]; o[j]=t; }
+    state.order=o; rebuild(null); idx=0; setFlip(false); render(); savePrefs();
+  }
+  function resetOrder(){ state.order=null; rebuild(null); idx=0; setFlip(false); render(); savePrefs(); }
+  function applyTheme(){
+    var root=document.documentElement;
+    if(state.theme) root.setAttribute('data-theme',state.theme); else root.removeAttribute('data-theme');
+    var dark=state.theme?state.theme==='dark':(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);
+    $('themeBtn').textContent=dark?'Light theme':'Dark theme';
+  }
+  function toggleTheme(){
+    var dark=state.theme?state.theme==='dark':(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);
+    state.theme=dark?'light':'dark'; applyTheme(); savePrefs();
+  }
+  var modal=$('confirm');
+  function openConfirm(){ modal.classList.add('show'); $('cfCancel').focus(); }
+  function closeConfirm(){ modal.classList.remove('show'); $('resetBtn').focus(); }
+  function doReset(){ progress={v:1,s:{}}; sDel(PROGRESS_KEY); saveProgress(); closeConfirm(); rebuild(state.current); setFlip(false); render(); savePrefs(); }
+
+  // ---------- events ----------
+  cardEl.addEventListener('click',function(){ setFlip(!flipped); });
+  $('flipBtn').addEventListener('click',function(){ setFlip(!flipped); });
+  $('prevBtn').addEventListener('click',function(){ go(-1); });
+  $('nextBtn').addEventListener('click',function(){ go(1); });
+  $('knownBtn').addEventListener('click',function(){ mark('k'); });
+  $('learnBtn').addEventListener('click',function(){ mark('l'); });
+  fTopic.addEventListener('change',function(){ state.topic=parseInt(fTopic.value,10); applyFilters(); });
+  fStatus.addEventListener('change',function(){ state.status=fStatus.value; applyFilters(); });
+  Array.prototype.forEach.call(document.querySelectorAll('#fType button'),function(b){ b.addEventListener('click',function(){ state.type=b.getAttribute('data-v'); applyFilters(); }); });
+  $('shuffleBtn').addEventListener('click',shuffle);
+  $('orderBtn').addEventListener('click',resetOrder);
+  $('themeBtn').addEventListener('click',toggleTheme);
+  $('resetBtn').addEventListener('click',openConfirm);
+  $('cfCancel').addEventListener('click',closeConfirm);
+  $('cfOk').addEventListener('click',doReset);
+  modal.addEventListener('click',function(e){ if(e.target===modal) closeConfirm(); });
+  $('showAllBtn').addEventListener('click',function(){ state.topic=-1; state.status='all'; state.type='all'; applyFilters(); });
+  document.addEventListener('keydown',function(e){
+    if(modal.classList.contains('show')){ if(e.key==='Escape'){ e.preventDefault(); closeConfirm(); } return; }
+    var tag=(e.target&&e.target.tagName)||'';
+    if(tag==='SELECT'||tag==='INPUT'||tag==='TEXTAREA') return;
+    if(e.ctrlKey||e.metaKey||e.altKey) return;
+    if(e.key==='Enter'&&e.target===cardEl){ e.preventDefault(); if(list.length) setFlip(!flipped); }
+    else if(e.key===' '||e.code==='Space'){ e.preventDefault(); if(list.length) setFlip(!flipped); }
+    else if(e.key==='ArrowRight'){ e.preventDefault(); go(1); }
+    else if(e.key==='ArrowLeft'){ e.preventDefault(); go(-1); }
+    else if(e.key==='1'){ e.preventDefault(); mark('k'); }
+    else if(e.key==='2'){ e.preventDefault(); mark('l'); }
+  });
+  if(window.matchMedia){ try{ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',applyTheme); }catch(e){} }
+
+  applyTheme(); rebuild(state.current); render(); savePrefs();
+  window.__deck={count:CARDS.length,topics:TOPICS,state:state,list:function(){return list.slice();},idx:function(){return idx;},flipped:function(){return flipped;},storageOK:function(){return storageOK;}};
+})();
+</script>
+</body>
+</html>
