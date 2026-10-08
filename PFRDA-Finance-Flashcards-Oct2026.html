@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PFRDA Finance flashcards (Oct 2026)</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#EEF1F5; --surface:#FFFFFF; --surface-2:#F5F7FA; --ink:#18233A; --muted:#5B6578; --line:#D5DBE5;
+  --fact:#2F4B7C; --trap:#7A3E9D; --concept:#0F766E; --changed:#D9480F;
+  --known:#2B8A3E; --learning:#A35F00; --star:#8A6A00; --focus:#2F6FEB; --on-solid:#FFFFFF;
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0F1522; --surface:#182133; --surface-2:#1E293D; --ink:#E7EBF2; --muted:#A3ACBE; --line:#2C3852;
+  --fact:#9DB8EA; --trap:#D1A3EC; --concept:#5ED0C2; --changed:#FF8A4C;
+  --known:#6CC77D; --learning:#F0B44C; --star:#E8C547; --focus:#7AA7FF; --on-solid:#0F1522;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans","Helvetica Neue",Arial,sans-serif;
+  font-size:16px; line-height:1.5; -webkit-text-size-adjust:100%; overflow-x:hidden;
+}
+.wrap{max-width:640px;margin:0 auto;padding:16px 14px calc(28px + env(safe-area-inset-bottom,0px))}
+header h1{font-size:1.3rem;line-height:1.25;margin:0;font-weight:750;letter-spacing:-0.01em}
+header p{margin:4px 0 0;color:var(--muted);font-size:.875rem}
+.banner{margin:12px 0 0;padding:10px 12px;border:1px solid var(--learning);border-radius:10px;color:var(--ink);background:var(--surface);font-size:.875rem}
+.banner[hidden]{display:none}
+
+.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:14px 0}
+.stat{background:var(--surface);padding:8px 2px 6px;text-align:center;min-width:0}
+.stat b{display:block;font-size:1.05rem;font-variant-numeric:tabular-nums;line-height:1.3}
+.stat span{display:block;font-size:.7rem;color:var(--muted);line-height:1.25}
+.stat.k b{color:var(--known)} .stat.l b{color:var(--learning)}
+
+details.filters{background:var(--surface);border:1px solid var(--line);border-radius:10px;margin-bottom:14px}
+details.filters>summary{cursor:pointer;padding:10px 14px;font-weight:650;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:48px}
+details.filters>summary::-webkit-details-marker{display:none}
+details.filters>summary::after{content:"";width:9px;height:9px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);margin-right:4px;flex:none}
+details.filters[open]>summary::after{transform:rotate(-135deg)}
+.fsum{font-weight:500;color:var(--muted);font-size:.85rem;margin-left:auto;text-align:right}
+.fbody{padding:2px 14px 14px;border-top:1px solid var(--line)}
+fieldset{border:0;margin:14px 0 0;padding:0;min-width:0}
+legend{font-size:.82rem;color:var(--muted);font-weight:650;margin-bottom:4px;padding:0}
+.chk{display:flex;align-items:flex-start;gap:10px;padding:7px 0;min-height:40px;cursor:pointer;font-size:.92rem}
+.chk input{width:20px;height:20px;margin:1px 0 0;flex:none;accent-color:var(--fact)}
+.chk .lbl{flex:1;min-width:0;overflow-wrap:anywhere}
+.chk .cnt{color:var(--muted);font-variant-numeric:tabular-nums;padding-left:8px;flex:none}
+.topiclist{border-top:1px solid var(--line);margin-top:4px}
+.chk.grp{font-weight:700;border-top:1px solid var(--line);margin-top:6px;padding-top:10px}
+.topiclist .chk.grp:first-child{border-top:0;margin-top:0}
+.chk.sub{padding-left:24px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg label{position:relative}
+.seg input{position:absolute;opacity:0;width:1px;height:1px}
+.seg span{display:inline-flex;align-items:center;min-height:40px;padding:6px 14px;border:1px solid var(--line);border-radius:999px;font-size:.9rem;cursor:pointer;background:var(--surface-2)}
+.seg input:checked+span{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.seg input:focus-visible+span{outline:3px solid var(--focus);outline-offset:2px}
+.fclear{margin-top:14px;width:100%}
+
+.card{
+  --accent:var(--fact);
+  background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--accent);border-radius:12px;
+  padding:14px 16px 14px;min-height:min(52vh,460px);display:flex;flex-direction:column;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;outline:none;user-select:text;
+}
+.card[data-type="trap"]{--accent:var(--trap)}
+.card[data-type="concept"]{--accent:var(--concept)}
+.card:focus-visible{box-shadow:0 0 0 3px var(--focus)}
+.card.empty{cursor:default;border-left-color:var(--line);justify-content:center;align-items:flex-start;gap:12px}
+.meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.badge{font-size:.74rem;font-weight:650;padding:2px 8px;border-radius:999px;border:1px solid currentColor;line-height:1.35;max-width:100%;overflow-wrap:anywhere}
+.b-type{color:var(--accent)}
+.b-star{color:var(--star)}
+.b-pyq{color:var(--muted);font-weight:550;border-radius:8px}
+.topic{font-size:.8rem;color:var(--muted);margin:8px 0 0;overflow-wrap:anywhere}
+.q{font-size:1.2rem;font-weight:650;line-height:1.42;margin:14px 0 0;overflow-wrap:anywhere}
+.hint{margin-top:auto;padding-top:18px;color:var(--muted);font-size:.85rem}
+.a{display:none;margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.card.flipped .a{display:block}
+.card.flipped .hint{display:none}
+.ans{font-size:1.14rem;line-height:1.5;overflow-wrap:anywhere}
+.ans strong{font-weight:800}
+.card[data-type="concept"] .ans{font-size:1.02rem;line-height:1.6}
+.note{margin-top:10px;font-size:.82rem;line-height:1.45;color:var(--muted);overflow-wrap:anywhere}
+.cfoot{display:flex;justify-content:space-between;gap:10px;margin-top:16px;font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.cfoot .s-known{color:var(--known);font-weight:650}
+.cfoot .s-learning{color:var(--learning);font-weight:650}
+@media (prefers-reduced-motion:no-preference){
+  .card.flipped .a{animation:reveal .16s ease-out}
+  @keyframes reveal{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+}
+
+.controls{display:grid;gap:8px;margin-top:12px}
+.row{display:grid;gap:8px}
+.row.nav{grid-template-columns:1fr 1.35fr 1fr}
+.row.mark{grid-template-columns:1fr 1fr}
+.row.tools{grid-template-columns:repeat(4,minmax(0,1fr))}
+button{
+  font:inherit;min-height:48px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  font-weight:650;padding:8px 10px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+}
+button:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+button:disabled{opacity:.45;cursor:default}
+.b-flip{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.b-known{background:var(--known);border-color:var(--known);color:var(--on-solid)}
+.b-learn{background:var(--surface);border:2px solid var(--learning);color:var(--learning)}
+.row.tools button{font-size:.82rem;font-weight:550;color:var(--muted);min-height:44px;padding:6px 4px}
+.kbd{display:none;margin:12px 0 0;font-size:.8rem;color:var(--muted)}
+@media (hover:hover) and (pointer:fine){.kbd{display:block}}
+@media (max-width:380px){
+  .row.tools{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .q{font-size:1.12rem}
+}
+.modal{position:fixed;inset:0;background:rgba(10,14,24,.55);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+.modal[hidden]{display:none}
+.mbox{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:18px;max-width:420px;width:100%}
+.mbox h2{font-size:1.1rem;margin:0 0 6px}
+.mbox p{margin:0 0 16px;color:var(--muted);font-size:.92rem}
+.b-danger{background:var(--changed);border-color:var(--changed);color:var(--on-solid)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Finance: RBI, Markets, Institutions &amp; Inclusion</h1>
+    <p id="sub">PFRDA Grade A 2026 · Phase I Paper 2</p>
+    <p class="banner" id="banner" hidden>Progress can't be saved in this browser view, so your marks will reset when the page closes.</p>
+  </header>
+
+  <div class="stats" aria-live="polite">
+    <div class="stat"><b id="sTotal">0</b><span>In filter</span></div>
+    <div class="stat"><b id="sUnseen">0</b><span>Unseen</span></div>
+    <div class="stat l"><b id="sLearn">0</b><span>Still learning</span></div>
+    <div class="stat k"><b id="sKnown">0</b><span>Known</span></div>
+    <div class="stat"><b id="sPct">0%</b><span>Known</span></div>
+  </div>
+
+  <details class="filters" id="filters">
+    <summary><span>Filters</span><span class="fsum" id="fsum">All cards</span></summary>
+    <div class="fbody">
+      <fieldset>
+        <legend>Topic</legend>
+        <label class="chk"><input type="checkbox" id="tAll" checked><span class="lbl">All topics</span><span class="cnt" id="tAllCnt"></span></label>
+        <div class="topiclist" id="topicList"></div>
+      </fieldset>
+      <fieldset>
+        <legend>Card type</legend>
+        <div class="seg" id="typeSeg">
+          <label><input type="radio" name="type" value="all" checked><span>All</span></label>
+          <label><input type="radio" name="type" value="fact"><span>Fact</span></label>
+          <label><input type="radio" name="type" value="trap"><span>Trap</span></label>
+          <label><input type="radio" name="type" value="concept"><span>Concept</span></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Status</legend>
+        <div class="seg" id="statusSeg">
+          <label><input type="radio" name="status" value="all" checked><span>All</span></label>
+          <label><input type="radio" name="status" value="unseen"><span>Unseen</span></label>
+          <label><input type="radio" name="status" value="learning"><span>Still learning</span></label>
+          <label><input type="radio" name="status" value="known"><span>Known</span></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Only show</legend>
+        <label class="chk"><input type="checkbox" id="fHi"><span class="lbl">★ High-yield cards</span></label>
+        <label class="chk"><input type="checkbox" id="fPyq"><span class="lbl">Cards tagged as asked in a PYQ</span></label>
+      </fieldset>
+      <button type="button" class="fclear" id="fClear">Clear filters</button>
+    </div>
+  </details>
+
+  <main>
+    <div class="card" id="card" tabindex="0" role="button" aria-expanded="false"></div>
+  </main>
+
+  <div class="controls">
+    <div class="row nav">
+      <button type="button" id="bPrev">Prev</button>
+      <button type="button" class="b-flip" id="bFlip">Show answer</button>
+      <button type="button" id="bNext">Next</button>
+    </div>
+    <div class="row mark">
+      <button type="button" class="b-learn" id="bLearn">Still learning</button>
+      <button type="button" class="b-known" id="bKnown">Known</button>
+    </div>
+    <div class="row tools">
+      <button type="button" id="bShuffle">Shuffle</button>
+      <button type="button" id="bOrder">Reset order</button>
+      <button type="button" id="bReset">Reset progress</button>
+      <button type="button" id="bTheme">Dark theme</button>
+    </div>
+  </div>
+  <p class="kbd">Keyboard: left and right arrows to move, Space or Enter to flip, K for known, L for still learning.</p>
+</div>
+
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="mbox">
+    <h2 id="mTitle">Reset progress?</h2>
+    <p id="mText">This clears every Known and Still learning mark saved in this browser.</p>
+    <div class="row mark">
+      <button type="button" id="mCancel">Cancel</button>
+      <button type="button" class="b-danger" id="mOk">Reset progress</button>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" id="cards-data">[{"id":"R01","section":"RBI","topic":"RBI - Evolution & Organisation","type":"fact","star":"hi","front":"RBI's paid-up capital when it was set up in 1935 (unchanged since)?","back":"**₹5 crore**","pyq":"Asked: PFRDA 2025 Ph-I P2","changed":false,"note":"Fully paid shares of ₹100 each; still ₹5 crore after nationalisation."},{"id":"R02","section":"RBI","topic":"RBI - Evolution & Organisation","type":"fact","star":"md","front":"Which commission (1926) recommended a central bank for India?","back":"**Hilton-Young Commission** (Royal Commission on Indian Currency and Finance)","pyq":"","changed":false,"note":""},{"id":"R03","section":"RBI","topic":"RBI - Evolution & Organisation","type":"fact","star":"md","front":"Which Act established the Reserve Bank of India?","back":"**RBI Act, 1934**","pyq":"","changed":false,"note":""},{"id":"R04","section":"RBI","topic":"RBI - Evolution & Organisation","type":"fact","star":"md","front":"On what date did RBI begin operations?","back":"**1 April 1935**","pyq":"","changed":false,"note":"Began as a private shareholders' bank."},{"id":"R05","section":"RBI","topic":"RBI - Evolution & Organisation","type":"fact","star":"md","front":"When was RBI nationalised?","back":"**1 January 1949**","pyq":"","changed":false,"note":"Under the Reserve Bank (Transfer of Public Ownership) Act, 1948."},{"id":"R06","section":"RBI","topic":"RBI - Evolution & Organisation","type":"fact","star":"md","front":"RBI Governor (as of Dec 2025)?","back":"**Sanjay Malhotra**","pyq":"","changed":false,"note":"26th Governor, in office since 11 Dec 2024 (succeeded Shaktikanta Das). First Governor: Sir Osborne Smith; first Indian Governor: Sir C.D. Deshmukh."},{"id":"R07","section":"RBI","topic":"RBI - Subsidiaries","type":"fact","star":"hi","front":"RBI's five wholly owned subsidiaries?","back":"**DICGC, BRBNMPL, ReBIT, IFTAS, RBIH**","pyq":"Asked: 'which is NOT an RBI subsidiary', PFRDA 2025 Ph-II · RBI Gr B 2026","changed":false,"note":""},{"id":"R08","section":"RBI","topic":"RBI - Subsidiaries","type":"trap","star":"hi","front":"PFRDA and NABARD are wholly owned subsidiaries of RBI. Correct?","back":"**Wrong.** PFRDA is a statutory regulator under the Finance Ministry; NABARD is a DFI under the NABARD Act 1981. RBI's five: DICGC, BRBNMPL, ReBIT, IFTAS, RBIH.","pyq":"Asked: PFRDA 2025 Ph-II · RBI Gr B 2026","changed":false,"note":""},{"id":"R09","section":"RBI","topic":"RBI - Subsidiaries","type":"fact","star":"md","front":"Deposit-insurance cover given by DICGC (RBI's subsidiary)?","back":"**₹5 lakh per depositor per bank** (principal + interest)","pyq":"","changed":false,"note":"Covers savings, current, recurring and fixed deposits. Premium of 12 paise per ₹100 is borne by banks."},{"id":"R10","section":"RBI","topic":"RBI - Subsidiaries","type":"fact","star":"md","front":"RBI subsidiary (1995) that prints bank notes at presses in Mysuru and Salboni?","back":"**BRBNMPL** (Bharatiya Reserve Bank Note Mudran Pvt Ltd)","pyq":"","changed":false,"note":"Registered office: Bengaluru."},{"id":"R11","section":"RBI","topic":"RBI - Subsidiaries","type":"fact","star":"md","front":"RBI subsidiary that runs SFMS, the messaging platform behind RTGS and NEFT?","back":"**IFTAS** (Indian Financial Technology & Allied Services, 2015)","pyq":"","changed":false,"note":"ReBIT (2016) handles RBI's own IT and cyber security."},{"id":"R12","section":"RBI","topic":"RBI - Subsidiaries","type":"fact","star":"md","front":"RBI subsidiary set up as a Section 8 company with ₹100 crore to foster financial innovation?","back":"**Reserve Bank Innovation Hub (RBIH)**","pyq":"","changed":false,"note":""},{"id":"R13","section":"RBI","topic":"RBI - Monetary Policy & Liquidity Tools","type":"fact","star":"md","front":"Primary objective of monetary policy under the amended RBI Act (May 2016)?","back":"**Price stability**, keeping growth in mind","pyq":"","changed":false,"note":""},{"id":"R14","section":"RBI","topic":"RBI - Monetary Policy & Liquidity Tools","type":"fact","star":"md","front":"Which section of the RBI Act is the monetary-policy function matched with?","back":"**Section 45ZB**","pyq":"Asked: SEBI 2025 Ph-I","changed":false,"note":""},{"id":"R15","section":"RBI","topic":"RBI - Monetary Policy & Liquidity Tools","type":"trap","star":"md","front":"RBI regulates NBFCs under the NBFC Act, 2002. Correct?","back":"**Wrong: there is no NBFC Act.** NBFCs come under the RBI Act, 1934 (Ch. III-B). The other pairs hold: monetary policy – s.45ZB RBI Act; banking companies – BR Act 1949; public debt – Government Securities Act 2006; forex – FEMA 1999.","pyq":"Asked: SEBI 2025 Ph-I","changed":false,"note":""},{"id":"R16","section":"RBI","topic":"RBI - Monetary Policy & Liquidity Tools","type":"fact","star":"hi","front":"Under the LAF, which tool does RBI use to inject liquidity?","back":"**Repo** (banks borrow from RBI against G-secs)","pyq":"Asked: SEBI 2018 Ph-II · RBI Gr B 2018","changed":false,"note":""},{"id":"R17","section":"RBI","topic":"RBI - Monetary Policy & Liquidity Tools","type":"trap","star":"hi","front":"Under the LAF, repo absorbs liquidity and reverse repo releases it. Correct?","back":"**Wrong: reversed.** Repo injects (banks borrow from RBI); reverse repo absorbs (banks lend surplus to RBI against G-secs). SDF also absorbs, without collateral.","pyq":"Asked: SEBI 2018 Ph-II · RBI Gr B 2018","changed":false,"note":""},{"id":"R18","section":"RBI","topic":"RBI - Monetary Policy & Liquidity Tools","type":"fact","star":"md","front":"Which monetary-policy instruments sit under the Liquidity Adjustment Facility (LAF)?","back":"**Repo, reverse repo and MSF** (Marginal Standing Facility)","pyq":"","changed":false,"note":"Other instruments named in the summary: bank rate, CRR, OMOs, MSS. Your sources name MSF and bank rate but don't define them."},{"id":"R19","section":"RBI","topic":"RBI - Monetary Policy & Liquidity Tools","type":"fact","star":"hi","front":"Which RBI tool absorbs liquidity by letting banks park surplus funds without any collateral?","back":"**Standing Deposit Facility (SDF)**","pyq":"Asked: why RBI relies on SDF over reverse repo, PFRDA 2025 Ph-I P2","changed":false,"note":""},{"id":"R20","section":"RBI","topic":"RBI - Monetary Policy & Liquidity Tools","type":"fact","star":"md","front":"When did RBI introduce the Standing Deposit Facility?","back":"**8 April 2022**","pyq":"","changed":false,"note":""},{"id":"R21","section":"RBI","topic":"RBI - Monetary Policy & Liquidity Tools","type":"trap","star":"hi","front":"Like the reverse repo, the SDF needs RBI to give G-secs as collateral. Correct?","back":"**Wrong.** Reverse repo: RBI gives G-secs as collateral. SDF: banks simply deposit surplus with RBI, no collateral, so RBI isn't limited by its G-sec holdings. Both absorb liquidity.","pyq":"Asked: PFRDA 2025 Ph-I P2","changed":false,"note":""},{"id":"R22","section":"RBI","topic":"RBI - Monetary Policy & Liquidity Tools","type":"fact","star":"md","front":"RBI tool that mops up excess liquidity by selling Market Stabilisation Bonds?","back":"**Market Stabilisation Scheme (MSS)**, April 2004","pyq":"","changed":false,"note":"The bonds are owned by the Government (issued by RBI); the proceeds sit in a separate RBI account and cannot be spent."},{"id":"R23","section":"RBI","topic":"RBI - Monetary Policy & Liquidity Tools","type":"fact","star":"hi","front":"Interest RBI pays on banks' CRR balances?","back":"**None**, from the fortnight beginning 24 June 2006","pyq":"Asked: SEBI 2022 Ph-I","changed":false,"note":"Decided under the RBI (Amendment) Act, 2006."},{"id":"R24","section":"RBI","topic":"RBI - Monetary Policy & Liquidity Tools","type":"fact","star":"hi","front":"Of CRR, SLR, MSF, repo/reverse repo and credit rationing, which is NOT a quantitative tool?","back":"**Credit rationing** (a qualitative, selective tool)","pyq":"Asked: SEBI 2022 Ph-II","changed":false,"note":"Other qualitative tools: moral suasion, margin requirements, regulation of consumer credit."},{"id":"R25","section":"RBI","topic":"RBI - Foreign Exchange Operations","type":"fact","star":"hi","front":"Components of India's forex reserves?","back":"**Foreign currency assets, gold, SDRs, Reserve Tranche Position with the IMF**","pyq":"Asked: 'diamonds' as the odd one out, PFRDA 2021 Ph-II","changed":false,"note":"Foreign currency assets are the largest component."},{"id":"R26","section":"RBI","topic":"RBI - Foreign Exchange Operations","type":"fact","star":"md","front":"Under which Act does RBI manage foreign exchange?","back":"**FEMA, 1999**","pyq":"","changed":false,"note":"Section 10 lets RBI authorise 'authorised persons': authorised dealers, money changers, offshore banking units."},{"id":"R27","section":"RBI","topic":"RBI - Foreign Exchange Operations","type":"fact","star":"hi","front":"Why did RBI step up spot and forward FX interventions during the Russia–Ukraine war?","back":"**To curb rupee volatility** as foreign investors pulled out","pyq":"Asked: PFRDA 2025 Ph-I P2 · PYQ-sourced","changed":false,"note":"Not to halt outflows, build reserves or push the rupee up."},{"id":"R28","section":"RBI","topic":"RBI - Foreign Exchange Operations","type":"fact","star":"hi","front":"A foreign bank's rupee account held with an Indian bank is called?","back":"**Vostro account** ('your account with us')","pyq":"Asked: nostro / vostro / loro, PFRDA 2022 Ph-I · PYQ-sourced","changed":false,"note":""},{"id":"R29","section":"RBI","topic":"RBI - Foreign Exchange Operations","type":"trap","star":"hi","front":"SBI's US-dollar account with Citibank, New York is a vostro account. Correct?","back":"**Wrong: nostro** ('our account with you'; held abroad, in foreign currency). Vostro = a foreign bank's rupee account with an Indian bank. Loro = a third bank's account ('their account with them').","pyq":"Asked: PFRDA 2022 Ph-I · PYQ-sourced","changed":false,"note":""},{"id":"R30","section":"RBI","topic":"RBI - Foreign Exchange Operations","type":"fact","star":"md","front":"Bank of India holds a USD account with Citibank. Seen from Bank of Baroda, that account is called?","back":"**Loro account** ('their account with them')","pyq":"Asked: PFRDA 2022 Ph-I · PYQ-sourced","changed":false,"note":""},{"id":"R31","section":"RBI","topic":"RBI - Financial Stability","type":"fact","star":"hi","front":"Who heads the Financial Stability and Development Council (FSDC)?","back":"**Union Finance Minister**","pyq":"Asked: PFRDA 2021 Ph-I (GA)","changed":false,"note":""},{"id":"R32","section":"RBI","topic":"RBI - Financial Stability","type":"fact","star":"md","front":"In which year was the FSDC set up?","back":"**2010** (a non-statutory apex body)","pyq":"","changed":false,"note":"The idea was first mooted by the Raghuram Rajan Committee (2008)."},{"id":"R33","section":"RBI","topic":"RBI - Financial Stability","type":"fact","star":"md","front":"Which RBI unit (Aug 2009) prepares the half-yearly Financial Stability Report?","back":"**Financial Stability Unit (FSU)**","pyq":"","changed":false,"note":""},{"id":"R34","section":"RBI","topic":"RBI - Regulation & Supervision","type":"concept","star":"md","front":"Regulation vs supervision: what's the difference? Use RBI's own examples.","back":"Regulation is writing the rules; supervision is enforcing them. RBI regulates RRBs, but NABARD supervises them. RBI regulates HFCs, but NHB supervises them.","pyq":"","changed":false,"note":""},{"id":"R35","section":"RBI","topic":"RBI - Regulation & Supervision","type":"fact","star":"hi","front":"Which body inspects StCBs and DCCBs under powers delegated by s.35(6) of the BR Act?","back":"**NABARD**","pyq":"Asked: NABARD supervises DCCBs, SEBI 2024 Ph-I","changed":false,"note":""},{"id":"R36","section":"RBI","topic":"RBI - Regulation & Supervision","type":"trap","star":"md","front":"NABARD supervises PACS, urban co-operative banks and payments banks. Correct?","back":"**Wrong.** NABARD supervises DCCBs and StCBs (and RRBs). PACS are outside the BR Act (left to state governments); UCBs and payments banks are supervised by RBI.","pyq":"Asked: SEBI 2024 Ph-I","changed":false,"note":""},{"id":"R37","section":"RBI","topic":"RBI - Regulation & Supervision","type":"fact","star":"md","front":"Short-term rural co-operative credit structure, village to state?","back":"**PACS → DCCB → StCB**","pyq":"","changed":false,"note":""},{"id":"R38","section":"RBI","topic":"RBI - Regulation & Supervision","type":"fact","star":"md","front":"A loan becomes an NPA when interest or instalment is overdue for?","back":"**90 days**","pyq":"","changed":false,"note":"NPA up to 12 months = sub-standard; over 12 months = doubtful."},{"id":"R39","section":"RBI","topic":"RBI - Regulation & Supervision","type":"fact","star":"md","front":"RBI's risk-based supervision framework for banks is called?","back":"**SPARC** (Supervisory Program for Assessment of Risk and Capital)","pyq":"","changed":false,"note":"Replaced CAMELS for scheduled commercial banks (phased in from 2013). UCB inspections still follow CAMELS."},{"id":"R40","section":"RBI","topic":"RBI - Regulation & Supervision","type":"fact","star":"md","front":"A bank not listed in the Second Schedule of the RBI Act that can still borrow from RBI in an emergency is a?","back":"**Non-scheduled bank**","pyq":"Asked: PFRDA 2025 Ph-II · PYQ-sourced","changed":false,"note":""},{"id":"R41","section":"RBI","topic":"RBI - Banker to Banks & Government","type":"fact","star":"hi","front":"RBI's role of supplying liquidity to a solvent bank facing a temporary squeeze when no one else will?","back":"**Lender of last resort**","pyq":"Asked: SEBI 2020 Ph-I","changed":false,"note":""},{"id":"R42","section":"RBI","topic":"RBI - Banker to Banks & Government","type":"fact","star":"md","front":"Bagehot's dictum: in a panic, a central bank should lend…?","back":"**Freely, against good collateral, at a penal rate**","pyq":"","changed":false,"note":"Walter Bagehot, Lombard Street (1873)."},{"id":"R43","section":"RBI","topic":"RBI - Banker to Banks & Government","type":"fact","star":"md","front":"Which RBI Act section empowers Ways and Means Advances (WMA) to the Centre and States?","back":"**Section 17(5)**","pyq":"","changed":false,"note":"WMA is a collateral-free (clean) advance for temporary mismatches; borrowing beyond the limit is overdraft."},{"id":"R44","section":"RBI","topic":"RBI - Banker to Banks & Government","type":"fact","star":"md","front":"Centre's WMA limit for Oct 2024 – Mar 2025 (H2 FY25)?","back":"**₹50,000 crore**","pyq":"Asked: RBI Gr B 2024 Ph-II · PYQ-sourced","changed":false,"note":""},{"id":"R45","section":"RBI","topic":"RBI - Banker to Banks & Government","type":"trap","star":"md","front":"For State governments, 'SDF' means the Standing Deposit Facility. Correct?","back":"**Wrong.** For States, SDF = Special Drawing Facility: a cheaper advance against their G-secs, used up before WMA (then overdraft). The Standing Deposit Facility (2022) is RBI's collateral-free liquidity-absorption window for banks.","pyq":"","changed":false,"note":""},{"id":"R46","section":"RBI","topic":"RBI - Banker to Banks & Government","type":"fact","star":"md","front":"When RBI raises loans for States, it consults the Finance Ministry and?","back":"**CAG**","pyq":"Asked: SEBI 2024 Ph-I · PYQ-sourced","changed":false,"note":""},{"id":"R47","section":"RBI","topic":"RBI - Customer Protection & Publications","type":"fact","star":"md","front":"The Integrated Ombudsman Scheme merged which three schemes?","back":"**Banking Ombudsman (2006), NBFC Ombudsman (2018), Digital Transactions Ombudsman (2019)**","pyq":"","changed":false,"note":"The original Banking Ombudsman Scheme dates from 1995."},{"id":"R48","section":"RBI","topic":"RBI - Customer Protection & Publications","type":"fact","star":"md","front":"Under which provision is RBI's Annual Report submitted to the Centre?","back":"**Section 53(2), RBI Act**","pyq":"","changed":false,"note":"The Report on Trend and Progress of Banking goes under s.36(2) of the BR Act."},{"id":"R49","section":"RBI","topic":"RBI - Customer Protection & Publications","type":"fact","star":"md","front":"Unbanked villages above what population must get a bank branch or banking outlet?","back":"**5,000**","pyq":"","changed":false,"note":"A banking outlet is a fixed point open at least 4 hours a day, 5 days a week."},{"id":"R50","section":"RBI","topic":"RBI - Currency Management & Payments","type":"fact","star":"md","front":"Which RBI Act section gives RBI the sole right to issue bank notes?","back":"**Section 22**","pyq":"","changed":false,"note":""},{"id":"R51","section":"RBI","topic":"RBI - Currency Management & Payments","type":"trap","star":"md","front":"RBI issues every currency note and coin in India. Correct?","back":"**Wrong.** GoI issues ₹1 notes and mints all coins (Coinage Act 2011); RBI issues the other notes (s.22) and only puts coins into circulation (ss.38–39).","pyq":"","changed":false,"note":""},{"id":"R52","section":"RBI","topic":"RBI - Currency Management & Payments","type":"fact","star":"md","front":"A 50-paise coin is legal tender up to?","back":"**₹10**","pyq":"Asked: SEBI 2025 Ph-I · PYQ-sourced","changed":false,"note":""},{"id":"R53","section":"RBI","topic":"RBI - Currency Management & Payments","type":"fact","star":"md","front":"Which Act makes RBI the regulator of payment systems?","back":"**Payment and Settlement Systems Act, 2007**","pyq":"","changed":false,"note":"No one may operate a payment system without RBI authorisation; s.8 lets RBI revoke it."},{"id":"D01","section":"Debt & Money","topic":"Debt & Money - Market Structure & Regulators","type":"fact","star":"hi","front":"In which market are Treasury bills issued?","back":"**Money market**","pyq":"Asked: PFRDA 2025 Ph-I P2","changed":false,"note":""},{"id":"D02","section":"Debt & Money","topic":"Debt & Money - Market Structure & Regulators","type":"fact","star":"hi","front":"Money-market instruments (maturity up to 1 year) include?","back":"**T-bills, CMBs, CDs, CPs, commercial bills, call/notice money, repo**","pyq":"Asked: SEBI 2018 Ph-I · SEBI 2025 Ph-II","changed":false,"note":"Not money market: shares, debentures, 10-year G-bonds, the Government's stake in PSUs (all over 1 year)."},{"id":"D03","section":"Debt & Money","topic":"Debt & Money - Market Structure & Regulators","type":"fact","star":"hi","front":"Regulator of the corporate debt market?","back":"**SEBI**","pyq":"Asked: PFRDA 2021 Ph-I","changed":false,"note":""},{"id":"D04","section":"Debt & Money","topic":"Debt & Money - Market Structure & Regulators","type":"trap","star":"hi","front":"RBI regulates the corporate bond market and SEBI regulates G-secs. Correct?","back":"**Wrong: reversed.** RBI: money market, G-secs (including their issue) and the repo market. SEBI: corporate debt and debenture issues, plus settlement procedure on stock exchanges.","pyq":"Asked: PFRDA 2021 Ph-I","changed":false,"note":""},{"id":"D05","section":"Debt & Money","topic":"Debt & Money - Market Structure & Regulators","type":"fact","star":"hi","front":"Default risk of Government securities?","back":"**Zero**","pyq":"Asked: PFRDA 2021 Ph-I","changed":false,"note":""},{"id":"D06","section":"Debt & Money","topic":"Debt & Money - Market Structure & Regulators","type":"fact","star":"md","front":"Who issues Government securities on the Government's behalf?","back":"**RBI** (as manager of public debt)","pyq":"Asked: SEBI 2018 Ph-I","changed":false,"note":""},{"id":"D07","section":"Debt & Money","topic":"Debt & Money - Long-term Debt Instruments","type":"fact","star":"md","front":"Bonds issued by State governments are called?","back":"**State Development Loans (SDLs)**","pyq":"","changed":false,"note":"States issue only long-term securities; T-bills and CMBs are for the Centre only."},{"id":"D08","section":"Debt & Money","topic":"Debt & Money - Long-term Debt Instruments","type":"fact","star":"md","front":"Who notifies FCCBs (Foreign Currency Convertible Bonds)?","back":"**RBI** (under FEMA)","pyq":"Asked: SEBI 2018 Ph-I","changed":false,"note":""},{"id":"D09","section":"Debt & Money","topic":"Debt & Money - Long-term Debt Instruments","type":"fact","star":"md","front":"What type of instrument is an FCCB?","back":"**Hybrid** (foreign-currency debt convertible into the issuer's equity)","pyq":"Asked: SEBI 2018 Ph-I","changed":false,"note":""},{"id":"D10","section":"Debt & Money","topic":"Debt & Money - Long-term Debt Instruments","type":"trap","star":"md","front":"FCEB holders convert into shares of the issuing company. Correct?","back":"**Wrong.** An FCEB converts into shares of a different company; an FCCB converts into the issuer's own shares. Both are foreign-currency hybrid debt.","pyq":"","changed":false,"note":""},{"id":"D11","section":"Debt & Money","topic":"Debt & Money - Long-term Debt Instruments","type":"fact","star":"md","front":"A debt security that lets the issuer repay before maturity at a preset price?","back":"**Callable bond** (issuer's call option)","pyq":"Asked: SEBI 2025 Ph-II","changed":false,"note":"Issuers call when rates fall, which leaves investors with reinvestment risk."},{"id":"D12","section":"Debt & Money","topic":"Debt & Money - T-bills & CMBs","type":"fact","star":"hi","front":"T-bill maturities?","back":"**91, 182 and 364 days**","pyq":"Asked: maximum T-bill tenor, SEBI 2025 Ph-I · IFSCA 2024 · listed in PFRDA 2025 Ph-I P2 explanation","changed":false,"note":"The maximum is 364 days, not 365 or 366."},{"id":"D13","section":"Debt & Money","topic":"Debt & Money - T-bills & CMBs","type":"fact","star":"hi","front":"A short-term Government instrument sold at a discount and redeemed at par, the return being the difference?","back":"**Treasury bill** (zero-coupon)","pyq":"Asked: SEBI 2025 Ph-II · SEBI 2018 Ph-I","changed":false,"note":""},{"id":"D14","section":"Debt & Money","topic":"Debt & Money - T-bills & CMBs","type":"concept","star":"md","front":"How does a T-bill pay a return without coupons? Work an example.","back":"It is issued below face value and repaid at face value. If the RBI auction sets the issue price at ₹920 for ₹1,000 face value, the investor earns ₹80. Yield = profit ÷ issue price × 100 = 80 ÷ 920 × 100 ≈ 8.7%.","pyq":"","changed":false,"note":""},{"id":"D15","section":"Debt & Money","topic":"Debt & Money - T-bills & CMBs","type":"fact","star":"md","front":"T-bill minimum investment?","back":"**₹10,000** and multiples","pyq":"","changed":false,"note":""},{"id":"D16","section":"Debt & Money","topic":"Debt & Money - T-bills & CMBs","type":"fact","star":"md","front":"T-bill settlement cycle?","back":"**T+1**","pyq":"","changed":false,"note":"Auctions are usually on Wednesdays. CMBs also settle T+1."},{"id":"D17","section":"Debt & Money","topic":"Debt & Money - T-bills & CMBs","type":"fact","star":"md","front":"Do T-bills count towards SLR?","back":"**Yes**","pyq":"","changed":false,"note":""},{"id":"D18","section":"Debt & Money","topic":"Debt & Money - T-bills & CMBs","type":"fact","star":"hi","front":"Tenure of Cash Management Bills (CMBs)?","back":"**Less than 91 days**","pyq":"Asked: PFRDA 2021 Ph-I · IFSCA 2024","changed":false,"note":""},{"id":"D19","section":"Debt & Money","topic":"Debt & Money - T-bills & CMBs","type":"trap","star":"hi","front":"CMBs are T-bills of 91–182 days issued to cover temporary cash mismatches. Correct?","back":"**Wrong: CMBs run less than 91 days.** T-bills are 91/182/364 days. Both are issued by RBI for the Centre, at a discount, with T+1 settlement.","pyq":"Asked: CMB tenure, PFRDA 2021 Ph-I","changed":false,"note":""},{"id":"D20","section":"Debt & Money","topic":"Debt & Money - CDs, CPs & Other Short-term Instruments","type":"trap","star":"hi","front":"Certificates of Deposit are issued by companies and Commercial Paper by banks. Correct?","back":"**Wrong: reversed.** CDs: banks (SCBs, RRBs, SFBs) and AIFIs. CPs: companies, primary dealers, AIFIs. T-bills and CMBs: RBI for the Centre.","pyq":"Asked: who issues CDs, SEBI 2018 Ph-I · CP issued by companies, RBI Gr B 2019","changed":false,"note":""},{"id":"D21","section":"Debt & Money","topic":"Debt & Money - CDs, CPs & Other Short-term Instruments","type":"fact","star":"md","front":"Minimum amount of a Certificate of Deposit?","back":"**₹5 lakh** and multiples","pyq":"Asked: SEBI 2025 Ph-II","changed":false,"note":""},{"id":"D22","section":"Debt & Money","topic":"Debt & Money - CDs, CPs & Other Short-term Instruments","type":"fact","star":"md","front":"CD maturity: banks vs financial institutions?","back":"**Banks: 7 days to 1 year. FIs: 1 to 3 years.**","pyq":"Asked: SEBI 2025 Ph-II","changed":false,"note":""},{"id":"D23","section":"Debt & Money","topic":"Debt & Money - CDs, CPs & Other Short-term Instruments","type":"fact","star":"md","front":"Can a bank lend against CDs it has issued?","back":"**No** (it may buy them back before maturity)","pyq":"Asked: SEBI 2025 Ph-II","changed":false,"note":""},{"id":"D24","section":"Debt & Money","topic":"Debt & Money - CDs, CPs & Other Short-term Instruments","type":"fact","star":"md","front":"Which is NOT transferable: G-bonds, a bank FD, MF units, listed shares, debentures?","back":"**Bank fixed deposit**","pyq":"Asked: SEBI 2024 Ph-II","changed":false,"note":"CDs, unlike FDs, are transferable and tradable."},{"id":"D25","section":"Debt & Money","topic":"Debt & Money - CDs, CPs & Other Short-term Instruments","type":"fact","star":"hi","front":"A short-term unsecured promissory note issued at a discount by highly rated corporates?","back":"**Commercial Paper (CP)**","pyq":"Asked: SEBI 2018 Ph-I · RBI Gr B 2019, 2022","changed":false,"note":"Introduced in India in 1990."},{"id":"D26","section":"Debt & Money","topic":"Debt & Money - CDs, CPs & Other Short-term Instruments","type":"fact","star":"hi","front":"Maturity range of Commercial Paper?","back":"**7 days to 1 year**","pyq":"Asked: SEBI 2018 Ph-I · RBI Gr B 2022","changed":false,"note":"Denomination ₹5 lakh and multiples (same as CDs). Maturity can't go past the issuer's rating validity."},{"id":"D27","section":"Debt & Money","topic":"Debt & Money - CDs, CPs & Other Short-term Instruments","type":"fact","star":"md","front":"Minimum tangible net worth needed to issue Commercial Paper?","back":"**₹100 crore**","pyq":"Asked: SEBI 2024 Ph-I (old key: ₹4 crore)","changed":false,"note":"SEBI 2024's key gives ₹4 crore, the older rule. Go with ₹100 crore unless ₹4 crore is the only matching option."},{"id":"D28","section":"Debt & Money","topic":"Debt & Money - CDs, CPs & Other Short-term Instruments","type":"fact","star":"md","front":"Minimum credit rating needed to issue CP?","back":"**A3** (from a SEBI-registered CRA)","pyq":"","changed":false,"note":"RBI issues the CP guidelines (IFSCA 2023)."},{"id":"D29","section":"Debt & Money","topic":"Debt & Money - Call Money, Repo & Triparty Repo","type":"fact","star":"hi","front":"Money lent for more than 1 day and up to 14 days is called?","back":"**Notice money**","pyq":"Asked: SEBI 2024 Ph-I","changed":false,"note":""},{"id":"D30","section":"Debt & Money","topic":"Debt & Money - Call Money, Repo & Triparty Repo","type":"trap","star":"md","front":"Call money is lent for up to 14 days. Correct?","back":"**Wrong.** Call = overnight (1 day). Notice = over 1 day, up to 14 days. Term = over 14 days.","pyq":"Asked: SEBI 2024 Ph-I","changed":false,"note":""},{"id":"D31","section":"Debt & Money","topic":"Debt & Money - Call Money, Repo & Triparty Repo","type":"fact","star":"md","front":"Who may lend and borrow in the inter-bank call money market?","back":"**SCBs, RRBs, co-op banks (except LDBs), primary dealers, payments banks, SFBs**","pyq":"Asked: SEBI 2018 Ph-II","changed":false,"note":"No other non-banks. No collateral is needed."},{"id":"D32","section":"Debt & Money","topic":"Debt & Money - Call Money, Repo & Triparty Repo","type":"fact","star":"md","front":"What replaced CBLO, and when?","back":"**Triparty repo**, from Nov 2018","pyq":"","changed":false,"note":"CCIL ran CBLO. Triparty repo uses G-sec collateral only; a triparty agent manages collateral and settlement."},{"id":"D33","section":"Debt & Money","topic":"Debt & Money - Call Money, Repo & Triparty Repo","type":"fact","star":"md","front":"Repo period allowed?","back":"**1 day to 1 year**","pyq":"","changed":false,"note":""},{"id":"D34","section":"Debt & Money","topic":"Debt & Money - Call Money, Repo & Triparty Repo","type":"fact","star":"md","front":"A repo with no fixed maturity date is called?","back":"**Open repo**","pyq":"","changed":false,"note":"Overnight repo = 1 day; term repo = a fixed date beyond 1 day."},{"id":"D35","section":"Debt & Money","topic":"Debt & Money - Call Money, Repo & Triparty Repo","type":"fact","star":"md","front":"Repo operations that give banks liquidity for 1 to 3 years?","back":"**LTRO** (Long-Term Repo Operations)","pyq":"","changed":false,"note":"TLTRO: the same, targeted at specified sectors."},{"id":"D36","section":"Debt & Money","topic":"Debt & Money - Call Money, Repo & Triparty Repo","type":"fact","star":"md","front":"Who regulates the repo market?","back":"**RBI**","pyq":"","changed":false,"note":"SEBI governs the settlement procedure in the secondary market."},{"id":"D37","section":"Debt & Money","topic":"Debt & Money - RBI Platforms, CCIL & Debt Issues","type":"fact","star":"md","front":"Anonymous, screen-based order-matching system for secondary trading in G-secs, owned by RBI?","back":"**NDS-OM**","pyq":"Asked: RBI Gr B 2025","changed":false,"note":"Launched Aug 2005; open to SGL-account holders. Gilt-account holders trade through primary members."},{"id":"D38","section":"Debt & Money","topic":"Debt & Money - RBI Platforms, CCIL & Debt Issues","type":"fact","star":"md","front":"Who clears and settles G-sec trades (including NDS-OM) as central counterparty?","back":"**CCIL** (Clearing Corporation of India, set up April 2001)","pyq":"Asked: RBI Gr B 2018, 2025","changed":false,"note":"Becoming buyer to every seller and seller to every buyer is called novation."},{"id":"D39","section":"Debt & Money","topic":"Debt & Money - RBI Platforms, CCIL & Debt Issues","type":"fact","star":"md","front":"Scheme that lets retail investors open a gilt account directly with RBI?","back":"**RBI Retail Direct** (Retail Direct Gilt account)","pyq":"","changed":false,"note":"Works in both primary and secondary markets; G-secs only."},{"id":"D40","section":"Debt & Money","topic":"Debt & Money - RBI Platforms, CCIL & Debt Issues","type":"fact","star":"md","front":"Public issue of debt: minimum base issue size?","back":"**₹100 crore**","pyq":"","changed":false,"note":"Over-subscription can be retained up to 100% of the base."},{"id":"D41","section":"Debt & Money","topic":"Debt & Money - RBI Platforms, CCIL & Debt Issues","type":"fact","star":"md","front":"Public issue of debt: minimum subscription?","back":"**75% of the base issue size**","pyq":"","changed":false,"note":"Otherwise all money is refunded within 12 days."},{"id":"I01","section":"Institutions","topic":"Institutions - Major Regulatory Bodies (Regulator Map)","type":"fact","star":"hi","front":"Regulator of the pension sector?","back":"**PFRDA**","pyq":"Asked: PFRDA 2025 Ph-I P2 · SEBI 2022 Ph-I","changed":false,"note":""},{"id":"I02","section":"Institutions","topic":"Institutions - Major Regulatory Bodies (Regulator Map)","type":"fact","star":"hi","front":"Regulator of mutual funds?","back":"**SEBI**","pyq":"Asked: PFRDA 2025 Ph-I P2 · SEBI 2022 Ph-I","changed":false,"note":""},{"id":"I03","section":"Institutions","topic":"Institutions - Major Regulatory Bodies (Regulator Map)","type":"fact","star":"hi","front":"Who regulates Regional Rural Banks?","back":"**RBI**","pyq":"Asked: PFRDA 2025 Ph-I P2 (key: PFRDA, RBI, SEBI)","changed":false,"note":"Your brief and Pension deck card s2-084 pair RRBs with NABARD. EduTap's key and both summary sheets say RBI regulates RRBs and NABARD supervises them."},{"id":"I04","section":"Institutions","topic":"Institutions - Major Regulatory Bodies (Regulator Map)","type":"fact","star":"hi","front":"Who supervises Regional Rural Banks?","back":"**NABARD**","pyq":"Asked: PFRDA 2025 Ph-I P2 (explanation)","changed":false,"note":""},{"id":"I05","section":"Institutions","topic":"Institutions - Major Regulatory Bodies (Regulator Map)","type":"trap","star":"hi","front":"Pension–PFRDA, RRBs–NABARD, mutual funds–AMFI, insurance–IRDAI, NBFCs–SEBI. All correctly matched?","back":"**No, three are wrong.** RRBs are regulated by RBI (NABARD only supervises). Mutual funds are regulated by SEBI (AMFI is the industry body). NBFCs are regulated by RBI. Pension–PFRDA and insurance–IRDAI are right.","pyq":"Asked: PFRDA 2025 Ph-I P2 · SEBI 2022 Ph-I · SEBI 2020 Ph-I","changed":false,"note":""},{"id":"I06","section":"Institutions","topic":"Institutions - Major Regulatory Bodies (Regulator Map)","type":"fact","star":"hi","front":"Who regulates NBFCs?","back":"**RBI** (RBI Act 1934, Ch. III-B)","pyq":"Asked: SEBI 2020 Ph-I","changed":false,"note":""},{"id":"I07","section":"Institutions","topic":"Institutions - Major Regulatory Bodies (Regulator Map)","type":"fact","star":"hi","front":"Who regulates unlisted companies?","back":"**Ministry of Corporate Affairs**","pyq":"Asked: PFRDA 2022 Ph-I · PYQ-sourced","changed":false,"note":"MCA administers the Companies Act 2013 and the LLP Act 2008, so it also oversees LLPs (IFSCA 2023)."},{"id":"I08","section":"Institutions","topic":"Institutions - Major Regulatory Bodies (Regulator Map)","type":"fact","star":"md","front":"Housing Finance Companies: who regulates and who supervises?","back":"**RBI regulates; NHB supervises**","pyq":"","changed":false,"note":"Regulatory powers moved to RBI in 2019, when RBI also transferred its NHB stake to the Government."},{"id":"I09","section":"Institutions","topic":"Institutions - Major Regulatory Bodies (Regulator Map)","type":"trap","star":"md","front":"SEBI regulates FDI as well as FPI. Correct?","back":"**Wrong.** FPI (portfolio investment, no control) is regulated by SEBI. FDI (long-term, with control) is governed by FEMA 1999, not SEBI.","pyq":"","changed":false,"note":""},{"id":"I10","section":"Institutions","topic":"Institutions - Major Regulatory Bodies (Regulator Map)","type":"fact","star":"md","front":"AIFIs regulated and supervised by RBI?","back":"**NABARD, SIDBI, EXIM Bank, NHB, NaBFID**","pyq":"","changed":false,"note":"Under the RBI Act 1934 (NaBFID under ss.45L and 45N)."},{"id":"I11","section":"Institutions","topic":"Institutions - SEBI","type":"fact","star":"hi","front":"Under SEBI's BRSR, which companies must disclose ESG information?","back":"**Top 1,000 listed companies by market capitalisation**","pyq":"Asked: PFRDA 2025 Ph-I P2 & P1","changed":false,"note":"BRSR (2021) replaced Business Responsibility Reporting (BRR)."},{"id":"I12","section":"Institutions","topic":"Institutions - SEBI","type":"fact","star":"md","front":"In which year was SEBI set up as a non-statutory body?","back":"**1988**","pyq":"","changed":false,"note":"It replaced the Controller of Capital Issues (Capital Issues (Control) Act 1947). HQ Mumbai."},{"id":"I13","section":"Institutions","topic":"Institutions - SEBI","type":"fact","star":"md","front":"Which Act gave SEBI statutory powers?","back":"**SEBI Act, 1992**","pyq":"","changed":false,"note":""},{"id":"I14","section":"Institutions","topic":"Institutions - SEBI","type":"fact","star":"md","front":"Penalty for insider trading under the SEBI Act?","back":"**₹10 lakh to ₹25 crore, or 3× the profit, whichever is higher**","pyq":"","changed":false,"note":""},{"id":"I15","section":"Institutions","topic":"Institutions - AIFs, REITs, InvITs & CIS","type":"fact","star":"hi","front":"Private equity in India is formed as a ___, registered with ___, and called ___?","back":"**Trust; SEBI; Alternative Investment Fund** (Category II)","pyq":"Asked: PFRDA 2025 Ph-II","changed":false,"note":""},{"id":"I16","section":"Institutions","topic":"Institutions - AIFs, REITs, InvITs & CIS","type":"fact","star":"md","front":"Regulations governing AIFs?","back":"**SEBI (Alternative Investment Funds) Regulations, 2012**","pyq":"","changed":false,"note":""},{"id":"I17","section":"Institutions","topic":"Institutions - AIFs, REITs, InvITs & CIS","type":"fact","star":"md","front":"Minimum investment per investor in an AIF?","back":"**₹1 crore**","pyq":"","changed":false,"note":"₹25 lakh for employees and directors. Each scheme needs a corpus of at least ₹20 crore and may have up to 1,000 investors (angel funds exempt)."},{"id":"I18","section":"Institutions","topic":"Institutions - AIFs, REITs, InvITs & CIS","type":"trap","star":"md","front":"Hedge funds are Category II AIFs. Correct?","back":"**Wrong: Category III** (leverage, complex strategies). Cat II = private equity, debt and real-estate funds (the residual category). Cat I = venture capital/angel, SME, social-venture and infrastructure funds.","pyq":"","changed":false,"note":""},{"id":"I19","section":"Institutions","topic":"Institutions - AIFs, REITs, InvITs & CIS","type":"fact","star":"hi","front":"Who manages the Fund of Funds for Startups (2016)?","back":"**SIDBI**","pyq":"Asked: SEBI 2024 Ph-II","changed":false,"note":"It invests in SEBI-registered AIFs, which in turn invest in startups."},{"id":"I20","section":"Institutions","topic":"Institutions - AIFs, REITs, InvITs & CIS","type":"fact","star":"md","front":"Angel fund investment limit per investee company?","back":"**₹25 lakh to ₹25 crore**","pyq":"Asked: SEBI 2025 Ph-II","changed":false,"note":""},{"id":"I21","section":"Institutions","topic":"Institutions - AIFs, REITs, InvITs & CIS","type":"fact","star":"md","front":"Minimum share of net distributable cash flows that REITs and InvITs must pay out?","back":"**90%**","pyq":"","changed":false,"note":""},{"id":"I22","section":"Institutions","topic":"Institutions - AIFs, REITs, InvITs & CIS","type":"fact","star":"md","front":"Minimum investment in a REIT IPO vs an InvIT IPO?","back":"**REIT ₹50,000; InvIT ₹1,00,000**","pyq":"","changed":false,"note":"A privately placed InvIT needs ₹25 lakh."},{"id":"I23","section":"Institutions","topic":"Institutions - AIFs, REITs, InvITs & CIS","type":"fact","star":"md","front":"In which year were the SEBI REIT and InvIT Regulations made?","back":"**2014**","pyq":"","changed":false,"note":"Collective Investment Schemes: SEBI (CIS) Regulations 1999. First listed REIT: Embassy Office Parks (2019)."},{"id":"I24","section":"Institutions","topic":"Institutions - PFRDA, IFSCA & IRDAI","type":"fact","star":"md","front":"Under which Act did PFRDA become statutory, and from when?","back":"**PFRDA Act 2013, effective 1 February 2014**","pyq":"","changed":false,"note":"HQ New Delhi. Interim (non-statutory) PFRDA dates from 2003: this summary says 23 Aug 2003, while your Pension deck (s1-010) uses 10 Oct 2003 from the Act. '2003' is safe."},{"id":"I25","section":"Institutions","topic":"Institutions - PFRDA, IFSCA & IRDAI","type":"fact","star":"md","front":"Under which Act was IFSCA set up?","back":"**IFSCA Act, 2019**","pyq":"","changed":false,"note":"Operational from 27 April 2020; HQ GIFT City, Gandhinagar (India's first IFSC)."},{"id":"I26","section":"Institutions","topic":"Institutions - PFRDA, IFSCA & IRDAI","type":"trap","star":"md","front":"Inside GIFT IFSC, banks are regulated by RBI and insurers by IRDAI. Correct?","back":"**Wrong.** Inside an IFSC, IFSCA is the single unified regulator for banking, capital markets, insurance and pensions. Outside it, RBI, SEBI, IRDAI and PFRDA act as usual.","pyq":"","changed":false,"note":""},{"id":"I27","section":"Institutions","topic":"Institutions - PFRDA, IFSCA & IRDAI","type":"fact","star":"md","front":"Which Act gave IRDAI statutory status?","back":"**IRDA Act, 1999**","pyq":"","changed":false,"note":"Recommended by the Malhotra Committee (1993); operational 2000; HQ Hyderabad."},{"id":"I28","section":"Institutions","topic":"Institutions - AIFIs: NABARD","type":"fact","star":"md","front":"When was NABARD established?","back":"**12 July 1982** (NABARD Act 1981)","pyq":"","changed":false,"note":"Set up on the B. Sivaraman Committee's recommendation; 100% owned by GoI."},{"id":"I29","section":"Institutions","topic":"Institutions - AIFIs: NABARD","type":"fact","star":"hi","front":"A bank lends to a farmer, then draws funds from NABARD against that loan. This is?","back":"**Refinance**","pyq":"Asked: NABARD refinances the rural sector, IFSCA 2023","changed":false,"note":"Long-term refinance: up to 15 years. Short-term: up to 12 months."},{"id":"I30","section":"Institutions","topic":"Institutions - AIFIs: NABARD","type":"concept","star":"md","front":"Direct finance vs refinance at NABARD: what's the difference?","back":"Direct finance: NABARD originates the funding itself, lending to beneficiaries or through intermediaries such as RRBs (e.g. RIDF, LTIF, warehousing loans). Refinance: banks lend first from their own funds, and NABARD then replenishes them, so they can keep lending to the rural sector.","pyq":"","changed":false,"note":""},{"id":"I31","section":"Institutions","topic":"Institutions - AIFIs: NABARD","type":"fact","star":"md","front":"NABARD fund (1995–96, ₹2,000 crore initial corpus) for rural infrastructure?","back":"**RIDF** (Rural Infrastructure Development Fund)","pyq":"","changed":false,"note":""},{"id":"I32","section":"Institutions","topic":"Institutions - AIFIs: NABARD","type":"fact","star":"md","front":"NABARD's microfinance subsidiary?","back":"**NABFINS**","pyq":"","changed":false,"note":"NABARD has six subsidiaries now that NABSAMRUDDHI has merged into NABKISAN."},{"id":"I33","section":"Institutions","topic":"Institutions - AIFIs: SIDBI, EXIM, NHB, NaBFID","type":"fact","star":"hi","front":"Principal financial institution for promoting, financing and developing MSMEs?","back":"**SIDBI**","pyq":"Asked: SEBI 2020 Ph-I","changed":false,"note":""},{"id":"I34","section":"Institutions","topic":"Institutions - AIFIs: SIDBI, EXIM, NHB, NaBFID","type":"fact","star":"md","front":"Where is SIDBI headquartered?","back":"**Lucknow**","pyq":"","changed":false,"note":"Set up 2 April 1990 under the SIDBI Act 1989. GoI is the largest shareholder (~20.85%), not the sole owner."},{"id":"I35","section":"Institutions","topic":"Institutions - AIFIs: SIDBI, EXIM, NHB, NaBFID","type":"fact","star":"md","front":"In which year did EXIM Bank begin operations?","back":"**1982** (EXIM Bank Act 1981)","pyq":"","changed":false,"note":"HQ Mumbai; 100% GoI-owned."},{"id":"I36","section":"Institutions","topic":"Institutions - AIFIs: SIDBI, EXIM, NHB, NaBFID","type":"fact","star":"md","front":"India's first official housing price index?","back":"**NHB RESIDEX** (July 2007)","pyq":"","changed":false,"note":"NHB: set up 1988 under the NHB Act 1987, HQ New Delhi."},{"id":"I37","section":"Institutions","topic":"Institutions - AIFIs: SIDBI, EXIM, NHB, NaBFID","type":"fact","star":"md","front":"Principal DFI for infrastructure financing, set up in 2021?","back":"**NaBFID**","pyq":"Asked: RBI Gr B 2023, 2025","changed":false,"note":"AIFI status on 8 March 2022 (the fifth AIFI); HQ Mumbai; regulated by RBI."},{"id":"I38","section":"Institutions","topic":"Institutions - Credit Guarantee Institutions & PFIs","type":"fact","star":"hi","front":"Who guarantees loans under the Guaranteed Emergency Credit Line (GECL)?","back":"**NCGTC** (100% guarantee)","pyq":"Asked: PFRDA 2021 Ph-II","changed":false,"note":""},{"id":"I39","section":"Institutions","topic":"Institutions - Credit Guarantee Institutions & PFIs","type":"fact","star":"md","front":"Credit guarantee trust that enables collateral-free loans to micro and small enterprises?","back":"**CGTMSE**","pyq":"","changed":false,"note":"ECGC covers exporters' non-payment risk; DICGC covers deposits. CGIs guarantee loans; they don't lend."},{"id":"I40","section":"Institutions","topic":"Institutions - Credit Guarantee Institutions & PFIs","type":"fact","star":"md","front":"What makes an institution a Public Financial Institution under s.2(72) of the Companies Act?","back":"**GoI ownership above 51%, plus notification by the Central Government**","pyq":"","changed":false,"note":""},{"id":"I41","section":"Institutions","topic":"Institutions - Credit Guarantee Institutions & PFIs","type":"trap","star":"md","front":"All PFIs are AIFIs. Correct?","back":"**Wrong: all AIFIs are PFIs, not the reverse.** The Finance Ministry's 7 PFIs = the 5 AIFIs + IIFCL (2006, infrastructure) + IFCI (1948, industry).","pyq":"","changed":false,"note":""},{"id":"N01","section":"Inclusion","topic":"Inclusion - Meaning, Pillars & Barriers","type":"fact","star":"hi","front":"Which is NOT a financial-inclusion service: savings account, subsidies, micro-credit, insurance, financial advice?","back":"**Subsidies**","pyq":"Asked: SEBI 2020 Ph-II · RBI Gr B 2017","changed":false,"note":"Subsidies make things cheaper but don't bring people into the formal financial system."},{"id":"N02","section":"Inclusion","topic":"Inclusion - Meaning, Pillars & Barriers","type":"fact","star":"md","front":"The five pillars of financial inclusion?","back":"**Access, Usage, Quality, Affordability, Financial literacy**","pyq":"","changed":false,"note":""},{"id":"N03","section":"Inclusion","topic":"Inclusion - RBI Initiatives Before 2014","type":"fact","star":"hi","front":"Which account is the core of 'access to banking services', with no minimum balance and free basic services?","back":"**Basic Savings Bank Deposit Account (BSBDA)**","pyq":"Asked: PFRDA 2021 Ph-I","changed":false,"note":""},{"id":"N04","section":"Inclusion","topic":"Inclusion - RBI Initiatives Before 2014","type":"fact","star":"md","front":"Free withdrawals a month in a BSBDA?","back":"**Four** (including ATM withdrawals)","pyq":"Asked: PFRDA 2021 Ph-I (explanation)","changed":false,"note":"No limit on number or value of deposits; ATM/RuPay debit card; simplified KYC."},{"id":"N05","section":"Inclusion","topic":"Inclusion - RBI Initiatives Before 2014","type":"fact","star":"md","front":"No-frills accounts (2005) were standardised into BSBDAs in?","back":"**2012**","pyq":"","changed":false,"note":""},{"id":"N06","section":"Inclusion","topic":"Inclusion - RBI Initiatives Before 2014","type":"trap","star":"hi","front":"A BSBDA is the 2014 PMJDY account that carries ₹2 lakh accident cover and a ₹10,000 overdraft. Correct?","back":"**Wrong.** BSBDA = RBI's standardised basic account (2012, from 2005's no-frills accounts): zero balance, 4 free withdrawals a month, RuPay card. PMJDY (Aug 2014) = the Government mission that opened such accounts and added ₹2 lakh accident cover and a ₹10,000 overdraft.","pyq":"Asked: BSBDA, PFRDA 2021 Ph-I","changed":false,"note":""},{"id":"N07","section":"Inclusion","topic":"Inclusion - RBI Initiatives Before 2014","type":"trap","star":"md","front":"Business Facilitators handle cash deposits and withdrawals for banks. Correct?","back":"**Wrong.** Business Correspondents ('Bank Mitras') handle cash. Business Facilitators only do outreach, account-opening support and awareness.","pyq":"","changed":false,"note":""},{"id":"N08","section":"Inclusion","topic":"Inclusion - RBI Initiatives Before 2014","type":"fact","star":"md","front":"Scheme that assigns one bank to each district to coordinate credit delivery?","back":"**Lead Bank Scheme**","pyq":"","changed":false,"note":""},{"id":"N09","section":"Inclusion","topic":"Inclusion - RBI Initiatives Before 2014","type":"fact","star":"md","front":"Who maintains the fund that finances Financial Literacy Centres and literacy drives?","back":"**NABARD** (under RBI guidance)","pyq":"","changed":false,"note":"Your inclusion summary calls it the Financial Literacy Fund; the RBI summary calls it the Financial Inclusion Fund. NABARD manages it either way."},{"id":"N10","section":"Inclusion","topic":"Inclusion - RBI Initiatives After 2014","type":"fact","star":"hi","front":"RBI's monthly incentive for the top two Business Correspondents per village in hilly areas?","back":"**₹1,000**","pyq":"Asked: SEBI 2024 Ph-II","changed":false,"note":""},{"id":"N11","section":"Inclusion","topic":"Inclusion - RBI Initiatives After 2014","type":"fact","star":"md","front":"Weights of the three parameters in RBI's FI-Index?","back":"**Access 35%, Usage 45%, Quality 20%**","pyq":"","changed":false,"note":"Scale 0–100, no base year, published annually in July, 97 indicators."},{"id":"N12","section":"Inclusion","topic":"Inclusion - RBI Initiatives After 2014","type":"trap","star":"md","front":"Payments banks can lend; small finance banks cannot. Correct?","back":"**Wrong: reversed.** SFBs can lend (micro-loans) and need more capital. Payments banks take limited deposits and do payments and remittances but cannot lend.","pyq":"","changed":false,"note":""},{"id":"N13","section":"Inclusion","topic":"Inclusion - RBI Initiatives After 2014","type":"fact","star":"md","front":"Who prepared the National Strategy for Financial Education 2020–25?","back":"**NCFE** (National Centre for Financial Education)","pyq":"","changed":false,"note":"NCFE is a Section 8 company promoted by RBI, SEBI, IRDAI and PFRDA. NSFE uses a '5 C' approach: Content, Capacity, Community, Communication, Collaboration."},{"id":"N14","section":"Inclusion","topic":"Inclusion - RBI Initiatives After 2014","type":"fact","star":"md","front":"Who prepared the National Strategy for Financial Inclusion 2019–24?","back":"**RBI**","pyq":"Asked: IFSCA 2024","changed":false,"note":""},{"id":"N15","section":"Inclusion","topic":"Inclusion - RBI Initiatives After 2014","type":"fact","star":"md","front":"Current National Strategy for Financial Inclusion (as of Dec 2025)?","back":"**NSFI 2025–30**, released 1 Dec 2025","pyq":"","changed":false,"note":"Approved by the FSDC sub-committee. 'Panch Jyoti' framework of 5 objectives, 47 action points; target of 30% women BCs by Dec 2028."},{"id":"N16","section":"Inclusion","topic":"Inclusion - Government Initiatives & Digital Rails","type":"fact","star":"hi","front":"Who operates the Aadhaar-enabled Payment System (AePS)?","back":"**NPCI**","pyq":"Asked: PFRDA 2025 Ph-I P2 & P1","changed":false,"note":""},{"id":"N17","section":"Inclusion","topic":"Inclusion - Government Initiatives & Digital Rails","type":"fact","star":"hi","front":"The six services AePS supports?","back":"**Cash deposit, cash withdrawal, balance enquiry, mini statement, Aadhaar-to-Aadhaar fund transfer, authentication (dual-auth) transactions**","pyq":"Asked: PFRDA 2025 Ph-I P1 (explanation) · PYQ-sourced","changed":false,"note":""},{"id":"N18","section":"Inclusion","topic":"Inclusion - Government Initiatives & Digital Rails","type":"trap","star":"md","front":"UIDAI runs AePS, since the system uses Aadhaar authentication. Correct?","back":"**Wrong: NPCI runs AePS.** UIDAI only provides Aadhaar authentication; RBI regulates payment systems; banks' BCs deliver AePS at micro-ATMs.","pyq":"Asked: PFRDA 2025 Ph-I P2 & P1","changed":false,"note":""},{"id":"N19","section":"Inclusion","topic":"Inclusion - Government Initiatives & Digital Rails","type":"fact","star":"hi","front":"Under Direct Benefit Transfer, what does the Government transfer to beneficiaries?","back":"**Subsidies**","pyq":"Asked: PFRDA 2022 Ph-I","changed":false,"note":"DBT began in January 2013; money goes into Aadhaar-linked bank accounts."},{"id":"N20","section":"Inclusion","topic":"Inclusion - Government Initiatives & Digital Rails","type":"fact","star":"hi","front":"Three-layer stack of digital identity, paperless data exchange and cashless payments?","back":"**India Stack**","pyq":"Asked: SEBI 2025 Ph-I · SEBI 2025 Ph-II","changed":false,"note":"India Stack (Aadhaar, e-KYC, e-Sign, DigiLocker, UPI) is India's Digital Public Infrastructure (DPI)."},{"id":"N21","section":"Inclusion","topic":"Inclusion - Government Initiatives & Digital Rails","type":"fact","star":"md","front":"JAM trinity stands for?","back":"**Jan Dhan, Aadhaar, Mobile**","pyq":"Asked: RBI Gr B 2025","changed":false,"note":"The backbone of DBT."},{"id":"N22","section":"Inclusion","topic":"Inclusion - Government Initiatives & Digital Rails","type":"fact","star":"md","front":"PMJDY was announced on Independence Day of which year?","back":"**2014** (15 August 2014)","pyq":"Asked: RBI Gr B 2023","changed":false,"note":"Zero-balance accounts, ₹2 lakh accident cover, ₹10,000 overdraft after 6 months; over 54 crore accounts (per summary)."},{"id":"N23","section":"Inclusion","topic":"Inclusion - Government Initiatives & Digital Rails","type":"fact","star":"md","front":"Current MUDRA loan ceiling?","back":"**₹20 lakh** (Shishu, Kishore, Tarun)","pyq":"Asked: MUDRA refinances micro units, IFSCA 2024","changed":false,"note":"IFSCA 2024's explanation says ₹10 lakh, the older ceiling."},{"id":"N24","section":"Inclusion","topic":"Inclusion - Government Initiatives & Digital Rails","type":"fact","star":"md","front":"App that shows banking touch points: branches, ATMs, Bank Mitras, post offices, CSCs?","back":"**Jan Dhan Darshak**","pyq":"Asked: SEBI 2018 Ph-II","changed":false,"note":""},{"id":"N25","section":"Inclusion","topic":"Inclusion - Microfinance, SHGs & JLGs","type":"fact","star":"hi","front":"Who regulates microfinance in India?","back":"**RBI** (NBFC-MFI framework)","pyq":"Asked: SEBI 2024 Ph-I","changed":false,"note":""},{"id":"N26","section":"Inclusion","topic":"Inclusion - Microfinance, SHGs & JLGs","type":"fact","star":"md","front":"RBI's definition of microfinance?","back":"**Collateral-free loans to households with annual income up to ₹3 lakh**","pyq":"","changed":false,"note":""},{"id":"N27","section":"Inclusion","topic":"Inclusion - Microfinance, SHGs & JLGs","type":"fact","star":"md","front":"When did RBI create the NBFC-MFI category?","back":"**2011**","pyq":"","changed":false,"note":"NBFC-MFIs hold about 80% of the microfinance market."},{"id":"N28","section":"Inclusion","topic":"Inclusion - Microfinance, SHGs & JLGs","type":"trap","star":"md","front":"A Joint Liability Group has 10–20 members, mostly women, who pool their savings. Correct?","back":"**Wrong: that describes an SHG.** A JLG has 4–10 members, is informal, and takes individual loans under a joint guarantee (promoted by NABARD).","pyq":"","changed":false,"note":""},{"id":"N29","section":"Inclusion","topic":"Inclusion - Microfinance, SHGs & JLGs","type":"fact","star":"md","front":"Which group acts as the conduit of microfinance to the poor?","back":"**Self-Help Groups (SHGs)**","pyq":"Asked: RBI Gr B 2019","changed":false,"note":""},{"id":"N30","section":"Inclusion","topic":"Inclusion - Microfinance, SHGs & JLGs","type":"fact","star":"md","front":"The SHG 'Panchsutras'?","back":"**Regular meetings, regular savings, regular inter-loaning, timely repayment, up-to-date books of accounts**","pyq":"Asked: IFSCA 2024","changed":false,"note":""},{"id":"E01","section":"Equity","topic":"Equity - Shares & Valuation","type":"fact","star":"md","front":"Who gets the lowest priority when a company is liquidated?","back":"**Equity shareholders** (paid after preference shareholders)","pyq":"Asked: SEBI 2020 Ph-I","changed":false,"note":"IBC s.53 'waterfall'. Debenture holders, as secured creditors, get principal + interest first (SEBI 2020 Ph-II)."},{"id":"E02","section":"Equity","topic":"Equity - Shares & Valuation","type":"fact","star":"md","front":"Do preference shareholders have voting rights?","back":"**No.** They are shareholders (not creditors), with priority on dividend and capital","pyq":"Asked: SEBI 2018 Ph-I","changed":false,"note":""},{"id":"E03","section":"Equity","topic":"Equity - Shares & Valuation","type":"fact","star":"md","front":"A share's P/B ratio is below 1 (market price below book value). The share is generally?","back":"**Undervalued**","pyq":"Asked: PFRDA 2022 Ph-II · PYQ-sourced","changed":false,"note":"P/B = market price ÷ book value per share."},{"id":"E04","section":"Equity","topic":"Equity - Shares & Valuation","type":"concept","star":"md","front":"How do you get weighted-average EPS when shares are issued mid-year?","back":"Weight new shares by the months they were outstanding. Example: 2,00,000 shares, plus 2,00,000 issued on 31 March with 9 months left. Weighted shares = 2,00,000 + 2,00,000 × 9/12 = 3,50,000. EPS = ₹4,00,000 profit ÷ 3,50,000 = ₹1.14.","pyq":"Asked: PFRDA 2022 Ph-II · PYQ-sourced","changed":false,"note":""},{"id":"E05","section":"Equity","topic":"Equity - IPO, FPO & Pricing","type":"fact","star":"hi","front":"Option letting a company over-allot shares and use the money to buy shares back if the price falls below the issue price after listing?","back":"**Green-shoe option**","pyq":"Asked: PFRDA 2022 Ph-I","changed":false,"note":""},{"id":"E06","section":"Equity","topic":"Equity - IPO, FPO & Pricing","type":"fact","star":"md","front":"Green-shoe over-allotment limit?","back":"**Up to 15% of the issue size**","pyq":"Asked: PFRDA 2022 Ph-I (explanation)","changed":false,"note":"The proceeds are kept in a separate bank account for price stabilisation."},{"id":"E07","section":"Equity","topic":"Equity - IPO, FPO & Pricing","type":"fact","star":"md","front":"For how long after listing can the green-shoe stabilising agent buy shares?","back":"**30 days**","pyq":"","changed":false,"note":"Usually the lead manager does it."},{"id":"E08","section":"Equity","topic":"Equity - IPO, FPO & Pricing","type":"trap","star":"hi","front":"Book building is the mechanism that stabilises a share's price just after listing. Correct?","back":"**Wrong.** Book building discovers the issue price from bids within a price band (cap at most 20% above the floor). The green-shoe option stabilises the post-listing price (15% over-allotment, 30 days).","pyq":"","changed":false,"note":""},{"id":"E09","section":"Equity","topic":"Equity - IPO, FPO & Pricing","type":"trap","star":"md","front":"In an Offer for Sale, the company receives the money raised. Correct?","back":"**Wrong.** In an OFS existing shareholders (often promoters) sell and keep the proceeds. In a fresh issue the company gets the funds.","pyq":"","changed":false,"note":""},{"id":"E10","section":"Equity","topic":"Equity - IPO, FPO & Pricing","type":"fact","star":"md","front":"Minimum subscription an IPO must get, or refund everything?","back":"**90% of the issue**","pyq":"","changed":false,"note":"Refund within 4 days of closing, else 15% interest."},{"id":"E11","section":"Equity","topic":"Equity - Investors, ASBA & IPO Rules","type":"fact","star":"hi","front":"Maximum a retail individual investor can apply for in an IPO?","back":"**₹2 lakh**","pyq":"Asked: SEBI 2024 Ph-II · SEBI 2018 Ph-II","changed":false,"note":"Above ₹2 lakh you're a Non-Institutional Investor (NII)."},{"id":"E12","section":"Equity","topic":"Equity - Investors, ASBA & IPO Rules","type":"fact","star":"md","front":"Book-built IPO allocation to QIBs / retail / NIIs?","back":"**50% / 35% / 15%**","pyq":"","changed":false,"note":""},{"id":"E13","section":"Equity","topic":"Equity - Investors, ASBA & IPO Rules","type":"fact","star":"md","front":"Minimum application size for an anchor investor in an IPO?","back":"**₹5 crore**","pyq":"Asked: SEBI 2018 Ph-I (old key: ₹10 crore)","changed":false,"note":"Reduced from ₹10 crore. Anchors can take up to 60% of the QIB portion; lock-in 30 days on half, 90 days on the rest."},{"id":"E14","section":"Equity","topic":"Equity - Investors, ASBA & IPO Rules","type":"fact","star":"md","front":"Banks that offer the ASBA facility are called?","back":"**SCSBs** (Self-Certified Syndicate Banks)","pyq":"Asked: RBI Gr B 2021","changed":false,"note":"ASBA came in 2008, mandatory for retail from 2016; UPI added in 2018 (listing T+6 → T+3)."},{"id":"E15","section":"Equity","topic":"Equity - Indian Stock Market & Regulation","type":"fact","star":"hi","front":"Under which Act are shares dematerialised?","back":"**Depositories Act, 1996**","pyq":"Asked: SEBI 2018 Ph-I · SEBI 2024 Ph-II","changed":false,"note":""},{"id":"E16","section":"Equity","topic":"Equity - Indian Stock Market & Regulation","type":"fact","star":"md","front":"Act giving the Centre control over stock exchanges, contracts in securities and listing?","back":"**Securities Contracts (Regulation) Act, 1956**","pyq":"Asked: SEBI 2018 Ph-I","changed":false,"note":""},{"id":"E17","section":"Equity","topic":"Equity - Indian Stock Market & Regulation","type":"trap","star":"md","front":"Depositories provide the trading platform for securities. Correct?","back":"**Wrong.** Exchanges (NSE, BSE) provide trading. Depositories (NSDL, CDSL) hold securities in demat form. Clearing corporations (NSCCL, ICCL) settle trades. Depository Participants are registered with SEBI.","pyq":"Asked: SEBI 2018 Ph-II · RBI Gr B 2021","changed":false,"note":""},{"id":"E18","section":"Equity","topic":"Equity - Indian Stock Market & Regulation","type":"fact","star":"md","front":"Separating ownership of a stock exchange from trading rights is called?","back":"**Demutualisation**","pyq":"Asked: SEBI 2018 Ph-I · RBI Gr B 2017","changed":false,"note":""},{"id":"E19","section":"Equity","topic":"Equity - Indian Stock Market & Regulation","type":"fact","star":"md","front":"Where is BSE headquartered?","back":"**Dalal Street, Mumbai**","pyq":"Asked: SEBI 2020 Ph-I","changed":false,"note":"BSE: India's oldest exchange (1875); Sensex has 30 stocks. NSE: incorporated 1992 (SEBI 2025 Ph-I), BKC Mumbai; Nifty has 50 stocks."},{"id":"E20","section":"Equity","topic":"Equity - Green-shoe, DRs & Foreign Investment","type":"fact","star":"md","front":"Instrument through which foreign investors not registered with SEBI invest in India via registered FPIs?","back":"**Participatory Notes (P-Notes)**","pyq":"Asked: SEBI 2020 Ph-II","changed":false,"note":"P-Notes can't be issued to Indian nationals, PIOs or NRIs."},{"id":"E21","section":"Equity","topic":"Equity - Green-shoe, DRs & Foreign Investment","type":"trap","star":"md","front":"GDRs are listed only on US exchanges. Correct?","back":"**Wrong.** ADRs list in the US; GDRs list outside the US; IDRs are foreign companies' receipts listed in India. DR holders get dividends but no voting rights.","pyq":"Asked: SEBI 2018 Ph-II","changed":false,"note":""},{"id":"E22","section":"Equity","topic":"Equity - Green-shoe, DRs & Foreign Investment","type":"fact","star":"md","front":"An investment by a foreign-owned Indian company into another Indian company is called?","back":"**Downstream investment** (indirect FDI)","pyq":"Asked: SEBI 2024 Ph-II","changed":false,"note":""}]</script>
+<script type="application/json" id="topics-data">["RBI - Evolution & Organisation","RBI - Subsidiaries","RBI - Monetary Policy & Liquidity Tools","RBI - Foreign Exchange Operations","RBI - Financial Stability","RBI - Regulation & Supervision","RBI - Banker to Banks & Government","RBI - Customer Protection & Publications","RBI - Currency Management & Payments","Debt & Money - Market Structure & Regulators","Debt & Money - Long-term Debt Instruments","Debt & Money - T-bills & CMBs","Debt & Money - CDs, CPs & Other Short-term Instruments","Debt & Money - Call Money, Repo & Triparty Repo","Debt & Money - RBI Platforms, CCIL & Debt Issues","Institutions - Major Regulatory Bodies (Regulator Map)","Institutions - SEBI","Institutions - AIFs, REITs, InvITs & CIS","Institutions - PFRDA, IFSCA & IRDAI","Institutions - AIFIs: NABARD","Institutions - AIFIs: SIDBI, EXIM, NHB, NaBFID","Institutions - Credit Guarantee Institutions & PFIs","Inclusion - Meaning, Pillars & Barriers","Inclusion - RBI Initiatives Before 2014","Inclusion - RBI Initiatives After 2014","Inclusion - Government Initiatives & Digital Rails","Inclusion - Microfinance, SHGs & JLGs","Equity - Shares & Valuation","Equity - IPO, FPO & Pricing","Equity - Investors, ASBA & IPO Rules","Equity - Indian Stock Market & Regulation","Equity - Green-shoe, DRs & Foreign Investment"]</script>
+<script>
+(function(){
+'use strict';
+var KEY='pfrda_finance_oct2026_progress';
+var THEME_KEY='pfrda_finance_oct2026_theme';
+var CARDS=JSON.parse(document.getElementById('cards-data').textContent);
+var TOPICS=JSON.parse(document.getElementById('topics-data').textContent);
+var $=function(id){return document.getElementById(id);};
+
+/* ---------- storage (never required) ---------- */
+var storageOk=true;
+function sGet(k){try{return window.localStorage.getItem(k);}catch(e){storageOk=false;return null;}}
+function sSet(k,v){try{window.localStorage.setItem(k,v);return true;}catch(e){storageOk=false;showBanner();return false;}}
+function sDel(k){try{window.localStorage.removeItem(k);}catch(e){storageOk=false;}}
+function showBanner(){ $('banner').hidden=false; }
+(function probe(){try{var t='__pfrda_probe__';window.localStorage.setItem(t,'1');window.localStorage.removeItem(t);}catch(e){storageOk=false;}})();
+
+var progress={};
+(function(){
+  var raw=sGet(KEY);
+  if(!raw) return;
+  try{
+    var o=JSON.parse(raw);
+    if(o && typeof o==='object'){
+      for(var k in o){ if(Object.prototype.hasOwnProperty.call(o,k) && (o[k]==='known'||o[k]==='learning')) progress[k]=o[k]; }
+    }
+  }catch(e){}
+})();
+function saveProgress(){ sSet(KEY,JSON.stringify(progress)); }
+
+/* ---------- theme ---------- */
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  $('bTheme').textContent = t==='dark' ? 'Light theme' : 'Dark theme';
+}
+var theme=sGet(THEME_KEY);
+if(theme!=='light' && theme!=='dark'){
+  theme=(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';
+}
+applyTheme(theme);
+
+/* ---------- state ---------- */
+var byId={};
+CARDS.forEach(function(c){byId[c.id]=c;});
+var baseOrder=CARDS.map(function(c){return c.id;});
+var order=baseOrder.slice();
+var filters={topics:[],type:'all',status:'all',hi:false,pyq:false};
+var view=[], pos=0, flipped=false;
+
+function statusOf(id){var s=progress[id];return (s==='known'||s==='learning')?s:'unseen';}
+function matches(c){
+  if(filters.topics.length && filters.topics.indexOf(c.topic)<0) return false;
+  if(filters.type!=='all' && c.type!==filters.type) return false;
+  if(filters.hi && c.star!=='hi') return false;
+  if(filters.pyq && !c.pyq) return false;
+  if(filters.status!=='all' && statusOf(c.id)!==filters.status) return false;
+  return true;
+}
+function rebuild(keepId){
+  view=order.filter(function(id){return matches(byId[id]);});
+  var i=keepId?view.indexOf(keepId):-1;
+  pos=i>=0?i:0;
+  flipped=false;
+  render();
+}
+
+/* ---------- rendering ---------- */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmt(s){return esc(s).replace(/\*\*([\s\S]+?)\*\*/g,'<strong>$1</strong>');}
+var TYPE_LABEL={fact:'Fact',trap:'Trap',concept:'Concept'};
+var STATUS_LABEL={unseen:'Unseen',learning:'Still learning',known:'Known'};
+
+function renderStats(){
+  var n=view.length,k=0,l=0;
+  view.forEach(function(id){var s=statusOf(id); if(s==='known')k++; else if(s==='learning')l++;});
+  $('sTotal').textContent=n;
+  $('sUnseen').textContent=n-k-l;
+  $('sLearn').textContent=l;
+  $('sKnown').textContent=k;
+  $('sPct').textContent=(n?Math.round(k*100/n):0)+'%';
+}
+function renderCard(){
+  var el=$('card');
+  if(!view.length){
+    el.className='card empty';
+    el.removeAttribute('data-type');
+    el.setAttribute('aria-expanded','false');
+    el.setAttribute('aria-label','No cards match these filters');
+    el.innerHTML='<p class="q" style="margin:0">No cards match these filters.</p><p class="note" style="margin:0">Clear a filter or open the filter panel to widen the set.</p><button type="button" id="emptyClear">Clear filters</button>';
+    var b=$('emptyClear'); if(b) b.addEventListener('click',function(e){e.stopPropagation();clearFilters();});
+    return;
+  }
+  var c=byId[view[pos]], st=statusOf(c.id);
+  var h='<div class="meta">';
+  h+='<span class="badge b-type">'+TYPE_LABEL[c.type]+'</span>';
+  if(c.star==='hi') h+='<span class="badge b-star">★ High-yield</span>';
+  else if(c.star==='md') h+='<span class="badge b-star">☆ Medium</span>';
+  if(c.pyq) h+='<span class="badge b-pyq">'+esc(c.pyq)+'</span>';
+  h+='</div>';
+  h+='<div class="topic">'+esc(c.topic)+'</div>';
+  h+='<div class="q">'+fmt(c.front)+'</div>';
+  h+='<div class="hint">Tap the card or press Space to reveal the answer.</div>';
+  h+='<div class="a"><div class="ans">'+fmt(c.back)+'</div>';
+  if(c.note) h+='<div class="note">'+fmt(c.note)+'</div>';
+  h+='</div>';
+  h+='<div class="cfoot"><span>'+(pos+1)+' of '+view.length+(pos===view.length-1?' (end of set)':'')+'</span><span class="s-'+st+'">'+STATUS_LABEL[st]+'</span></div>';
+  el.className='card'+(flipped?' flipped':'');
+  el.setAttribute('data-type',c.type);
+  el.setAttribute('aria-expanded',flipped?'true':'false');
+  el.setAttribute('aria-label','Card '+(pos+1)+' of '+view.length+'. Press Space or Enter to '+(flipped?'hide':'show')+' the answer.');
+  el.innerHTML=h;
+}
+function renderControls(){
+  var has=view.length>0;
+  $('bPrev').disabled=!has||pos===0;
+  $('bNext').disabled=!has||pos>=view.length-1;
+  $('bFlip').disabled=!has;
+  $('bKnown').disabled=!has;
+  $('bLearn').disabled=!has;
+  $('bFlip').textContent=flipped?'Hide answer':'Show answer';
+}
+function render(){ renderCard(); renderControls(); renderStats(); renderFilterSummary(); }
+
+/* ---------- actions ---------- */
+function focusCard(){ try{$('card').focus({preventScroll:true});}catch(e){$('card').focus();} }
+function flip(){
+  if(!view.length) return;
+  flipped=!flipped;
+  var el=$('card');
+  el.classList.toggle('flipped',flipped);
+  el.setAttribute('aria-expanded',flipped?'true':'false');
+  $('bFlip').textContent=flipped?'Hide answer':'Show answer';
+}
+function go(d){
+  if(!view.length) return;
+  var p=pos+d;
+  if(p<0||p>=view.length) return;
+  pos=p; flipped=false; render();
+}
+function mark(val){
+  if(!view.length) return;
+  progress[view[pos]]=val;
+  saveProgress();
+  if(pos<view.length-1){pos++;flipped=false;}
+  render();
+}
+function shuffle(){
+  var keep=null;
+  for(var i=order.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=order[i];order[i]=order[j];order[j]=t;}
+  rebuild(keep);
+}
+function resetOrder(){ order=baseOrder.slice(); rebuild(null); }
+
+/* ---------- modal ---------- */
+var lastFocus=null;
+function openModal(){
+  lastFocus=document.activeElement;
+  $('mText').textContent='This clears every Known and Still learning mark for all '+CARDS.length+' cards saved in this browser.';
+  $('modal').hidden=false;
+  $('mCancel').focus();
+}
+function closeModal(){ $('modal').hidden=true; if(lastFocus&&lastFocus.focus) lastFocus.focus(); else focusCard(); }
+function doReset(){
+  progress={}; sDel(KEY);
+  var cur=view.length?view[pos]:null;
+  $('modal').hidden=true;
+  rebuild(cur);
+  focusCard();
+}
+
+/* ---------- filters UI ---------- */
+/* Topics are named "Area - Section". Each area gets a group row that selects all its sections. */
+var SEP=' - ';
+function areaOf(t){var i=t.indexOf(SEP);return i>=0?t.slice(0,i):t;}
+function subOf(t){var i=t.indexOf(SEP);return i>=0?t.slice(i+SEP.length):t;}
+var topicCounts={}, areaCounts={}, AREAS=[];
+CARDS.forEach(function(c){topicCounts[c.topic]=(topicCounts[c.topic]||0)+1;});
+TOPICS.forEach(function(t){
+  if(!topicCounts[t]) return;
+  var a=areaOf(t);
+  if(AREAS.indexOf(a)<0){AREAS.push(a);areaCounts[a]=0;}
+  areaCounts[a]+=topicCounts[t];
+});
+(function buildTopics(){
+  var box=$('topicList'), h='', last=null;
+  TOPICS.forEach(function(t,i){
+    if(!topicCounts[t]) return;
+    var a=areaOf(t);
+    if(a!==last){
+      last=a;
+      h+='<label class="chk grp"><input type="checkbox" class="gchk" data-g="'+AREAS.indexOf(a)+'"><span class="lbl">'+esc(a)+' (all)</span><span class="cnt">'+areaCounts[a]+'</span></label>';
+    }
+    h+='<label class="chk sub"><input type="checkbox" class="tchk" data-i="'+i+'" data-g="'+AREAS.indexOf(a)+'"><span class="lbl">'+esc(subOf(t))+'</span><span class="cnt">'+topicCounts[t]+'</span></label>';
+  });
+  box.innerHTML=h;
+  $('tAllCnt').textContent=CARDS.length;
+})();
+function readTopics(){
+  var sel=[];
+  Array.prototype.forEach.call(document.querySelectorAll('.tchk'),function(cb){ if(cb.checked) sel.push(TOPICS[+cb.getAttribute('data-i')]); });
+  return sel;
+}
+function syncGroups(){
+  Array.prototype.forEach.call(document.querySelectorAll('.gchk'),function(g){
+    var subs=document.querySelectorAll('.tchk[data-g="'+g.getAttribute('data-g')+'"]'), on=0;
+    Array.prototype.forEach.call(subs,function(cb){ if(cb.checked) on++; });
+    g.checked=subs.length>0 && on===subs.length;
+    g.indeterminate=on>0 && on<subs.length;
+  });
+}
+function onFilterChange(){
+  var cur=view.length?view[pos]:null;
+  rebuild(cur);
+}
+$('tAll').addEventListener('change',function(){
+  if(this.checked){
+    Array.prototype.forEach.call(document.querySelectorAll('.tchk'),function(cb){cb.checked=false;});
+    filters.topics=[];
+    syncGroups();
+  } else if(!readTopics().length){
+    this.checked=true;
+  }
+  onFilterChange();
+});
+$('topicList').addEventListener('change',function(e){
+  var t=e.target;
+  if(t.classList.contains('gchk')){
+    var on=t.checked;
+    Array.prototype.forEach.call(document.querySelectorAll('.tchk[data-g="'+t.getAttribute('data-g')+'"]'),function(cb){cb.checked=on;});
+  } else if(!t.classList.contains('tchk')) return;
+  syncGroups();
+  filters.topics=readTopics();
+  $('tAll').checked=filters.topics.length===0;
+  onFilterChange();
+});
+$('typeSeg').addEventListener('change',function(e){ if(e.target.name==='type'){filters.type=e.target.value;onFilterChange();} });
+$('statusSeg').addEventListener('change',function(e){ if(e.target.name==='status'){filters.status=e.target.value;onFilterChange();} });
+$('fHi').addEventListener('change',function(){filters.hi=this.checked;onFilterChange();});
+$('fPyq').addEventListener('change',function(){filters.pyq=this.checked;onFilterChange();});
+function clearFilters(){
+  filters={topics:[],type:'all',status:'all',hi:false,pyq:false};
+  $('tAll').checked=true;
+  Array.prototype.forEach.call(document.querySelectorAll('.tchk'),function(cb){cb.checked=false;});
+  syncGroups();
+  document.querySelector('#typeSeg input[value="all"]').checked=true;
+  document.querySelector('#statusSeg input[value="all"]').checked=true;
+  $('fHi').checked=false; $('fPyq').checked=false;
+  onFilterChange();
+}
+$('fClear').addEventListener('click',clearFilters);
+function renderFilterSummary(){
+  var n=0;
+  if(filters.topics.length) n++;
+  if(filters.type!=='all') n++;
+  if(filters.status!=='all') n++;
+  if(filters.hi) n++;
+  if(filters.pyq) n++;
+  $('fsum').textContent = n ? (n===1?'1 filter on':n+' filters on') : 'All cards';
+}
+
+/* ---------- wiring ---------- */
+$('card').addEventListener('click',function(e){
+  if(!view.length) return;
+  var sel=window.getSelection && String(window.getSelection());
+  if(sel && sel.length>0 && flipped) return;
+  flip();
+});
+function bind(id,fn){ $(id).addEventListener('click',function(){ fn(); if(id!=='bReset') focusCard(); }); }
+bind('bPrev',function(){go(-1);});
+bind('bNext',function(){go(1);});
+bind('bFlip',flip);
+bind('bKnown',function(){mark('known');});
+bind('bLearn',function(){mark('learning');});
+bind('bShuffle',shuffle);
+bind('bOrder',resetOrder);
+bind('bReset',openModal);
+bind('bTheme',function(){ theme=theme==='dark'?'light':'dark'; applyTheme(theme); sSet(THEME_KEY,theme); });
+$('mCancel').addEventListener('click',closeModal);
+$('mOk').addEventListener('click',doReset);
+$('modal').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
+
+document.addEventListener('keydown',function(e){
+  if(!$('modal').hidden){ if(e.key==='Escape'){e.preventDefault();closeModal();} return; }
+  if(e.ctrlKey||e.metaKey||e.altKey) return;
+  var t=e.target, tag=(t&&t.tagName||'').toLowerCase();
+  if(tag==='input'||tag==='select'||tag==='textarea'||tag==='summary'||(t&&t.isContentEditable)) return;
+  var k=e.key;
+  if(k===' '||k==='Spacebar'||k==='Enter'){
+    if(tag==='button') return;
+    e.preventDefault(); flip(); return;
+  }
+  if(k==='ArrowRight'){e.preventDefault();go(1);focusCard();return;}
+  if(k==='ArrowLeft'){e.preventDefault();go(-1);focusCard();return;}
+  if(k==='k'||k==='K'){e.preventDefault();mark('known');focusCard();return;}
+  if(k==='l'||k==='L'){e.preventDefault();mark('learning');focusCard();return;}
+});
+
+$('sub').textContent='PFRDA Grade A 2026 · Phase I Paper 2 · EduTap summaries + PYQs only. '+CARDS.length+' cards.';
+if(!storageOk) showBanner();
+rebuild(null);
+})();
+</script>
+</body>
+</html>
