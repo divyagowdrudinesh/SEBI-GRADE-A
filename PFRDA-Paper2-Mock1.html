@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PFRDA Paper 2 Mock 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+/* Layout: exam-hall CBT console. Sticky timer bar, one question per screen, fixed action bar, sheet for the question palette. */
+:root{
+  --bg:#f3f5f7; --panel:#ffffff; --ink:#18212b; --muted:#5b6672; --line:#d9dee4;
+  --accent:#1f5f8b; --accent-ink:#ffffff; --accent-soft:#e3eef6;
+  --ok:#1d7a4a; --ok-soft:#e1f2e8; --bad:#b4352c; --bad-soft:#f8e3e1;
+  --flag:#7a4cb0; --flag-soft:#eee6f8; --skip:#8a6a12; --skip-soft:#f6efd9;
+  --ui:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --read:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1419; --panel:#182029; --ink:#e4e9ee; --muted:#9aa6b2; --line:#2c3743;
+  --accent:#6fb3e0; --accent-ink:#0b1a26; --accent-soft:#1b3346;
+  --ok:#5cc58d; --ok-soft:#173326; --bad:#ef7f75; --bad-soft:#3a1d1b;
+  --flag:#b991ea; --flag-soft:#2c2140; --skip:#e0bd5a; --skip-soft:#352c14; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1419; --panel:#182029; --ink:#e4e9ee; --muted:#9aa6b2; --line:#2c3743;
+  --accent:#6fb3e0; --accent-ink:#0b1a26; --accent-soft:#1b3346;
+  --ok:#5cc58d; --ok-soft:#173326; --bad:#ef7f75; --bad-soft:#3a1d1b;
+  --flag:#b991ea; --flag-soft:#2c2140; --skip:#e0bd5a; --skip-soft:#352c14; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:16px;line-height:1.5;-webkit-text-size-adjust:100%}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:760px;margin:0 auto;padding-inline:16px;padding-block:16px 120px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+h1,h2,h3{text-wrap:balance;line-height:1.25;margin:0}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:10px 14px;font-weight:600;min-height:44px}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+/* start */
+.start{display:grid;gap:16px}
+.start .panel{padding:18px}
+.start h1{font-size:24px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:0}
+.facts div{border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.facts dt{font-size:12px;color:var(--muted)} .facts dd{margin:0;font-weight:600}
+.tbl{overflow-x:auto}
+table.sec{border-collapse:collapse;width:100%;font-size:14px}
+table.sec th,table.sec td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
+table.sec td.r,table.sec th.r{text-align:right}
+.note{font-size:14px;color:var(--muted)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+/* top bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--panel);border-bottom:1px solid var(--line)}
+.bar-in{max-width:760px;margin:0 auto;padding:8px 16px;display:flex;align-items:center;gap:10px}
+.bar .t{font-weight:600;font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.timer{font-family:var(--mono);font-size:18px;font-weight:600;padding:4px 10px;border-radius:6px;background:var(--accent-soft)}
+.timer.low{background:var(--bad-soft);color:var(--bad)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:8px 16px;max-width:760px;margin:0 auto;scrollbar-width:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+/* question */
+.qhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.qhead .marks{font-size:13px;color:var(--muted)}
+details.stem{margin-bottom:12px}
+details.stem summary{font-size:13px;font-weight:600;color:var(--accent);padding:8px 0;cursor:pointer}
+.stem-body{font-family:var(--read);font-size:16.5px;line-height:1.6;max-height:55vh;overflow:auto;padding:4px 14px;border-left:3px solid var(--line);min-width:0}
+.stem-body p{margin:0 0 10px}
+table.dt{border-collapse:collapse;font-family:var(--ui);font-size:15px;margin:6px 0 10px}
+table.dt th,table.dt td{border:1px solid var(--line);padding:6px 12px;text-align:center}
+.qtext{font-size:17px;margin:0 0 14px;min-width:0;overflow-wrap:anywhere}
+.opts{display:grid;gap:10px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;border:1.5px solid var(--line);background:var(--panel);border-radius:10px;padding:12px 14px;min-height:52px}
+.opt .k{flex:none;width:28px;height:28px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-weight:700;font-size:14px}
+.opt[aria-checked="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.opt[aria-checked="true"] .k{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.opt span:last-child{min-width:0;overflow-wrap:anywhere}
+/* bottom bar */
+.foot{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--panel);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px))}
+.foot-in{max-width:760px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.foot-in .btn{width:100%;font-size:14px;padding:8px 6px}
+@media (min-width:560px){.foot-in{grid-template-columns:repeat(4,1fr)}}
+/* sheet */
+.sheet{position:fixed;inset:0;z-index:10;background:rgba(10,15,20,.45);display:flex;align-items:flex-end;justify-content:center}
+.sheet-in{background:var(--panel);width:100%;max-width:760px;max-height:85%;overflow:auto;border-radius:14px 14px 0 0;padding:16px 16px calc(20px + env(safe-area-inset-bottom,0px))}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:12px;color:var(--muted);margin:8px 0 14px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px;border:1px solid var(--line)}
+.pal-sec{margin:12px 0 4px;font-size:13px;font-weight:600}
+.pal{display:grid;grid-template-columns:repeat(auto-fill,minmax(42px,1fr));gap:6px}
+.pal button{height:40px;border-radius:6px;border:1px solid var(--line);background:var(--panel);font-family:var(--mono);font-size:13px}
+.st-ans{background:var(--ok-soft)!important;border-color:var(--ok)!important;color:var(--ok)}
+.st-flag{background:var(--flag-soft)!important;border-color:var(--flag)!important;color:var(--flag)}
+.st-seen{background:var(--skip-soft)!important;border-color:var(--skip)!important;color:var(--skip)}
+.st-cur{outline:2px solid var(--ink);outline-offset:1px}
+.confirm{margin-top:16px;padding:14px;border:1px solid var(--line);border-radius:10px}
+/* results */
+.score{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.score .big{font-family:var(--mono);font-size:40px;font-weight:600}
+.pill{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px}
+.p-ok{background:var(--ok-soft);color:var(--ok)} .p-bad{background:var(--bad-soft);color:var(--bad)} .p-skip{background:var(--skip-soft);color:var(--skip)}
+.rev{display:grid;gap:12px;margin-top:12px}
+.rq{padding:14px}
+.rq .opt{cursor:default;min-height:0;padding:8px 12px}
+.rq .opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.rq .opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.exp{margin-top:10px;padding:10px 12px;border-radius:8px;background:var(--bg);font-size:15px;overflow-wrap:anywhere}
+.exp b{font-weight:600}
+@media (prefers-reduced-motion:no-preference){.opt{transition:border-color .12s,background .12s}}
+</style>
+
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+const DATA = {"id": "p2m1-v1", "title": "PFRDA Paper 2 Mock 1", "short": "PFRDA P2 · Mock 1", "blurb": "General stream: Finance, Economics, Pension & PFRDA Act, Costing, Companies Act, Accounts and Management, plus the new AI, Media and Marketing heads added in 2026. All questions are new.", "minutes": 40, "neg": 0.25, "sections": [{"name": "Finance", "n": 8, "marks": 16}, {"name": "Economics", "n": 6, "marks": 12}, {"name": "Pension Sector & PFRDA Act", "n": 7, "marks": 14}, {"name": "Costing", "n": 6, "marks": 12}, {"name": "Companies Act, 2013", "n": 5, "marks": 10}, {"name": "Commerce & Accountancy", "n": 5, "marks": 10}, {"name": "Management", "n": 4, "marks": 8}, {"name": "AI / Machine Learning", "n": 3, "marks": 6}, {"name": "Media", "n": 3, "marks": 6}, {"name": "Marketing & Communication", "n": 3, "marks": 6}], "stems": {}, "qs": [{"s": "Finance", "q": "Which of the following is a money market instrument?", "o": ["10-year Government bond", "Non-convertible debentures of 5 years", "Commercial Paper", "American Depository Receipts", "Equity shares"], "a": 2, "e": "Money market instruments have maturities of up to one year: T-bills, Commercial Paper, Certificates of Deposit, call money, CBLO/TREPS. Commercial Paper is issued for 7 days to 1 year. The others are capital market instruments.", "st": null}, {"s": "Finance", "q": "Which feature distinguishes a futures contract from a forward contract?", "o": ["Futures cannot be used for hedging", "Futures are traded only over the counter", "Futures carry higher counterparty risk than forwards", "Futures are standardised, exchange-traded and marked to market daily", "Futures are customised between two parties and settled only on maturity"], "a": 3, "e": "Futures are standardised, exchange-traded contracts. The clearing corporation guarantees them and they are marked to market daily, which cuts counterparty risk. Forwards are customised OTC contracts usually settled at maturity.", "st": null}, {"s": "Finance", "q": "In a plain-vanilla interest rate swap, the two parties typically exchange:", "o": ["Equity returns for bond returns", "Physical commodities for cash", "A premium for the right, but not the obligation, to borrow", "The principal amounts in two different currencies", "Fixed-rate interest payments for floating-rate interest payments on a notional principal"], "a": 4, "e": "An interest rate swap exchanges fixed-rate payments for floating-rate payments, calculated on a notional principal that is not itself exchanged. A currency swap exchanges principal in two currencies, and a premium for a right describes an option.", "st": null}, {"s": "Finance", "q": "Which of the following taxes was NOT subsumed in GST?", "o": ["Basic Customs Duty", "Central Sales Tax", "Luxury Tax", "Service Tax", "State VAT"], "a": 0, "e": "GST subsumed central levies such as service tax and most central excise, and state levies such as VAT, CST, luxury tax and entry tax. Basic Customs Duty on imports still applies outside GST; IGST is levied on imports in addition to BCD.", "st": null}, {"s": "Finance", "q": "In which year was the Fiscal Responsibility and Budget Management (FRBM) Act enacted?", "o": ["2008", "2000", "2004", "2012", "2003"], "a": 4, "e": "The FRBM Act was enacted in 2003 and came into force in July 2004. Trap: 2004 is the year it took effect, not the year it was enacted.", "st": null}, {"s": "Finance", "q": "Which body compiles and releases India's Wholesale Price Index (WPI)?", "o": ["National Statistics Office, MoSPI", "Department of Economic Affairs", "Office of the Economic Adviser, DPIIT (Ministry of Commerce & Industry)", "Labour Bureau", "Reserve Bank of India"], "a": 2, "e": "WPI is compiled by the Office of the Economic Adviser, DPIIT. CPI is released by the NSO under MoSPI, and the Labour Bureau releases CPI-IW.", "st": null}, {"s": "Finance", "q": "Who chairs the 16th Finance Commission, whose award covers 2026-27 to 2030-31?", "o": ["Vijay Kelkar", "N.K. Singh", "Y.V. Reddy", "Ajay Narayan Jha", "Arvind Panagariya"], "a": 4, "e": "Arvind Panagariya chairs the 16th Finance Commission, constituted under Article 280. N.K. Singh chaired the 15th, and Y.V. Reddy the 14th.", "st": null}, {"s": "Finance", "q": "Under the Hybrid Annuity Model (HAM) used for highway PPP projects in India, what share of the project cost does the government pay during construction?", "o": ["50%", "40%", "60%", "25%", "100%"], "a": 1, "e": "Under HAM, the government (NHAI) pays 40% of the project cost during construction, in instalments. The developer arranges the other 60% and recovers it, with interest, through annuity payments over the operation period. The government keeps the traffic risk.", "st": null}, {"s": "Economics", "q": "If the marginal propensity to consume is 0.8, by how much will equilibrium income rise when investment rises by ₹200 crore?", "o": ["₹800 crore", "₹1,000 crore", "₹400 crore", "₹250 crore", "₹1,600 crore"], "a": 1, "e": "Multiplier = 1/(1 − MPC) = 1/0.2 = 5.<br>ΔY = 5 × 200 = ₹1,000 crore.", "st": null}, {"s": "Economics", "q": "The IS curve shows combinations of interest rate and income at which:", "o": ["The money market is in equilibrium", "The goods market is in equilibrium", "The labour market is at full employment", "Inflation equals unemployment", "The balance of payments is in equilibrium"], "a": 1, "e": "IS = Investment–Saving: the goods market clears (I = S) along it, and it slopes downward. LM = Liquidity preference–Money supply: the money market clears along it.", "st": null}, {"s": "Economics", "q": "The (short-run) Phillips curve shows:", "o": ["The relationship between tax rates and tax revenue", "The relationship between money supply and interest rates", "A direct relationship between inflation and unemployment", "An inverse relationship between the rate of inflation and the rate of unemployment", "The relationship between income inequality and growth"], "a": 3, "e": "A.W. Phillips observed that lower unemployment comes with higher wage or price inflation, and vice versa. Tax rates against revenue is the Laffer curve, and inequality against growth is the Kuznets curve.", "st": null}, {"s": "Economics", "q": "Which feature is characteristic of monopolistic competition?", "o": ["Many sellers offering differentiated products", "A single seller with no close substitutes", "A single buyer facing many sellers", "A few interdependent large sellers", "Many sellers selling identical products"], "a": 0, "e": "Monopolistic competition has many sellers, product differentiation (brands), free entry and some control over price. Identical products describe perfect competition, a few interdependent sellers describe oligopoly, and a single buyer describes monopsony.", "st": null}, {"s": "Economics", "q": "GDP at market prices = ₹1,000 crore; depreciation = ₹80 crore; net indirect taxes = ₹120 crore; net factor income from abroad = −₹20 crore. What is NNP at factor cost (National Income)?", "o": ["₹800 crore", "₹780 crore", "₹820 crore", "₹760 crore", "₹900 crore"], "a": 1, "e": "NDP at MP = 1,000 − 80 = 920.<br>NDP at FC = 920 − 120 = 800.<br>NNP at FC = 800 + (−20) = ₹780 crore.", "st": null}, {"s": "Economics", "q": "What fiscal deficit target did the Union Budget 2026-27 set for FY 2026-27?", "o": ["3.0% of GDP", "4.3% of GDP", "4.4% of GDP", "5.1% of GDP", "4.9% of GDP"], "a": 1, "e": "The FY27 target is 4.3% of GDP. FY26 came in at 4.4% (provisional, target met). The medium-term anchor is now Central debt at 50% of GDP by FY31. (Your Jun and Aug 2026 GA decks.)", "st": null}, {"s": "Pension Sector & PFRDA Act", "q": "On what date did the PFRDA Act, 2013 come into force?", "o": ["1 February 2014", "18 September 2013", "19 September 2013", "1 May 2009", "1 January 2004"], "a": 0, "e": "The PFRDA Act (Act No. 23 of 2013) received Presidential assent on 18 September 2013 and came into force on 1 February 2014. 1 January 2004 is when NPS began for new Central Government employees, and 1 May 2009 is when NPS opened to all citizens.", "st": null}, {"s": "Pension Sector & PFRDA Act", "q": "Consider the following statements about partial withdrawal from NPS under current rules:<br>1. It is allowed after 3 years in NPS.<br>2. Each withdrawal is capped at 25% of the subscriber's own contributions.<br>3. Only three partial withdrawals are allowed during the entire tenure.<br>Which is/are correct?", "o": ["1 and 2 only", "2 and 3 only", "1 and 3 only", "1, 2 and 3", "2 only"], "a": 0, "e": "1 ✓ (after 3 years) and 2 ✓ (25% of own contributions, excluding employer money and returns; Section 20(2) basis). 3 ✗: since the December 2025 amendment, up to 4 withdrawals are allowed before 60, at least 4 years apart. 'Three in the life of the account' is the old rule. (Your pension deck.)", "st": null}, {"s": "Pension Sector & PFRDA Act", "q": "A non-government (All Citizen model) NPS subscriber exits normally with a corpus of ₹20,00,000. Under current rules, what is the maximum lump sum they can withdraw?", "o": ["₹20,00,000", "₹8,00,000", "₹12,00,000", "₹14,00,000", "₹16,00,000"], "a": 4, "e": "Since December 2025, non-government subscribers may take up to 80% as a lump sum and must annuitise at least 20% (earlier 60:40). 80% of ₹20,00,000 = ₹16,00,000. ₹12,00,000 is the old 60% answer. The Government sector still uses 60:40. (Your pension deck.)", "st": null}, {"s": "Pension Sector & PFRDA Act", "q": "A person joins the Atal Pension Yojana at the maximum entry age. For how many years must they contribute at minimum?", "o": ["25 years", "42 years", "15 years", "10 years", "20 years"], "a": 4, "e": "APY entry is 18–40 and pension starts at 60. Someone joining at 40 contributes for 20 years, which is the minimum contribution period. Someone joining at 18 contributes for 42 years.", "st": null}, {"s": "Pension Sector & PFRDA Act", "q": "Which NPS intermediary issues the Permanent Retirement Account Number (PRAN)?", "o": ["NPS Trust", "Central Recordkeeping Agency (CRA)", "Trustee Bank", "Pension Fund", "Point of Presence (POP)"], "a": 1, "e": "The CRA issues the PRAN and keeps subscriber records. The POP is the subscriber's point of contact, the Trustee Bank handles fund flow, and the NPS Trust oversees pension funds.", "st": null}, {"s": "Pension Sector & PFRDA Act", "q": "What is the name of the online portal for registering grievances under NPS?", "o": ["CPGRAMS", "SCORES", "Sachet", "Bima Bharosa", "Central Grievance Management System (CGMS)"], "a": 4, "e": "NPS grievances go to the CRA-run CGMS. CPGRAMS is the government-wide portal, SCORES is SEBI's, Bima Bharosa is IRDAI's, and Sachet is RBI's portal for illegal deposit-taking.", "st": null}, {"s": "Pension Sector & PFRDA Act", "q": "What percentage of basic pay plus DA does the Central Government contribute to the NPS accounts of its employees?", "o": ["12%", "8.33%", "10%", "18%", "14%"], "a": 4, "e": "14% from 1 April 2019 (raised from 10%). The employee's own share remains 10%. 8.33% is the EPS share of the employer's EPF contribution.", "st": null}, {"s": "Costing", "q": "A firm has fixed costs of ₹3,60,000, a selling price of ₹60 per unit and a variable cost of ₹42 per unit. What is its profit at sales of ₹18,00,000?", "o": ["₹5,40,000", "₹1,80,000", "₹1,44,000", "₹3,60,000", "₹2,16,000"], "a": 1, "e": "Contribution per unit = 60 − 42 = 18. P/V ratio = 18/60 = 30%.<br>Contribution at ₹18,00,000 = 30% × 18,00,000 = 5,40,000.<br>Profit = 5,40,000 − 3,60,000 = ₹1,80,000.<br>Check: BEP sales = 3,60,000/0.30 = 12,00,000; margin of safety 6,00,000 × 30% = 1,80,000.", "st": null}, {"s": "Costing", "q": "In a process, 5,000 units are introduced. Normal loss is 8% of input, and actual output is 4,500 units. What is the abnormal loss or gain?", "o": ["Abnormal gain of 100 units", "Abnormal loss of 500 units", "Neither loss nor gain", "Abnormal loss of 100 units", "Abnormal loss of 400 units"], "a": 3, "e": "Normal loss = 8% × 5,000 = 400. Expected output = 4,600.<br>Actual output 4,500 is 100 below expected, so there is an abnormal loss of 100 units.", "st": null}, {"s": "Costing", "q": "The standard price of a material is ₹20 per kg and the actual price is ₹22 per kg. The actual quantity is 1,500 kg. What is the material price variance?", "o": ["₹1,500 Adverse", "₹2,000 Adverse", "₹30,000 Adverse", "₹3,000 Adverse", "₹3,000 Favourable"], "a": 3, "e": "MPV = (SP − AP) × AQ = (20 − 22) × 1,500 = −3,000, which is ₹3,000 Adverse (paid more than standard).", "st": null}, {"s": "Costing", "q": "Which of the following is NOT one of the 5S of lean workplace organisation?", "o": ["Shine", "Sort", "Sustain", "Supervise", "Standardise"], "a": 3, "e": "The 5S are Sort (Seiri), Set in order (Seiton), Shine (Seiso), Standardise (Seiketsu) and Sustain (Shitsuke). 'Supervise' is not one of them.", "st": null}, {"s": "Costing", "q": "The Six Sigma quality level corresponds to how many defects per million opportunities (DPMO)?", "o": ["0.34", "66,807", "34", "6.2", "3.4"], "a": 4, "e": "Six Sigma = 3.4 DPMO (allowing for the 1.5-sigma shift). 66,807 DPMO corresponds to roughly three sigma.", "st": null}, {"s": "Costing", "q": "A line has a net available production time of 27,000 seconds per day, and customer demand is 450 units per day. What is the takt time?", "o": ["60 seconds", "45 seconds", "90 seconds", "75 seconds", "16.7 seconds"], "a": 0, "e": "Takt time = net available time ÷ customer demand = 27,000 ÷ 450 = 60 seconds per unit. It is the pace at which a unit must be finished to meet demand.", "st": null}, {"s": "Companies Act, 2013", "q": "Under Section 32, at least how many days before the subscription list opens must a red herring prospectus be filed with the Registrar?", "o": ["21 days", "7 days", "15 days", "3 days", "30 days"], "a": 3, "e": "Section 32(2): the RHP must be filed with the Registrar at least three days before the subscription list and the offer open.", "st": null}, {"s": "Companies Act, 2013", "q": "Under Section 173, which of the following is correct about Board meetings of a company (other than an OPC, small company or dormant company)?", "o": ["At least two meetings a year, with no more than 180 days between meetings", "At least six meetings a year, with no more than 60 days between meetings", "At least one meeting in each half of the calendar year", "At least four meetings a year, with no more than 90 days between meetings", "At least four meetings a year, with no more than 120 days between two consecutive meetings"], "a": 4, "e": "Section 173(1): at least four Board meetings every year, with a gap of no more than 120 days between two consecutive meetings. The first Board meeting must be held within 30 days of incorporation. The 'one meeting in each half of the year, at least 90 days apart' rule applies to OPCs, small companies and dormant companies.", "st": null}, {"s": "Companies Act, 2013", "q": "Under Section 68, up to what limit can a buy-back be approved by a Board resolution alone, without a special resolution?", "o": ["20% of total paid-up equity capital and free reserves", "10% of total paid-up equity capital and free reserves", "5% of free reserves only", "15% of paid-up capital only", "25% of total paid-up equity capital and free reserves"], "a": 1, "e": "Section 68(2): a buy-back up to 10% of total paid-up equity capital and free reserves needs only a Board resolution. Above that, a special resolution is needed, up to an overall cap of 25%. Post-buy-back debt–equity must not exceed 2:1.", "st": null}, {"s": "Companies Act, 2013", "q": "Under Section 421, an appeal against an NCLT order may be filed with the NCLAT within:", "o": ["45 days, with no extension", "30 days, extendable by 30 days", "90 days, with no extension", "45 days, extendable by up to 45 more days for sufficient cause", "60 days, extendable by 60 days"], "a": 3, "e": "Section 421(3): within 45 days from receipt of the NCLT order, and the NCLAT may allow up to 45 more days. An appeal from the NCLAT to the Supreme Court (Section 423) is within 60 days, extendable by 60.", "st": null}, {"s": "Companies Act, 2013", "q": "Under Section 139(2), what is the maximum period for which a listed company may appoint an audit FIRM as auditor?", "o": ["One term of ten consecutive years", "Two terms of three consecutive years", "Two terms of five consecutive years", "One term of five consecutive years", "Three terms of three consecutive years"], "a": 2, "e": "An individual auditor may serve one term of five consecutive years; an audit firm may serve two terms of five consecutive years. After that comes a five-year cooling-off period.", "st": null}, {"s": "Commerce & Accountancy", "q": "Under Section 63 of the Companies Act, 2013, bonus shares may NOT be issued out of:", "o": ["Profit and loss balance (free reserve)", "Revaluation reserve", "Capital redemption reserve account", "Securities premium account", "Free reserves"], "a": 1, "e": "Section 63(1) allows bonus issues from free reserves, the securities premium account and the capital redemption reserve. The explanation to Section 63 bars reserves created by revaluation of assets.", "st": null}, {"s": "Commerce & Accountancy", "q": "Current assets are ₹4,80,000, including inventory of ₹1,20,000 and prepaid expenses of ₹30,000. Current liabilities are ₹2,20,000. What is the quick (liquid) ratio?", "o": ["1.36 : 1", "1.5 : 1", "1.2 : 1", "1.64 : 1", "2.18 : 1"], "a": 1, "e": "Quick assets = 4,80,000 − 1,20,000 − 30,000 = 3,30,000.<br>Quick ratio = 3,30,000/2,20,000 = 1.5 : 1.<br>Traps: 2.18 is the current ratio, and 1.64 forgets to remove prepaid expenses.", "st": null}, {"s": "Commerce & Accountancy", "q": "As per AS 3 (Cash Flow Statements), dividends received by a non-financial enterprise are classified as:", "o": ["Financing activities", "Non-cash transactions", "Cash equivalents", "Investing activities", "Operating activities"], "a": 3, "e": "For non-financial enterprises, interest and dividends received are investing activities, while interest and dividends paid are financing activities. For financial enterprises, interest paid and received are operating activities.", "st": null}, {"s": "Commerce & Accountancy", "q": "A machine costs ₹2,00,000 and is depreciated at 20% per annum on the written-down value method. What is the depreciation charge for the third year?", "o": ["₹32,000", "₹25,600", "₹40,000", "₹20,480", "₹24,000"], "a": 1, "e": "Year 1: 20% × 2,00,000 = 40,000, leaving WDV 1,60,000.<br>Year 2: 20% × 1,60,000 = 32,000, leaving WDV 1,28,000.<br>Year 3: 20% × 1,28,000 = ₹25,600.", "st": null}, {"s": "Commerce & Accountancy", "q": "A company grants 1,000 stock options to employees at an exercise price of ₹110 when the market price of the share is ₹150. Under the intrinsic value method, what is the total employee compensation cost?", "o": ["₹1,10,000", "₹4,000", "₹40,000", "₹1,50,000", "₹2,60,000"], "a": 2, "e": "Intrinsic value per option = market price − exercise price = 150 − 110 = 40.<br>Total = 40 × 1,000 = ₹40,000, recognised over the vesting period.", "st": null}, {"s": "Management", "q": "In Maslow's hierarchy of needs, which need lies between social (belongingness) needs and self-actualisation?", "o": ["Physiological needs", "Achievement needs", "Hygiene needs", "Safety needs", "Esteem needs"], "a": 4, "e": "From bottom to top: Physiological, Safety, Social/Belongingness, Esteem, Self-actualisation. 'Hygiene' comes from Herzberg and 'Achievement' from McClelland.", "st": null}, {"s": "Management", "q": "'Grapevine' in an organisation refers to:", "o": ["Informal communication that spreads through social relationships", "Written communication through official circulars", "Lateral communication between departments through formal channels", "Communication with external stakeholders", "Formal downward communication from top management"], "a": 0, "e": "The grapevine is the informal network. It is fast but may distort messages, and it is not tied to the formal chain of command.", "st": null}, {"s": "Management", "q": "Henri Fayol's concept of the 'gang plank' is associated with which principle of management?", "o": ["Centralisation", "Division of work", "Unity of command", "Esprit de corps", "Scalar chain"], "a": 4, "e": "The scalar chain is the line of authority from top to bottom. The gang plank allows direct communication between employees at the same level in an emergency, short-circuiting the long chain.", "st": null}, {"s": "Management", "q": "Which leadership theory holds that a leader should adapt their style to the readiness (maturity) of followers?", "o": ["McGregor's Theory X and Theory Y", "Blake–Mouton Managerial Grid", "Hersey–Blanchard Situational Leadership Theory", "Great Man theory", "Trait theory"], "a": 2, "e": "Hersey and Blanchard match four styles (telling, selling, participating, delegating) to the follower's readiness level. The Managerial Grid plots concern for people against concern for production, and Theory X/Y covers assumptions about workers.", "st": null}, {"s": "AI / Machine Learning", "q": "Which of the following is an example of an unsupervised learning technique?", "o": ["Logistic regression", "Decision tree classification", "Support vector machine classification", "Linear regression", "K-means clustering"], "a": 4, "e": "Unsupervised learning finds structure in unlabelled data, and K-means groups points into clusters without labels. The other four are supervised and learn from labelled data.", "st": null}, {"s": "AI / Machine Learning", "q": "A model achieves 99% accuracy on training data but only 62% on validation data. This most likely indicates:", "o": ["Data normalisation", "Reinforcement learning", "Underfitting", "A well-generalised model", "Overfitting"], "a": 4, "e": "A large gap between training and validation performance means the model has memorised noise in the training data: overfitting. Remedies include regularisation, more data, a simpler model and cross-validation. Underfitting is poor performance on both.", "st": null}, {"s": "AI / Machine Learning", "q": "A fraud-detection model flags 50 transactions as fraud. 40 of them are actually fraud, and it misses 20 other fraudulent transactions. What is the model's precision?", "o": ["50%", "66.7%", "80%", "40%", "60%"], "a": 2, "e": "TP = 40, FP = 50 − 40 = 10, FN = 20.<br>Precision = TP/(TP + FP) = 40/50 = 80%.<br>Trap: recall = TP/(TP + FN) = 40/60 = 66.7%.", "st": null}, {"s": "Media", "q": "'Media convergence' refers to:", "o": ["Government control of all media outlets", "Censorship of online content", "The use of a single language across media", "The decline of social media platforms", "The merging of previously separate media (print, broadcast, telecom, internet) through digital technology"], "a": 4, "e": "Convergence is the coming together of content, devices and networks. For example, a smartphone delivers news, TV, radio and social media on one digital platform.", "st": null}, {"s": "Media", "q": "Which of the following best describes 'micro-targeting'?", "o": ["Using consumer data to send tailored messages to narrowly defined audience segments", "Broadcasting the same message to the widest possible audience", "Reducing the length of advertisements", "Advertising only on small-screen devices", "Targeting only micro-enterprises with ads"], "a": 0, "e": "Micro-targeting uses data (demographics, behaviour, interests) to deliver customised messages to small segments. It is widely used in digital advertising and political campaigns, and it raises privacy concerns.", "st": null}, {"s": "Media", "q": "How does Augmented Reality (AR) differ from Virtual Reality (VR)?", "o": ["AR overlays digital content on the real world, while VR immerses the user in a fully simulated environment", "AR is audio-only, while VR is visual-only", "They are the same technology under two names", "AR needs a headset, while VR works only on smartphones", "AR fully replaces the real world, while VR adds digital elements to it"], "a": 0, "e": "AR adds layers to the real view (for example, Pokémon Go or furniture try-out apps). VR replaces the real view with a simulated one, usually through a headset.", "st": null}, {"s": "Marketing & Communication", "q": "A company launches a new product at a low price to gain market share quickly. This pricing strategy is called:", "o": ["Price skimming", "Predatory pricing", "Premium pricing", "Cost-plus pricing", "Penetration pricing"], "a": 4, "e": "Penetration pricing sets a low entry price to win share fast. Skimming starts high and lowers the price later. Predatory pricing is pricing below cost to drive out rivals, which is anti-competitive.", "st": null}, {"s": "Marketing & Communication", "q": "In the BCG growth-share matrix, a product with a HIGH relative market share in a LOW-growth market is a:", "o": ["Cash cow", "Dog", "Problem child", "Question mark", "Star"], "a": 0, "e": "High share and low growth is a cash cow. High share and high growth is a star. Low share and high growth is a question mark (problem child). Low share and low growth is a dog.", "st": null}, {"s": "Marketing & Communication", "q": "Which of the following is NOT a practice of active listening?", "o": ["Asking clarifying questions", "Interrupting to offer solutions before the speaker finishes", "Withholding judgement while listening", "Maintaining appropriate eye contact", "Paraphrasing what the speaker said"], "a": 1, "e": "Active listening means attending fully, paraphrasing, asking clarifying questions, using supportive body language and suspending judgement. Interrupting to offer solutions breaks it.", "st": null}]};
+const KEY = "pfrda-mock:" + DATA.id;
+const L = ["A","B","C","D","E"];
+const $ = (s, r=document) => r.querySelector(s);
+const app = $("#app");
+let S = null; // state
+let tick = null;
+
+function load(){ try{ const v = localStorage.getItem(KEY); return v ? JSON.parse(v) : null; }catch(e){ return null; } }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+function wipe(){ try{ localStorage.removeItem(KEY); }catch(e){} }
+
+function secOf(q){ return DATA.sections.find(s => s.name === q.s); }
+function markOf(q){ const s = secOf(q); return s.marks / s.n; }
+function fmt(n){ return (Math.round(n*100)/100).toFixed(2).replace(/\.00$/,""); }
+function fmtT(ms){ ms = Math.max(0, ms); const t = Math.floor(ms/1000); return String(Math.floor(t/60)).padStart(2,"0") + ":" + String(t%60).padStart(2,"0"); }
+function esc(t){ const d = document.createElement("div"); d.textContent = t; return d.innerHTML; }
+
+/* ---------- start screen ---------- */
+function startScreen(){
+  clearInterval(tick);
+  const prev = load();
+  const total = DATA.qs.length;
+  const rows = DATA.sections.map(s => `<tr><td>${s.name}</td><td class="r num">${s.n}</td><td class="r num">${s.marks}</td><td class="r num">${fmt(s.marks/s.n)}</td><td class="r num">−${fmt(s.marks/s.n*DATA.neg)}</td></tr>`).join("");
+  let resume = "";
+  if (prev && prev.phase === "test") resume = `<button class="btn primary" id="resume">Resume attempt (${fmtT(prev.deadline - Date.now())} left)</button>`;
+  if (prev && prev.phase === "done") resume = `<button class="btn primary" id="seeres">See last result</button>`;
+  app.innerHTML = `<div class="wrap start">
+    <div class="panel">
+      <div class="eyebrow">PFRDA Grade A 2026 · Phase I</div>
+      <h1 style="margin-top:6px">${DATA.title}</h1>
+      <p class="note" style="margin:8px 0 14px">${DATA.blurb}</p>
+      <dl class="facts">
+        <div><dt>Questions</dt><dd class="num">${total}</dd></div>
+        <div><dt>Marks</dt><dd class="num">${DATA.sections.reduce((a,s)=>a+s.marks,0)}</dd></div>
+        <div><dt>Time</dt><dd class="num">${DATA.minutes} min</dd></div>
+        <div><dt>Wrong answer</dt><dd>−¼ of its marks</dd></div>
+      </dl>
+    </div>
+    <div class="panel"><div class="eyebrow" style="margin-bottom:8px">Sections</div>
+      <div class="tbl"><table class="sec"><tr><th>Section</th><th class="r">Qs</th><th class="r">Marks</th><th class="r">Per Q</th><th class="r">Wrong</th></tr>${rows}</table></div>
+      <p class="note" style="margin:10px 0 0">One timer for the whole paper, with no sectional timing, as in the real exam. You can move between sections freely. The test submits itself when time runs out.</p>
+    </div>
+    <div class="row">${resume}<button class="btn ${resume ? "" : "primary"}" id="go">${prev ? "Start a fresh attempt" : "Start test"}</button></div>
+  </div>`;
+  $("#go").onclick = () => { S = { phase:"test", deadline: Date.now() + DATA.minutes*60000, started: Date.now(), cur:0, ans:Array(total).fill(null), flag:Array(total).fill(false), seen:Array(total).fill(false) }; save(); testScreen(); };
+  if ($("#resume")) $("#resume").onclick = () => { S = prev; if (S.deadline <= Date.now()) { finish(); } else testScreen(); };
+  if ($("#seeres")) $("#seeres").onclick = () => { S = prev; resultScreen(); };
+}
+
+/* ---------- test screen ---------- */
+function testScreen(){
+  app.innerHTML = `<div class="bar"><div class="bar-in"><div class="t">${DATA.short}</div><div class="timer" id="timer">--:--</div><button class="btn" id="palbtn" style="min-height:36px;padding:6px 10px">Questions</button></div>
+    <div class="chips" id="chips"></div></div>
+    <div class="wrap"><div id="q"></div></div>
+    <div class="foot"><div class="foot-in">
+      <button class="btn" id="prev">← Previous</button>
+      <button class="btn primary" id="next">Save &amp; next →</button>
+      <button class="btn" id="flag">Mark for review</button>
+      <button class="btn ghost" id="clear">Clear answer</button>
+    </div></div>
+    <div id="sheet"></div>`;
+  $("#prev").onclick = () => go(S.cur - 1);
+  $("#next").onclick = () => go(S.cur + 1);
+  $("#flag").onclick = () => { S.flag[S.cur] = !S.flag[S.cur]; save(); if (S.flag[S.cur]) go(S.cur + 1); else renderQ(); };
+  $("#clear").onclick = () => { S.ans[S.cur] = null; save(); renderQ(); };
+  $("#palbtn").onclick = openPalette;
+  renderQ();
+  clearInterval(tick); tick = setInterval(tickFn, 500); tickFn();
+}
+function tickFn(){
+  const left = S.deadline - Date.now();
+  const t = $("#timer"); if (!t) return;
+  t.textContent = fmtT(left);
+  t.classList.toggle("low", left < 5*60000);
+  if (left <= 0) finish();
+}
+function go(i){ if (i < 0 || i >= DATA.qs.length) { if (i >= DATA.qs.length) openPalette(); return; } S.cur = i; save(); renderQ(); window.scrollTo(0,0); }
+function renderQ(){
+  const i = S.cur, q = DATA.qs[i];
+  S.seen[i] = true; save();
+  $("#chips").innerHTML = DATA.sections.map(s => `<button class="chip" data-s="${esc(s.name)}" aria-pressed="${s.name===q.s}">${s.name}</button>`).join("");
+  $("#chips").querySelectorAll(".chip").forEach(b => b.onclick = () => go(DATA.qs.findIndex(x => x.s === b.dataset.s)));
+  const act = $("#chips [aria-pressed=true]"); if (act) act.scrollIntoView({inline:"nearest", block:"nearest"});
+  const stem = q.st ? `<details class="stem" open><summary>Directions / passage</summary><div class="stem-body">${DATA.stems[q.st]}</div></details>` : "";
+  $("#q").innerHTML = `<div class="qhead"><div><span class="eyebrow">${q.s}</span><h2 class="num" style="font-size:18px;margin-top:2px">Question ${i+1} <span class="note">of ${DATA.qs.length}</span></h2></div>
+     <div class="marks num">+${fmt(markOf(q))} / −${fmt(markOf(q)*DATA.neg)}${S.flag[i] ? ' · <span class="pill" style="background:var(--flag-soft);color:var(--flag)">Marked</span>' : ""}</div></div>
+     ${stem}<p class="qtext">${q.q}</p>
+     <div class="opts" role="radiogroup">${q.o.map((o,k) => `<button class="opt" role="radio" aria-checked="${S.ans[i]===k}" data-k="${k}"><span class="k">${L[k]}</span><span>${o}</span></button>`).join("")}</div>`;
+  $("#q").querySelectorAll(".opt").forEach(b => b.onclick = () => { const k = +b.dataset.k; S.ans[i] = (S.ans[i] === k ? null : k); save(); renderQ(); });
+  $("#flag").textContent = S.flag[i] ? "Unmark" : "Mark for review";
+  $("#prev").disabled = i === 0;
+  $("#next").textContent = i === DATA.qs.length - 1 ? "Review & submit" : "Save & next →";
+}
+function openPalette(){
+  const answered = S.ans.filter(a => a !== null).length;
+  const flagged = S.flag.filter(Boolean).length;
+  const groups = DATA.sections.map(s => {
+    const btns = DATA.qs.map((q,i) => q.s === s.name ? i : -1).filter(i => i >= 0).map(i => {
+      const cls = S.flag[i] ? "st-flag" : S.ans[i] !== null ? "st-ans" : S.seen[i] ? "st-seen" : "";
+      return `<button class="${cls} ${i===S.cur?"st-cur":""}" data-i="${i}">${i+1}</button>`; }).join("");
+    return `<div class="pal-sec">${s.name}</div><div class="pal">${btns}</div>`; }).join("");
+  $("#sheet").innerHTML = `<div class="sheet" id="sh"><div class="sheet-in" role="dialog" aria-label="Question palette">
+     <div class="row" style="justify-content:space-between;align-items:center"><h3>Questions</h3><button class="btn" id="shx" style="min-height:36px">Close</button></div>
+     <div class="legend"><span><i class="st-ans"></i>Answered</span><span><i class="st-flag"></i>Marked for review</span><span><i class="st-seen"></i>Seen, not answered</span><span><i></i>Not visited</span></div>
+     ${groups}
+     <div class="confirm"><p style="margin:0 0 10px"><b class="num">${answered}</b> of ${DATA.qs.length} answered${flagged ? `, <b class="num">${flagged}</b> marked for review (marked answers still count)` : ""}. <span class="num">${fmtT(S.deadline-Date.now())}</span> left.</p>
+       <div class="row"><button class="btn danger" id="sub1">Submit test</button></div><div id="sub2"></div></div>
+  </div></div>`;
+  $("#shx").onclick = () => $("#sheet").innerHTML = "";
+  $("#sh").onclick = e => { if (e.target.id === "sh") $("#sheet").innerHTML = ""; };
+  $("#sheet").querySelectorAll(".pal button").forEach(b => b.onclick = () => { $("#sheet").innerHTML = ""; go(+b.dataset.i); });
+  $("#sub1").onclick = () => { $("#sub2").innerHTML = `<p class="note" style="margin:10px 0">You can't change answers after submitting. Submit now?</p><div class="row"><button class="btn danger" id="subyes">Yes, submit</button><button class="btn" id="subno">Keep going</button></div>`;
+    $("#subyes").onclick = finish; $("#subno").onclick = () => $("#sub2").innerHTML = ""; };
+}
+function finish(){
+  clearInterval(tick);
+  S.phase = "done"; S.ended = Math.min(Date.now(), S.deadline); save();
+  resultScreen();
+}
+
+/* ---------- results ---------- */
+function grade(){
+  const per = DATA.sections.map(s => ({ name:s.name, n:s.n, max:s.marks, c:0, w:0, u:0, score:0 }));
+  DATA.qs.forEach((q,i) => { const p = per.find(x => x.name === q.s), m = markOf(q), a = S.ans[i];
+    if (a === null) p.u++; else if (a === q.a) { p.c++; p.score += m; } else { p.w++; p.score -= m*DATA.neg; } });
+  return per;
+}
+let filter = "all";
+function resultScreen(){
+  clearInterval(tick);
+  const per = grade();
+  const tot = per.reduce((a,p) => a + p.score, 0), max = per.reduce((a,p) => a + p.max, 0);
+  const c = per.reduce((a,p) => a+p.c, 0), w = per.reduce((a,p) => a+p.w, 0), u = per.reduce((a,p) => a+p.u, 0);
+  const used = Math.round(((S.ended||Date.now()) - S.started)/60000);
+  const rows = per.map(p => `<tr><td>${p.name}</td><td class="r num">${p.c}</td><td class="r num">${p.w}</td><td class="r num">${p.u}</td><td class="r num"><b>${fmt(p.score)}</b>/${p.max}</td><td class="r num">${p.c+p.w ? Math.round(p.c/(p.c+p.w)*100)+"%" : "–"}</td></tr>`).join("");
+  app.innerHTML = `<div class="wrap start">
+    <div class="panel"><div class="eyebrow">${DATA.short} · Result</div>
+      <div class="score" style="margin-top:6px"><span class="big">${fmt(tot)}</span><span class="note num">/ ${max} marks</span></div>
+      <div class="row" style="margin-top:8px"><span class="pill p-ok num">${c} correct</span><span class="pill p-bad num">${w} wrong (−${fmt(per.reduce((a,p)=>a+p.w*(p.max/p.n)*DATA.neg,0))})</span><span class="pill p-skip num">${u} not attempted</span><span class="pill num" style="background:var(--accent-soft);color:var(--accent)">${used} of ${DATA.minutes} min used</span></div>
+      <p class="note" style="margin:10px 0 0">Your target is about 40 per paper. PFRDA sets a cut-off for each paper plus an aggregate cut-off, so use the section table to find where marks leak.</p>
+    </div>
+    <div class="panel"><div class="eyebrow" style="margin-bottom:8px">By section</div>
+      <div class="tbl"><table class="sec"><tr><th>Section</th><th class="r">✓</th><th class="r">✗</th><th class="r">–</th><th class="r">Score</th><th class="r">Accuracy</th></tr>${rows}</table></div></div>
+    <div class="panel" style="padding:14px"><div class="row" style="justify-content:space-between;align-items:center"><div class="eyebrow">Answers &amp; explanations</div>
+      <div class="row" id="filt">${["all","wrong","skipped","correct"].map(f => `<button class="chip" data-f="${f}" aria-pressed="${filter===f}">${{all:"All",wrong:"Wrong",skipped:"Not attempted",correct:"Correct"}[f]}</button>`).join("")}</div></div>
+      <div class="rev" id="rev"></div></div>
+    <div class="row"><button class="btn" id="again">Retake this mock</button></div>
+  </div>`;
+  $("#filt").querySelectorAll(".chip").forEach(b => b.onclick = () => { filter = b.dataset.f; resultScreen(); });
+  $("#again").onclick = () => { wipe(); S = null; filter = "all"; startScreen(); };
+  const list = DATA.qs.map((q,i) => ({q,i})).filter(({q,i}) => { const a = S.ans[i];
+    return filter==="all" || (filter==="wrong" && a!==null && a!==q.a) || (filter==="skipped" && a===null) || (filter==="correct" && a===q.a); });
+  $("#rev").innerHTML = list.length ? list.map(({q,i}) => { const a = S.ans[i];
+    const tag = a===null ? '<span class="pill p-skip">Not attempted</span>' : a===q.a ? '<span class="pill p-ok">Correct</span>' : '<span class="pill p-bad">Wrong</span>';
+    const stem = q.st ? `<details class="stem"><summary>Directions / passage</summary><div class="stem-body">${DATA.stems[q.st]}</div></details>` : "";
+    return `<div class="panel rq"><div class="qhead"><span class="eyebrow">Q${i+1} · ${q.s}</span>${tag}</div>${stem}<p class="qtext" style="font-size:16px">${q.q}</p>
+      <div class="opts">${q.o.map((o,k) => `<div class="opt ${k===q.a?"right":(k===a?"wrong":"")}"><span class="k">${L[k]}</span><span>${o}${k===q.a?" ✓":""}${k===a&&k!==q.a?" (your answer)":""}</span></div>`).join("")}</div>
+      <div class="exp"><b>Answer: ${L[q.a]}.</b> ${q.e}</div></div>`; }).join("") : '<p class="note">No questions in this filter.</p>';
+}
+
+/* boot */
+(function(){ const prev = load();
+  if (prev && prev.phase === "test" && prev.deadline > Date.now()) { S = prev; testScreen(); }
+  else if (prev && prev.phase === "test") { S = prev; finish(); }
+  else startScreen(); })();
+</script>
+
+</body>
+</html>
