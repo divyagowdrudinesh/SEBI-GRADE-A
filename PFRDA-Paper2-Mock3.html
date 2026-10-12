@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PFRDA Paper 2 Mock 3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+/* Layout: exam-hall CBT console. Sticky timer bar, one question per screen, fixed action bar, sheet for the question palette. */
+:root{
+  --bg:#f3f5f7; --panel:#ffffff; --ink:#18212b; --muted:#5b6672; --line:#d9dee4;
+  --accent:#1f5f8b; --accent-ink:#ffffff; --accent-soft:#e3eef6;
+  --ok:#1d7a4a; --ok-soft:#e1f2e8; --bad:#b4352c; --bad-soft:#f8e3e1;
+  --flag:#7a4cb0; --flag-soft:#eee6f8; --skip:#8a6a12; --skip-soft:#f6efd9;
+  --ui:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --read:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1419; --panel:#182029; --ink:#e4e9ee; --muted:#9aa6b2; --line:#2c3743;
+  --accent:#6fb3e0; --accent-ink:#0b1a26; --accent-soft:#1b3346;
+  --ok:#5cc58d; --ok-soft:#173326; --bad:#ef7f75; --bad-soft:#3a1d1b;
+  --flag:#b991ea; --flag-soft:#2c2140; --skip:#e0bd5a; --skip-soft:#352c14; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1419; --panel:#182029; --ink:#e4e9ee; --muted:#9aa6b2; --line:#2c3743;
+  --accent:#6fb3e0; --accent-ink:#0b1a26; --accent-soft:#1b3346;
+  --ok:#5cc58d; --ok-soft:#173326; --bad:#ef7f75; --bad-soft:#3a1d1b;
+  --flag:#b991ea; --flag-soft:#2c2140; --skip:#e0bd5a; --skip-soft:#352c14; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:16px;line-height:1.5;-webkit-text-size-adjust:100%}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:760px;margin:0 auto;padding-inline:16px;padding-block:16px 120px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+h1,h2,h3{text-wrap:balance;line-height:1.25;margin:0}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:10px 14px;font-weight:600;min-height:44px}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+/* start */
+.start{display:grid;gap:16px}
+.start .panel{padding:18px}
+.start h1{font-size:24px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:0}
+.facts div{border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.facts dt{font-size:12px;color:var(--muted)} .facts dd{margin:0;font-weight:600}
+.tbl{overflow-x:auto}
+table.sec{border-collapse:collapse;width:100%;font-size:14px}
+table.sec th,table.sec td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
+table.sec td.r,table.sec th.r{text-align:right}
+.note{font-size:14px;color:var(--muted)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+/* top bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--panel);border-bottom:1px solid var(--line)}
+.bar-in{max-width:760px;margin:0 auto;padding:8px 16px;display:flex;align-items:center;gap:10px}
+.bar .t{font-weight:600;font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.timer{font-family:var(--mono);font-size:18px;font-weight:600;padding:4px 10px;border-radius:6px;background:var(--accent-soft)}
+.timer.low{background:var(--bad-soft);color:var(--bad)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:8px 16px;max-width:760px;margin:0 auto;scrollbar-width:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+/* question */
+.qhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.qhead .marks{font-size:13px;color:var(--muted)}
+details.stem{margin-bottom:12px}
+details.stem summary{font-size:13px;font-weight:600;color:var(--accent);padding:8px 0;cursor:pointer}
+.stem-body{font-family:var(--read);font-size:16.5px;line-height:1.6;max-height:55vh;overflow:auto;padding:4px 14px;border-left:3px solid var(--line);min-width:0}
+.stem-body p{margin:0 0 10px}
+table.dt{border-collapse:collapse;font-family:var(--ui);font-size:15px;margin:6px 0 10px}
+table.dt th,table.dt td{border:1px solid var(--line);padding:6px 12px;text-align:center}
+.qtext{font-size:17px;margin:0 0 14px;min-width:0;overflow-wrap:anywhere}
+.opts{display:grid;gap:10px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;border:1.5px solid var(--line);background:var(--panel);border-radius:10px;padding:12px 14px;min-height:52px}
+.opt .k{flex:none;width:28px;height:28px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-weight:700;font-size:14px}
+.opt[aria-checked="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.opt[aria-checked="true"] .k{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.opt span:last-child{min-width:0;overflow-wrap:anywhere}
+/* bottom bar */
+.foot{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--panel);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px))}
+.foot-in{max-width:760px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.foot-in .btn{width:100%;font-size:14px;padding:8px 6px}
+@media (min-width:560px){.foot-in{grid-template-columns:repeat(4,1fr)}}
+/* sheet */
+.sheet{position:fixed;inset:0;z-index:10;background:rgba(10,15,20,.45);display:flex;align-items:flex-end;justify-content:center}
+.sheet-in{background:var(--panel);width:100%;max-width:760px;max-height:85%;overflow:auto;border-radius:14px 14px 0 0;padding:16px 16px calc(20px + env(safe-area-inset-bottom,0px))}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:12px;color:var(--muted);margin:8px 0 14px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px;border:1px solid var(--line)}
+.pal-sec{margin:12px 0 4px;font-size:13px;font-weight:600}
+.pal{display:grid;grid-template-columns:repeat(auto-fill,minmax(42px,1fr));gap:6px}
+.pal button{height:40px;border-radius:6px;border:1px solid var(--line);background:var(--panel);font-family:var(--mono);font-size:13px}
+.st-ans{background:var(--ok-soft)!important;border-color:var(--ok)!important;color:var(--ok)}
+.st-flag{background:var(--flag-soft)!important;border-color:var(--flag)!important;color:var(--flag)}
+.st-seen{background:var(--skip-soft)!important;border-color:var(--skip)!important;color:var(--skip)}
+.st-cur{outline:2px solid var(--ink);outline-offset:1px}
+.confirm{margin-top:16px;padding:14px;border:1px solid var(--line);border-radius:10px}
+/* results */
+.score{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.score .big{font-family:var(--mono);font-size:40px;font-weight:600}
+.pill{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px}
+.p-ok{background:var(--ok-soft);color:var(--ok)} .p-bad{background:var(--bad-soft);color:var(--bad)} .p-skip{background:var(--skip-soft);color:var(--skip)}
+.rev{display:grid;gap:12px;margin-top:12px}
+.rq{padding:14px}
+.rq .opt{cursor:default;min-height:0;padding:8px 12px}
+.rq .opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.rq .opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.exp{margin-top:10px;padding:10px 12px;border-radius:8px;background:var(--bg);font-size:15px;overflow-wrap:anywhere}
+.exp b{font-weight:600}
+@media (prefers-reduced-motion:no-preference){.opt{transition:border-color .12s,background .12s}}
+</style>
+
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+const DATA = {"id": "p2m3-v1", "title": "PFRDA Paper 2 Mock 3", "short": "PFRDA P2 · Mock 3", "blurb": "General stream, set from the official 2026 syllabus and six Phase I and II Paper 2 PYQs: section-number Companies Act, APY and PFRDA Act numbers, costing numericals, Budget 2026-27, and the new AI, Media and Marketing heads. All questions are new.", "minutes": 40, "neg": 0.25, "sections": [{"name": "Finance", "n": 7, "marks": 14}, {"name": "Economics", "n": 5, "marks": 10}, {"name": "Pension & PFRDA Act", "n": 8, "marks": 16}, {"name": "Costing", "n": 6, "marks": 12}, {"name": "Companies Act", "n": 6, "marks": 12}, {"name": "Commerce & Accountancy", "n": 5, "marks": 10}, {"name": "Management", "n": 5, "marks": 10}, {"name": "AI / Machine Learning", "n": 3, "marks": 6}, {"name": "Media", "n": 2, "marks": 4}, {"name": "Marketing & Communication", "n": 3, "marks": 6}], "stems": {}, "qs": [{"s": "Finance", "q": "Which of the following pairs of entity and regulator is INCORRECTLY matched?", "o": ["Regional Rural Banks – SEBI", "Mutual funds – SEBI", "Insurance companies – IRDAI", "Pension funds under NPS – PFRDA", "Credit rating agencies – SEBI"], "a": 0, "e": "RRBs are regulated by the RBI and supervised by NABARD; SEBI has no role. All the other pairs are correct. (The 2025 paper asked a similar regulator-mapping question.)", "st": null}, {"s": "Finance", "q": "Cash Management Bills (CMBs) issued by the Government of India have a maturity of:", "o": ["1 to 3 years", "Exactly 91 days", "Less than 91 days", "364 days", "182 days"], "a": 2, "e": "CMBs are short-term money market instruments, similar to T-bills, issued for less than 91 days to meet temporary mismatches in the Government's cash flow.", "st": null}, {"s": "Finance", "q": "In an IPO, the 'green shoe option' allows the issuer to:", "o": ["Withdraw the issue if it is under-subscribed", "Over-allot shares, up to 15% of the issue size, to stabilise the price after listing", "Issue shares only to environmentally responsible investors", "Buy back shares at a premium within one year of listing", "Pay a dividend before listing"], "a": 1, "e": "A green shoe option lets the issuer over-allot shares (up to 15% of the issue size under SEBI rules). A stabilising agent uses the extra money to buy shares in the market if the price falls below the issue price after listing.", "st": null}, {"s": "Finance", "q": "Which of the following is a NON-tax revenue receipt of the Union Government?", "o": ["Central GST", "Customs duty", "Corporation tax", "Securities transaction tax", "Dividends and profits from public sector enterprises and the RBI"], "a": 4, "e": "Non-tax revenue includes dividends and profits from PSUs and the RBI's surplus transfer, interest receipts, fees and fines. The rest are taxes.", "st": null}, {"s": "Finance", "q": "The Finance Commission is constituted under which Article of the Constitution?", "o": ["Article 148", "Article 112", "Article 279A", "Article 270", "Article 280"], "a": 4, "e": "Article 280 provides for a Finance Commission every five years to recommend how taxes are shared between the Centre and the states. Traps: Article 270 is about the distribution of taxes, Article 112 the Annual Financial Statement (Budget), Article 148 the CAG, and Article 279A the GST Council.", "st": null}, {"s": "Finance", "q": "What capital expenditure did the Union Budget 2026-27 provide for FY 2026-27?", "o": ["About ₹7.85 lakh crore", "About ₹11.2 lakh crore", "About ₹10 lakh crore", "About ₹15.5 lakh crore", "About ₹12.2 lakh crore"], "a": 4, "e": "Budget 2026-27 set capex at ₹12,21,821 crore (about ₹12.2 lakh crore), alongside a fiscal deficit target of 4.3% of GDP. Trap: ₹7.85 lakh crore is the defence budget.", "st": null}, {"s": "Finance", "q": "Under its new fiscal anchor, what is the Centre's debt-to-GDP target for 2030-31?", "o": ["60%", "40%", "50% (±1%)", "3%", "45% (±1%)"], "a": 2, "e": "The Centre has moved its fiscal anchor from the deficit to the debt ratio, targeting 50 ± 1% of GDP by 2030-31. Traps: the 2018 FRBM amendment set 60% for general government (Centre 40%), and 3% was the old fiscal deficit target.", "st": null}, {"s": "Economics", "q": "The accelerator principle states that investment depends on:", "o": ["The level of the interest rate alone", "The rate of change of output or income", "The marginal propensity to consume", "The level of savings", "The money supply"], "a": 1, "e": "Under the accelerator, net investment rises when output is growing, because firms need more capital to produce more. The multiplier works the other way, from investment to income. Together they explain business cycles (Samuelson's multiplier-accelerator model).", "st": null}, {"s": "Economics", "q": "In India's Balance of Payments, remittances sent home by Indians working abroad are recorded in the:", "o": ["Capital account", "Errors and omissions", "Financial account, as portfolio investment", "Current account", "Financial account, as FDI"], "a": 3, "e": "Private transfers such as remittances are 'secondary income' in the current account. They are not capital flows because they create no liability or claim.", "st": null}, {"s": "Economics", "q": "Nominal GDP is ₹240 lakh crore and real GDP is ₹200 lakh crore. What is the GDP deflator?", "o": ["140", "40", "83.3", "100", "120"], "a": 4, "e": "GDP deflator = nominal GDP ÷ real GDP × 100 = 240 ÷ 200 × 100 = 120. Prices have risen 20% since the base year.", "st": null}, {"s": "Economics", "q": "If the nominal interest rate is 9% and expected inflation is 5%, what is the approximate real interest rate according to the Fisher equation?", "o": ["4%", "45%", "14%", "1.8%", "5%"], "a": 0, "e": "Fisher equation (approximate form): real rate ≈ nominal rate − expected inflation = 9 − 5 = 4%.", "st": null}, {"s": "Economics", "q": "The lowest point of a business cycle, after which recovery begins, is called the:", "o": ["Recession", "Trough", "Boom", "Stagflation", "Peak"], "a": 1, "e": "The phases are expansion, peak, contraction (recession) and trough. The trough is the turning point at which economic activity bottoms out before recovery.", "st": null}, {"s": "Pension & PFRDA Act", "q": "Under the PFRDA Act, 2013, all penalties collected are credited to the:", "o": ["Investor Education and Protection Fund", "Consolidated Fund of India", "Subscriber Education and Protection Fund", "Pension Regulatory and Development Fund", "NPS Trust"], "a": 2, "e": "All penalties go to the Subscriber Education and Protection Fund (s.41), which is used to protect subscribers. The Pension Regulatory and Development Fund (s.40) receives grants and fees and pays PFRDA's expenses. Trap: the IEPF belongs to the Companies Act.", "st": null}, {"s": "Pension & PFRDA Act", "q": "Under the PFRDA Act, for how long at most can the Central Government supersede the Authority?", "o": ["3 months", "5 years", "2 years", "6 months", "1 year"], "a": 3, "e": "Section 44: the Government may supersede PFRDA for up to six months, after giving it a chance to make representations, if it is unable to function, persistently defaults or it is in the public interest.", "st": null}, {"s": "Pension & PFRDA Act", "q": "Under the PFRDA Act, the Pension Advisory Committee can have at most how many members, excluding ex officio members?", "o": ["15", "7", "25", "12", "30"], "a": 2, "e": "Section 45: up to 25 members, excluding ex officio members, representing employees, subscribers, industry, intermediaries and research bodies. Trap: 7 is the size of the Authority itself (1 + 3 + 3).", "st": null}, {"s": "Pension & PFRDA Act", "q": "A subscriber joins the Atal Pension Yojana at age 18 and chooses a guaranteed pension of ₹5,000 a month. What is the monthly contribution?", "o": ["₹210", "₹291", "₹577", "₹1,454", "₹42"], "a": 0, "e": "From the APY chart: at age 18, ₹42 for a ₹1,000 pension and ₹210 for ₹5,000. At age 40 these become ₹291 and ₹1,454.", "st": null}, {"s": "Pension & PFRDA Act", "q": "Consider the following statements about the Atal Pension Yojana:<br>1. If the subscriber dies before 60, the spouse may continue contributing for the remaining period and receive the same pension.<br>2. A person can join between 18 and 40 years of age.<br>3. Income-tax payers can join APY.<br>Which of the above is/are correct?", "o": ["1 only", "1 and 2 only", "2 and 3 only", "1 and 3 only", "1, 2 and 3"], "a": 1, "e": "Statements 1 and 2 are correct. Since 1 October 2022, anyone who is or has been an income-tax payer cannot join APY, so statement 3 is wrong.", "st": null}, {"s": "Pension & PFRDA Act", "q": "Which of the following CANNOT open an NPS account under the All Citizen model?", "o": ["A Hindu Undivided Family (HUF)", "An Overseas Citizen of India (OCI)", "A Non-Resident Indian (NRI)", "A salaried private-sector employee aged 25", "A self-employed professional aged 45"], "a": 0, "e": "NPS is an individual pension account. HUFs (and PIOs) are not eligible. NRIs and OCIs aged 18–85 can join.", "st": null}, {"s": "Pension & PFRDA Act", "q": "An 'annuity with return of purchase price' pays:", "o": ["A pension for a fixed 10 years only, with nothing returned", "A pension only to the spouse, never to the annuitant", "A pension for life, and on the annuitant's death returns the purchase price to the nominee", "A lump sum at age 60 and nothing afterwards", "A pension that rises 3% a year, with nothing returned on death"], "a": 2, "e": "In this option the annuitant receives a pension for life, and the original corpus (purchase price) goes to the nominee on death. It pays a lower rate than a life-only annuity because the capital is returned.", "st": null}, {"s": "Pension & PFRDA Act", "q": "Under the Unified Pension Scheme, what minimum assured payout does an employee get on superannuation after at least 10 years of qualifying service?", "o": ["₹3,000 a month", "₹15,000 a month", "₹10,000 a month", "₹7,500 a month", "₹5,000 a month"], "a": 2, "e": "UPS guarantees a minimum of ₹10,000 a month for at least 10 years of service. The full payout of 50% of average basic pay requires 25 years. Trap: ₹3,000 is the PM-SYM pension.", "st": null}, {"s": "Costing", "q": "Sales are ₹10,00,000, fixed costs ₹2,40,000 and the P/V ratio 40%. What is the margin of safety?", "o": ["₹7,60,000", "₹2,40,000", "₹1,60,000", "₹6,00,000", "₹4,00,000"], "a": 4, "e": "BEP sales = 2,40,000 ÷ 0.40 = ₹6,00,000. Margin of safety = actual sales − BEP sales = 10,00,000 − 6,00,000 = ₹4,00,000 (40% of sales). Check: profit = MoS × P/V = 4,00,000 × 0.4 = ₹1,60,000.", "st": null}, {"s": "Costing", "q": "2,000 units costing ₹1,00,000 are put into a process. Normal loss is 10% of input, and scrap sells at ₹5 a unit. Actual output is 1,700 units. What is the value of the abnormal loss?", "o": ["₹5,000", "₹10,000", "₹5,882", "₹5,500", "₹11,000"], "a": 3, "e": "Normal loss = 200 units, with scrap value ₹1,000. Normal output = 1,800. Cost per unit = (1,00,000 − 1,000) ÷ 1,800 = ₹55. Abnormal loss = 1,800 − 1,700 = 100 units × 55 = ₹5,500.", "st": null}, {"s": "Costing", "q": "Which costing method is most suitable for an oil refinery?", "o": ["Process costing", "Batch costing", "Job costing", "Unit costing", "Contract costing"], "a": 0, "e": "Process costing suits continuous production where output passes through processes, as in refineries, chemicals and textiles. Job costing suits printing and repairs, contract costing construction, and batch costing pharmaceuticals and biscuits.", "st": null}, {"s": "Costing", "q": "In Six Sigma, which methodology is used to design a NEW process or product, rather than improve an existing one?", "o": ["5 Whys", "PDCA", "SIPOC", "DMADV", "DMAIC"], "a": 3, "e": "DMADV (Define, Measure, Analyse, Design, Verify) is used to design new processes. DMAIC (Define, Measure, Analyse, Improve, Control) improves existing ones. SIPOC is a process-mapping tool.", "st": null}, {"s": "Costing", "q": "In Total Productive Maintenance (TPM), 'Jishu Hozen' refers to:", "o": ["Mistake-proofing a process", "Autonomous maintenance, in which machine operators carry out routine maintenance themselves", "Visual signals for material replenishment", "Levelling the production schedule", "Planned maintenance by a separate maintenance department"], "a": 1, "e": "Jishu Hozen (autonomous maintenance) is a TPM pillar: operators clean, inspect and lubricate their own machines to prevent breakdowns. TPM aims for zero breakdowns and zero defects. Mistake-proofing is Poka-yoke, levelling is Heijunka, and visual signals are Kanban.", "st": null}, {"s": "Costing", "q": "Business Process Re-engineering (BPR), as described by Hammer and Champy, involves:", "o": ["Cutting the workforce without changing processes", "Standardising existing processes without change", "Moving processes onto spreadsheets", "Small, continuous improvements by all employees", "A fundamental rethink and radical redesign of business processes for dramatic improvement"], "a": 4, "e": "BPR is radical: processes are redesigned from scratch to achieve dramatic gains in cost, quality, service and speed. Kaizen is the opposite: small, continuous improvements.", "st": null}, {"s": "Companies Act", "q": "Under Section 44 of the Companies Act, 2013, the shares of a member in a company are:", "o": ["Movable property, transferable only with the approval of the Registrar", "Not transferable at all", "Immovable property, transferable only with the approval of the NCLT", "Movable property, transferable in the manner provided by the articles", "Actionable claims that cannot be pledged"], "a": 3, "e": "Section 44 (Chapter IV): shares, debentures and other interests of a member are movable property, transferable as the articles provide. (The 2022 paper asked about this section.)", "st": null}, {"s": "Companies Act", "q": "Under Section 39, the amount payable on application for securities offered to the public must be at least:", "o": ["10% of the nominal amount", "5% of the nominal amount of the security, or such other percentage as SEBI specifies", "25% of the issue price", "50% of the issue price", "1% of the nominal amount"], "a": 1, "e": "Section 39(2) (Chapter III): at least 5% of the nominal amount of the security, or another percentage SEBI specifies. Under s.39 the minimum subscription must also be received within 30 days, or the money is refunded.", "st": null}, {"s": "Companies Act", "q": "Under Section 143(6), within how many days of receiving the audit report of a government company may the CAG conduct a supplementary audit?", "o": ["180 days", "60 days", "90 days", "45 days", "30 days"], "a": 1, "e": "Section 143(6) (Chapter X): the CAG may conduct a supplementary audit within 60 days of receiving the audit report and comment on it. (The 2025 paper asked about s.143(6).)", "st": null}, {"s": "Companies Act", "q": "Under Section 149(1), what is the maximum number of directors a company may have without passing a special resolution?", "o": ["15", "12", "10", "7", "20"], "a": 0, "e": "Section 149(1) (Chapter XI): up to 15 directors; more can be appointed by a special resolution. Traps: 20 is the limit on the number of directorships one person can hold (s.165). Some coaching keys still say 10, which is out of date.", "st": null}, {"s": "Companies Act", "q": "Under Section 140(1), removing an auditor before the expiry of their term requires:", "o": ["A special resolution only", "An ordinary resolution only", "The approval of the NCLT only", "A Board resolution only", "A special resolution and the prior approval of the Central Government"], "a": 4, "e": "Section 140(1) (Chapter X): the auditor may be removed before the term ends only by a special resolution, after obtaining the Central Government's prior approval, and the auditor must be given a reasonable opportunity of being heard.", "st": null}, {"s": "Companies Act", "q": "Under Section 423, a person aggrieved by an order of the NCLAT may appeal to the Supreme Court within:", "o": ["60 days, on a question of fact", "90 days, on any question", "30 days, on any question", "60 days, on a question of law", "45 days, on a question of fact"], "a": 3, "e": "Section 423 (Chapter XXVII): an appeal from the NCLAT lies to the Supreme Court within 60 days, on a question of law only. The Court may allow up to 60 more days. Contrast s.421: an appeal from the NCLT to the NCLAT must be filed within 45 days.", "st": null}, {"s": "Commerce & Accountancy", "q": "A company announces a rights issue of 1 share for every 4 held, at ₹80 per share. The cum-rights market price is ₹120. What is the theoretical ex-rights price?", "o": ["₹110", "₹116", "₹112", "₹96", "₹100"], "a": 2, "e": "Ex-rights price = (4 × 120 + 1 × 80) ÷ 5 = (480 + 80) ÷ 5 = ₹112. (Value of a right per existing share = 120 − 112 = ₹8.)", "st": null}, {"s": "Commerce & Accountancy", "q": "Under AS 3, interest paid by a non-financial company is classified in the cash flow statement under:", "o": ["Financing activities", "It is not shown", "Investing activities", "Either investing or operating, at the company's choice", "Operating activities"], "a": 0, "e": "For a non-financial enterprise, interest and dividends paid are financing cash flows, because they are costs of obtaining finance. For a financial enterprise, interest paid is an operating cash flow.", "st": null}, {"s": "Commerce & Accountancy", "q": "Under the Companies (Share Capital and Debentures) Rules, what is the minimum period between the grant of employee stock options and their vesting?", "o": ["3 years", "6 months", "There is no minimum", "2 years", "1 year"], "a": 4, "e": "There must be a minimum of one year between the grant and the vesting of options. (ESOP vesting was asked in both 2022 and 2025.)", "st": null}, {"s": "Commerce & Accountancy", "q": "A machine costs ₹5,50,000, has an estimated residual value of ₹50,000 and a useful life of 10 years. What is the annual depreciation under the straight-line method?", "o": ["₹60,000", "₹5,000", "₹45,000", "₹55,000", "₹50,000"], "a": 4, "e": "SLM depreciation = (cost − residual value) ÷ useful life = (5,50,000 − 50,000) ÷ 10 = ₹50,000 a year.", "st": null}, {"s": "Commerce & Accountancy", "q": "A company's EBIT is ₹6,00,000 and its interest expense is ₹1,50,000. What is its interest coverage ratio?", "o": ["4 times", "2.5 times", "3 times", "5 times", "0.25 times"], "a": 0, "e": "Interest coverage ratio = EBIT ÷ interest = 6,00,000 ÷ 1,50,000 = 4 times. (3 times wrongly uses EBIT − interest.)", "st": null}, {"s": "Management", "q": "'Theory Z', which combines American and Japanese management practices such as lifetime employment and collective decision-making, was proposed by:", "o": ["William Ouchi", "Frederick Herzberg", "Chester Barnard", "Douglas McGregor", "Abraham Maslow"], "a": 0, "e": "William Ouchi proposed Theory Z (1981). McGregor gave Theory X and Theory Y.", "st": null}, {"s": "Management", "q": "Fiedler's contingency model of leadership uses which tool to measure a leader's style?", "o": ["The Path-Goal questionnaire", "The Johari Window", "The Hawthorne experiments", "The Least Preferred Co-worker (LPC) scale", "The Managerial Grid"], "a": 3, "e": "Fiedler measured style with the LPC scale: a high LPC score means relationship-oriented, a low score task-oriented. Effectiveness depends on fitting style to the situation. Blake and Mouton created the Managerial Grid; House proposed Path-Goal theory.", "st": null}, {"s": "Management", "q": "Communication between managers at the same level in different departments is called:", "o": ["Diagonal communication", "Upward communication", "Grapevine", "Downward communication", "Lateral (horizontal) communication"], "a": 4, "e": "Lateral or horizontal communication flows between peers at the same level, to coordinate work. Diagonal communication crosses both levels and departments.", "st": null}, {"s": "Management", "q": "According to Herzberg's two-factor theory, which of the following is a MOTIVATOR?", "o": ["Achievement", "Company policy", "Job security", "Working conditions", "Salary"], "a": 0, "e": "Motivators (satisfiers) are intrinsic: achievement, recognition, the work itself, responsibility and advancement. Salary, policy, working conditions and job security are hygiene factors: they prevent dissatisfaction but do not motivate.", "st": null}, {"s": "Management", "q": "A performance appraisal in which an employee receives feedback from superiors, peers, subordinates and customers is called:", "o": ["Forced distribution", "Graphic rating scale", "360-degree appraisal", "Critical incident method", "Management by Objectives"], "a": 2, "e": "360-degree feedback gathers ratings from everyone around the employee. It is a common HRD tool for development.", "st": null}, {"s": "AI / Machine Learning", "q": "An algorithm learns to play a game by trying moves and receiving rewards for winning and penalties for losing. This is an example of:", "o": ["Supervised learning", "Unsupervised learning", "Data preprocessing", "Reinforcement learning", "Dimensionality reduction"], "a": 3, "e": "In reinforcement learning, an agent learns by interacting with an environment and maximising cumulative reward. Supervised learning uses labelled examples; unsupervised learning finds patterns in unlabelled data.", "st": null}, {"s": "AI / Machine Learning", "q": "A bank uses NLP to classify customer tweets about its app as positive, negative or neutral. This task is called:", "o": ["Clustering", "Machine translation", "Sentiment analysis", "Named entity recognition", "Speech recognition"], "a": 2, "e": "Sentiment analysis is an NLP task that identifies the opinion or emotion in text. Named entity recognition picks out names, places, organisations and so on.", "st": null}, {"s": "AI / Machine Learning", "q": "Which statement best describes 'agentic AI'?", "o": ["AI systems that can plan and carry out multi-step tasks towards a goal, using tools and acting with limited human input", "A rule-based expert system with no learning", "Software agents that sell AI products", "AI that only answers questions from a fixed list", "AI models that work without any data"], "a": 0, "e": "Agentic AI goes beyond answering a single prompt: it breaks a goal into steps, uses tools (search, code, APIs) and takes actions, with limited supervision. Responsible-AI principles such as human oversight matter especially here.", "st": null}, {"s": "Media", "q": "According to Stuart Hall's encoding/decoding model of audience reception, a viewer who accepts parts of a media message but adapts or rejects others is making a:", "o": ["Dominant (preferred) reading", "Oppositional reading", "Negotiated reading", "Hypodermic reading", "Passive reading"], "a": 2, "e": "Hall described three positions: dominant (accepts the intended meaning), negotiated (partly accepts, partly adapts) and oppositional (rejects it). The 'hypodermic needle' model assumes passive audiences, which Hall's model rejects.", "st": null}, {"s": "Media", "q": "In negotiation, 'BATNA' refers to:", "o": ["A Binding Arbitration Term for National Agreements", "The Best Alternative To a Negotiated Agreement", "The Base Amount Tendered in Negotiation", "The Bargaining Advantage of the Top Negotiator", "The Bottom Acceptable Term in a Negotiated Agreement"], "a": 1, "e": "BATNA (Fisher and Ury, 'Getting to Yes') is what you will do if the talks fail. A strong BATNA gives you leverage and tells you when to walk away.", "st": null}, {"s": "Marketing & Communication", "q": "In the Thomas–Kilmann model, which conflict-handling mode is both highly assertive and highly cooperative, aiming for a win-win outcome?", "o": ["Compromising", "Avoiding", "Accommodating", "Collaborating", "Competing"], "a": 3, "e": "Collaborating is high on assertiveness and cooperativeness: both sides' concerns are fully met. Compromising is in the middle (split the difference), competing is assertive but uncooperative, accommodating is the reverse, and avoiding is low on both.", "st": null}, {"s": "Marketing & Communication", "q": "Using the 'Rule of 72', roughly how long will an investment take to double at 8% a year?", "o": ["12 years", "7.2 years", "8 years", "6 years", "9 years"], "a": 4, "e": "Rule of 72: years to double ≈ 72 ÷ annual rate = 72 ÷ 8 = 9 years. It is a basic financial-literacy tool for showing the power of compounding.", "st": null}, {"s": "Marketing & Communication", "q": "A manufacturer offers dealers extra margins and incentives so that they stock and actively sell its product to customers. This is a:", "o": ["Market segmentation strategy", "Push strategy", "Penetration pricing strategy", "Pull strategy", "Skimming strategy"], "a": 1, "e": "A push strategy pushes the product through the channel with trade promotions and incentives for intermediaries. A pull strategy builds consumer demand (for example through advertising) so that customers ask for the product.", "st": null}]};
+const KEY = "pfrda-mock:" + DATA.id;
+const L = ["A","B","C","D","E"];
+const $ = (s, r=document) => r.querySelector(s);
+const app = $("#app");
+let S = null; // state
+let tick = null;
+
+function load(){ try{ const v = localStorage.getItem(KEY); return v ? JSON.parse(v) : null; }catch(e){ return null; } }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+function wipe(){ try{ localStorage.removeItem(KEY); }catch(e){} }
+
+function secOf(q){ return DATA.sections.find(s => s.name === q.s); }
+function markOf(q){ const s = secOf(q); return s.marks / s.n; }
+function fmt(n){ return (Math.round(n*100)/100).toFixed(2).replace(/\.00$/,""); }
+function fmtT(ms){ ms = Math.max(0, ms); const t = Math.floor(ms/1000); return String(Math.floor(t/60)).padStart(2,"0") + ":" + String(t%60).padStart(2,"0"); }
+function esc(t){ const d = document.createElement("div"); d.textContent = t; return d.innerHTML; }
+
+/* ---------- start screen ---------- */
+function startScreen(){
+  clearInterval(tick);
+  const prev = load();
+  const total = DATA.qs.length;
+  const rows = DATA.sections.map(s => `<tr><td>${s.name}</td><td class="r num">${s.n}</td><td class="r num">${s.marks}</td><td class="r num">${fmt(s.marks/s.n)}</td><td class="r num">−${fmt(s.marks/s.n*DATA.neg)}</td></tr>`).join("");
+  let resume = "";
+  if (prev && prev.phase === "test") resume = `<button class="btn primary" id="resume">Resume attempt (${fmtT(prev.deadline - Date.now())} left)</button>`;
+  if (prev && prev.phase === "done") resume = `<button class="btn primary" id="seeres">See last result</button>`;
+  app.innerHTML = `<div class="wrap start">
+    <div class="panel">
+      <div class="eyebrow">PFRDA Grade A 2026 · Phase I</div>
+      <h1 style="margin-top:6px">${DATA.title}</h1>
+      <p class="note" style="margin:8px 0 14px">${DATA.blurb}</p>
+      <dl class="facts">
+        <div><dt>Questions</dt><dd class="num">${total}</dd></div>
+        <div><dt>Marks</dt><dd class="num">${DATA.sections.reduce((a,s)=>a+s.marks,0)}</dd></div>
+        <div><dt>Time</dt><dd class="num">${DATA.minutes} min</dd></div>
+        <div><dt>Wrong answer</dt><dd>−¼ of its marks</dd></div>
+      </dl>
+    </div>
+    <div class="panel"><div class="eyebrow" style="margin-bottom:8px">Sections</div>
+      <div class="tbl"><table class="sec"><tr><th>Section</th><th class="r">Qs</th><th class="r">Marks</th><th class="r">Per Q</th><th class="r">Wrong</th></tr>${rows}</table></div>
+      <p class="note" style="margin:10px 0 0">One timer for the whole paper, with no sectional timing, as in the real exam. You can move between sections freely. The test submits itself when time runs out.</p>
+    </div>
+    <div class="row">${resume}<button class="btn ${resume ? "" : "primary"}" id="go">${prev ? "Start a fresh attempt" : "Start test"}</button></div>
+  </div>`;
+  $("#go").onclick = () => { S = { phase:"test", deadline: Date.now() + DATA.minutes*60000, started: Date.now(), cur:0, ans:Array(total).fill(null), flag:Array(total).fill(false), seen:Array(total).fill(false) }; save(); testScreen(); };
+  if ($("#resume")) $("#resume").onclick = () => { S = prev; if (S.deadline <= Date.now()) { finish(); } else testScreen(); };
+  if ($("#seeres")) $("#seeres").onclick = () => { S = prev; resultScreen(); };
+}
+
+/* ---------- test screen ---------- */
+function testScreen(){
+  app.innerHTML = `<div class="bar"><div class="bar-in"><div class="t">${DATA.short}</div><div class="timer" id="timer">--:--</div><button class="btn" id="palbtn" style="min-height:36px;padding:6px 10px">Questions</button></div>
+    <div class="chips" id="chips"></div></div>
+    <div class="wrap"><div id="q"></div></div>
+    <div class="foot"><div class="foot-in">
+      <button class="btn" id="prev">← Previous</button>
+      <button class="btn primary" id="next">Save &amp; next →</button>
+      <button class="btn" id="flag">Mark for review</button>
+      <button class="btn ghost" id="clear">Clear answer</button>
+    </div></div>
+    <div id="sheet"></div>`;
+  $("#prev").onclick = () => go(S.cur - 1);
+  $("#next").onclick = () => go(S.cur + 1);
+  $("#flag").onclick = () => { S.flag[S.cur] = !S.flag[S.cur]; save(); if (S.flag[S.cur]) go(S.cur + 1); else renderQ(); };
+  $("#clear").onclick = () => { S.ans[S.cur] = null; save(); renderQ(); };
+  $("#palbtn").onclick = openPalette;
+  renderQ();
+  clearInterval(tick); tick = setInterval(tickFn, 500); tickFn();
+}
+function tickFn(){
+  const left = S.deadline - Date.now();
+  const t = $("#timer"); if (!t) return;
+  t.textContent = fmtT(left);
+  t.classList.toggle("low", left < 5*60000);
+  if (left <= 0) finish();
+}
+function go(i){ if (i < 0 || i >= DATA.qs.length) { if (i >= DATA.qs.length) openPalette(); return; } S.cur = i; save(); renderQ(); window.scrollTo(0,0); }
+function renderQ(){
+  const i = S.cur, q = DATA.qs[i];
+  S.seen[i] = true; save();
+  $("#chips").innerHTML = DATA.sections.map(s => `<button class="chip" data-s="${esc(s.name)}" aria-pressed="${s.name===q.s}">${s.name}</button>`).join("");
+  $("#chips").querySelectorAll(".chip").forEach(b => b.onclick = () => go(DATA.qs.findIndex(x => x.s === b.dataset.s)));
+  const act = $("#chips [aria-pressed=true]"); if (act) act.scrollIntoView({inline:"nearest", block:"nearest"});
+  const stem = q.st ? `<details class="stem" open><summary>Directions / passage</summary><div class="stem-body">${DATA.stems[q.st]}</div></details>` : "";
+  $("#q").innerHTML = `<div class="qhead"><div><span class="eyebrow">${q.s}</span><h2 class="num" style="font-size:18px;margin-top:2px">Question ${i+1} <span class="note">of ${DATA.qs.length}</span></h2></div>
+     <div class="marks num">+${fmt(markOf(q))} / −${fmt(markOf(q)*DATA.neg)}${S.flag[i] ? ' · <span class="pill" style="background:var(--flag-soft);color:var(--flag)">Marked</span>' : ""}</div></div>
+     ${stem}<p class="qtext">${q.q}</p>
+     <div class="opts" role="radiogroup">${q.o.map((o,k) => `<button class="opt" role="radio" aria-checked="${S.ans[i]===k}" data-k="${k}"><span class="k">${L[k]}</span><span>${o}</span></button>`).join("")}</div>`;
+  $("#q").querySelectorAll(".opt").forEach(b => b.onclick = () => { const k = +b.dataset.k; S.ans[i] = (S.ans[i] === k ? null : k); save(); renderQ(); });
+  $("#flag").textContent = S.flag[i] ? "Unmark" : "Mark for review";
+  $("#prev").disabled = i === 0;
+  $("#next").textContent = i === DATA.qs.length - 1 ? "Review & submit" : "Save & next →";
+}
+function openPalette(){
+  const answered = S.ans.filter(a => a !== null).length;
+  const flagged = S.flag.filter(Boolean).length;
+  const groups = DATA.sections.map(s => {
+    const btns = DATA.qs.map((q,i) => q.s === s.name ? i : -1).filter(i => i >= 0).map(i => {
+      const cls = S.flag[i] ? "st-flag" : S.ans[i] !== null ? "st-ans" : S.seen[i] ? "st-seen" : "";
+      return `<button class="${cls} ${i===S.cur?"st-cur":""}" data-i="${i}">${i+1}</button>`; }).join("");
+    return `<div class="pal-sec">${s.name}</div><div class="pal">${btns}</div>`; }).join("");
+  $("#sheet").innerHTML = `<div class="sheet" id="sh"><div class="sheet-in" role="dialog" aria-label="Question palette">
+     <div class="row" style="justify-content:space-between;align-items:center"><h3>Questions</h3><button class="btn" id="shx" style="min-height:36px">Close</button></div>
+     <div class="legend"><span><i class="st-ans"></i>Answered</span><span><i class="st-flag"></i>Marked for review</span><span><i class="st-seen"></i>Seen, not answered</span><span><i></i>Not visited</span></div>
+     ${groups}
+     <div class="confirm"><p style="margin:0 0 10px"><b class="num">${answered}</b> of ${DATA.qs.length} answered${flagged ? `, <b class="num">${flagged}</b> marked for review (marked answers still count)` : ""}. <span class="num">${fmtT(S.deadline-Date.now())}</span> left.</p>
+       <div class="row"><button class="btn danger" id="sub1">Submit test</button></div><div id="sub2"></div></div>
+  </div></div>`;
+  $("#shx").onclick = () => $("#sheet").innerHTML = "";
+  $("#sh").onclick = e => { if (e.target.id === "sh") $("#sheet").innerHTML = ""; };
+  $("#sheet").querySelectorAll(".pal button").forEach(b => b.onclick = () => { $("#sheet").innerHTML = ""; go(+b.dataset.i); });
+  $("#sub1").onclick = () => { $("#sub2").innerHTML = `<p class="note" style="margin:10px 0">You can't change answers after submitting. Submit now?</p><div class="row"><button class="btn danger" id="subyes">Yes, submit</button><button class="btn" id="subno">Keep going</button></div>`;
+    $("#subyes").onclick = finish; $("#subno").onclick = () => $("#sub2").innerHTML = ""; };
+}
+function finish(){
+  clearInterval(tick);
+  S.phase = "done"; S.ended = Math.min(Date.now(), S.deadline); save();
+  resultScreen();
+}
+
+/* ---------- results ---------- */
+function grade(){
+  const per = DATA.sections.map(s => ({ name:s.name, n:s.n, max:s.marks, c:0, w:0, u:0, score:0 }));
+  DATA.qs.forEach((q,i) => { const p = per.find(x => x.name === q.s), m = markOf(q), a = S.ans[i];
+    if (a === null) p.u++; else if (a === q.a) { p.c++; p.score += m; } else { p.w++; p.score -= m*DATA.neg; } });
+  return per;
+}
+let filter = "all";
+function resultScreen(){
+  clearInterval(tick);
+  const per = grade();
+  const tot = per.reduce((a,p) => a + p.score, 0), max = per.reduce((a,p) => a + p.max, 0);
+  const c = per.reduce((a,p) => a+p.c, 0), w = per.reduce((a,p) => a+p.w, 0), u = per.reduce((a,p) => a+p.u, 0);
+  const used = Math.round(((S.ended||Date.now()) - S.started)/60000);
+  const rows = per.map(p => `<tr><td>${p.name}</td><td class="r num">${p.c}</td><td class="r num">${p.w}</td><td class="r num">${p.u}</td><td class="r num"><b>${fmt(p.score)}</b>/${p.max}</td><td class="r num">${p.c+p.w ? Math.round(p.c/(p.c+p.w)*100)+"%" : "–"}</td></tr>`).join("");
+  app.innerHTML = `<div class="wrap start">
+    <div class="panel"><div class="eyebrow">${DATA.short} · Result</div>
+      <div class="score" style="margin-top:6px"><span class="big">${fmt(tot)}</span><span class="note num">/ ${max} marks</span></div>
+      <div class="row" style="margin-top:8px"><span class="pill p-ok num">${c} correct</span><span class="pill p-bad num">${w} wrong (−${fmt(per.reduce((a,p)=>a+p.w*(p.max/p.n)*DATA.neg,0))})</span><span class="pill p-skip num">${u} not attempted</span><span class="pill num" style="background:var(--accent-soft);color:var(--accent)">${used} of ${DATA.minutes} min used</span></div>
+      <p class="note" style="margin:10px 0 0">Your target is about 40 per paper. PFRDA sets a cut-off for each paper plus an aggregate cut-off, so use the section table to find where marks leak.</p>
+    </div>
+    <div class="panel"><div class="eyebrow" style="margin-bottom:8px">By section</div>
+      <div class="tbl"><table class="sec"><tr><th>Section</th><th class="r">✓</th><th class="r">✗</th><th class="r">–</th><th class="r">Score</th><th class="r">Accuracy</th></tr>${rows}</table></div></div>
+    <div class="panel" style="padding:14px"><div class="row" style="justify-content:space-between;align-items:center"><div class="eyebrow">Answers &amp; explanations</div>
+      <div class="row" id="filt">${["all","wrong","skipped","correct"].map(f => `<button class="chip" data-f="${f}" aria-pressed="${filter===f}">${{all:"All",wrong:"Wrong",skipped:"Not attempted",correct:"Correct"}[f]}</button>`).join("")}</div></div>
+      <div class="rev" id="rev"></div></div>
+    <div class="row"><button class="btn" id="again">Retake this mock</button></div>
+  </div>`;
+  $("#filt").querySelectorAll(".chip").forEach(b => b.onclick = () => { filter = b.dataset.f; resultScreen(); });
+  $("#again").onclick = () => { wipe(); S = null; filter = "all"; startScreen(); };
+  const list = DATA.qs.map((q,i) => ({q,i})).filter(({q,i}) => { const a = S.ans[i];
+    return filter==="all" || (filter==="wrong" && a!==null && a!==q.a) || (filter==="skipped" && a===null) || (filter==="correct" && a===q.a); });
+  $("#rev").innerHTML = list.length ? list.map(({q,i}) => { const a = S.ans[i];
+    const tag = a===null ? '<span class="pill p-skip">Not attempted</span>' : a===q.a ? '<span class="pill p-ok">Correct</span>' : '<span class="pill p-bad">Wrong</span>';
+    const stem = q.st ? `<details class="stem"><summary>Directions / passage</summary><div class="stem-body">${DATA.stems[q.st]}</div></details>` : "";
+    return `<div class="panel rq"><div class="qhead"><span class="eyebrow">Q${i+1} · ${q.s}</span>${tag}</div>${stem}<p class="qtext" style="font-size:16px">${q.q}</p>
+      <div class="opts">${q.o.map((o,k) => `<div class="opt ${k===q.a?"right":(k===a?"wrong":"")}"><span class="k">${L[k]}</span><span>${o}${k===q.a?" ✓":""}${k===a&&k!==q.a?" (your answer)":""}</span></div>`).join("")}</div>
+      <div class="exp"><b>Answer: ${L[q.a]}.</b> ${q.e}</div></div>`; }).join("") : '<p class="note">No questions in this filter.</p>';
+}
+
+/* boot */
+(function(){ const prev = load();
+  if (prev && prev.phase === "test" && prev.deadline > Date.now()) { S = prev; testScreen(); }
+  else if (prev && prev.phase === "test") { S = prev; finish(); }
+  else startScreen(); })();
+</script>
+
+</body>
+</html>
