@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PFRDA Companies Act flashcards (Oct 2026)</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#EEF1F5; --surface:#FFFFFF; --surface-2:#F5F7FA; --ink:#18233A; --muted:#5B6578; --line:#D5DBE5;
+  --fact:#2F4B7C; --trap:#7A3E9D; --concept:#0F766E; --changed:#D9480F;
+  --known:#2B8A3E; --learning:#A35F00; --star:#8A6A00; --focus:#2F6FEB; --on-solid:#FFFFFF;
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0F1522; --surface:#182133; --surface-2:#1E293D; --ink:#E7EBF2; --muted:#A3ACBE; --line:#2C3852;
+  --fact:#9DB8EA; --trap:#D1A3EC; --concept:#5ED0C2; --changed:#FF8A4C;
+  --known:#6CC77D; --learning:#F0B44C; --star:#E8C547; --focus:#7AA7FF; --on-solid:#0F1522;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans","Helvetica Neue",Arial,sans-serif;
+  font-size:16px; line-height:1.5; -webkit-text-size-adjust:100%; overflow-x:hidden;
+}
+.wrap{max-width:640px;margin:0 auto;padding:16px 14px calc(28px + env(safe-area-inset-bottom,0px))}
+header h1{font-size:1.3rem;line-height:1.25;margin:0;font-weight:750;letter-spacing:-0.01em}
+header p{margin:4px 0 0;color:var(--muted);font-size:.875rem}
+.banner{margin:12px 0 0;padding:10px 12px;border:1px solid var(--learning);border-radius:10px;color:var(--ink);background:var(--surface);font-size:.875rem}
+.banner[hidden]{display:none}
+
+.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:14px 0}
+.stat{background:var(--surface);padding:8px 2px 6px;text-align:center;min-width:0}
+.stat b{display:block;font-size:1.05rem;font-variant-numeric:tabular-nums;line-height:1.3}
+.stat span{display:block;font-size:.7rem;color:var(--muted);line-height:1.25}
+.stat.k b{color:var(--known)} .stat.l b{color:var(--learning)}
+
+/* Filter bar: compact native selects + toggles (same layout as the Management deck), so the card sits right below. */
+.fbar{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-bottom:14px}
+.fbar select{
+  font:inherit;font-size:.9rem;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;
+  min-height:44px;padding:8px 10px;width:100%;min-width:0;cursor:pointer;
+}
+.fbar #topicSel{grid-column:1/-1}
+.fbar select.on{border-color:var(--fact);box-shadow:inset 0 0 0 1px var(--fact)}
+.ftog{grid-column:1/-1;display:flex;gap:8px}
+.ftog button{flex:1 1 auto;min-width:0;min-height:44px;font-size:.86rem;font-weight:600;padding:6px 8px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ftog button[aria-pressed="true"]{color:var(--surface);background:var(--ink);border-color:var(--ink)}
+.ftog button.fclear{flex:0 0 auto;padding:6px 12px;color:var(--changed);border-color:var(--changed)}
+.ftog button.fclear[hidden]{display:none}
+.fbar select:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+
+.card{
+  --accent:var(--fact);
+  background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--accent);border-radius:12px;
+  padding:14px 16px 14px;min-height:min(52vh,460px);display:flex;flex-direction:column;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;outline:none;user-select:text;
+}
+.card[data-type="trap"]{--accent:var(--trap)}
+.card[data-type="concept"]{--accent:var(--concept)}
+.card:focus-visible{box-shadow:0 0 0 3px var(--focus)}
+.card.empty{cursor:default;border-left-color:var(--line);justify-content:center;align-items:flex-start;gap:12px}
+.meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.badge{font-size:.74rem;font-weight:650;padding:2px 8px;border-radius:999px;border:1px solid currentColor;line-height:1.35;max-width:100%;overflow-wrap:anywhere}
+.b-type{color:var(--accent)}
+.b-star{color:var(--star)}
+.b-pyq{color:var(--muted);font-weight:550;border-radius:8px}
+.topic{font-size:.8rem;color:var(--muted);margin:8px 0 0;overflow-wrap:anywhere}
+.q{font-size:1.2rem;font-weight:650;line-height:1.42;margin:14px 0 0;overflow-wrap:anywhere}
+.hint{margin-top:auto;padding-top:18px;color:var(--muted);font-size:.85rem}
+.a{display:none;margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.card.flipped .a{display:block}
+.card.flipped .hint{display:none}
+.ans{font-size:1.14rem;line-height:1.5;overflow-wrap:anywhere;white-space:pre-line}
+.ans strong{font-weight:800}
+.card[data-type="concept"] .ans{font-size:1.02rem;line-height:1.6}
+.note{margin-top:10px;font-size:.82rem;line-height:1.45;color:var(--muted);overflow-wrap:anywhere}
+.cfoot{display:flex;justify-content:space-between;gap:10px;margin-top:16px;font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.cfoot .s-known{color:var(--known);font-weight:650}
+.cfoot .s-learning{color:var(--learning);font-weight:650}
+@media (prefers-reduced-motion:no-preference){
+  .card.flipped .a{animation:reveal .16s ease-out}
+  @keyframes reveal{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+}
+
+.controls{display:grid;gap:8px;margin-top:12px}
+.row{display:grid;gap:8px}
+.row.nav{grid-template-columns:1fr 1.35fr 1fr}
+.row.mark{grid-template-columns:1fr 1fr}
+.row.tools{grid-template-columns:repeat(4,minmax(0,1fr))}
+button{
+  font:inherit;min-height:48px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  font-weight:650;padding:8px 10px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+}
+button:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+button:disabled{opacity:.45;cursor:default}
+.b-flip{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.b-known{background:var(--known);border-color:var(--known);color:var(--on-solid)}
+.b-learn{background:var(--surface);border:2px solid var(--learning);color:var(--learning)}
+.row.tools button{font-size:.82rem;font-weight:550;color:var(--muted);min-height:44px;padding:6px 4px}
+.kbd{display:none;margin:12px 0 0;font-size:.8rem;color:var(--muted)}
+@media (hover:hover) and (pointer:fine){.kbd{display:block}}
+@media (max-width:380px){
+  .row.tools{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .q{font-size:1.12rem}
+}
+.modal{position:fixed;inset:0;background:rgba(10,14,24,.55);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+.modal[hidden]{display:none}
+.mbox{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:18px;max-width:420px;width:100%}
+.mbox h2{font-size:1.1rem;margin:0 0 6px}
+.mbox p{margin:0 0 16px;color:var(--muted);font-size:.92rem}
+.b-danger{background:var(--changed);border-color:var(--changed);color:var(--on-solid)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Companies Act, 2013: Ch III, IV, VIII, X, XI, XII &amp; XXVII</h1>
+    <p id="sub">PFRDA Grade A 2026 · Phase I Paper 2</p>
+    <p class="banner" id="banner" hidden>Progress can't be saved in this browser view, so your marks will reset when the page closes.</p>
+  </header>
+
+  <div class="stats" aria-live="polite">
+    <div class="stat"><b id="sTotal">0</b><span>In filter</span></div>
+    <div class="stat"><b id="sUnseen">0</b><span>Unseen</span></div>
+    <div class="stat l"><b id="sLearn">0</b><span>Still learning</span></div>
+    <div class="stat k"><b id="sKnown">0</b><span>Known</span></div>
+    <div class="stat"><b id="sPct">0%</b><span>Known</span></div>
+  </div>
+
+  <div class="fbar" id="filters">
+    <select id="topicSel" aria-label="Filter by topic"></select>
+    <select id="statusSel" aria-label="Filter by status">
+      <option value="all">All statuses</option>
+      <option value="unseen">Unseen</option>
+      <option value="learning">Still learning</option>
+      <option value="known">Known</option>
+      <option value="notknown">Not yet known</option>
+    </select>
+    <select id="typeSel" aria-label="Filter by card type">
+      <option value="all">All card types</option>
+      <option value="fact">Fact</option>
+      <option value="trap">Trap</option>
+      <option value="concept">Concept</option>
+    </select>
+    <div class="ftog">
+    <button type="button" id="fHi" aria-pressed="false">★ High-yield</button>
+    <button type="button" id="fPyq" aria-pressed="false">PYQ</button>
+    <button type="button" class="fclear" id="fClear" hidden>Clear</button>
+    </div>
+  </div>
+
+  <main>
+    <div class="card" id="card" tabindex="0" role="button" aria-expanded="false"></div>
+  </main>
+
+  <div class="controls">
+    <div class="row nav">
+      <button type="button" id="bPrev">Prev</button>
+      <button type="button" class="b-flip" id="bFlip">Show answer</button>
+      <button type="button" id="bNext">Next</button>
+    </div>
+    <div class="row mark">
+      <button type="button" class="b-learn" id="bLearn">Still learning</button>
+      <button type="button" class="b-known" id="bKnown">Known</button>
+    </div>
+    <div class="row tools">
+      <button type="button" id="bShuffle">Shuffle</button>
+      <button type="button" id="bOrder">Reset order</button>
+      <button type="button" id="bReset">Reset progress</button>
+      <button type="button" id="bTheme">Dark theme</button>
+    </div>
+  </div>
+  <p class="kbd">Keyboard: left and right arrows to move, Space or Enter to flip, K for known, L for still learning.</p>
+</div>
+
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="mbox">
+    <h2 id="mTitle">Reset progress?</h2>
+    <p id="mText">This clears every Known and Still learning mark saved in this browser.</p>
+    <div class="row mark">
+      <button type="button" id="mCancel">Cancel</button>
+      <button type="button" class="b-danger" id="mOk">Reset progress</button>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" id="cards-data">[{"id": "C001", "section": "Ch III Prospectus", "topic": "Ch III Prospectus - RHP, Shelf & Prospectus", "type": "fact", "star": "hi", "front": "Which section of the Companies Act deals with the Red Herring Prospectus?", "back": "**Section 32**", "pyq": "Asked: PFRDA 2022 Ph-I, PFRDA 2025 Ph-I, SEBI 2025 Ph-I", "changed": false, "note": ""}, {"id": "C002", "section": "Ch III Prospectus", "topic": "Ch III Prospectus - RHP, Shelf & Prospectus", "type": "fact", "star": "hi", "front": "A Red Herring Prospectus must be filed with the Registrar at least how many days before the subscription list opens?", "back": "**3 days**", "pyq": "Asked: PFRDA 2022 Ph-I, PFRDA 2025 Ph-I, SEBI 2025 Ph-I", "changed": false, "note": "s.32(1)."}, {"id": "C003", "section": "Ch III Prospectus", "topic": "Ch III Prospectus - RHP, Shelf & Prospectus", "type": "fact", "star": "md", "front": "What does a Red Herring Prospectus leave out?", "back": "**Complete particulars of the quantum or price** of the securities", "pyq": "", "changed": false, "note": "After the offer closes, the final prospectus with the price and capital raised is filed with the Registrar and SEBI."}, {"id": "C004", "section": "Ch III Prospectus", "topic": "Ch III Prospectus - RHP, Shelf & Prospectus", "type": "trap", "star": "hi", "front": "Section 31 vs Section 32: which prospectus is which?", "back": "**s.31 = Shelf prospectus**; **s.32 = Red Herring Prospectus**", "pyq": "Asked: PFRDA 2025 Ph-I", "changed": false, "note": "The 2025 question on s.32 listed Shelf Prospectus as a distractor."}, {"id": "C005", "section": "Ch III Prospectus", "topic": "Ch III Prospectus - RHP, Shelf & Prospectus", "type": "fact", "star": "md", "front": "Maximum validity of a shelf prospectus?", "back": "**1 year**, counted from the opening of the first offer", "pyq": "", "changed": false, "note": "s.31(1). Before each later offer, an information memorandum is filed with the Registrar."}, {"id": "C006", "section": "Ch III Prospectus", "topic": "Ch III Prospectus - RHP, Shelf & Prospectus", "type": "fact", "star": "md", "front": "A prospectus is not valid if issued more than how many days after a copy is delivered to the Registrar?", "back": "**90 days**", "pyq": "", "changed": false, "note": "s.26(8)."}, {"id": "C007", "section": "Ch III Prospectus", "topic": "Ch III Prospectus - RHP, Shelf & Prospectus", "type": "fact", "star": "md", "front": "Fine on a company that issues a prospectus in contravention of s.26?", "back": "**₹50,000 to ₹3 lakh**", "pyq": "Asked: PFRDA 2021 Ph-II", "changed": false, "note": "s.26(9)."}, {"id": "C008", "section": "Ch III Prospectus", "topic": "Ch III Prospectus - RHP, Shelf & Prospectus", "type": "fact", "star": "hi", "front": "Which resolution is needed to vary the terms of a contract or the objects stated in a prospectus (s.27)?", "back": "**Special resolution**", "pyq": "Asked: PFRDA 2021 Ph-II", "changed": false, "note": "Passed by postal ballot where issue money is unutilised. Dissenting shareholders get an exit offer from the promoters or controlling shareholders."}, {"id": "C009", "section": "Ch III Prospectus", "topic": "Ch III Prospectus - RHP, Shelf & Prospectus", "type": "fact", "star": "md", "front": "s.24: who administers the issue and transfer provisions for listed companies and companies proposing to list?", "back": "**SEBI**", "pyq": "", "changed": false, "note": "In all other cases, the Central Government (or the Tribunal, where the Act says so)."}, {"id": "C010", "section": "Ch III Prospectus", "topic": "Ch III Prospectus - Allotment & Private Placement", "type": "fact", "star": "hi", "front": "In which form must every public offer of securities be made (s.29)?", "back": "**Dematerialised (demat) form**", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": ""}, {"id": "C011", "section": "Ch III Prospectus", "topic": "Ch III Prospectus - Allotment & Private Placement", "type": "fact", "star": "hi", "front": "Minimum application money payable with a public-issue application (s.39(2))?", "back": "**5% of the nominal amount** of the security", "pyq": "Asked: PFRDA 2022 Ph-II, SEBI 2025 Ph-II", "changed": false, "note": "Or another percentage SEBI specifies. The SEBI 2025 question said \"5% of issue price\"; the answer is still 5%."}, {"id": "C012", "section": "Ch III Prospectus", "topic": "Ch III Prospectus - Allotment & Private Placement", "type": "fact", "star": "hi", "front": "Minimum subscription for an IPO under the SEBI ICDR Regulations?", "back": "**90% of the issue size**", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "Worked PYQ: a ₹150 crore IPO needs ₹135 crore. This is a SEBI ICDR rule, not a section of the Act."}, {"id": "C013", "section": "Ch III Prospectus", "topic": "Ch III Prospectus - Allotment & Private Placement", "type": "fact", "star": "md", "front": "If the minimum subscription is not received within how many days of the prospectus issue, the money must be returned (s.39(3))?", "back": "**30 days**", "pyq": "Asked: PFRDA 2021 Ph-II", "changed": false, "note": "Or the period SEBI specifies."}, {"id": "C014", "section": "Ch III Prospectus", "topic": "Ch III Prospectus - Allotment & Private Placement", "type": "fact", "star": "hi", "front": "What must a company do under s.40 before making a public offer?", "back": "**Apply to one or more recognised stock exchanges** for permission to deal in the securities", "pyq": "Asked: PFRDA 2025 Ph-II", "changed": false, "note": "Application money is kept in a separate bank account until allotment or refund."}, {"id": "C015", "section": "Ch III Prospectus", "topic": "Ch III Prospectus - Allotment & Private Placement", "type": "fact", "star": "hi", "front": "Maximum underwriting commission on debentures?", "back": "**2.5%** of the issue price (or the rate in the AoA, whichever is lower)", "pyq": "Asked: PFRDA 2021 Ph-I", "changed": false, "note": "s.40(6) with Rule 13 of the Prospectus and Allotment Rules."}, {"id": "C016", "section": "Ch III Prospectus", "topic": "Ch III Prospectus - Allotment & Private Placement", "type": "trap", "star": "md", "front": "Maximum underwriting commission on shares vs debentures?", "back": "**Shares 5%** vs **debentures 2.5%** of the issue price", "pyq": "", "changed": false, "note": "Each is capped at the AoA rate if that is lower."}, {"id": "C017", "section": "Ch III Prospectus", "topic": "Ch III Prospectus - Allotment & Private Placement", "type": "fact", "star": "hi", "front": "Private placement: securities must be allotted within how many days of receiving the application money?", "back": "**60 days**", "pyq": "Asked: PFRDA 2025 Ph-I", "changed": false, "note": "s.42(6)."}, {"id": "C018", "section": "Ch III Prospectus", "topic": "Ch III Prospectus - Allotment & Private Placement", "type": "fact", "star": "hi", "front": "Private placement: if not allotted in 60 days, the money must be refunded within how many days?", "back": "**15 days** after the 60 days expire", "pyq": "Asked: PFRDA 2025 Ph-I", "changed": false, "note": "If not refunded, interest at **12% p.a.** runs from the 60th day."}, {"id": "C019", "section": "Ch III Prospectus", "topic": "Ch III Prospectus - Allotment & Private Placement", "type": "fact", "star": "hi", "front": "Maximum number of persons a private placement can be offered to in a financial year?", "back": "**200**", "pyq": "", "changed": false, "note": "Excludes QIBs and employees under an ESOP. The Act says 50 or a higher prescribed number; Rule 14 prescribes 200."}, {"id": "C020", "section": "Ch III Prospectus", "topic": "Ch III Prospectus - Allotment & Private Placement", "type": "trap", "star": "md", "front": "Return of allotment: private placement vs public issue?", "back": "**Private placement: 15 days** (s.42) vs **public issue: 30 days** (s.39(4) with Rule 12)", "pyq": "", "changed": false, "note": ""}, {"id": "C021", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Kinds of Shares & Certificates", "type": "fact", "star": "hi", "front": "s.43: the only two kinds of share capital of a company limited by shares?", "back": "**Equity** (with voting rights or with differential rights) and **Preference**", "pyq": "Asked: PFRDA 2022 Ph-II", "changed": false, "note": ""}, {"id": "C022", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Kinds of Shares & Certificates", "type": "trap", "star": "hi", "front": "Which of these can a public company NOT issue: priority shares, bonus shares, rights shares, preference shares?", "back": "**Priority shares**", "pyq": "Asked: PFRDA 2025 Ph-I", "changed": false, "note": "There is no such class under s.43."}, {"id": "C023", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Kinds of Shares & Certificates", "type": "trap", "star": "hi", "front": "Which is NOT a method for a public company to issue shares: rights, bonus, ESOP, tender issue?", "back": "**Tender issue**", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": "Tender offers are used in buy-backs and takeovers, not to issue new shares."}, {"id": "C024", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Kinds of Shares & Certificates", "type": "fact", "star": "md", "front": "Cap on voting power of equity shares with differential rights (DVRs)?", "back": "**74% of total voting power**", "pyq": "", "changed": false, "note": "Rule 4, raised from 26% in 2019. Needs AoA authority and an ordinary resolution (postal ballot if listed)."}, {"id": "C025", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Kinds of Shares & Certificates", "type": "fact", "star": "hi", "front": "s.44: what is the legal nature of shares or debentures?", "back": "**Movable property**, transferable as provided in the AoA", "pyq": "Asked: PFRDA 2022 Ph-I, PFRDA 2025 Ph-II", "changed": false, "note": ""}, {"id": "C026", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Kinds of Shares & Certificates", "type": "fact", "star": "md", "front": "Which section covers issue of a duplicate share certificate?", "back": "**Section 46** (sub-section 2)", "pyq": "Asked: PFRDA 2021 Ph-I", "changed": false, "note": ""}, {"id": "C027", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Kinds of Shares & Certificates", "type": "fact", "star": "hi", "front": "Fine on a company that issues a duplicate share certificate with intent to defraud?", "back": "Not less than **5× the face value**, up to **10× the face value or ₹10 crore, whichever is higher**", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "s.46(5). PYQ answer for ₹1 crore face value: ₹5 crore to ₹10 crore or 10 times. Officers are also liable under s.447."}, {"id": "C028", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Kinds of Shares & Certificates", "type": "fact", "star": "hi", "front": "The instrument of transfer must be delivered to the company within how many days of execution?", "back": "**60 days**", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": "s.56(1)."}, {"id": "C029", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Kinds of Shares & Certificates", "type": "fact", "star": "md", "front": "Deadline to deliver share certificates after allotment vs after a transfer is lodged?", "back": "After allotment: **2 months**; after transfer or transmission: **1 month**", "pyq": "", "changed": false, "note": "s.56(4). Subscribers to the memorandum: 2 months from incorporation. Debentures: 6 months from allotment."}, {"id": "C030", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Kinds of Shares & Certificates", "type": "fact", "star": "md", "front": "When do preference shareholders get to vote on every resolution?", "back": "When their dividend has been **unpaid for 2 years or more**", "pyq": "", "changed": false, "note": "s.47(2). Otherwise they vote only on resolutions directly affecting their rights."}, {"id": "C031", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Kinds of Shares & Certificates", "type": "fact", "star": "md", "front": "Consent needed to vary the rights of a class of shares (s.48)?", "back": "Written consent of **three-fourths** of the issued shares of that class, or a **special resolution** at a separate class meeting", "pyq": "", "changed": false, "note": ""}, {"id": "C032", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Kinds of Shares & Certificates", "type": "fact", "star": "md", "front": "Who can challenge a variation of class rights before the NCLT, and within how long?", "back": "Holders of **at least 10%** of that class who did not consent, within **21 days**", "pyq": "", "changed": false, "note": "s.48(2)."}, {"id": "C033", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Premium, Discount & Sweat Equity", "type": "fact", "star": "hi", "front": "Which section governs the Securities Premium Account and its uses?", "back": "**Section 52**", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": ""}, {"id": "C034", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Premium, Discount & Sweat Equity", "type": "fact", "star": "hi", "front": "Permitted uses of the securities premium account (s.52(2))?", "back": "1. **Fully paid bonus shares**\n2. Write off **preliminary expenses**\n3. Write off expenses, commission or discount on an issue\n4. **Premium on redemption** of preference shares or debentures\n5. **Buy-back** under s.68", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "Trap: never for dividends, routine expenses, loans to directors or general losses."}, {"id": "C035", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Premium, Discount & Sweat Equity", "type": "fact", "star": "hi", "front": "s.53 bars issue of shares at a discount. Name the two exceptions.", "back": "**Sweat equity shares** (s.54), and shares issued to **creditors on conversion of debt** under an RBI-guided resolution plan or debt restructuring scheme", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": ""}, {"id": "C036", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Premium, Discount & Sweat Equity", "type": "fact", "star": "md", "front": "What happens to shares issued at a discount outside the exceptions?", "back": "They are **void**", "pyq": "", "changed": false, "note": "The money is refunded with 12% interest; penalty up to the amount raised or ₹5 lakh, whichever is less."}, {"id": "C037", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Premium, Discount & Sweat Equity", "type": "fact", "star": "hi", "front": "Lock-in period for sweat equity shares?", "back": "**3 years** from allotment", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": "Rule 8(5). Issue needs a special resolution. The old \"1 year since commencement of business\" condition was deleted in 2018."}, {"id": "C038", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Preference Shares & Bonus", "type": "fact", "star": "hi", "front": "Maximum period within which preference shares must be redeemed?", "back": "**20 years** from issue", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": "s.55(2). Irredeemable preference shares cannot be issued."}, {"id": "C039", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Preference Shares & Bonus", "type": "fact", "star": "md", "front": "Preference shares for infrastructure projects: maximum tenure and redemption rule?", "back": "Up to **30 years**, with at least **10% redeemed each year from the 21st year**", "pyq": "", "changed": false, "note": "Rule 10."}, {"id": "C040", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Preference Shares & Bonus", "type": "fact", "star": "md", "front": "Sources for redeeming preference shares, and what reserve is created?", "back": "**Profits available for dividend** or **proceeds of a fresh issue**; if redeemed from profits, the nominal value goes to the **Capital Redemption Reserve**", "pyq": "Asked: PFRDA 2021 Ph-I", "changed": false, "note": "s.55(2). Only fully paid shares can be redeemed."}, {"id": "C041", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Preference Shares & Bonus", "type": "fact", "star": "hi", "front": "Three sources from which bonus shares may be issued (s.63)?", "back": "**Free reserves**, **securities premium account**, **capital redemption reserve**", "pyq": "", "changed": false, "note": ""}, {"id": "C042", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Preference Shares & Bonus", "type": "trap", "star": "hi", "front": "Which reserve can never be capitalised for bonus shares?", "back": "**Revaluation reserve**", "pyq": "", "changed": false, "note": ""}, {"id": "C043", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Preference Shares & Bonus", "type": "trap", "star": "hi", "front": "Can bonus shares be issued in lieu of dividend?", "back": "**No**", "pyq": "", "changed": false, "note": "s.63(1) proviso. Also, once the Board announces a bonus issue it cannot be withdrawn (Rule 14)."}, {"id": "C044", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Rights, Reduction & Buy-back", "type": "fact", "star": "hi", "front": "Rights issue (s.62(1)(a)): the offer must stay open for how long?", "back": "Not less than **15 days** and not more than **30 days**", "pyq": "", "changed": false, "note": "The notice must reach shareholders at least 3 days before the issue opens. The rules now allow a shorter minimum in some cases; exam answer is 15–30."}, {"id": "C045", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Rights, Reduction & Buy-back", "type": "fact", "star": "md", "front": "Resolution needed for an ESOP issue and for a preferential issue under s.62?", "back": "**Special resolution** for both", "pyq": "", "changed": false, "note": "Preferential issue price is set by a registered valuer's report (listed companies follow SEBI pricing)."}, {"id": "C046", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Rights, Reduction & Buy-back", "type": "fact", "star": "hi", "front": "What does a reduction of share capital (s.66) need?", "back": "**Special resolution + confirmation by the NCLT**", "pyq": "", "changed": false, "note": ""}, {"id": "C047", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Rights, Reduction & Buy-back", "type": "fact", "star": "hi", "front": "Overall cap on a buy-back (s.68)?", "back": "**25%** of paid-up capital + free reserves", "pyq": "", "changed": false, "note": "For equity shares, 25% of total paid-up equity capital in that financial year."}, {"id": "C048", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Rights, Reduction & Buy-back", "type": "fact", "star": "hi", "front": "Up to what size can a buy-back be approved by a Board resolution alone?", "back": "**10%** of paid-up equity capital + free reserves", "pyq": "", "changed": false, "note": "Above 10% (up to 25%) needs a special resolution."}, {"id": "C049", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Rights, Reduction & Buy-back", "type": "fact", "star": "hi", "front": "Maximum debt-equity ratio after a buy-back?", "back": "**2:1** (debt not more than twice paid-up capital + free reserves)", "pyq": "", "changed": false, "note": ""}, {"id": "C050", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Rights, Reduction & Buy-back", "type": "concept", "star": "md", "front": "Buy-back timeline numbers (s.68)?", "back": "Complete within **1 year** of the resolution\nNo new buy-back within **1 year** of the last one closing\nExtinguish bought-back shares within **7 days**\nNo fresh issue of the same kind for **6 months** (bonus and ESOP conversions excepted)\nReturn to RoC within **30 days**", "pyq": "", "changed": false, "note": "Funded from free reserves, securities premium, or proceeds of a different kind of issue. A declaration of solvency is filed with the RoC (and SEBI if listed)."}, {"id": "C051", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Debentures", "type": "fact", "star": "hi", "front": "When must a company appoint a debenture trustee (s.71)?", "back": "Before offering debentures to the **public or to more than 500 members**", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": ""}, {"id": "C052", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Debentures", "type": "fact", "star": "md", "front": "Can debentures carry voting rights?", "back": "**No**", "pyq": "", "changed": false, "note": "s.71(2)."}, {"id": "C053", "section": "Ch IV Share Capital", "topic": "Ch IV Share Capital - Debentures", "type": "fact", "star": "md", "front": "Resolution needed to issue convertible debentures?", "back": "**Special resolution** in general meeting", "pyq": "", "changed": false, "note": "s.71(1)."}, {"id": "C054", "section": "Ch VIII Dividend", "topic": "Ch VIII Dividend - Declaration & Interim Dividend", "type": "fact", "star": "hi", "front": "Which section deals with declaration of dividend?", "back": "**Section 123**", "pyq": "Asked: PFRDA 2021 Ph-I", "changed": false, "note": ""}, {"id": "C055", "section": "Ch VIII Dividend", "topic": "Ch VIII Dividend - Declaration & Interim Dividend", "type": "fact", "star": "hi", "front": "Sources from which dividend may be declared (s.123(1))?", "back": "**Current-year profits** after depreciation, **undistributed profits of past years** after depreciation, or both; or money from the Central/State Government under a guarantee", "pyq": "", "changed": false, "note": ""}, {"id": "C056", "section": "Ch VIII Dividend", "topic": "Ch VIII Dividend - Declaration & Interim Dividend", "type": "trap", "star": "md", "front": "Is transferring profits to reserves mandatory before declaring dividend?", "back": "**No**. The company may transfer whatever percentage it thinks fit", "pyq": "", "changed": false, "note": "s.123(1) proviso."}, {"id": "C057", "section": "Ch VIII Dividend", "topic": "Ch VIII Dividend - Declaration & Interim Dividend", "type": "fact", "star": "hi", "front": "Who declares an interim dividend, and out of what?", "back": "The **Board of Directors**, out of the **surplus in the P&L account** and current-year profits", "pyq": "Asked: PFRDA 2022 Ph-I", "changed": false, "note": "s.123(3)."}, {"id": "C058", "section": "Ch VIII Dividend", "topic": "Ch VIII Dividend - Declaration & Interim Dividend", "type": "fact", "star": "hi", "front": "Cap on interim dividend if the company has a loss up to the end of the quarter before declaration?", "back": "Rate cannot exceed the **average of the 3 preceding financial years**", "pyq": "", "changed": false, "note": "s.123(3) proviso."}, {"id": "C059", "section": "Ch VIII Dividend", "topic": "Ch VIII Dividend - Declaration & Interim Dividend", "type": "fact", "star": "hi", "front": "Dividend (including interim) must be deposited in a separate scheduled-bank account within how many days of declaration?", "back": "**5 days**", "pyq": "Asked: PFRDA 2022 Ph-II, SEBI 2024 Ph-II", "changed": false, "note": "s.123(4)."}, {"id": "C060", "section": "Ch VIII Dividend", "topic": "Ch VIII Dividend - Declaration & Interim Dividend", "type": "fact", "star": "md", "front": "In what form is dividend payable?", "back": "**Cash only** (cheque, warrant or electronic mode)", "pyq": "", "changed": false, "note": "s.123(5). Capitalising profits for fully paid bonus shares is allowed."}, {"id": "C061", "section": "Ch VIII Dividend", "topic": "Ch VIII Dividend - Payment, Unpaid & IEPF", "type": "fact", "star": "hi", "front": "A declared dividend must be paid within how many days?", "back": "**30 days** of declaration", "pyq": "Asked: PFRDA 2025 Ph-I", "changed": false, "note": "s.127."}, {"id": "C062", "section": "Ch VIII Dividend", "topic": "Ch VIII Dividend - Payment, Unpaid & IEPF", "type": "fact", "star": "md", "front": "Consequence if dividend is not paid within 30 days (s.127)?", "back": "Directors: up to **2 years' imprisonment** + fine of at least **₹1,000 per day**; company: **18% p.a.** simple interest", "pyq": "", "changed": false, "note": ""}, {"id": "C063", "section": "Ch VIII Dividend", "topic": "Ch VIII Dividend - Payment, Unpaid & IEPF", "type": "fact", "star": "hi", "front": "Unpaid dividend must be moved to the Unpaid Dividend Account within how many days?", "back": "**7 days** after the 30 days from declaration expire", "pyq": "Asked: PFRDA 2021 Ph-II, SEBI 2024 Ph-II, SEBI 2025 Ph-II", "changed": false, "note": "s.124(1). Asked twice in 2021 Ph-II."}, {"id": "C064", "section": "Ch VIII Dividend", "topic": "Ch VIII Dividend - Payment, Unpaid & IEPF", "type": "trap", "star": "hi", "front": "After 30 days, where does unpaid dividend go first: Unpaid Dividend Account or IEPF?", "back": "**Unpaid Dividend Account** first; it moves to the **IEPF only after 7 years** there", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "s.124(1) and (5)."}, {"id": "C065", "section": "Ch VIII Dividend", "topic": "Ch VIII Dividend - Payment, Unpaid & IEPF", "type": "fact", "star": "md", "front": "Statement of unpaid dividend must be put on the company's website within how many days of transfer to the Unpaid Dividend Account?", "back": "**90 days**", "pyq": "", "changed": false, "note": "s.124(2)."}, {"id": "C066", "section": "Ch VIII Dividend", "topic": "Ch VIII Dividend - Payment, Unpaid & IEPF", "type": "trap", "star": "md", "front": "Interest for default in transferring to the Unpaid Dividend Account vs for not paying dividend in 30 days?", "back": "**12% p.a.** (s.124(3)) vs **18% p.a.** (s.127)", "pyq": "", "changed": false, "note": ""}, {"id": "C067", "section": "Ch VIII Dividend", "topic": "Ch VIII Dividend - Payment, Unpaid & IEPF", "type": "fact", "star": "hi", "front": "What happens to shares on which dividend has been unpaid or unclaimed for 7 consecutive years?", "back": "They are **transferred to the IEPF**", "pyq": "", "changed": false, "note": "s.124(6). Claimants can get them back under the IEPF rules."}, {"id": "C068", "section": "Ch VIII Dividend", "topic": "Ch VIII Dividend - Payment, Unpaid & IEPF", "type": "fact", "star": "hi", "front": "Which section establishes the Investor Education and Protection Fund, and who establishes it?", "back": "**Section 125**; established by the **Central Government**", "pyq": "Asked: PFRDA 2025 Ph-I, SEBI 2024 Ph-II", "changed": false, "note": ""}, {"id": "C069", "section": "Ch VIII Dividend", "topic": "Ch VIII Dividend - Payment, Unpaid & IEPF", "type": "trap", "star": "hi", "front": "Uses of the IEPF under s.125(3)?", "back": "1. Refund of unclaimed dividends, matured deposits/debentures, application money + interest\n2. **Investor education, awareness and protection**\n3. Distribution of **disgorged amounts** to eligible investors\n4. **Reimbursement of legal expenses of class action suits** (ss.37, 245) sanctioned by the NCLT", "pyq": "Asked: PFRDA 2025 Ph-II, SEBI 2025 Ph-II", "changed": false, "note": "The EduTap key for SEBI 2025 picked \"1, 2 and 3 only\". s.125(3)(d) does list class-action legal expenses, so the Act supports all four."}, {"id": "C070", "section": "Ch X Audit", "topic": "Ch X Audit - Appointment & Rotation", "type": "fact", "star": "hi", "front": "An auditor appointed at the first AGM holds office until when?", "back": "Conclusion of the **6th AGM** (a 5-year term)", "pyq": "", "changed": false, "note": "s.139(1). Annual ratification by members was removed in 2018."}, {"id": "C071", "section": "Ch X Audit", "topic": "Ch X Audit - Appointment & Rotation", "type": "fact", "star": "hi", "front": "Rotation in listed companies: maximum term for an individual auditor?", "back": "**One term of 5 consecutive years**", "pyq": "", "changed": false, "note": "s.139(2)(a)."}, {"id": "C072", "section": "Ch X Audit", "topic": "Ch X Audit - Appointment & Rotation", "type": "fact", "star": "hi", "front": "Rotation in listed companies: maximum term for an audit firm?", "back": "**Two terms of 5 consecutive years** (10 years)", "pyq": "", "changed": false, "note": "s.139(2)(b)."}, {"id": "C073", "section": "Ch X Audit", "topic": "Ch X Audit - Appointment & Rotation", "type": "fact", "star": "hi", "front": "Cooling-off period after an auditor or firm completes its rotation term?", "back": "**5 years**", "pyq": "", "changed": false, "note": "Trap: an independent director's cooling-off is 3 years."}, {"id": "C074", "section": "Ch X Audit", "topic": "Ch X Audit - Appointment & Rotation", "type": "fact", "star": "hi", "front": "Who appoints the auditor of a government company, and within how many days?", "back": "The **CAG**, within **180 days** from the start of the financial year", "pyq": "Asked: PFRDA 2022 Ph-I, PFRDA 2021 Ph-II", "changed": false, "note": "s.139(5)."}, {"id": "C075", "section": "Ch X Audit", "topic": "Ch X Audit - Appointment & Rotation", "type": "fact", "star": "hi", "front": "First auditor of a government company: who appoints, within how long?", "back": "**CAG within 60 days** of registration", "pyq": "Asked: PFRDA 2021 Ph-II", "changed": false, "note": "s.139(7). If CAG fails, Board within the next 30 days; if Board fails, members at an EGM within 60 days."}, {"id": "C076", "section": "Ch X Audit", "topic": "Ch X Audit - Appointment & Rotation", "type": "fact", "star": "hi", "front": "First auditor of a non-government company: who appoints, within how long?", "back": "**Board within 30 days** of registration", "pyq": "", "changed": false, "note": "s.139(6). If the Board fails, members at an EGM within 90 days."}, {"id": "C077", "section": "Ch X Audit", "topic": "Ch X Audit - Appointment & Rotation", "type": "fact", "star": "md", "front": "Casual vacancy in the office of auditor (non-government company)?", "back": "Filled by the **Board within 30 days**", "pyq": "", "changed": false, "note": "s.139(8). If caused by resignation, the general meeting must approve within 3 months. For CAG-audited companies, the CAG fills it within 30 days."}, {"id": "C078", "section": "Ch X Audit", "topic": "Ch X Audit - Removal, Resignation & Eligibility", "type": "fact", "star": "hi", "front": "How can an auditor be removed before the end of the term?", "back": "**Special resolution** after **prior approval of the Central Government**", "pyq": "Asked: PFRDA 2022 Ph-I, SEBI 2024 Ph-II", "changed": false, "note": "s.140(1). The auditor must get a reasonable opportunity of being heard."}, {"id": "C079", "section": "Ch X Audit", "topic": "Ch X Audit - Removal, Resignation & Eligibility", "type": "fact", "star": "hi", "front": "A resigning auditor must file a statement of reasons within how many days, and with whom?", "back": "**30 days**, with the **company and the Registrar**", "pyq": "Asked: PFRDA 2025 Ph-II", "changed": false, "note": "s.140(2). Also with the CAG for government companies."}, {"id": "C080", "section": "Ch X Audit", "topic": "Ch X Audit - Removal, Resignation & Eligibility", "type": "fact", "star": "hi", "front": "Who can order a company to change its auditor for fraud?", "back": "The **Tribunal (NCLT)**", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": "s.140(5). That auditor is then barred from any company audit for 5 years."}, {"id": "C081", "section": "Ch X Audit", "topic": "Ch X Audit - Removal, Resignation & Eligibility", "type": "fact", "star": "hi", "front": "When a firm or LLP is the auditor, who may act and sign for it?", "back": "**Only partners who are chartered accountants**", "pyq": "Asked: PFRDA 2022 Ph-II", "changed": false, "note": "s.141(2)."}, {"id": "C082", "section": "Ch X Audit", "topic": "Ch X Audit - Removal, Resignation & Eligibility", "type": "fact", "star": "hi", "front": "A firm can be appointed auditor by its firm name if…?", "back": "A **majority of its partners practising in India** are qualified (CAs)", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": "s.141(1)."}, {"id": "C083", "section": "Ch X Audit", "topic": "Ch X Audit - Removal, Resignation & Eligibility", "type": "trap", "star": "hi", "front": "Can a body corporate be appointed auditor?", "back": "**No**, except an **LLP**", "pyq": "", "changed": false, "note": "s.141(3)(a)."}, {"id": "C084", "section": "Ch X Audit", "topic": "Ch X Audit - Removal, Resignation & Eligibility", "type": "fact", "star": "hi", "front": "Maximum number of companies a person can be auditor of at a time?", "back": "**20 companies**", "pyq": "", "changed": false, "note": "s.141(3)(g). Trap: directorships are also capped at 20, with 10 public."}, {"id": "C085", "section": "Ch X Audit", "topic": "Ch X Audit - Removal, Resignation & Eligibility", "type": "fact", "star": "md", "front": "How long does a fraud conviction disqualify a person from being auditor?", "back": "**10 years** from conviction", "pyq": "", "changed": false, "note": "s.141(3)(h)."}, {"id": "C086", "section": "Ch X Audit", "topic": "Ch X Audit - Reports & Prohibited Services", "type": "fact", "star": "hi", "front": "s.143(6): within how many days of receiving the audit report may the CAG conduct a supplementary audit of a government company?", "back": "**60 days**", "pyq": "Asked: PFRDA 2025 Ph-I", "changed": false, "note": "The CAG may also comment on or supplement the audit report. You slipped on this in P2 Mock 3."}, {"id": "C087", "section": "Ch X Audit", "topic": "Ch X Audit - Reports & Prohibited Services", "type": "fact", "star": "md", "front": "s.143(12): to whom does an auditor report a fraud by officers or employees?", "back": "The **Central Government**", "pyq": "", "changed": false, "note": "For frauds of ₹1 crore or more; smaller frauds go to the audit committee or Board."}, {"id": "C088", "section": "Ch X Audit", "topic": "Ch X Audit - Reports & Prohibited Services", "type": "fact", "star": "hi", "front": "Services an auditor cannot render to the company (s.144)?", "back": "**Accounting & bookkeeping**, **internal audit**, design of financial information systems, **actuarial**, **investment advisory**, **investment banking**, outsourced financial services, **management services**", "pyq": "Asked: SEBI 2024 Ph-II, SEBI 2025 Ph-II", "changed": false, "note": "SEBI 2025 asked which of four were barred: all four."}, {"id": "C089", "section": "Ch X Audit", "topic": "Ch X Audit - Reports & Prohibited Services", "type": "trap", "star": "md", "front": "Can the statutory auditor also be appointed cost auditor?", "back": "**No**", "pyq": "", "changed": false, "note": "s.148(3)."}, {"id": "C090", "section": "Ch XI Directors", "topic": "Ch XI Directors - Board Size & Composition", "type": "fact", "star": "hi", "front": "Minimum and maximum number of directors?", "back": "Minimum: **public 3, private 2, OPC 1**. Maximum: **15**", "pyq": "Asked: PFRDA 2021 Ph-I, SEBI 2025 Ph-I", "changed": false, "note": "s.149(1)."}, {"id": "C091", "section": "Ch XI Directors", "topic": "Ch XI Directors - Board Size & Composition", "type": "trap", "star": "hi", "front": "How can a company have more than 15 directors, and what is wrong with an answer key that says \"10\"?", "back": "By passing a **special resolution**. The cap is 15; **10 is the limit on public-company directorships** (s.165)", "pyq": "Asked: PFRDA 2021 Ph-I", "changed": false, "note": "The EduTap key for PFRDA 2021 said 10; s.149(1) says 15."}, {"id": "C092", "section": "Ch XI Directors", "topic": "Ch XI Directors - Board Size & Composition", "type": "fact", "star": "hi", "front": "Which companies must have at least one woman director?", "back": "Every **listed company**, and any public company with **paid-up capital ≥ ₹100 crore or turnover ≥ ₹300 crore**", "pyq": "", "changed": false, "note": "Rule 3. A vacancy must be filled by the next Board meeting or within 3 months, whichever is later."}, {"id": "C093", "section": "Ch XI Directors", "topic": "Ch XI Directors - Board Size & Composition", "type": "fact", "star": "hi", "front": "Resident director requirement (s.149(3))?", "back": "At least one director who stays in India **182 days or more during the financial year**", "pyq": "", "changed": false, "note": ""}, {"id": "C094", "section": "Ch XI Directors", "topic": "Ch XI Directors - Independent & Small-shareholder Directors", "type": "fact", "star": "hi", "front": "Minimum independent directors on a listed company's board?", "back": "**One-third** of total directors", "pyq": "Asked: PFRDA 2022 Ph-I", "changed": false, "note": "s.149(4). Any fraction is rounded up."}, {"id": "C095", "section": "Ch XI Directors", "topic": "Ch XI Directors - Independent & Small-shareholder Directors", "type": "fact", "star": "md", "front": "Which unlisted public companies need at least 2 independent directors?", "back": "Paid-up capital **≥ ₹10 crore**, or turnover **≥ ₹100 crore**, or loans + debentures + deposits **> ₹50 crore**", "pyq": "", "changed": false, "note": "Rule 4. Wholly owned subsidiaries and dormant companies are exempt."}, {"id": "C096", "section": "Ch XI Directors", "topic": "Ch XI Directors - Independent & Small-shareholder Directors", "type": "fact", "star": "hi", "front": "Term limits for an independent director?", "back": "Up to **5 consecutive years** per term; reappointment by **special resolution**; maximum **2 consecutive terms**", "pyq": "", "changed": false, "note": "s.149(10)–(11)."}, {"id": "C097", "section": "Ch XI Directors", "topic": "Ch XI Directors - Independent & Small-shareholder Directors", "type": "fact", "star": "hi", "front": "Cooling-off period for an independent director after two terms?", "back": "**3 years**, with no association with the company in any capacity", "pyq": "", "changed": false, "note": "Trap: auditors' cooling-off is 5 years."}, {"id": "C098", "section": "Ch XI Directors", "topic": "Ch XI Directors - Independent & Small-shareholder Directors", "type": "fact", "star": "hi", "front": "Who can never be an independent director?", "back": "**Managing Director, Whole-time Director, Nominee Director**", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": ""}, {"id": "C099", "section": "Ch XI Directors", "topic": "Ch XI Directors - Independent & Small-shareholder Directors", "type": "fact", "star": "md", "front": "Can an independent director get stock options?", "back": "**No**", "pyq": "", "changed": false, "note": "s.149(9). Sitting fees, expense reimbursement and profit-linked commission are allowed."}, {"id": "C100", "section": "Ch XI Directors", "topic": "Ch XI Directors - Independent & Small-shareholder Directors", "type": "fact", "star": "hi", "front": "Who is a \"small shareholder\" for s.151?", "back": "One holding shares of nominal value of **not more than ₹20,000**", "pyq": "Asked: PFRDA 2025 Ph-II, SEBI 2024 Ph-I", "changed": false, "note": "A listed company **may** have one director elected by small shareholders."}, {"id": "C101", "section": "Ch XI Directors", "topic": "Ch XI Directors - Independent & Small-shareholder Directors", "type": "fact", "star": "md", "front": "Small shareholders' director: tenure and rotation?", "back": "Maximum **3 years**, not reappointable, **not liable to retire by rotation**", "pyq": "", "changed": false, "note": "Rule 7. One person can hold this post in at most 2 companies."}, {"id": "C102", "section": "Ch XI Directors", "topic": "Ch XI Directors - Appointment & DIN", "type": "fact", "star": "hi", "front": "Who ordinarily appoints directors (s.152(2))?", "back": "The **company in general meeting**", "pyq": "Asked: PFRDA 2021 Ph-II", "changed": false, "note": ""}, {"id": "C103", "section": "Ch XI Directors", "topic": "Ch XI Directors - Appointment & DIN", "type": "fact", "star": "hi", "front": "Consent to act as director must be filed with the Registrar within how many days of appointment?", "back": "**30 days**", "pyq": "Asked: PFRDA 2022 Ph-II", "changed": false, "note": "s.152(5)."}, {"id": "C104", "section": "Ch XI Directors", "topic": "Ch XI Directors - Appointment & DIN", "type": "fact", "star": "hi", "front": "Retirement by rotation in a public company?", "back": "At least **two-thirds** of directors are rotational; **one-third** of them retire at every AGM", "pyq": "", "changed": false, "note": "s.152(6). Independent directors are excluded from the count."}, {"id": "C105", "section": "Ch XI Directors", "topic": "Ch XI Directors - Appointment & DIN", "type": "fact", "star": "md", "front": "After a director tells the company his DIN, within how many days must the company inform the Registrar?", "back": "**15 days**", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": "s.157. The director tells the company within 1 month of getting the DIN (s.156)."}, {"id": "C106", "section": "Ch XI Directors", "topic": "Ch XI Directors - Appointment & DIN", "type": "fact", "star": "hi", "front": "An additional director holds office until when?", "back": "The **next AGM** (or the last date it should have been held, whichever is earlier)", "pyq": "", "changed": false, "note": "s.161(1)."}, {"id": "C107", "section": "Ch XI Directors", "topic": "Ch XI Directors - Appointment & DIN", "type": "fact", "star": "hi", "front": "An alternate director can be appointed for a director absent from India for at least how long?", "back": "**3 months**", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": "s.161(2). An independent director's alternate must also qualify as independent."}, {"id": "C108", "section": "Ch XI Directors", "topic": "Ch XI Directors - Appointment & DIN", "type": "fact", "star": "md", "front": "Who fills a casual vacancy among directors?", "back": "The **Board**, for the rest of the original term", "pyq": "", "changed": false, "note": "s.161(4)."}, {"id": "C109", "section": "Ch XI Directors", "topic": "Ch XI Directors - Disqualification, Vacation & Removal", "type": "fact", "star": "hi", "front": "s.164(2): a company has not filed financial statements or annual returns for how long, and how long is its director disqualified?", "back": "Not filed for **3 continuous financial years** → disqualified for **5 years**", "pyq": "", "changed": false, "note": "Same 5-year bar if deposits, debentures or dividend stay unpaid for 1 year or more."}, {"id": "C110", "section": "Ch XI Directors", "topic": "Ch XI Directors - Disqualification, Vacation & Removal", "type": "fact", "star": "hi", "front": "Maximum directorships a person can hold?", "back": "**20 companies** (including alternate directorships), of which at most **10 public companies**", "pyq": "", "changed": false, "note": "s.165(1)."}, {"id": "C111", "section": "Ch XI Directors", "topic": "Ch XI Directors - Disqualification, Vacation & Removal", "type": "fact", "star": "hi", "front": "Absence that makes a director's office vacant (s.167)?", "back": "Absent from **all Board meetings over 12 months**, with or without leave", "pyq": "", "changed": false, "note": ""}, {"id": "C112", "section": "Ch XI Directors", "topic": "Ch XI Directors - Disqualification, Vacation & Removal", "type": "fact", "star": "hi", "front": "How is a director removed before the end of term (s.169)?", "back": "**Ordinary resolution**, after **special notice** and a chance to be heard", "pyq": "Asked: PFRDA 2021 Ph-I", "changed": false, "note": "Not available for a director appointed by the Tribunal under s.242."}, {"id": "C113", "section": "Ch XI Directors", "topic": "Ch XI Directors - Disqualification, Vacation & Removal", "type": "trap", "star": "md", "front": "Removal of an independent director in a second term?", "back": "Needs a **special resolution**", "pyq": "", "changed": false, "note": "s.169(1) proviso."}, {"id": "C114", "section": "Ch XII Board Meetings", "topic": "Ch XII Board Meetings - Meetings & Quorum", "type": "fact", "star": "hi", "front": "First Board meeting must be held within how many days of incorporation?", "back": "**30 days**", "pyq": "Asked: SEBI 2025 Ph-I", "changed": false, "note": "s.173(1)."}, {"id": "C115", "section": "Ch XII Board Meetings", "topic": "Ch XII Board Meetings - Meetings & Quorum", "type": "fact", "star": "hi", "front": "Minimum Board meetings a year, and maximum gap between two?", "back": "**4 meetings**; gap **not more than 120 days**", "pyq": "Asked: PFRDA 2022 Ph-I, SEBI 2025 Ph-I", "changed": false, "note": ""}, {"id": "C116", "section": "Ch XII Board Meetings", "topic": "Ch XII Board Meetings - Meetings & Quorum", "type": "fact", "star": "md", "front": "Board meetings for an OPC, small company or dormant company?", "back": "At least **one in each half of a calendar year**, with a gap of at least **90 days**", "pyq": "", "changed": false, "note": "s.173(5)."}, {"id": "C117", "section": "Ch XII Board Meetings", "topic": "Ch XII Board Meetings - Meetings & Quorum", "type": "fact", "star": "hi", "front": "Minimum notice for a Board meeting?", "back": "**7 days**, in writing to every director", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": "s.173(3). Shorter notice for urgent business if at least one independent director is present."}, {"id": "C118", "section": "Ch XII Board Meetings", "topic": "Ch XII Board Meetings - Meetings & Quorum", "type": "fact", "star": "hi", "front": "Quorum for a Board meeting?", "back": "**One-third of total strength or 2 directors, whichever is higher**", "pyq": "Asked: PFRDA 2021 Ph-II", "changed": false, "note": "s.174(1). Directors on video conference count."}, {"id": "C119", "section": "Ch XII Board Meetings", "topic": "Ch XII Board Meetings - Meetings & Quorum", "type": "fact", "star": "md", "front": "If a Board meeting lacks quorum, when is it adjourned to?", "back": "The **same day next week**, same time and place (next working day if a holiday)", "pyq": "", "changed": false, "note": "s.174(4)."}, {"id": "C120", "section": "Ch XII Board Meetings", "topic": "Ch XII Board Meetings - Committees", "type": "fact", "star": "md", "front": "Composition of the audit committee (s.177)?", "back": "At least **3 directors**, with **independent directors forming a majority**", "pyq": "", "changed": false, "note": "Majority, including the chair, must be able to read financial statements. Needed for listed companies and Rule 4 companies."}, {"id": "C121", "section": "Ch XII Board Meetings", "topic": "Ch XII Board Meetings - Committees", "type": "fact", "star": "md", "front": "Composition of the Nomination and Remuneration Committee?", "back": "**3 or more non-executive directors**, at least **half independent**", "pyq": "", "changed": false, "note": "s.178(1). The company's chairperson can be a member but **cannot chair** it."}, {"id": "C122", "section": "Ch XII Board Meetings", "topic": "Ch XII Board Meetings - Committees", "type": "fact", "star": "hi", "front": "Who recommends appointment of directors and KMP, and who does it if that committee is not required?", "back": "The **Nomination and Remuneration Committee**; otherwise the **Board**", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": ""}, {"id": "C123", "section": "Ch XII Board Meetings", "topic": "Ch XII Board Meetings - Committees", "type": "fact", "star": "hi", "front": "When is a Stakeholders Relationship Committee mandatory, and who chairs it?", "back": "When the company has **more than 1,000** holders of shares, debentures, deposits and other securities in a year; chaired by a **non-executive director**", "pyq": "Asked: PFRDA 2025 Ph-II, SEBI 2024 Ph-II", "changed": false, "note": "s.178(5). It resolves security holders' grievances."}, {"id": "C124", "section": "Ch XII Board Meetings", "topic": "Ch XII Board Meetings - Committees", "type": "fact", "star": "md", "front": "Which companies must set up a vigil mechanism (s.177(9))?", "back": "**Listed companies**, companies accepting **public deposits**, and companies borrowing **over ₹50 crore** from banks or PFIs", "pyq": "", "changed": false, "note": ""}, {"id": "C125", "section": "Ch XII Board Meetings", "topic": "Ch XII Board Meetings - Board Powers, Loans & Investments", "type": "fact", "star": "hi", "front": "s.180: the Board needs a special resolution to borrow beyond what limit?", "back": "Aggregate of **paid-up capital + free reserves + securities premium**", "pyq": "", "changed": false, "note": "Temporary loans in the ordinary course are excluded. Selling the whole or substantially the whole undertaking also needs a special resolution."}, {"id": "C126", "section": "Ch XII Board Meetings", "topic": "Ch XII Board Meetings - Board Powers, Loans & Investments", "type": "fact", "star": "md", "front": "Board's limit on charitable contributions without general meeting approval (s.181)?", "back": "**5% of average net profits** of the 3 preceding financial years", "pyq": "", "changed": false, "note": ""}, {"id": "C127", "section": "Ch XII Board Meetings", "topic": "Ch XII Board Meetings - Board Powers, Loans & Investments", "type": "fact", "star": "hi", "front": "s.186 limit on loans, guarantees and investments?", "back": "Greater of **60%** of (paid-up capital + free reserves + securities premium) or **100%** of (free reserves + securities premium)", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": "Beyond this, a special resolution is needed. The Board resolution needs the consent of all directors present."}, {"id": "C128", "section": "Ch XII Board Meetings", "topic": "Ch XII Board Meetings - Board Powers, Loans & Investments", "type": "fact", "star": "md", "front": "s.186: how many layers of investment companies may a company invest through?", "back": "**Two layers**", "pyq": "", "changed": false, "note": ""}, {"id": "C129", "section": "Ch XII Board Meetings", "topic": "Ch XII Board Meetings - Board Powers, Loans & Investments", "type": "fact", "star": "md", "front": "s.186: floor on interest rate for inter-corporate loans?", "back": "Not below the yield on the **Government security of the closest tenor** (1, 3, 5 or 10 years)", "pyq": "", "changed": false, "note": ""}, {"id": "C130", "section": "Ch XII Board Meetings", "topic": "Ch XII Board Meetings - Board Powers, Loans & Investments", "type": "trap", "star": "md", "front": "What does s.186(4) require the company to disclose in its financial statements?", "back": "Full particulars of **loans, investments, guarantees or security**, and the **purpose** the recipient will use them for", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": "Co-option of directors is the PYQ distractor; it is not covered."}, {"id": "C131", "section": "Ch XXVII NCLT & NCLAT", "topic": "Ch XXVII NCLT & NCLAT - Constitution & Members", "type": "fact", "star": "hi", "front": "Who constitutes the NCLT (s.408)?", "back": "The **Central Government**, by notification", "pyq": "Asked: PFRDA 2021 Ph-I, PFRDA 2021 Ph-II, SEBI 2024 Ph-II", "changed": false, "note": ""}, {"id": "C132", "section": "Ch XXVII NCLT & NCLAT", "topic": "Ch XXVII NCLT & NCLAT - Constitution & Members", "type": "fact", "star": "md", "front": "From what date were the NCLT and NCLAT constituted?", "back": "**1 June 2016**", "pyq": "", "changed": false, "note": "They took over the Company Law Board's work (s.434). The NCLAT also has a Chennai bench (2020)."}, {"id": "C133", "section": "Ch XXVII NCLT & NCLAT", "topic": "Ch XXVII NCLT & NCLAT - Constitution & Members", "type": "fact", "star": "hi", "front": "Qualification of the NCLT President (s.409)?", "back": "Is or has been a **High Court judge for 5 years**", "pyq": "Asked: PFRDA 2022 Ph-II, SEBI 2025 Ph-I", "changed": false, "note": ""}, {"id": "C134", "section": "Ch XXVII NCLT & NCLAT", "topic": "Ch XXVII NCLT & NCLAT - Constitution & Members", "type": "fact", "star": "md", "front": "Qualification of an NCLT Judicial Member?", "back": "A **High Court judge**, or a **District Judge for 5 years**, or an **advocate for 10 years**", "pyq": "", "changed": false, "note": "s.409(2)."}, {"id": "C135", "section": "Ch XXVII NCLT & NCLAT", "topic": "Ch XXVII NCLT & NCLAT - Constitution & Members", "type": "fact", "star": "hi", "front": "The NCLT President, NCLAT Chairperson and Judicial Members are appointed after consulting whom?", "back": "The **Chief Justice of India**", "pyq": "Asked: PFRDA 2021 Ph-II", "changed": false, "note": "s.412(1). Other members come through a Selection Committee chaired by the CJI or his nominee, with the MCA Secretary as convener."}, {"id": "C136", "section": "Ch XXVII NCLT & NCLAT", "topic": "Ch XXVII NCLT & NCLAT - Constitution & Members", "type": "fact", "star": "hi", "front": "Maximum age of the NCLAT Chairperson?", "back": "**70 years**", "pyq": "Asked: SEBI 2024 Ph-I", "changed": false, "note": "s.413(4)."}, {"id": "C137", "section": "Ch XXVII NCLT & NCLAT", "topic": "Ch XXVII NCLT & NCLAT - Constitution & Members", "type": "trap", "star": "hi", "front": "Retirement ages: NCLT President, NCLT member, NCLAT Chairperson, NCLAT member?", "back": "NCLT **President 67**, NCLT **member 65**; NCLAT **Chairperson 70**, NCLAT **member 67**", "pyq": "Asked: SEBI 2024 Ph-I", "changed": false, "note": "s.413. Term is 5 years, reappointable once; members must be at least 50."}, {"id": "C138", "section": "Ch XXVII NCLT & NCLAT", "topic": "Ch XXVII NCLT & NCLAT - Orders & Appeals", "type": "fact", "star": "hi", "front": "Within how many days can an NCLT order be appealed to the NCLAT?", "back": "**45 days** from receiving the order copy", "pyq": "Asked: SEBI 2024 Ph-I", "changed": false, "note": "s.421(3). NCLAT may allow a further 45 days at most for sufficient cause. You slipped on this in P2 Mock 3."}, {"id": "C139", "section": "Ch XXVII NCLT & NCLAT", "topic": "Ch XXVII NCLT & NCLAT - Orders & Appeals", "type": "fact", "star": "hi", "front": "Within how many days can an NCLAT order be appealed to the Supreme Court?", "back": "**60 days**, on a **question of law**", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": "s.423. The Supreme Court may allow a further 60 days at most."}, {"id": "C140", "section": "Ch XXVII NCLT & NCLAT", "topic": "Ch XXVII NCLT & NCLAT - Orders & Appeals", "type": "fact", "star": "md", "front": "Does an appeal lie against an NCLT order passed with the consent of parties?", "back": "**No**", "pyq": "", "changed": false, "note": "s.421(2)."}, {"id": "C141", "section": "Ch XXVII NCLT & NCLAT", "topic": "Ch XXVII NCLT & NCLAT - Orders & Appeals", "type": "fact", "star": "hi", "front": "Within how long can the NCLT amend its own order to fix a mistake apparent from the record?", "back": "**2 years** from the order date", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": "s.420(2). Not if an appeal has been filed against it."}, {"id": "C142", "section": "Ch XXVII NCLT & NCLAT", "topic": "Ch XXVII NCLT & NCLAT - Orders & Appeals", "type": "fact", "star": "md", "front": "Disposal timeline for NCLT/NCLAT cases (s.422)?", "back": "Endeavour to finish within **3 months**; extension of up to **90 days**", "pyq": "", "changed": false, "note": ""}, {"id": "C143", "section": "Lookalike Traps", "topic": "Lookalike Traps - Numbers to Keep Apart", "type": "trap", "star": "hi", "front": "s.143(6) vs s.421 vs s.423: the three day-limits?", "back": "CAG supplementary audit **60 days** · appeal to NCLAT **45 days** · appeal to Supreme Court **60 days**", "pyq": "", "changed": false, "note": "You slipped on this in P2 Mock 3."}, {"id": "C144", "section": "Lookalike Traps", "topic": "Lookalike Traps - Numbers to Keep Apart", "type": "trap", "star": "hi", "front": "Auditor-appointment day limits: s.139(5), s.139(7), s.139(6)?", "back": "Govt company (CAG) **180 days** from FY start · first auditor of govt company (CAG) **60 days** · first auditor of other company (Board) **30 days**", "pyq": "", "changed": false, "note": ""}, {"id": "C145", "section": "Lookalike Traps", "topic": "Lookalike Traps - Numbers to Keep Apart", "type": "trap", "star": "hi", "front": "Dividend timeline in order?", "back": "Deposit in bank **5 days** → pay **30 days** → Unpaid Dividend Account within **7 days** after that → IEPF after **7 years**", "pyq": "Asked: PFRDA 2021 Ph-II, PFRDA 2022 Ph-II, PFRDA 2025 Ph-I, SEBI 2025 Ph-II", "changed": false, "note": ""}, {"id": "C146", "section": "Lookalike Traps", "topic": "Lookalike Traps - Numbers to Keep Apart", "type": "trap", "star": "hi", "front": "Cooling-off periods: independent director vs rotated auditor vs auditor removed by NCLT for fraud?", "back": "ID **3 years** · rotated auditor **5 years** · NCLT-removed auditor barred **5 years**", "pyq": "", "changed": false, "note": ""}, {"id": "C147", "section": "Lookalike Traps", "topic": "Lookalike Traps - Numbers to Keep Apart", "type": "trap", "star": "hi", "front": "Caps of 20: audits vs directorships?", "back": "Audits: **20 companies**. Directorships: **20 companies, max 10 public**", "pyq": "", "changed": false, "note": ""}, {"id": "C148", "section": "Lookalike Traps", "topic": "Lookalike Traps - Numbers to Keep Apart", "type": "trap", "star": "md", "front": "Interest rates across the Act: 12% vs 18%?", "back": "**12%**: late private-placement refund, late transfer to Unpaid Dividend Account, refund of shares issued at a discount. **18%**: dividend not paid within 30 days (s.127)", "pyq": "", "changed": false, "note": ""}, {"id": "C149", "section": "Lookalike Traps", "topic": "Lookalike Traps - Numbers to Keep Apart", "type": "trap", "star": "md", "front": "Ordinary vs special resolution: which needs which?", "back": "**Ordinary**: removing a director (s.169), DVR shares. **Special**: varying prospectus terms, ESOP, preferential issue, capital reduction, buy-back over 10%, removing an auditor, reappointing an ID, more than 15 directors", "pyq": "", "changed": false, "note": ""}, {"id": "C150", "section": "Lookalike Traps", "topic": "Lookalike Traps - Who Decides What", "type": "trap", "star": "hi", "front": "Match the authority: removal of auditor before term, change of auditor for fraud, government company auditor, capital reduction?", "back": "Removal → **Central Government approval** + special resolution · fraud → **NCLT** · govt company auditor → **CAG** · capital reduction → **NCLT confirmation**", "pyq": "Asked: PFRDA 2022 Ph-I, SEBI 2024 Ph-II", "changed": false, "note": ""}, {"id": "C151", "section": "Lookalike Traps", "topic": "Lookalike Traps - Who Decides What", "type": "trap", "star": "md", "front": "Board or members: interim dividend, casual vacancy of a director, appointment of directors, first auditor?", "back": "Interim dividend → **Board** · casual vacancy → **Board** · directors ordinarily → **members in general meeting** · first auditor → **Board** (30 days)", "pyq": "", "changed": false, "note": ""}]</script>
+<script type="application/json" id="topics-data">["Ch III Prospectus - RHP, Shelf & Prospectus", "Ch III Prospectus - Allotment & Private Placement", "Ch IV Share Capital - Kinds of Shares & Certificates", "Ch IV Share Capital - Premium, Discount & Sweat Equity", "Ch IV Share Capital - Preference Shares & Bonus", "Ch IV Share Capital - Rights, Reduction & Buy-back", "Ch IV Share Capital - Debentures", "Ch VIII Dividend - Declaration & Interim Dividend", "Ch VIII Dividend - Payment, Unpaid & IEPF", "Ch X Audit - Appointment & Rotation", "Ch X Audit - Removal, Resignation & Eligibility", "Ch X Audit - Reports & Prohibited Services", "Ch XI Directors - Board Size & Composition", "Ch XI Directors - Independent & Small-shareholder Directors", "Ch XI Directors - Appointment & DIN", "Ch XI Directors - Disqualification, Vacation & Removal", "Ch XII Board Meetings - Meetings & Quorum", "Ch XII Board Meetings - Committees", "Ch XII Board Meetings - Board Powers, Loans & Investments", "Ch XXVII NCLT & NCLAT - Constitution & Members", "Ch XXVII NCLT & NCLAT - Orders & Appeals", "Lookalike Traps - Numbers to Keep Apart", "Lookalike Traps - Who Decides What"]</script>
+<script>
+(function(){
+'use strict';
+var KEY='pfrda_coact_oct2026_progress';
+var THEME_KEY='pfrda_coact_oct2026_theme';
+var CARDS=JSON.parse(document.getElementById('cards-data').textContent);
+var TOPICS=JSON.parse(document.getElementById('topics-data').textContent);
+var $=function(id){return document.getElementById(id);};
+
+/* ---------- storage (never required) ---------- */
+var storageOk=true;
+function sGet(k){try{return window.localStorage.getItem(k);}catch(e){storageOk=false;return null;}}
+function sSet(k,v){try{window.localStorage.setItem(k,v);return true;}catch(e){storageOk=false;showBanner();return false;}}
+function sDel(k){try{window.localStorage.removeItem(k);}catch(e){storageOk=false;}}
+function showBanner(){ $('banner').hidden=false; }
+(function probe(){try{var t='__pfrda_probe__';window.localStorage.setItem(t,'1');window.localStorage.removeItem(t);}catch(e){storageOk=false;}})();
+
+var progress={};
+(function(){
+  var raw=sGet(KEY);
+  if(!raw) return;
+  try{
+    var o=JSON.parse(raw);
+    if(o && typeof o==='object'){
+      for(var k in o){ if(Object.prototype.hasOwnProperty.call(o,k) && (o[k]==='known'||o[k]==='learning')) progress[k]=o[k]; }
+    }
+  }catch(e){}
+})();
+function saveProgress(){ sSet(KEY,JSON.stringify(progress)); }
+
+/* ---------- theme ---------- */
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  $('bTheme').textContent = t==='dark' ? 'Light theme' : 'Dark theme';
+}
+var theme=sGet(THEME_KEY);
+if(theme!=='light' && theme!=='dark'){
+  theme=(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';
+}
+applyTheme(theme);
+
+/* ---------- state ---------- */
+var byId={};
+CARDS.forEach(function(c){byId[c.id]=c;});
+var baseOrder=CARDS.map(function(c){return c.id;});
+var order=baseOrder.slice();
+var filters={topics:[],type:'all',status:'all',hi:false,pyq:false};
+var view=[], pos=0, flipped=false;
+
+function statusOf(id){var s=progress[id];return (s==='known'||s==='learning')?s:'unseen';}
+function matches(c){
+  if(filters.topics.length && filters.topics.indexOf(c.topic)<0) return false;
+  if(filters.type!=='all' && c.type!==filters.type) return false;
+  if(filters.hi && c.star!=='hi') return false;
+  if(filters.pyq && !c.pyq) return false;
+  if(filters.status==='notknown'){ if(statusOf(c.id)==='known') return false; }
+  else if(filters.status!=='all' && statusOf(c.id)!==filters.status) return false;
+  return true;
+}
+function rebuild(keepId){
+  view=order.filter(function(id){return matches(byId[id]);});
+  var i=keepId?view.indexOf(keepId):-1;
+  pos=i>=0?i:0;
+  flipped=false;
+  render();
+}
+
+/* ---------- rendering ---------- */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmt(s){return esc(s).replace(/\*\*([\s\S]+?)\*\*/g,'<strong>$1</strong>');}
+var TYPE_LABEL={fact:'Fact',trap:'Trap',concept:'Concept'};
+var STATUS_LABEL={unseen:'Unseen',learning:'Still learning',known:'Known'};
+
+function renderStats(){
+  var n=view.length,k=0,l=0;
+  view.forEach(function(id){var s=statusOf(id); if(s==='known')k++; else if(s==='learning')l++;});
+  $('sTotal').textContent=n;
+  $('sUnseen').textContent=n-k-l;
+  $('sLearn').textContent=l;
+  $('sKnown').textContent=k;
+  $('sPct').textContent=(n?Math.round(k*100/n):0)+'%';
+}
+function renderCard(){
+  var el=$('card');
+  if(!view.length){
+    el.className='card empty';
+    el.removeAttribute('data-type');
+    el.setAttribute('aria-expanded','false');
+    el.setAttribute('aria-label','No cards match these filters');
+    el.innerHTML='<p class="q" style="margin:0">No cards match these filters.</p><p class="note" style="margin:0">Change or clear a filter above to widen the set.</p><button type="button" id="emptyClear">Clear filters</button>';
+    var b=$('emptyClear'); if(b) b.addEventListener('click',function(e){e.stopPropagation();clearFilters();});
+    return;
+  }
+  var c=byId[view[pos]], st=statusOf(c.id);
+  var h='<div class="meta">';
+  h+='<span class="badge b-type">'+TYPE_LABEL[c.type]+'</span>';
+  if(c.star==='hi') h+='<span class="badge b-star">★ High-yield</span>';
+  else if(c.star==='md') h+='<span class="badge b-star">☆ Medium</span>';
+  if(c.pyq) h+='<span class="badge b-pyq">'+esc(c.pyq)+'</span>';
+  h+='</div>';
+  h+='<div class="topic">'+esc(c.topic)+'</div>';
+  h+='<div class="q">'+fmt(c.front)+'</div>';
+  h+='<div class="hint">Tap the card or press Space to reveal the answer.</div>';
+  h+='<div class="a"><div class="ans">'+fmt(c.back)+'</div>';
+  if(c.note) h+='<div class="note">'+fmt(c.note)+'</div>';
+  h+='</div>';
+  h+='<div class="cfoot"><span>'+(pos+1)+' of '+view.length+(pos===view.length-1?' (end of set)':'')+'</span><span class="s-'+st+'">'+STATUS_LABEL[st]+'</span></div>';
+  el.className='card'+(flipped?' flipped':'');
+  el.setAttribute('data-type',c.type);
+  el.setAttribute('aria-expanded',flipped?'true':'false');
+  el.setAttribute('aria-label','Card '+(pos+1)+' of '+view.length+'. Press Space or Enter to '+(flipped?'hide':'show')+' the answer.');
+  el.innerHTML=h;
+}
+function renderControls(){
+  var has=view.length>0;
+  $('bPrev').disabled=!has||pos===0;
+  $('bNext').disabled=!has||pos>=view.length-1;
+  $('bFlip').disabled=!has;
+  $('bKnown').disabled=!has;
+  $('bLearn').disabled=!has;
+  $('bFlip').textContent=flipped?'Hide answer':'Show answer';
+}
+function render(){ renderCard(); renderControls(); renderStats(); renderFilterSummary(); }
+
+/* ---------- actions ---------- */
+function focusCard(){ try{$('card').focus({preventScroll:true});}catch(e){$('card').focus();} }
+function flip(){
+  if(!view.length) return;
+  flipped=!flipped;
+  var el=$('card');
+  el.classList.toggle('flipped',flipped);
+  el.setAttribute('aria-expanded',flipped?'true':'false');
+  $('bFlip').textContent=flipped?'Hide answer':'Show answer';
+}
+function go(d){
+  if(!view.length) return;
+  var p=pos+d;
+  if(p<0||p>=view.length) return;
+  pos=p; flipped=false; render();
+}
+function mark(val){
+  if(!view.length) return;
+  progress[view[pos]]=val;
+  saveProgress();
+  if(pos<view.length-1){pos++;flipped=false;}
+  render();
+}
+function shuffle(){
+  var keep=null;
+  for(var i=order.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=order[i];order[i]=order[j];order[j]=t;}
+  rebuild(keep);
+}
+function resetOrder(){ order=baseOrder.slice(); rebuild(null); }
+
+/* ---------- modal ---------- */
+var lastFocus=null;
+function openModal(){
+  lastFocus=document.activeElement;
+  $('mText').textContent='This clears every Known and Still learning mark for all '+CARDS.length+' cards saved in this browser.';
+  $('modal').hidden=false;
+  $('mCancel').focus();
+}
+function closeModal(){ $('modal').hidden=true; if(lastFocus&&lastFocus.focus) lastFocus.focus(); else focusCard(); }
+function doReset(){
+  progress={}; sDel(KEY);
+  var cur=view.length?view[pos]:null;
+  $('modal').hidden=true;
+  rebuild(cur);
+  focusCard();
+}
+
+/* ---------- filters UI ---------- */
+/* Topic picker: one native select. Each area is an optgroup whose first option takes the whole area. */
+var PREF_KEY='pfrda_coact_oct2026_filters';
+var topicCounts={}, groupOf={}, GROUPS=[], groupTopics={}, groupCounts={};
+CARDS.forEach(function(c){
+  topicCounts[c.topic]=(topicCounts[c.topic]||0)+1;
+  if(!groupOf[c.topic] || (groupOf[c.topic]==='Addendum' && c.section!=='Addendum')) groupOf[c.topic]=c.section;
+});
+TOPICS.forEach(function(t){
+  if(!topicCounts[t]) return;
+  var g=groupOf[t];
+  if(!groupTopics[g]){ GROUPS.push(g); groupTopics[g]=[]; groupCounts[g]=0; }
+  groupTopics[g].push(t); groupCounts[g]+=topicCounts[t];
+});
+function shortTopic(t,g){
+  var seps=[' — ',' - '];
+  for(var i=0;i<seps.length;i++){ if(t.indexOf(g+seps[i])===0) return t.slice((g+seps[i]).length); }
+  return t.replace(/^\d+\s+/,'');
+}
+(function buildTopics(){
+  var h='<option value="all">All topics ('+CARDS.length+')</option>';
+  GROUPS.forEach(function(g,gi){
+    h+='<optgroup label="'+esc(g)+'">';
+    h+='<option value="g:'+gi+'">All of '+esc(g)+' ('+groupCounts[g]+')</option>';
+    groupTopics[g].forEach(function(t){
+      h+='<option value="t:'+TOPICS.indexOf(t)+'">'+esc(shortTopic(t,g))+' ('+topicCounts[t]+')</option>';
+    });
+    h+='</optgroup>';
+  });
+  $('topicSel').innerHTML=h;
+})();
+var topicChoice='all';
+function topicsFor(v){
+  if(v.indexOf('g:')===0){ var g=GROUPS[+v.slice(2)]; return g?groupTopics[g].slice():[]; }
+  if(v.indexOf('t:')===0){ var t=TOPICS[+v.slice(2)]; return t?[t]:[]; }
+  return [];
+}
+function savePrefs(){
+  sSet(PREF_KEY,JSON.stringify({topic:topicChoice,type:filters.type,status:filters.status,hi:filters.hi,pyq:filters.pyq}));
+}
+function syncFilterUI(){
+  $('topicSel').value=topicChoice;
+  $('typeSel').value=filters.type;
+  $('statusSel').value=filters.status;
+  $('topicSel').classList.toggle('on',topicChoice!=='all');
+  $('typeSel').classList.toggle('on',filters.type!=='all');
+  $('statusSel').classList.toggle('on',filters.status!=='all');
+  $('fHi').setAttribute('aria-pressed',filters.hi?'true':'false');
+  $('fPyq').setAttribute('aria-pressed',filters.pyq?'true':'false');
+}
+(function loadPrefs(){
+  var raw=sGet(PREF_KEY); if(!raw) return;
+  try{
+    var o=JSON.parse(raw); if(!o||typeof o!=='object') return;
+    if(typeof o.topic==='string' && $('topicSel').querySelector('option[value="'+o.topic.replace(/"/g,'')+'"]')){ topicChoice=o.topic; filters.topics=topicsFor(o.topic); }
+    if(['all','fact','trap','concept'].indexOf(o.type)>=0) filters.type=o.type;
+    if(['all','unseen','learning','known','notknown'].indexOf(o.status)>=0) filters.status=o.status;
+    filters.hi=o.hi===true; filters.pyq=o.pyq===true;
+  }catch(e){}
+})();
+function onFilterChange(){
+  savePrefs();
+  syncFilterUI();
+  var cur=view.length?view[pos]:null;
+  rebuild(cur);
+}
+$('topicSel').addEventListener('change',function(){ topicChoice=this.value; filters.topics=topicsFor(topicChoice); onFilterChange(); });
+$('typeSel').addEventListener('change',function(){ filters.type=this.value; onFilterChange(); });
+$('statusSel').addEventListener('change',function(){ filters.status=this.value; onFilterChange(); });
+$('fHi').addEventListener('click',function(){ filters.hi=!filters.hi; onFilterChange(); });
+$('fPyq').addEventListener('click',function(){ filters.pyq=!filters.pyq; onFilterChange(); });
+function clearFilters(){
+  filters={topics:[],type:'all',status:'all',hi:false,pyq:false};
+  topicChoice='all';
+  onFilterChange();
+}
+$('fClear').addEventListener('click',clearFilters);
+function renderFilterSummary(){
+  var on=topicChoice!=='all'||filters.type!=='all'||filters.status!=='all'||filters.hi||filters.pyq;
+  $('fClear').hidden=!on;
+}
+syncFilterUI();
+
+/* ---------- wiring ---------- */
+$('card').addEventListener('click',function(e){
+  if(!view.length) return;
+  var sel=window.getSelection && String(window.getSelection());
+  if(sel && sel.length>0 && flipped) return;
+  flip();
+});
+function bind(id,fn){ $(id).addEventListener('click',function(){ fn(); if(id!=='bReset') focusCard(); }); }
+bind('bPrev',function(){go(-1);});
+bind('bNext',function(){go(1);});
+bind('bFlip',flip);
+bind('bKnown',function(){mark('known');});
+bind('bLearn',function(){mark('learning');});
+bind('bShuffle',shuffle);
+bind('bOrder',resetOrder);
+bind('bReset',openModal);
+bind('bTheme',function(){ theme=theme==='dark'?'light':'dark'; applyTheme(theme); sSet(THEME_KEY,theme); });
+$('mCancel').addEventListener('click',closeModal);
+$('mOk').addEventListener('click',doReset);
+$('modal').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
+
+document.addEventListener('keydown',function(e){
+  if(!$('modal').hidden){ if(e.key==='Escape'){e.preventDefault();closeModal();} return; }
+  if(e.ctrlKey||e.metaKey||e.altKey) return;
+  var t=e.target, tag=(t&&t.tagName||'').toLowerCase();
+  if(tag==='input'||tag==='select'||tag==='textarea'||tag==='summary'||(t&&t.isContentEditable)) return;
+  var k=e.key;
+  if(k===' '||k==='Spacebar'||k==='Enter'){
+    if(tag==='button') return;
+    e.preventDefault(); flip(); return;
+  }
+  if(k==='ArrowRight'){e.preventDefault();go(1);focusCard();return;}
+  if(k==='ArrowLeft'){e.preventDefault();go(-1);focusCard();return;}
+  if(k==='k'||k==='K'){e.preventDefault();mark('known');focusCard();return;}
+  if(k==='l'||k==='L'){e.preventDefault();mark('learning');focusCard();return;}
+});
+
+$('sub').textContent='PFRDA Grade A 2026 · Phase I Paper 2 · Bare Act (as amended) + PYQs. '+CARDS.length+' cards.';
+if(!storageOk) showBanner();
+rebuild(null);
+})();
+</script>
+</body>
+</html>

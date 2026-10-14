@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PFRDA Economics flashcards (Oct 2026)</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#EEF1F5; --surface:#FFFFFF; --surface-2:#F5F7FA; --ink:#18233A; --muted:#5B6578; --line:#D5DBE5;
+  --fact:#2F4B7C; --trap:#7A3E9D; --concept:#0F766E; --changed:#D9480F;
+  --known:#2B8A3E; --learning:#A35F00; --star:#8A6A00; --focus:#2F6FEB; --on-solid:#FFFFFF;
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0F1522; --surface:#182133; --surface-2:#1E293D; --ink:#E7EBF2; --muted:#A3ACBE; --line:#2C3852;
+  --fact:#9DB8EA; --trap:#D1A3EC; --concept:#5ED0C2; --changed:#FF8A4C;
+  --known:#6CC77D; --learning:#F0B44C; --star:#E8C547; --focus:#7AA7FF; --on-solid:#0F1522;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans","Helvetica Neue",Arial,sans-serif;
+  font-size:16px; line-height:1.5; -webkit-text-size-adjust:100%; overflow-x:hidden;
+}
+.wrap{max-width:640px;margin:0 auto;padding:16px 14px calc(28px + env(safe-area-inset-bottom,0px))}
+header h1{font-size:1.3rem;line-height:1.25;margin:0;font-weight:750;letter-spacing:-0.01em}
+header p{margin:4px 0 0;color:var(--muted);font-size:.875rem}
+.banner{margin:12px 0 0;padding:10px 12px;border:1px solid var(--learning);border-radius:10px;color:var(--ink);background:var(--surface);font-size:.875rem}
+.banner[hidden]{display:none}
+
+.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:14px 0}
+.stat{background:var(--surface);padding:8px 2px 6px;text-align:center;min-width:0}
+.stat b{display:block;font-size:1.05rem;font-variant-numeric:tabular-nums;line-height:1.3}
+.stat span{display:block;font-size:.7rem;color:var(--muted);line-height:1.25}
+.stat.k b{color:var(--known)} .stat.l b{color:var(--learning)}
+
+/* Filter bar: compact native selects + toggles (same layout as the Management deck), so the card sits right below. */
+.fbar{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-bottom:14px}
+.fbar select{
+  font:inherit;font-size:.9rem;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;
+  min-height:44px;padding:8px 10px;width:100%;min-width:0;cursor:pointer;
+}
+.fbar #topicSel{grid-column:1/-1}
+.fbar select.on{border-color:var(--fact);box-shadow:inset 0 0 0 1px var(--fact)}
+.ftog{grid-column:1/-1;display:flex;gap:8px}
+.ftog button{flex:1 1 auto;min-width:0;min-height:44px;font-size:.86rem;font-weight:600;padding:6px 8px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ftog button[aria-pressed="true"]{color:var(--surface);background:var(--ink);border-color:var(--ink)}
+.ftog button.fclear{flex:0 0 auto;padding:6px 12px;color:var(--changed);border-color:var(--changed)}
+.ftog button.fclear[hidden]{display:none}
+.fbar select:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+
+.card{
+  --accent:var(--fact);
+  background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--accent);border-radius:12px;
+  padding:14px 16px 14px;min-height:min(52vh,460px);display:flex;flex-direction:column;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;outline:none;user-select:text;
+}
+.card[data-type="trap"]{--accent:var(--trap)}
+.card[data-type="concept"]{--accent:var(--concept)}
+.card:focus-visible{box-shadow:0 0 0 3px var(--focus)}
+.card.empty{cursor:default;border-left-color:var(--line);justify-content:center;align-items:flex-start;gap:12px}
+.meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.badge{font-size:.74rem;font-weight:650;padding:2px 8px;border-radius:999px;border:1px solid currentColor;line-height:1.35;max-width:100%;overflow-wrap:anywhere}
+.b-type{color:var(--accent)}
+.b-star{color:var(--star)}
+.b-pyq{color:var(--muted);font-weight:550;border-radius:8px}
+.topic{font-size:.8rem;color:var(--muted);margin:8px 0 0;overflow-wrap:anywhere}
+.q{font-size:1.2rem;font-weight:650;line-height:1.42;margin:14px 0 0;overflow-wrap:anywhere}
+.hint{margin-top:auto;padding-top:18px;color:var(--muted);font-size:.85rem}
+.a{display:none;margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.card.flipped .a{display:block}
+.card.flipped .hint{display:none}
+.ans{font-size:1.14rem;line-height:1.5;overflow-wrap:anywhere;white-space:pre-line}
+.ans strong{font-weight:800}
+.card[data-type="concept"] .ans{font-size:1.02rem;line-height:1.6}
+.note{margin-top:10px;font-size:.82rem;line-height:1.45;color:var(--muted);overflow-wrap:anywhere}
+.cfoot{display:flex;justify-content:space-between;gap:10px;margin-top:16px;font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.cfoot .s-known{color:var(--known);font-weight:650}
+.cfoot .s-learning{color:var(--learning);font-weight:650}
+@media (prefers-reduced-motion:no-preference){
+  .card.flipped .a{animation:reveal .16s ease-out}
+  @keyframes reveal{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+}
+
+.controls{display:grid;gap:8px;margin-top:12px}
+.row{display:grid;gap:8px}
+.row.nav{grid-template-columns:1fr 1.35fr 1fr}
+.row.mark{grid-template-columns:1fr 1fr}
+.row.tools{grid-template-columns:repeat(4,minmax(0,1fr))}
+button{
+  font:inherit;min-height:48px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  font-weight:650;padding:8px 10px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+}
+button:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+button:disabled{opacity:.45;cursor:default}
+.b-flip{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.b-known{background:var(--known);border-color:var(--known);color:var(--on-solid)}
+.b-learn{background:var(--surface);border:2px solid var(--learning);color:var(--learning)}
+.row.tools button{font-size:.82rem;font-weight:550;color:var(--muted);min-height:44px;padding:6px 4px}
+.kbd{display:none;margin:12px 0 0;font-size:.8rem;color:var(--muted)}
+@media (hover:hover) and (pointer:fine){.kbd{display:block}}
+@media (max-width:380px){
+  .row.tools{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .q{font-size:1.12rem}
+}
+.modal{position:fixed;inset:0;background:rgba(10,14,24,.55);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+.modal[hidden]{display:none}
+.mbox{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:18px;max-width:420px;width:100%}
+.mbox h2{font-size:1.1rem;margin:0 0 6px}
+.mbox p{margin:0 0 16px;color:var(--muted);font-size:.92rem}
+.b-danger{background:var(--changed);border-color:var(--changed);color:var(--on-solid)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Economics, Budget 2026-27 &amp; Economic Survey</h1>
+    <p id="sub">PFRDA Grade A 2026 · Phase I Paper 2</p>
+    <p class="banner" id="banner" hidden>Progress can't be saved in this browser view, so your marks will reset when the page closes.</p>
+  </header>
+
+  <div class="stats" aria-live="polite">
+    <div class="stat"><b id="sTotal">0</b><span>In filter</span></div>
+    <div class="stat"><b id="sUnseen">0</b><span>Unseen</span></div>
+    <div class="stat l"><b id="sLearn">0</b><span>Still learning</span></div>
+    <div class="stat k"><b id="sKnown">0</b><span>Known</span></div>
+    <div class="stat"><b id="sPct">0%</b><span>Known</span></div>
+  </div>
+
+  <div class="fbar" id="filters">
+    <select id="topicSel" aria-label="Filter by topic"></select>
+    <select id="statusSel" aria-label="Filter by status">
+      <option value="all">All statuses</option>
+      <option value="unseen">Unseen</option>
+      <option value="learning">Still learning</option>
+      <option value="known">Known</option>
+      <option value="notknown">Not yet known</option>
+    </select>
+    <select id="typeSel" aria-label="Filter by card type">
+      <option value="all">All card types</option>
+      <option value="fact">Fact</option>
+      <option value="trap">Trap</option>
+      <option value="concept">Concept</option>
+    </select>
+    <div class="ftog">
+    <button type="button" id="fHi" aria-pressed="false">★ High-yield</button>
+    <button type="button" id="fPyq" aria-pressed="false">PYQ</button>
+    <button type="button" class="fclear" id="fClear" hidden>Clear</button>
+    </div>
+  </div>
+
+  <main>
+    <div class="card" id="card" tabindex="0" role="button" aria-expanded="false"></div>
+  </main>
+
+  <div class="controls">
+    <div class="row nav">
+      <button type="button" id="bPrev">Prev</button>
+      <button type="button" class="b-flip" id="bFlip">Show answer</button>
+      <button type="button" id="bNext">Next</button>
+    </div>
+    <div class="row mark">
+      <button type="button" class="b-learn" id="bLearn">Still learning</button>
+      <button type="button" class="b-known" id="bKnown">Known</button>
+    </div>
+    <div class="row tools">
+      <button type="button" id="bShuffle">Shuffle</button>
+      <button type="button" id="bOrder">Reset order</button>
+      <button type="button" id="bReset">Reset progress</button>
+      <button type="button" id="bTheme">Dark theme</button>
+    </div>
+  </div>
+  <p class="kbd">Keyboard: left and right arrows to move, Space or Enter to flip, K for known, L for still learning.</p>
+</div>
+
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="mbox">
+    <h2 id="mTitle">Reset progress?</h2>
+    <p id="mText">This clears every Known and Still learning mark saved in this browser.</p>
+    <div class="row mark">
+      <button type="button" id="mCancel">Cancel</button>
+      <button type="button" class="b-danger" id="mOk">Reset progress</button>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" id="cards-data">[{"id": "E001", "section": "Micro", "topic": "Micro - Demand & Supply", "type": "fact", "star": "hi", "front": "Law of demand: relationship between price and quantity demanded?", "back": "**Inverse**: price rises → quantity demanded falls (other things equal)", "pyq": "Asked: PFRDA 2021 Ph-II, PFRDA 2025 Ph-I, SEBI 2025 Ph-I", "changed": false, "note": "The demand curve slopes downward from left to right."}, {"id": "E002", "section": "Micro", "topic": "Micro - Demand & Supply", "type": "fact", "star": "hi", "front": "Which good has an upward-sloping demand curve because it is an inferior good with a strong income effect?", "back": "**Giffen good**", "pyq": "Asked: PFRDA 2021 Ph-I", "changed": false, "note": "Negative income effect outweighs the substitution effect."}, {"id": "E003", "section": "Micro", "topic": "Micro - Demand & Supply", "type": "trap", "star": "hi", "front": "Veblen effect vs snob effect vs bandwagon effect?", "back": "**Veblen**: demand **rises as price rises** (status good)\n**Snob**: demand falls as more people buy it\n**Bandwagon**: demand rises because others are buying it", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "The SEBI 2025 trap said Veblen demand falls as price rises: wrong."}, {"id": "E004", "section": "Micro", "topic": "Micro - Demand & Supply", "type": "fact", "star": "hi", "front": "Slope of the income-demand (Engel) curve for an inferior good vs a normal good?", "back": "Inferior good: **slopes downward**. Normal and luxury goods: **slope upward**", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": ""}, {"id": "E005", "section": "Micro", "topic": "Micro - Demand & Supply", "type": "fact", "star": "hi", "front": "Sign of cross elasticity of demand for substitutes vs complements?", "back": "Substitutes: **positive**. Complements: **negative**", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": ""}, {"id": "E006", "section": "Micro", "topic": "Micro - Demand & Supply", "type": "fact", "star": "md", "front": "Law of diminishing marginal utility?", "back": "Each extra unit consumed gives **less additional utility** than the one before", "pyq": "Asked: PFRDA 2021 Ph-I", "changed": false, "note": ""}, {"id": "E007", "section": "Micro", "topic": "Micro - Demand & Supply", "type": "fact", "star": "md", "front": "Law of supply?", "back": "**Direct** relationship: price rises → quantity supplied rises", "pyq": "Asked: PFRDA 2022 Ph-II", "changed": false, "note": ""}, {"id": "E008", "section": "Micro", "topic": "Micro - Demand & Supply", "type": "fact", "star": "md", "front": "Shape of a perfectly inelastic vs perfectly elastic demand curve?", "back": "Perfectly inelastic: **vertical** (Ed = 0). Perfectly elastic: **horizontal** (Ed = ∞)", "pyq": "", "changed": false, "note": "Unit-elastic demand is a rectangular hyperbola (Ed = 1)."}, {"id": "E009", "section": "Micro", "topic": "Micro - Market Structures", "type": "fact", "star": "hi", "front": "Market with a large number of firms selling differentiated products?", "back": "**Monopolistic competition**", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "Monopoly = one seller with barriers; perfect competition = price takers with identical products; oligopoly = few interdependent firms."}, {"id": "E010", "section": "Micro", "topic": "Micro - Market Structures", "type": "fact", "star": "hi", "front": "Aim of product differentiation in monopolistic competition?", "back": "**Brand loyalty**", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": "It gives each firm some price-making power; selling (advertising) costs are a feature."}, {"id": "E011", "section": "Micro", "topic": "Micro - Market Structures", "type": "fact", "star": "hi", "front": "Which market structure explains price rigidity through the kinked demand curve?", "back": "**Oligopoly** (Sweezy model)", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "Few firms, mutual interdependence, strategic decisions."}, {"id": "E012", "section": "Micro", "topic": "Micro - Market Structures", "type": "trap", "star": "hi", "front": "Bertrand vs Cournot duopoly: what do firms compete on?", "back": "**Bertrand: price** (outcome: price = marginal cost). **Cournot: quantity**", "pyq": "Asked: PFRDA 2022 Ph-II", "changed": false, "note": ""}, {"id": "E013", "section": "Micro", "topic": "Micro - Market Structures", "type": "fact", "star": "md", "front": "Perfect competition: firm is a price taker because…?", "back": "Many sellers, **homogeneous product**, free entry and perfect information; P = AR = MR", "pyq": "", "changed": false, "note": ""}, {"id": "E014", "section": "National Income", "topic": "National Income - Concepts & Aggregates", "type": "fact", "star": "hi", "front": "GNP = GDP + ?", "back": "**Net factor income from abroad (NFIA)**", "pyq": "Asked: PFRDA 2021 Ph-I", "changed": false, "note": ""}, {"id": "E015", "section": "National Income", "topic": "National Income - Concepts & Aggregates", "type": "fact", "star": "hi", "front": "NNP = GNP − ?", "back": "**Depreciation** (consumption of fixed capital)", "pyq": "Asked: PFRDA 2022 Ph-II", "changed": false, "note": ""}, {"id": "E016", "section": "National Income", "topic": "National Income - Concepts & Aggregates", "type": "fact", "star": "hi", "front": "National Income (NNP at factor cost) from NNP at market prices?", "back": "NNP at MP **− indirect taxes + subsidies**", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": ""}, {"id": "E017", "section": "National Income", "topic": "National Income - Concepts & Aggregates", "type": "concept", "star": "hi", "front": "Personal Income and Disposable Personal Income: formulas?", "back": "**PI** = NI − corporate tax − undistributed profits − social security contributions + transfer payments\n**DPI** = PI − direct personal taxes", "pyq": "Asked: SEBI 2025 Ph-I, SEBI 2025 Ph-II", "changed": false, "note": "SEBI 2025 Ph-II numerical: NNP at MP 1000, indirect tax 120, subsidy 50 → NI 930; minus corporate tax 80 and undistributed profit 60 → PI 790."}, {"id": "E018", "section": "National Income", "topic": "National Income - Concepts & Aggregates", "type": "fact", "star": "hi", "front": "National income is best defined as…?", "back": "Total income earned by a country's **residents** (domestically and from abroad) in a year", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": "Value produced within borders is GDP, not national income."}, {"id": "E019", "section": "National Income", "topic": "National Income - Concepts & Aggregates", "type": "fact", "star": "hi", "front": "GDP deflator formula?", "back": "**Nominal GDP ÷ Real GDP × 100**", "pyq": "Asked: PFRDA 2025 Ph-II, SEBI 2025 Ph-I", "changed": false, "note": "Covers all goods and services in GDP, unlike CPI or WPI."}, {"id": "E020", "section": "National Income", "topic": "National Income - Concepts & Aggregates", "type": "concept", "star": "md", "front": "Real GDP 1,200 and price index 110: nominal GDP?", "back": "**1,320** (= 1,200 × 110 ÷ 100)", "pyq": "Asked: SEBI 2025 Ph-I", "changed": false, "note": ""}, {"id": "E021", "section": "National Income", "topic": "National Income - Concepts & Aggregates", "type": "fact", "star": "hi", "front": "Three methods of measuring national income?", "back": "**Product (value-added)**, **income**, **expenditure**", "pyq": "Asked: PFRDA 2025 Ph-II", "changed": false, "note": ""}, {"id": "E022", "section": "National Income", "topic": "National Income - Concepts & Aggregates", "type": "fact", "star": "hi", "front": "Which is the standard indicator of economic growth?", "back": "**Real GDP**", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": "Nominal GDP is distorted by inflation; HDI measures development, not growth."}, {"id": "E023", "section": "National Income", "topic": "National Income - Concepts & Aggregates", "type": "fact", "star": "md", "front": "Manufacturing belongs to which sector?", "back": "**Secondary**", "pyq": "Asked: PFRDA 2025 Ph-I", "changed": false, "note": ""}, {"id": "E024", "section": "National Income", "topic": "National Income - Concepts & Aggregates", "type": "fact", "star": "md", "front": "World Bank's four income groups (by GNI per capita)?", "back": "**Low, lower-middle, upper-middle, high**", "pyq": "Asked: PFRDA 2025 Ph-I", "changed": false, "note": "\"High net worth\" is not a country category."}, {"id": "E025", "section": "National Income", "topic": "National Income - Concepts & Aggregates", "type": "trap", "star": "hi", "front": "New base years: GDP, CPI, IIP?", "back": "GDP **2022-23** · CPI **2024** · IIP **2022-23**", "pyq": "", "changed": false, "note": "New GDP series released 27 Feb 2026, replacing 2011-12; CPI replaced 2012. Source: your EduTap GA decks (Jun/Aug 2026)."}, {"id": "E026", "section": "Output, Consumption & Multiplier", "topic": "Output, Consumption & Multiplier - Classical vs Keynes", "type": "fact", "star": "hi", "front": "Say's Law of Markets?", "back": "**Supply creates its own demand**", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": "Classical economics; assumes full employment."}, {"id": "E027", "section": "Output, Consumption & Multiplier", "topic": "Output, Consumption & Multiplier - Classical vs Keynes", "type": "fact", "star": "hi", "front": "In Keynes' theory, what determines output and employment?", "back": "**Effective demand** (aggregate demand)", "pyq": "Asked: PFRDA 2022 Ph-I, PFRDA 2021 Ph-II", "changed": false, "note": "Unemployment results from deficient demand."}, {"id": "E028", "section": "Output, Consumption & Multiplier", "topic": "Output, Consumption & Multiplier - Classical vs Keynes", "type": "fact", "star": "hi", "front": "Main determinant of the Keynesian consumption function?", "back": "**Disposable income** (C = a + bYd)", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": ""}, {"id": "E029", "section": "Output, Consumption & Multiplier", "topic": "Output, Consumption & Multiplier - Classical vs Keynes", "type": "trap", "star": "hi", "front": "Keynes' consumption function vs Friedman's Permanent Income Hypothesis?", "back": "Keynes: consumption depends on **current disposable income**. Friedman: on **permanent (long-run) income**; transitory income changes barely affect it", "pyq": "Asked: PFRDA 2025 Ph-I", "changed": false, "note": ""}, {"id": "E030", "section": "Output, Consumption & Multiplier", "topic": "Output, Consumption & Multiplier - Classical vs Keynes", "type": "fact", "star": "md", "front": "Who gave the life-cycle hypothesis and the relative income hypothesis?", "back": "Life-cycle: **Modigliani**. Relative income: **Duesenberry**", "pyq": "", "changed": false, "note": ""}, {"id": "E031", "section": "Output, Consumption & Multiplier", "topic": "Output, Consumption & Multiplier - Multiplier & Accelerator", "type": "fact", "star": "hi", "front": "Investment multiplier formula?", "back": "**1 ÷ (1 − MPC)** = 1 ÷ MPS", "pyq": "Asked: PFRDA 2021 Ph-II, PFRDA 2022 Ph-I", "changed": false, "note": "MPC 0.8 → multiplier 5."}, {"id": "E032", "section": "Output, Consumption & Multiplier", "topic": "Output, Consumption & Multiplier - Multiplier & Accelerator", "type": "fact", "star": "hi", "front": "Effect of a higher MPC on the multiplier?", "back": "**Larger multiplier**", "pyq": "Asked: PFRDA 2022 Ph-I", "changed": false, "note": ""}, {"id": "E033", "section": "Output, Consumption & Multiplier", "topic": "Output, Consumption & Multiplier - Multiplier & Accelerator", "type": "fact", "star": "hi", "front": "Accelerator principle?", "back": "Induced investment depends on the **change (rate of change) in output/income**", "pyq": "", "changed": false, "note": "Multiplier: investment → income. Accelerator: change in income → investment."}, {"id": "E034", "section": "Output, Consumption & Multiplier", "topic": "Output, Consumption & Multiplier - Multiplier & Accelerator", "type": "fact", "star": "md", "front": "Relation between investment and the rate of interest?", "back": "**Inverse**: investment falls as the interest rate rises (MEC vs interest rate)", "pyq": "Asked: PFRDA 2022 Ph-II", "changed": false, "note": ""}, {"id": "E035", "section": "Output, Consumption & Multiplier", "topic": "Output, Consumption & Multiplier - Multiplier & Accelerator", "type": "fact", "star": "md", "front": "Paradox of thrift?", "back": "If everyone tries to save more, aggregate demand and income fall, so **total saving may not rise**", "pyq": "", "changed": false, "note": ""}, {"id": "E036", "section": "Money", "topic": "Money - Demand for Money", "type": "fact", "star": "hi", "front": "Fisher's quantity theory equation?", "back": "**MV = PT**", "pyq": "Asked: PFRDA 2022 Ph-I, PFRDA 2025 Ph-II", "changed": false, "note": "Cambridge cash-balance version: M = kPY."}, {"id": "E037", "section": "Money", "topic": "Money - Demand for Money", "type": "fact", "star": "hi", "front": "Keynes' three motives for holding money?", "back": "**Transactions, precautionary, speculative**", "pyq": "", "changed": false, "note": "Only the speculative motive depends on the interest rate."}, {"id": "E038", "section": "Money", "topic": "Money - Demand for Money", "type": "fact", "star": "hi", "front": "Opportunity cost of holding cash?", "back": "**Interest forgone** on interest-bearing assets", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": ""}, {"id": "E039", "section": "Money", "topic": "Money - Demand for Money", "type": "fact", "star": "md", "front": "Liquidity trap?", "back": "At a very low interest rate, demand for money becomes **perfectly elastic**; monetary policy loses power", "pyq": "", "changed": false, "note": "The LM curve is flat there, so fiscal policy works."}, {"id": "E040", "section": "Money", "topic": "Money - Money Supply", "type": "fact", "star": "hi", "front": "Which measure is broad money?", "back": "**M3**", "pyq": "Asked: PFRDA 2021 Ph-I", "changed": false, "note": ""}, {"id": "E041", "section": "Money", "topic": "Money - Money Supply", "type": "concept", "star": "hi", "front": "M0, M1 and M3 components?", "back": "**M0** (reserve money) = currency in circulation + bankers' deposits with RBI + other deposits with RBI\n**M1** = currency with public + demand deposits with banks + other deposits with RBI\n**M3** = M1 + time deposits with banks", "pyq": "Asked: SEBI 2025 Ph-I", "changed": false, "note": "SEBI 2025 M3 sum: currency with public + demand deposits + time deposits + other deposits with RBI = ₹2,72,86,589 cr. \"Currency in circulation\" and \"bankers' deposits with RBI\" were distractors."}, {"id": "E042", "section": "Money", "topic": "Money - Money Supply", "type": "fact", "star": "hi", "front": "Money multiplier formula?", "back": "**M3 ÷ M0** (broad money ÷ reserve money)", "pyq": "Asked: PFRDA 2025 Ph-II", "changed": false, "note": "Textbook form: (1 + c) ÷ (c + r)."}, {"id": "E043", "section": "Money", "topic": "Money - Money Supply", "type": "concept", "star": "md", "front": "Money multiplier PYQ: CRR 12%, demand deposits 1,100, currency 500, excess reserves 2?", "back": "**≈ 2.54**", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "M = 500 + 1,100 = 1,600. H = 500 + (132 + 2) = 634. 1,600 ÷ 634 ≈ 2.54."}, {"id": "E044", "section": "IS-LM & Business Cycles", "topic": "IS-LM & Business Cycles - IS-LM", "type": "fact", "star": "hi", "front": "The two variables on the IS-LM axes?", "back": "**Income (output) and the rate of interest**", "pyq": "Asked: PFRDA 2021 Ph-I", "changed": false, "note": "IS = goods-market equilibrium (downward); LM = money-market equilibrium (upward). Model by Hicks and Hansen."}, {"id": "E045", "section": "IS-LM & Business Cycles", "topic": "IS-LM & Business Cycles - IS-LM", "type": "fact", "star": "hi", "front": "An increase in money supply shifts which curve, which way?", "back": "**LM shifts right**", "pyq": "Asked: PFRDA 2022 Ph-II", "changed": false, "note": "Interest rate falls, income rises."}, {"id": "E046", "section": "IS-LM & Business Cycles", "topic": "IS-LM & Business Cycles - IS-LM", "type": "fact", "star": "hi", "front": "Expansionary fiscal policy shifts which curve?", "back": "**IS shifts right**", "pyq": "", "changed": false, "note": ""}, {"id": "E047", "section": "IS-LM & Business Cycles", "topic": "IS-LM & Business Cycles - Business Cycles & Indicators", "type": "fact", "star": "md", "front": "Four phases of a business cycle?", "back": "**Expansion → peak → contraction (recession) → trough**", "pyq": "", "changed": false, "note": ""}, {"id": "E048", "section": "IS-LM & Business Cycles", "topic": "IS-LM & Business Cycles - Business Cycles & Indicators", "type": "fact", "star": "hi", "front": "Leading vs lagging vs coincident indicators?", "back": "**Leading** change before the economy · **lagging** change after it · **coincident** move with it", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": ""}, {"id": "E049", "section": "IS-LM & Business Cycles", "topic": "IS-LM & Business Cycles - Business Cycles & Indicators", "type": "fact", "star": "md", "front": "PMI reading that signals expansion?", "back": "**Above 50**", "pyq": "Asked: PFRDA 2021 Ph-I", "changed": false, "note": "Built from new orders, output, employment, suppliers' delivery times and stocks of purchases."}, {"id": "E050", "section": "Inflation", "topic": "Inflation - Types & Phillips Curve", "type": "fact", "star": "hi", "front": "\"Too much money chasing too few goods\" describes which inflation?", "back": "**Demand-pull**", "pyq": "Asked: PFRDA 2022 Ph-II, PFRDA 2025 Ph-II", "changed": false, "note": "A rise in government spending is a classic cause (SEBI 2024)."}, {"id": "E051", "section": "Inflation", "topic": "Inflation - Types & Phillips Curve", "type": "fact", "star": "md", "front": "Cost-push inflation is caused by…?", "back": "Rising **input costs** or adverse **supply shocks** (wages, oil, raw materials)", "pyq": "", "changed": false, "note": ""}, {"id": "E052", "section": "Inflation", "topic": "Inflation - Types & Phillips Curve", "type": "fact", "star": "hi", "front": "Stagflation?", "back": "**High inflation + high unemployment + stagnant output**", "pyq": "Asked: PFRDA 2022 Ph-II", "changed": false, "note": ""}, {"id": "E053", "section": "Inflation", "topic": "Inflation - Types & Phillips Curve", "type": "fact", "star": "hi", "front": "Phillips curve shows what relationship?", "back": "**Inverse** relationship between **unemployment and inflation**", "pyq": "Asked: PFRDA 2022 Ph-I, PFRDA 2021 Ph-II", "changed": false, "note": "A.W. Phillips (1958), originally with money-wage inflation."}, {"id": "E054", "section": "Inflation", "topic": "Inflation - Types & Phillips Curve", "type": "fact", "star": "hi", "front": "Effect of a negative supply shock on the Phillips curve?", "back": "Shifts it **right (up)**: **higher inflation and higher unemployment**", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": ""}, {"id": "E055", "section": "Inflation", "topic": "Inflation - Types & Phillips Curve", "type": "fact", "star": "md", "front": "Shape of the long-run Phillips curve?", "back": "**Vertical** at the natural rate of unemployment (NAIRU)", "pyq": "", "changed": false, "note": "Friedman–Phelps."}, {"id": "E056", "section": "Inflation", "topic": "Inflation - Types & Phillips Curve", "type": "fact", "star": "md", "front": "When inflation rises, the value of money…?", "back": "**Falls** (lower purchasing power)", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": ""}, {"id": "E057", "section": "Inflation", "topic": "Inflation - Measures", "type": "fact", "star": "hi", "front": "Core inflation excludes which items?", "back": "**Food and fuel**", "pyq": "Asked: PFRDA 2022 Ph-I", "changed": false, "note": ""}, {"id": "E058", "section": "Inflation", "topic": "Inflation - Measures", "type": "fact", "star": "hi", "front": "\"Headline inflation\" in India refers to which index?", "back": "**CPI** (all-India CPI-Combined)", "pyq": "Asked: PFRDA 2022 Ph-II, PFRDA 2025 Ph-II", "changed": false, "note": "RBI's inflation target is set on CPI."}, {"id": "E059", "section": "Inflation", "topic": "Inflation - Measures", "type": "trap", "star": "md", "front": "Who compiles WPI vs CPI?", "back": "**WPI**: Office of the Economic Adviser, **DPIIT**. **CPI**: **NSO, MoSPI**", "pyq": "", "changed": false, "note": "CPI-IW is released by the Labour Bureau."}, {"id": "E060", "section": "Monetary Policy", "topic": "Monetary Policy - Framework", "type": "fact", "star": "hi", "front": "Primary objective of monetary policy under the amended RBI Act?", "back": "**Price stability**, keeping in mind the objective of growth", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": ""}, {"id": "E061", "section": "Monetary Policy", "topic": "Monetary Policy - Framework", "type": "fact", "star": "hi", "front": "Inflation target for 1 April 2026 – 31 March 2031?", "back": "**CPI 4% ± 2%** (band 2%–6%), retained", "pyq": "Asked: PFRDA 2025 Ph-II", "changed": false, "note": "Set by the Government in consultation with RBI under s.45ZA of the RBI Act. Source: checked on the web, 14 Oct 2026."}, {"id": "E062", "section": "Monetary Policy", "topic": "Monetary Policy - Framework", "type": "fact", "star": "hi", "front": "When has RBI failed the inflation target?", "back": "Average CPI inflation **outside 2%–6% for 3 consecutive quarters**", "pyq": "", "changed": false, "note": "RBI must then report reasons and remedial action to the Government."}, {"id": "E063", "section": "Monetary Policy", "topic": "Monetary Policy - Framework", "type": "fact", "star": "hi", "front": "Monetary Policy Committee: size and who breaks a tie?", "back": "**6 members** (3 from RBI incl. the Governor, 3 Government nominees); **Governor has a casting vote**", "pyq": "", "changed": false, "note": "s.45ZB of the RBI Act; meets at least 4 times a year."}, {"id": "E064", "section": "Monetary Policy", "topic": "Monetary Policy - Instruments", "type": "trap", "star": "hi", "front": "Direct vs indirect monetary instruments?", "back": "**Direct: CRR, SLR**. **Indirect: repo, reverse repo, OMO, MSF, SDF**", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": ""}, {"id": "E065", "section": "Monetary Policy", "topic": "Monetary Policy - Instruments", "type": "trap", "star": "md", "front": "Under which Act are CRR and SLR maintained?", "back": "**CRR: RBI Act, 1934** · **SLR: Banking Regulation Act, 1949**", "pyq": "", "changed": false, "note": "Source: your EduTap GA decks (Jun/Aug 2026)."}, {"id": "E066", "section": "Monetary Policy", "topic": "Monetary Policy - Instruments", "type": "fact", "star": "hi", "front": "Policy rates after the 63rd MPC (7 Oct 2026)?", "back": "**Repo 5.50%** (hiked 25 bps) · **SDF 5.25%** · **MSF = Bank Rate 5.75%**", "pyq": "", "changed": false, "note": "Stance changed from neutral to \"calibrated tightening\". Your GA decks show the older 5.25% from Jun/Aug. Source: checked on the web, 14 Oct 2026."}, {"id": "E067", "section": "Monetary Policy", "topic": "Monetary Policy - Instruments", "type": "fact", "star": "hi", "front": "Current CRR and SLR?", "back": "**CRR 3%** of NDTL · **SLR 18%** of NDTL", "pyq": "", "changed": false, "note": "From 16 Oct 2026 banks must keep at least 99% (was 90%) of required CRR every day. Source: checked on the web, 14 Oct 2026."}, {"id": "E068", "section": "Monetary Policy", "topic": "Monetary Policy - Instruments", "type": "fact", "star": "md", "front": "Floor and ceiling of the LAF corridor?", "back": "Floor: **SDF** (collateral-free, since April 2022). Ceiling: **MSF**", "pyq": "", "changed": false, "note": ""}, {"id": "E069", "section": "Monetary Policy", "topic": "Monetary Policy - Instruments", "type": "concept", "star": "hi", "front": "Classify: repo hike; tax cut + more money supply; higher autonomous spending + more money supply; cut in discretionary spending?", "back": "**Contractionary · expansionary · expansionary · contractionary**", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": ""}, {"id": "E070", "section": "Fiscal Policy", "topic": "Fiscal Policy - Deficits & Receipts", "type": "fact", "star": "hi", "front": "Fiscal deficit definition (FRBM)?", "back": "Total expenditure **excluding debt repayment** − total receipts **excluding borrowings (debt receipts)**", "pyq": "Asked: SEBI 2024 Ph-II, SEBI 2025 Ph-I", "changed": false, "note": "It equals the government's borrowing requirement."}, {"id": "E071", "section": "Fiscal Policy", "topic": "Fiscal Policy - Deficits & Receipts", "type": "fact", "star": "hi", "front": "Primary deficit = ?", "back": "**Fiscal deficit − interest payments**", "pyq": "", "changed": false, "note": ""}, {"id": "E072", "section": "Fiscal Policy", "topic": "Fiscal Policy - Deficits & Receipts", "type": "fact", "star": "md", "front": "Revenue deficit and effective revenue deficit?", "back": "RD = revenue expenditure − revenue receipts. **ERD = RD − grants for creation of capital assets**", "pyq": "", "changed": false, "note": ""}, {"id": "E073", "section": "Fiscal Policy", "topic": "Fiscal Policy - Deficits & Receipts", "type": "trap", "star": "hi", "front": "Which is NOT a non-tax revenue receipt: interest receipts, dividends, user fees, penalties, borrowings?", "back": "**Borrowings** (a capital receipt and a liability)", "pyq": "Asked: PFRDA 2022 Ph-I, PFRDA 2025 Ph-I", "changed": false, "note": ""}, {"id": "E074", "section": "Fiscal Policy", "topic": "Fiscal Policy - Deficits & Receipts", "type": "fact", "star": "hi", "front": "Example of an automatic stabiliser?", "back": "**Unemployment benefits** (also progressive income tax)", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": "They adjust without new decisions; stimulus packages and infrastructure spending are discretionary."}, {"id": "E075", "section": "Fiscal Policy", "topic": "Fiscal Policy - Deficits & Receipts", "type": "fact", "star": "md", "front": "India's fiscal year and the constitutional name of the Budget?", "back": "**1 April – 31 March**; **Annual Financial Statement (Article 112)**", "pyq": "Asked: PFRDA 2022 Ph-I", "changed": false, "note": ""}, {"id": "E076", "section": "Fiscal Policy", "topic": "Fiscal Policy - Deficits & Receipts", "type": "fact", "star": "md", "front": "Crowding out?", "back": "Higher government borrowing raises interest rates and **reduces private investment**", "pyq": "", "changed": false, "note": ""}, {"id": "E077", "section": "Fiscal Policy", "topic": "Fiscal Policy - FRBM", "type": "fact", "star": "hi", "front": "FRBM Act: year enacted vs year in force?", "back": "Enacted **2003**; in force **5 July 2004**", "pyq": "", "changed": false, "note": "Escape clause allows deviation in national security, war, calamity or a sharp output fall."}, {"id": "E078", "section": "Fiscal Policy", "topic": "Fiscal Policy - FRBM", "type": "trap", "star": "hi", "front": "FRBM 2018 debt ceiling vs the new fiscal anchor?", "back": "**FRBM 2018**: general government debt **60%** of GDP (Centre **40%**, States 20%)\n**New anchor**: Centre's debt **50 ± 1%** of GDP by **31 March 2031**", "pyq": "", "changed": false, "note": "You slipped on this in P2 Mock 3."}, {"id": "E079", "section": "BoP & Forex", "topic": "BoP & Forex - Balance of Payments", "type": "fact", "star": "hi", "front": "Main accounts of the Balance of Payments?", "back": "**Current account** (goods, services, primary income, secondary income/remittances), **capital account**, **financial account** (FDI, FPI, loans)", "pyq": "", "changed": false, "note": ""}, {"id": "E080", "section": "BoP & Forex", "topic": "BoP & Forex - Balance of Payments", "type": "fact", "star": "hi", "front": "Trade deficit?", "back": "**Imports exceed exports**", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": ""}, {"id": "E081", "section": "BoP & Forex", "topic": "BoP & Forex - Balance of Payments", "type": "fact", "star": "hi", "front": "Components of India's forex reserves?", "back": "**Foreign currency assets, gold, SDRs, Reserve Tranche Position in the IMF**", "pyq": "Asked: PFRDA 2021 Ph-II", "changed": false, "note": ""}, {"id": "E082", "section": "BoP & Forex", "topic": "BoP & Forex - Balance of Payments", "type": "fact", "star": "md", "front": "Which institution lends to member governments facing balance-of-payments problems?", "back": "**IMF**", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": ""}, {"id": "E083", "section": "BoP & Forex", "topic": "BoP & Forex - Forex Market", "type": "fact", "star": "md", "front": "Milestones: LERMS, market-determined rate, current account convertibility?", "back": "LERMS **1992** → market-determined rate **1993** → current account convertibility **August 1994** (IMF Article VIII)", "pyq": "", "changed": false, "note": ""}, {"id": "E084", "section": "BoP & Forex", "topic": "BoP & Forex - Forex Market", "type": "fact", "star": "md", "front": "Which law replaced FERA, 1973?", "back": "**FEMA, 1999**", "pyq": "", "changed": false, "note": ""}, {"id": "E085", "section": "BoP & Forex", "topic": "BoP & Forex - Forex Market", "type": "fact", "star": "md", "front": "Effect of rupee depreciation on trade?", "back": "**Exports cheaper, imports dearer**", "pyq": "", "changed": false, "note": ""}, {"id": "E086", "section": "NBFCs", "topic": "NBFCs - Regulation", "type": "fact", "star": "hi", "front": "Four layers of RBI's scale-based regulation of NBFCs?", "back": "**Base, Middle, Upper, Top**", "pyq": "Asked: PFRDA 2022 Ph-II", "changed": false, "note": "In force from October 2022. The Top layer is expected to stay empty."}, {"id": "E087", "section": "NBFCs", "topic": "NBFCs - Regulation", "type": "trap", "star": "hi", "front": "Three things an NBFC cannot do that a bank can?", "back": "Accept **demand deposits**; be part of the **payment and settlement system** (issue cheques drawn on itself); offer **deposit insurance (DICGC)** to depositors", "pyq": "", "changed": false, "note": ""}, {"id": "E088", "section": "NBFCs", "topic": "NBFCs - Regulation", "type": "fact", "star": "md", "front": "Minimum net owned fund for an Asset Reconstruction Company?", "back": "**₹300 crore**", "pyq": "Asked: PFRDA 2022 P1 GA", "changed": false, "note": "Raised from ₹100 crore by RBI in October 2022."}, {"id": "E089", "section": "Budget 2026-27 & Survey", "topic": "Budget 2026-27 & Survey - Union Budget 2026-27", "type": "fact", "star": "hi", "front": "Fiscal deficit target for FY 2026-27 (BE)?", "back": "**4.3% of GDP**", "pyq": "", "changed": false, "note": "FY26 revised estimate 4.4% (target met). Source: checked on the web, 14 Oct 2026."}, {"id": "E090", "section": "Budget 2026-27 & Survey", "topic": "Budget 2026-27 & Survey - Union Budget 2026-27", "type": "fact", "star": "hi", "front": "Fiscal deficit target for FY 2025-26 set in Budget 2025-26?", "back": "**4.4% of GDP**", "pyq": "Asked: SEBI 2025 Ph-I", "changed": false, "note": ""}, {"id": "E091", "section": "Budget 2026-27 & Survey", "topic": "Budget 2026-27 & Survey - Union Budget 2026-27", "type": "trap", "star": "hi", "front": "Capital expenditure: FY27 BE vs FY26 BE?", "back": "**FY27: ₹12.2 lakh crore** (₹12,21,821 cr) vs **FY26: ₹11.21 lakh crore**", "pyq": "", "changed": false, "note": "Effective capex FY27 (capex + grants for capital assets): ₹17.15 lakh crore. Source: checked on the web, 14 Oct 2026. You slipped on this in P2 Mock 3."}, {"id": "E092", "section": "Budget 2026-27 & Survey", "topic": "Budget 2026-27 & Survey - Union Budget 2026-27", "type": "fact", "star": "hi", "front": "Centre's debt-to-GDP: FY27 BE and the 2030-31 target?", "back": "**55.6%** in FY27 (FY26 RE 56.1%); target **50 ± 1% by 31 March 2031**", "pyq": "", "changed": false, "note": "Debt has replaced the deficit as the main fiscal anchor. Source: checked on the web, 14 Oct 2026."}, {"id": "E093", "section": "Budget 2026-27 & Survey", "topic": "Budget 2026-27 & Survey - Union Budget 2026-27", "type": "fact", "star": "md", "front": "Total expenditure in Budget 2026-27?", "back": "**₹53.5 lakh crore**", "pyq": "", "changed": false, "note": "Source: checked on the web, 14 Oct 2026."}, {"id": "E094", "section": "Budget 2026-27 & Survey", "topic": "Budget 2026-27 & Survey - Union Budget 2026-27", "type": "fact", "star": "md", "front": "When and by whom was Budget 2026-27 presented?", "back": "**1 February 2026**, Finance Minister **Nirmala Sitharaman**", "pyq": "", "changed": false, "note": "Source: checked on the web, 14 Oct 2026."}, {"id": "E095", "section": "Budget 2026-27 & Survey", "topic": "Budget 2026-27 & Survey - Union Budget 2026-27", "type": "fact", "star": "md", "front": "Budget 2025-26: new FDI limit in insurance (for insurers investing the entire premium in India)?", "back": "**100%** (from 74%)", "pyq": "Asked: SEBI 2025 Ph-I", "changed": false, "note": ""}, {"id": "E096", "section": "Budget 2026-27 & Survey", "topic": "Budget 2026-27 & Survey - Finance Commission", "type": "fact", "star": "hi", "front": "16th Finance Commission: chair, period and states' share of the divisible pool?", "back": "**Arvind Panagariya**; **2026-27 to 2030-31**; vertical devolution **41%** (unchanged)", "pyq": "", "changed": false, "note": "Report tabled with Budget 2026-27. Source: checked on the web, 14 Oct 2026."}, {"id": "E097", "section": "Budget 2026-27 & Survey", "topic": "Budget 2026-27 & Survey - Finance Commission", "type": "concept", "star": "hi", "front": "16th FC horizontal devolution weights?", "back": "Income distance **42.5%** · population (2011) **17.5%** · area **10%** · forest & ecology **10%** · demographic performance **10%** · **contribution to GDP 10%** (new)", "pyq": "", "changed": false, "note": "Tax-effort criterion dropped. Revenue deficit grants discontinued. Source: checked on the web, 14 Oct 2026."}, {"id": "E098", "section": "Budget 2026-27 & Survey", "topic": "Budget 2026-27 & Survey - Finance Commission", "type": "trap", "star": "hi", "front": "Income-distance weight: 15th FC vs 16th FC?", "back": "**15th FC: 45%** vs **16th FC: 42.5%**", "pyq": "Asked: PFRDA 2022 Ph-II", "changed": false, "note": ""}, {"id": "E099", "section": "Budget 2026-27 & Survey", "topic": "Budget 2026-27 & Survey - Economic Survey 2025-26", "type": "fact", "star": "hi", "front": "Who prepares the Economic Survey, and when is it tabled?", "back": "**Economic Division, Department of Economic Affairs**, under the **Chief Economic Adviser**; tabled before the Budget", "pyq": "", "changed": false, "note": "ES 2025-26 tabled 29 Jan 2026; CEA V. Anantha Nageswaran. Source: checked on the web, 14 Oct 2026."}, {"id": "E100", "section": "Budget 2026-27 & Survey", "topic": "Budget 2026-27 & Survey - Economic Survey 2025-26", "type": "fact", "star": "hi", "front": "Economic Survey 2025-26 projection of real GDP growth for FY27?", "back": "**6.8% – 7.2%**", "pyq": "", "changed": false, "note": "Medium-term potential growth put near 7%. Source: checked on the web, 14 Oct 2026."}]</script>
+<script type="application/json" id="topics-data">["Micro - Demand & Supply", "Micro - Market Structures", "National Income - Concepts & Aggregates", "Output, Consumption & Multiplier - Classical vs Keynes", "Output, Consumption & Multiplier - Multiplier & Accelerator", "Money - Demand for Money", "Money - Money Supply", "IS-LM & Business Cycles - IS-LM", "IS-LM & Business Cycles - Business Cycles & Indicators", "Inflation - Types & Phillips Curve", "Inflation - Measures", "Monetary Policy - Framework", "Monetary Policy - Instruments", "Fiscal Policy - Deficits & Receipts", "Fiscal Policy - FRBM", "BoP & Forex - Balance of Payments", "BoP & Forex - Forex Market", "NBFCs - Regulation", "Budget 2026-27 & Survey - Union Budget 2026-27", "Budget 2026-27 & Survey - Finance Commission", "Budget 2026-27 & Survey - Economic Survey 2025-26"]</script>
+<script>
+(function(){
+'use strict';
+var KEY='pfrda_econ_oct2026_progress';
+var THEME_KEY='pfrda_econ_oct2026_theme';
+var CARDS=JSON.parse(document.getElementById('cards-data').textContent);
+var TOPICS=JSON.parse(document.getElementById('topics-data').textContent);
+var $=function(id){return document.getElementById(id);};
+
+/* ---------- storage (never required) ---------- */
+var storageOk=true;
+function sGet(k){try{return window.localStorage.getItem(k);}catch(e){storageOk=false;return null;}}
+function sSet(k,v){try{window.localStorage.setItem(k,v);return true;}catch(e){storageOk=false;showBanner();return false;}}
+function sDel(k){try{window.localStorage.removeItem(k);}catch(e){storageOk=false;}}
+function showBanner(){ $('banner').hidden=false; }
+(function probe(){try{var t='__pfrda_probe__';window.localStorage.setItem(t,'1');window.localStorage.removeItem(t);}catch(e){storageOk=false;}})();
+
+var progress={};
+(function(){
+  var raw=sGet(KEY);
+  if(!raw) return;
+  try{
+    var o=JSON.parse(raw);
+    if(o && typeof o==='object'){
+      for(var k in o){ if(Object.prototype.hasOwnProperty.call(o,k) && (o[k]==='known'||o[k]==='learning')) progress[k]=o[k]; }
+    }
+  }catch(e){}
+})();
+function saveProgress(){ sSet(KEY,JSON.stringify(progress)); }
+
+/* ---------- theme ---------- */
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  $('bTheme').textContent = t==='dark' ? 'Light theme' : 'Dark theme';
+}
+var theme=sGet(THEME_KEY);
+if(theme!=='light' && theme!=='dark'){
+  theme=(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';
+}
+applyTheme(theme);
+
+/* ---------- state ---------- */
+var byId={};
+CARDS.forEach(function(c){byId[c.id]=c;});
+var baseOrder=CARDS.map(function(c){return c.id;});
+var order=baseOrder.slice();
+var filters={topics:[],type:'all',status:'all',hi:false,pyq:false};
+var view=[], pos=0, flipped=false;
+
+function statusOf(id){var s=progress[id];return (s==='known'||s==='learning')?s:'unseen';}
+function matches(c){
+  if(filters.topics.length && filters.topics.indexOf(c.topic)<0) return false;
+  if(filters.type!=='all' && c.type!==filters.type) return false;
+  if(filters.hi && c.star!=='hi') return false;
+  if(filters.pyq && !c.pyq) return false;
+  if(filters.status==='notknown'){ if(statusOf(c.id)==='known') return false; }
+  else if(filters.status!=='all' && statusOf(c.id)!==filters.status) return false;
+  return true;
+}
+function rebuild(keepId){
+  view=order.filter(function(id){return matches(byId[id]);});
+  var i=keepId?view.indexOf(keepId):-1;
+  pos=i>=0?i:0;
+  flipped=false;
+  render();
+}
+
+/* ---------- rendering ---------- */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmt(s){return esc(s).replace(/\*\*([\s\S]+?)\*\*/g,'<strong>$1</strong>');}
+var TYPE_LABEL={fact:'Fact',trap:'Trap',concept:'Concept'};
+var STATUS_LABEL={unseen:'Unseen',learning:'Still learning',known:'Known'};
+
+function renderStats(){
+  var n=view.length,k=0,l=0;
+  view.forEach(function(id){var s=statusOf(id); if(s==='known')k++; else if(s==='learning')l++;});
+  $('sTotal').textContent=n;
+  $('sUnseen').textContent=n-k-l;
+  $('sLearn').textContent=l;
+  $('sKnown').textContent=k;
+  $('sPct').textContent=(n?Math.round(k*100/n):0)+'%';
+}
+function renderCard(){
+  var el=$('card');
+  if(!view.length){
+    el.className='card empty';
+    el.removeAttribute('data-type');
+    el.setAttribute('aria-expanded','false');
+    el.setAttribute('aria-label','No cards match these filters');
+    el.innerHTML='<p class="q" style="margin:0">No cards match these filters.</p><p class="note" style="margin:0">Change or clear a filter above to widen the set.</p><button type="button" id="emptyClear">Clear filters</button>';
+    var b=$('emptyClear'); if(b) b.addEventListener('click',function(e){e.stopPropagation();clearFilters();});
+    return;
+  }
+  var c=byId[view[pos]], st=statusOf(c.id);
+  var h='<div class="meta">';
+  h+='<span class="badge b-type">'+TYPE_LABEL[c.type]+'</span>';
+  if(c.star==='hi') h+='<span class="badge b-star">★ High-yield</span>';
+  else if(c.star==='md') h+='<span class="badge b-star">☆ Medium</span>';
+  if(c.pyq) h+='<span class="badge b-pyq">'+esc(c.pyq)+'</span>';
+  h+='</div>';
+  h+='<div class="topic">'+esc(c.topic)+'</div>';
+  h+='<div class="q">'+fmt(c.front)+'</div>';
+  h+='<div class="hint">Tap the card or press Space to reveal the answer.</div>';
+  h+='<div class="a"><div class="ans">'+fmt(c.back)+'</div>';
+  if(c.note) h+='<div class="note">'+fmt(c.note)+'</div>';
+  h+='</div>';
+  h+='<div class="cfoot"><span>'+(pos+1)+' of '+view.length+(pos===view.length-1?' (end of set)':'')+'</span><span class="s-'+st+'">'+STATUS_LABEL[st]+'</span></div>';
+  el.className='card'+(flipped?' flipped':'');
+  el.setAttribute('data-type',c.type);
+  el.setAttribute('aria-expanded',flipped?'true':'false');
+  el.setAttribute('aria-label','Card '+(pos+1)+' of '+view.length+'. Press Space or Enter to '+(flipped?'hide':'show')+' the answer.');
+  el.innerHTML=h;
+}
+function renderControls(){
+  var has=view.length>0;
+  $('bPrev').disabled=!has||pos===0;
+  $('bNext').disabled=!has||pos>=view.length-1;
+  $('bFlip').disabled=!has;
+  $('bKnown').disabled=!has;
+  $('bLearn').disabled=!has;
+  $('bFlip').textContent=flipped?'Hide answer':'Show answer';
+}
+function render(){ renderCard(); renderControls(); renderStats(); renderFilterSummary(); }
+
+/* ---------- actions ---------- */
+function focusCard(){ try{$('card').focus({preventScroll:true});}catch(e){$('card').focus();} }
+function flip(){
+  if(!view.length) return;
+  flipped=!flipped;
+  var el=$('card');
+  el.classList.toggle('flipped',flipped);
+  el.setAttribute('aria-expanded',flipped?'true':'false');
+  $('bFlip').textContent=flipped?'Hide answer':'Show answer';
+}
+function go(d){
+  if(!view.length) return;
+  var p=pos+d;
+  if(p<0||p>=view.length) return;
+  pos=p; flipped=false; render();
+}
+function mark(val){
+  if(!view.length) return;
+  progress[view[pos]]=val;
+  saveProgress();
+  if(pos<view.length-1){pos++;flipped=false;}
+  render();
+}
+function shuffle(){
+  var keep=null;
+  for(var i=order.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=order[i];order[i]=order[j];order[j]=t;}
+  rebuild(keep);
+}
+function resetOrder(){ order=baseOrder.slice(); rebuild(null); }
+
+/* ---------- modal ---------- */
+var lastFocus=null;
+function openModal(){
+  lastFocus=document.activeElement;
+  $('mText').textContent='This clears every Known and Still learning mark for all '+CARDS.length+' cards saved in this browser.';
+  $('modal').hidden=false;
+  $('mCancel').focus();
+}
+function closeModal(){ $('modal').hidden=true; if(lastFocus&&lastFocus.focus) lastFocus.focus(); else focusCard(); }
+function doReset(){
+  progress={}; sDel(KEY);
+  var cur=view.length?view[pos]:null;
+  $('modal').hidden=true;
+  rebuild(cur);
+  focusCard();
+}
+
+/* ---------- filters UI ---------- */
+/* Topic picker: one native select. Each area is an optgroup whose first option takes the whole area. */
+var PREF_KEY='pfrda_econ_oct2026_filters';
+var topicCounts={}, groupOf={}, GROUPS=[], groupTopics={}, groupCounts={};
+CARDS.forEach(function(c){
+  topicCounts[c.topic]=(topicCounts[c.topic]||0)+1;
+  if(!groupOf[c.topic] || (groupOf[c.topic]==='Addendum' && c.section!=='Addendum')) groupOf[c.topic]=c.section;
+});
+TOPICS.forEach(function(t){
+  if(!topicCounts[t]) return;
+  var g=groupOf[t];
+  if(!groupTopics[g]){ GROUPS.push(g); groupTopics[g]=[]; groupCounts[g]=0; }
+  groupTopics[g].push(t); groupCounts[g]+=topicCounts[t];
+});
+function shortTopic(t,g){
+  var seps=[' — ',' - '];
+  for(var i=0;i<seps.length;i++){ if(t.indexOf(g+seps[i])===0) return t.slice((g+seps[i]).length); }
+  return t.replace(/^\d+\s+/,'');
+}
+(function buildTopics(){
+  var h='<option value="all">All topics ('+CARDS.length+')</option>';
+  GROUPS.forEach(function(g,gi){
+    h+='<optgroup label="'+esc(g)+'">';
+    h+='<option value="g:'+gi+'">All of '+esc(g)+' ('+groupCounts[g]+')</option>';
+    groupTopics[g].forEach(function(t){
+      h+='<option value="t:'+TOPICS.indexOf(t)+'">'+esc(shortTopic(t,g))+' ('+topicCounts[t]+')</option>';
+    });
+    h+='</optgroup>';
+  });
+  $('topicSel').innerHTML=h;
+})();
+var topicChoice='all';
+function topicsFor(v){
+  if(v.indexOf('g:')===0){ var g=GROUPS[+v.slice(2)]; return g?groupTopics[g].slice():[]; }
+  if(v.indexOf('t:')===0){ var t=TOPICS[+v.slice(2)]; return t?[t]:[]; }
+  return [];
+}
+function savePrefs(){
+  sSet(PREF_KEY,JSON.stringify({topic:topicChoice,type:filters.type,status:filters.status,hi:filters.hi,pyq:filters.pyq}));
+}
+function syncFilterUI(){
+  $('topicSel').value=topicChoice;
+  $('typeSel').value=filters.type;
+  $('statusSel').value=filters.status;
+  $('topicSel').classList.toggle('on',topicChoice!=='all');
+  $('typeSel').classList.toggle('on',filters.type!=='all');
+  $('statusSel').classList.toggle('on',filters.status!=='all');
+  $('fHi').setAttribute('aria-pressed',filters.hi?'true':'false');
+  $('fPyq').setAttribute('aria-pressed',filters.pyq?'true':'false');
+}
+(function loadPrefs(){
+  var raw=sGet(PREF_KEY); if(!raw) return;
+  try{
+    var o=JSON.parse(raw); if(!o||typeof o!=='object') return;
+    if(typeof o.topic==='string' && $('topicSel').querySelector('option[value="'+o.topic.replace(/"/g,'')+'"]')){ topicChoice=o.topic; filters.topics=topicsFor(o.topic); }
+    if(['all','fact','trap','concept'].indexOf(o.type)>=0) filters.type=o.type;
+    if(['all','unseen','learning','known','notknown'].indexOf(o.status)>=0) filters.status=o.status;
+    filters.hi=o.hi===true; filters.pyq=o.pyq===true;
+  }catch(e){}
+})();
+function onFilterChange(){
+  savePrefs();
+  syncFilterUI();
+  var cur=view.length?view[pos]:null;
+  rebuild(cur);
+}
+$('topicSel').addEventListener('change',function(){ topicChoice=this.value; filters.topics=topicsFor(topicChoice); onFilterChange(); });
+$('typeSel').addEventListener('change',function(){ filters.type=this.value; onFilterChange(); });
+$('statusSel').addEventListener('change',function(){ filters.status=this.value; onFilterChange(); });
+$('fHi').addEventListener('click',function(){ filters.hi=!filters.hi; onFilterChange(); });
+$('fPyq').addEventListener('click',function(){ filters.pyq=!filters.pyq; onFilterChange(); });
+function clearFilters(){
+  filters={topics:[],type:'all',status:'all',hi:false,pyq:false};
+  topicChoice='all';
+  onFilterChange();
+}
+$('fClear').addEventListener('click',clearFilters);
+function renderFilterSummary(){
+  var on=topicChoice!=='all'||filters.type!=='all'||filters.status!=='all'||filters.hi||filters.pyq;
+  $('fClear').hidden=!on;
+}
+syncFilterUI();
+
+/* ---------- wiring ---------- */
+$('card').addEventListener('click',function(e){
+  if(!view.length) return;
+  var sel=window.getSelection && String(window.getSelection());
+  if(sel && sel.length>0 && flipped) return;
+  flip();
+});
+function bind(id,fn){ $(id).addEventListener('click',function(){ fn(); if(id!=='bReset') focusCard(); }); }
+bind('bPrev',function(){go(-1);});
+bind('bNext',function(){go(1);});
+bind('bFlip',flip);
+bind('bKnown',function(){mark('known');});
+bind('bLearn',function(){mark('learning');});
+bind('bShuffle',shuffle);
+bind('bOrder',resetOrder);
+bind('bReset',openModal);
+bind('bTheme',function(){ theme=theme==='dark'?'light':'dark'; applyTheme(theme); sSet(THEME_KEY,theme); });
+$('mCancel').addEventListener('click',closeModal);
+$('mOk').addEventListener('click',doReset);
+$('modal').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
+
+document.addEventListener('keydown',function(e){
+  if(!$('modal').hidden){ if(e.key==='Escape'){e.preventDefault();closeModal();} return; }
+  if(e.ctrlKey||e.metaKey||e.altKey) return;
+  var t=e.target, tag=(t&&t.tagName||'').toLowerCase();
+  if(tag==='input'||tag==='select'||tag==='textarea'||tag==='summary'||(t&&t.isContentEditable)) return;
+  var k=e.key;
+  if(k===' '||k==='Spacebar'||k==='Enter'){
+    if(tag==='button') return;
+    e.preventDefault(); flip(); return;
+  }
+  if(k==='ArrowRight'){e.preventDefault();go(1);focusCard();return;}
+  if(k==='ArrowLeft'){e.preventDefault();go(-1);focusCard();return;}
+  if(k==='k'||k==='K'){e.preventDefault();mark('known');focusCard();return;}
+  if(k==='l'||k==='L'){e.preventDefault();mark('learning');focusCard();return;}
+});
+
+$('sub').textContent='PFRDA Grade A 2026 · Phase I Paper 2 · Syllabus theory + PYQs + official 2026 figures. '+CARDS.length+' cards.';
+if(!storageOk) showBanner();
+rebuild(null);
+})();
+</script>
+</body>
+</html>
