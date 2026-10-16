@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PFRDA Paper 2 · 15 Oct 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+/* Layout: exam-hall CBT console. Sticky timer bar, one question per screen, fixed action bar, sheet for the question palette. */
+:root{
+  --bg:#f3f5f7; --panel:#ffffff; --ink:#18212b; --muted:#5b6672; --line:#d9dee4;
+  --accent:#1f5f8b; --accent-ink:#ffffff; --accent-soft:#e3eef6;
+  --ok:#1d7a4a; --ok-soft:#e1f2e8; --bad:#b4352c; --bad-soft:#f8e3e1;
+  --flag:#7a4cb0; --flag-soft:#eee6f8; --skip:#8a6a12; --skip-soft:#f6efd9;
+  --ui:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --read:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1419; --panel:#182029; --ink:#e4e9ee; --muted:#9aa6b2; --line:#2c3743;
+  --accent:#6fb3e0; --accent-ink:#0b1a26; --accent-soft:#1b3346;
+  --ok:#5cc58d; --ok-soft:#173326; --bad:#ef7f75; --bad-soft:#3a1d1b;
+  --flag:#b991ea; --flag-soft:#2c2140; --skip:#e0bd5a; --skip-soft:#352c14; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1419; --panel:#182029; --ink:#e4e9ee; --muted:#9aa6b2; --line:#2c3743;
+  --accent:#6fb3e0; --accent-ink:#0b1a26; --accent-soft:#1b3346;
+  --ok:#5cc58d; --ok-soft:#173326; --bad:#ef7f75; --bad-soft:#3a1d1b;
+  --flag:#b991ea; --flag-soft:#2c2140; --skip:#e0bd5a; --skip-soft:#352c14; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:16px;line-height:1.5;-webkit-text-size-adjust:100%}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:760px;margin:0 auto;padding-inline:16px;padding-block:16px 120px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+h1,h2,h3{text-wrap:balance;line-height:1.25;margin:0}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:10px 14px;font-weight:600;min-height:44px}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+/* start */
+.start{display:grid;gap:16px}
+.start .panel{padding:18px}
+.start h1{font-size:24px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:0}
+.facts div{border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.facts dt{font-size:12px;color:var(--muted)} .facts dd{margin:0;font-weight:600}
+.tbl{overflow-x:auto}
+table.sec{border-collapse:collapse;width:100%;font-size:14px}
+table.sec th,table.sec td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
+table.sec td.r,table.sec th.r{text-align:right}
+.note{font-size:14px;color:var(--muted)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+/* top bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--panel);border-bottom:1px solid var(--line)}
+.bar-in{max-width:760px;margin:0 auto;padding:8px 16px;display:flex;align-items:center;gap:10px}
+.bar .t{font-weight:600;font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.timer{font-family:var(--mono);font-size:18px;font-weight:600;padding:4px 10px;border-radius:6px;background:var(--accent-soft)}
+.timer.low{background:var(--bad-soft);color:var(--bad)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:8px 16px;max-width:760px;margin:0 auto;scrollbar-width:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+/* question */
+.qhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.qhead .marks{font-size:13px;color:var(--muted)}
+details.stem{margin-bottom:12px}
+details.stem summary{font-size:13px;font-weight:600;color:var(--accent);padding:8px 0;cursor:pointer}
+.stem-body{font-family:var(--read);font-size:16.5px;line-height:1.6;max-height:55vh;overflow:auto;padding:4px 14px;border-left:3px solid var(--line);min-width:0}
+.stem-body p{margin:0 0 10px}
+table.dt{border-collapse:collapse;font-family:var(--ui);font-size:15px;margin:6px 0 10px}
+table.dt th,table.dt td{border:1px solid var(--line);padding:6px 12px;text-align:center}
+.qtext{font-size:17px;margin:0 0 14px;min-width:0;overflow-wrap:anywhere}
+.opts{display:grid;gap:10px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;border:1.5px solid var(--line);background:var(--panel);border-radius:10px;padding:12px 14px;min-height:52px}
+.opt .k{flex:none;width:28px;height:28px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-weight:700;font-size:14px}
+.opt[aria-checked="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.opt[aria-checked="true"] .k{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.opt span:last-child{min-width:0;overflow-wrap:anywhere}
+/* bottom bar */
+.foot{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--panel);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px))}
+.foot-in{max-width:760px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.foot-in .btn{width:100%;font-size:14px;padding:8px 6px}
+@media (min-width:560px){.foot-in{grid-template-columns:repeat(4,1fr)}}
+/* sheet */
+.sheet{position:fixed;inset:0;z-index:10;background:rgba(10,15,20,.45);display:flex;align-items:flex-end;justify-content:center}
+.sheet-in{background:var(--panel);width:100%;max-width:760px;max-height:85%;overflow:auto;border-radius:14px 14px 0 0;padding:16px 16px calc(20px + env(safe-area-inset-bottom,0px))}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:12px;color:var(--muted);margin:8px 0 14px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px;border:1px solid var(--line)}
+.pal-sec{margin:12px 0 4px;font-size:13px;font-weight:600}
+.pal{display:grid;grid-template-columns:repeat(auto-fill,minmax(42px,1fr));gap:6px}
+.pal button{height:40px;border-radius:6px;border:1px solid var(--line);background:var(--panel);font-family:var(--mono);font-size:13px}
+.st-ans{background:var(--ok-soft)!important;border-color:var(--ok)!important;color:var(--ok)}
+.st-flag{background:var(--flag-soft)!important;border-color:var(--flag)!important;color:var(--flag)}
+.st-seen{background:var(--skip-soft)!important;border-color:var(--skip)!important;color:var(--skip)}
+.st-cur{outline:2px solid var(--ink);outline-offset:1px}
+.confirm{margin-top:16px;padding:14px;border:1px solid var(--line);border-radius:10px}
+/* results */
+.score{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.score .big{font-family:var(--mono);font-size:40px;font-weight:600}
+.pill{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px}
+.p-ok{background:var(--ok-soft);color:var(--ok)} .p-bad{background:var(--bad-soft);color:var(--bad)} .p-skip{background:var(--skip-soft);color:var(--skip)}
+.rev{display:grid;gap:12px;margin-top:12px}
+.rq{padding:14px}
+.rq .opt{cursor:default;min-height:0;padding:8px 12px}
+.rq .opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.rq .opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.exp{margin-top:10px;padding:10px 12px;border-radius:8px;background:var(--bg);font-size:15px;overflow-wrap:anywhere}
+.exp b{font-weight:600}
+@media (prefers-reduced-motion:no-preference){.opt{transition:border-color .12s,background .12s}}
+</style>
+
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+const DATA = {"id": "real-p2-15oct26-v1", "title": "PFRDA Paper 2 · 15 Oct 2026", "short": "PFRDA P2 · 15 Oct 2026", "blurb": "The questions from your actual Phase I Paper 2 (15 October 2026) that EduTap recollected, with their answer key. Enter the options you marked to see what you scored on these.", "minutes": 100000, "neg": 0.25, "sections": [{"name": "Finance", "n": 8, "real": 0, "pq": 2, "marks": 16}, {"name": "Economics", "n": 3, "real": 0, "pq": 2, "marks": 6}, {"name": "Pension & PFRDA Act", "n": 7, "real": 0, "pq": 2, "marks": 14}, {"name": "Costing", "n": 6, "real": 0, "pq": 2, "marks": 12}, {"name": "Companies Act", "n": 4, "real": 0, "pq": 2, "marks": 8}, {"name": "Commerce & Accountancy", "n": 6, "real": 0, "pq": 2, "marks": 12}, {"name": "Management", "n": 5, "real": 0, "pq": 2, "marks": 10}, {"name": "AI, ML & Digital India", "n": 3, "real": 0, "pq": 2, "marks": 6}, {"name": "Media", "n": 1, "real": 0, "pq": 2, "marks": 2}, {"name": "Marketing & Communication", "n": 3, "real": 0, "pq": 2, "marks": 6}], "realTotal": 50, "howto": "Pick the option you marked in the exam for each question, and leave it blank if you skipped it. There is no timer. Options are in the order EduTap showed them, which may differ from your screen, so match by the option text. Marks per question follow the 2026 notification, and a wrong answer costs a quarter of that question's marks.", "resnote": "This is your score on the 46 recovered questions out of 50, worth 92 of the paper's 100 marks. \"EduTap key\" means question, options and answer are from EduTap's discussion. \"EduTap answer · options by Claude\" means EduTap showed only the answer, so the options are reconstructed and may not match your screen. \"Claude-checked\" means the answer was not in your screenshots and was verified separately.", "stems": {}, "qs": [{"s": "Finance", "q": "Which term is officially used under Article 112 of the Constitution for the statement presented annually in Parliament?", "o": ["Finance Bill", "Annual Financial Statement", "Consolidated Fund of India", "Annual Budget", "Consolidated Budget"], "a": 1, "e": "Article 112 calls it the 'Annual Financial Statement'. The word 'Budget' does not appear in the Constitution. The Finance Bill (Article 110/117) carries the tax proposals.", "st": null, "src": "EduTap"}, {"s": "Finance", "q": "As per the Union Budget 2026–27, the fiscal deficit of the Government of India is projected at ______ of GDP.", "o": ["4.1%", "4.5%", "4.3%", "4.4%", "4.2%"], "a": 2, "e": "Budget 2026-27 projects the fiscal deficit at 4.3% of GDP (down from 4.4% in FY26 RE), with the debt-to-GDP anchor of 50±1% by 2031.", "st": null, "src": "EduTap"}, {"s": "Finance", "q": "What is the name of the fund constituted by IRDAI in March 2026, and what is its reported corpus?", "o": ["Insurance Policy Protection Fund — ₹500 crore", "Policyholders' Education and Protection Fund (PEPF) — ₹800 crore", "Insurance Awareness and Grievance Fund — ₹1,800 crore", "Policyholders' Welfare Fund — ₹750 crore", "Insurance Consumer Protection Fund — ₹600 crore"], "a": 1, "e": "IRDAI constituted the Policyholders' Education and Protection Fund (PEPF) in March 2026 with a reported corpus of about ₹800 crore.", "st": null, "src": "EduTap"}, {"s": "Finance", "q": "Which of the following statements is NOT a feature of financial derivatives?", "o": ["Every derivative contract involves two parties, a buyer and a seller", "A derivative's value is derived from an underlying asset, rate or index", "Derivatives are a zero-sum game: one party's gain is the other's loss", "The counterparties have no role in determining the terms or obligations of the derivative contract", "Derivatives can be used for hedging, speculation and arbitrage"], "a": 3, "e": "The counterparties themselves agree the terms of a derivative (fully so in OTC contracts), so 'no role in determining the terms' is not a feature. The rest are standard features.", "st": null, "src": "EduTap-answer"}, {"s": "Finance", "q": "Consider the following statements regarding Private Equity and Venture Capital. Which one is correct?", "o": ["Private equity generally invests in established companies, whereas venture capital primarily funds startups", "Venture capital generally invests in established companies, whereas private equity primarily funds startups", "Both invest only in companies listed on a stock exchange", "Venture capital takes lower risk than private equity", "Private equity is regulated by the RBI and venture capital by IRDAI"], "a": 0, "e": "PE typically buys stakes in mature, established (often unlisted) companies; VC funds early-stage startups with higher risk. In India both are SEBI-registered AIFs.", "st": null, "src": "EduTap-answer"}, {"s": "Finance", "q": "A Core Investment Company (CIC) must invest at least ______ of its net assets in group companies and have a minimum asset size of ₹______ crore to qualify as a systemically important CIC.", "o": ["50%; 100", "60%; 500", "90%; 100", "90%; 500", "75%; 1,000"], "a": 2, "e": "An NBFC-CIC holds at least 90% of net assets in group companies (with at least 60% in their equity), and is systemically important once its asset size is ₹100 crore or more.", "st": null, "src": "EduTap-answer"}, {"s": "Finance", "q": "Match List I with List II regarding Foreign Exchange (Forex) terminology.<br>List I: A. Spot Rate · B. Direct Quote · C. Indirect Quote · D. Offer Price<br>List II: 1. Rate at which a bank sells foreign currency · 2. Exchange rate for delivery on second working date · 3. Domestic currency expressed per unit of foreign currency · 4. Foreign currency expressed per unit of domestic currency", "o": ["A-2, B-3, C-4, D-1", "A-1, B-3, C-4, D-2", "A-2, B-4, C-3, D-1", "A-3, B-2, C-1, D-4", "A-4, B-1, C-2, D-3"], "a": 0, "e": "Spot settles on the second working day (A-2). A direct quote is home currency per unit of foreign, e.g. $1 = ₹90 (B-3); indirect is the reverse (C-4). The offer (ask) is the rate at which the bank sells (D-1).", "st": null, "src": "EduTap-answer"}, {"s": "Finance", "q": "The expected growth rate of a company is 7% per annum. The current dividend per share is ₹10, and an investor expects a return of 12% on the investment. Calculate the intrinsic value per share.", "o": ["₹83.33", "₹142.86", "₹200", "₹214", "₹228.98"], "a": 3, "e": "Gordon growth model: D1 = 10 × 1.07 = ₹10.70; P0 = D1 ÷ (r − g) = 10.70 ÷ 0.05 = ₹214. Trap: using D0 gives ₹200.", "st": null, "src": "EduTap-answer"}, {"s": "Economics", "q": "The Agreement on the Monetary Policy Framework between the Government of India and the Reserve Bank of India (RBI) aims ______", "o": ["To stabilise the exchange rate", "To stabilise the prices of agricultural products", "To keep CPI inflation ranging from 2% to 6%", "To keep the fiscal deficit below 4% of GDP", "To mandate the maximum repo rate"], "a": 2, "e": "The February 2015 Monetary Policy Framework Agreement made flexible inflation targeting the RBI's job: CPI inflation of 4% with a band of ±2%, i.e. 2% to 6%. (EduTap's slide had no answer box; the teacher's annotations mark option C.)", "st": null, "src": "EduTap"}, {"s": "Economics", "q": "The Preamble of the Reserve Bank of India (RBI) Act, as amended by the Finance Act 2016, refers to the objective of monetary policy. Which of the following describes it?", "o": ["The objective is to achieve price stability while keeping in mind the objective of growth, so as to reduce complexities in economic activity", "The objective is to achieve financial stability while keeping in mind the objective of credit expansion, so as to ensure continuity and efficiency in banking operations.", "The objective is to achieve exchange rate stability while keeping in mind the BASEL Norms, so as to ensure balance in international economic transactions.", "The objective is to achieve economic growth while keeping in mind the objective of price stability, so as to ensure maximum expansion of aggregate demand in the economy.", "The objective is to achieve monetary stability while keeping in mind the objective of fiscal sustainability, so as to ensure coordination between government expenditure and money supply."], "a": 0, "e": "The amended Preamble says the primary objective of monetary policy is to maintain price stability while keeping in mind the objective of growth. The same Finance Act 2016 created the statutory Monetary Policy Committee.", "st": null, "src": "EduTap"}, {"s": "Economics", "q": "Samuelson's model of the business cycle states that it is the ______ and ______ that creates cyclical fluctuations in economic activity.", "o": ["Output and accelerator", "Income and output", "Multiplier and marginal propensity to consume", "Investment and marginal propensity to save", "Multiplier and Accelerator"], "a": 4, "e": "Samuelson's multiplier–accelerator model: the multiplier turns a change in investment into a larger change in income, and the accelerator turns that change in income into further induced investment. Their interaction produces the cycle.", "st": null, "src": "EduTap"}, {"s": "Pension & PFRDA Act", "q": "As per the PFRDA Act, 2013, how many part-time members are included in the composition of the Pension Fund Regulatory and Development Authority?", "o": ["1", "2", "3", "4", "6"], "a": 2, "e": "Section 4: a Chairperson, not more than three whole-time members and not more than three part-time members (at least one whole-time member with economics, one with finance and one with law expertise).", "st": null, "src": "EduTap-answer"}, {"s": "Pension & PFRDA Act", "q": "Under the PFRDA Act, 2013, what is the maximum amount that may be permitted as a partial withdrawal from an NPS subscriber's individual pension account?", "o": ["10% of the subscriber's contributions", "20% of the subscriber's contributions", "25% of the subscriber's contributions", "40% of the subscriber's contributions", "50% of the subscriber's contributions"], "a": 2, "e": "Section 20(2)(g) of the Act caps partial withdrawals at 25% of the contributions made by the subscriber.", "st": null, "src": "EduTap-answer"}, {"s": "Pension & PFRDA Act", "q": "Under the National Pension System (NPS), what is the primary role of Points of Presence (PoPs)?", "o": ["To manage and invest the pension corpus", "To maintain records of all subscriber accounts centrally", "To hold the scheme's securities in custody", "To register subscribers, process contributions and provide related services", "To provide annuities to subscribers at exit"], "a": 3, "e": "PoPs (banks and other entities) are the first touchpoint: they register subscribers, accept and upload contributions and handle service requests. Pension funds invest, the CRA keeps records, the custodian holds assets and ASPs pay annuities.", "st": null, "src": "EduTap-answer"}, {"s": "Pension & PFRDA Act", "q": "A subscriber opts for the Active Choice investment strategy under NPS Tier I. What is the maximum permitted allocation to Asset Class E (Equity) up to the age of 50 years?", "o": ["50%", "60%", "75%", "90%", "100%"], "a": 2, "e": "Under Active Choice, equity can be up to 75% until age 50, after which the cap tapers each year.", "st": null, "src": "EduTap-answer"}, {"s": "Pension & PFRDA Act", "q": "What is the unique identification number allotted to each subscriber under the National Pension System (NPS)?", "o": ["Permanent Retirement Account Number (PRAN)", "Universal Account Number (UAN)", "Permanent Account Number (PAN)", "Pension Payment Order (PPO) number", "Subscriber Registration Number (SRN)"], "a": 0, "e": "Every NPS subscriber gets a 12-digit Permanent Retirement Account Number (PRAN), maintained by the CRA. UAN is the EPFO number.", "st": null, "src": "EduTap-answer"}, {"s": "Pension & PFRDA Act", "q": "What is the name of the AI-powered grievance redressal platform launched by the Pension Fund Regulatory and Development Authority (PFRDA)?", "o": ["Pension Mitra", "Pension Sahayak", "NPS Saathi", "Pension Samadhan", "PFRDA Sarthi"], "a": 1, "e": "EduTap's answer is Pension Sahayak. The other names are Claude's distractors, so match by the name you picked.", "st": null, "src": "EduTap-answer"}, {"s": "Pension & PFRDA Act", "q": "Which pension scheme is specifically designed to provide old-age income security to workers in the unorganised sector?", "o": ["Unified Pension Scheme (UPS)", "Employees' Pension Scheme (EPS)", "NPS Corporate Model", "Atal Pension Yojana (APY)", "NPS Vatsalya"], "a": 3, "e": "Atal Pension Yojana (2015) targets unorganised-sector workers aged 18 to 40, with a guaranteed pension of ₹1,000 to ₹5,000 a month from age 60.", "st": null, "src": "EduTap-answer"}, {"s": "Costing", "q": "The standard material requirement for producing one unit is 2 kg at ₹10 per kg. A company uses 2,100 kg of material to produce 1,000 units. Calculate the Direct Material Usage Variance.", "o": ["₹1,000 Favourable", "₹1,000 Adverse", "₹2,000 Favourable", "₹2,000 Adverse"], "a": 1, "e": "Usage variance = SP × (SQ − AQ) = 10 × (2,000 − 2,100) = −₹1,000, i.e. ₹1,000 Adverse (more material used than standard).", "st": null, "src": "EduTap"}, {"s": "Costing", "q": "While preparing the Master Budget, which of the following is generally considered the key budget factor or limiting factor?", "o": ["Production Budget", "Sales Budget", "Cash Budget", "Labour Budget", "Direct Expenses and Purchase Budget"], "a": 1, "e": "Sales is usually the principal budget factor: the sales budget is prepared first and the production, purchase, labour and cash budgets follow from it.", "st": null, "src": "EduTap"}, {"s": "Costing", "q": "Which of the following industries generally uses Service Costing?", "o": ["Toy Manufacturing Industry", "Automobile Manufacturing Industry", "Airline Industry", "Both A and B"], "a": 2, "e": "Service (operating) costing is used by service providers such as airlines, transport, hospitals and hotels, with cost units like passenger-km. Toys and automobiles are manufacturing (batch/process) industries.", "st": null, "src": "EduTap"}, {"s": "Costing", "q": "A company manufactures a highly customised product according to the specific requirements of a customer. The product is manufactured on the company's own premises. Which costing method is most appropriate?", "o": ["Process Costing", "Job Costing", "Service Costing", "Operating Costing"], "a": 1, "e": "Work done to a customer's specific order inside the factory is a job, so job costing applies. (If it were a large job done at the customer's site over a long period, it would be contract costing.)", "st": null, "src": "EduTap"}, {"s": "Costing", "q": "The cement industry involves three steps in its production process. Which costing method is generally used in this industry?", "o": ["Job Costing", "Contract Costing", "Process Costing", "Service Costing"], "a": 2, "e": "Cement is mass-produced through continuous, sequential processes, so process costing is used.", "st": null, "src": "EduTap"}, {"s": "Costing", "q": "A company produces 10,000 units at a total cost of ₹2,00,000. The normal loss is 10% of input, and the scrap value of each unit lost is ₹2. Calculate the cost per unit of good output.", "o": ["₹20.00", "₹21.80", "₹22.00", "₹22.20"], "a": 2, "e": "Normal loss = 1,000 units, scrap = 1,000 × 2 = ₹2,000. Good output = 9,000 units. Cost per good unit = (2,00,000 − 2,000) ÷ 9,000 = ₹22.00.", "st": null, "src": "EduTap"}, {"s": "Companies Act", "q": "Under Section 164(2) of the Companies Act, 2013, a director shall be disqualified if the company has failed to file its financial statements or annual returns for a continuous period of how many financial years?", "o": ["2 consecutive financial years", "3 consecutive financial years", "4 consecutive financial years", "5 consecutive financial years", "6 consecutive financial years"], "a": 1, "e": "Section 164(2)(a): non-filing for any continuous period of three financial years disqualifies every director of that company for five years from reappointment there or appointment elsewhere.", "st": null, "src": "EduTap"}, {"s": "Companies Act", "q": "Under Section 139(6) of the Companies Act, 2013, the first auditor of a company, other than a Government company, shall be appointed by whom and within what period from the date of registration of the company?", "o": ["Central Government; within 30 days", "Board of Directors; within 30 days", "Shareholders; within 60 days", "National Company Law Tribunal; within 90 days", "Comptroller and Auditor General of India; within 30 days"], "a": 1, "e": "The Board appoints the first auditor within 30 days of registration. If it fails, the members appoint one within 90 days at an EGM. (For a Government company the CAG appoints within 60 days.)", "st": null, "src": "EduTap"}, {"s": "Companies Act", "q": "Under Section 124 of the Companies Act, 2013, if a dividend declared by a company remains unpaid or unclaimed after the expiry of the initial statutory period of 30 days, within what period must the company transfer the unpaid or unclaimed amount to the Unpaid Dividend Account?", "o": ["5 days", "7 days", "15 days", "30 days", "37 days"], "a": 1, "e": "Within 7 days after the 30-day payment period ends, the amount goes to a special Unpaid Dividend Account in a scheduled bank. After 7 years there it moves to the IEPF.", "st": null, "src": "EduTap"}, {"s": "Companies Act", "q": "Under Section 32 of the Companies Act, 2013, a Red Herring Prospectus shall be filed with the Registrar of Companies at least how many days prior to the opening of the subscription list and the offer?", "o": ["1 day", "2 days", "3 days", "5 days", "7 days"], "a": 2, "e": "Section 32(2): the RHP must be filed with the Registrar at least three days before the subscription list and offer open.", "st": null, "src": "EduTap"}, {"s": "Commerce & Accountancy", "q": "A company has an opening stock of 100 units at ₹10 per unit. It purchases 200 units at ₹15 per unit and sells 150 units during the year. Calculate the value of closing stock using the FIFO method.", "o": ["₹1,500", "₹2,000", "₹2,250", "₹2,500", "NOTA"], "a": 2, "e": "Closing stock = 100 + 200 − 150 = 150 units. Under FIFO the oldest units (the 100 at ₹10, then 50 at ₹15) are sold first, so the 150 left are all from the ₹15 lot: 150 × 15 = ₹2,250.", "st": null, "src": "EduTap"}, {"s": "Commerce & Accountancy", "q": "A machine costs ₹10,00,000 and has a scrap value of ₹1,00,000. Its useful life is estimated to be 5 years. Calculate the annual depreciation using the Straight-Line Method (SLM).", "o": ["₹1,00,000", "₹1,80,000", "₹2,00,000", "₹2,20,000", "NOTA"], "a": 1, "e": "SLM depreciation = (cost − scrap) ÷ life = (10,00,000 − 1,00,000) ÷ 5 = ₹1,80,000 a year.", "st": null, "src": "EduTap"}, {"s": "Commerce & Accountancy", "q": "As per Ind AS 7, payment of dividend by a company is classified under which activity in the Cash Flow Statement?", "o": ["Operating Activities", "Investing Activities", "Financing Activities", "Both Operating and Investing Activities", "NOTA"], "a": 2, "e": "Ind AS 7 classifies dividends paid as a financing cash flow, because it is a return to the providers of capital. (Dividends received go under investing for a non-financial company.)", "st": null, "src": "EduTap"}, {"s": "Commerce & Accountancy", "q": "As per the Companies Act, 2013, the format of the Statement of Profit and Loss and Balance Sheet is prescribed under which Schedule?", "o": ["Schedule I", "Schedule V", "Schedule III", "Schedule VII", "NOTA"], "a": 2, "e": "Schedule III sets the format of the Balance Sheet and Statement of Profit and Loss. Traps: Schedule V is managerial remuneration, Schedule VII is CSR activities, Schedule I is the model MoA/AoA forms (Schedule II is useful lives for depreciation).", "st": null, "src": "EduTap"}, {"s": "Commerce & Accountancy", "q": "Which of the following is an impact of the buyback of shares on a company's financial statements?", "o": ["No effect on shareholders' funds", "Outstanding shares will decrease", "Outstanding shares will increase", "Authorised share capital will increase", "NOTA"], "a": 1, "e": "Bought-back shares are extinguished, so the number of outstanding shares falls (and shareholders' funds fall by the cash paid). Authorised capital is unaffected.", "st": null, "src": "EduTap"}, {"s": "Commerce & Accountancy", "q": "A company grants 10,000 share options to its employees. The grant-date share price is ₹50, the Market price is ₹70, and the vesting period is 2 years. What is the total employee expense to be recognised and the expense charged in the first year under Ind AS 102?", "o": ["Total expense ₹2 lakh; no expense in the first year", "Total expense ₹2 lakh; ₹1 lakh in the first year", "Total expense ₹3 lakh; no expense in the first year"], "a": 1, "e": "EduTap's answer: value per option = ₹70 − ₹50 = ₹20, so total = 10,000 × 20 = ₹2 lakh, spread evenly over the 2-year vesting period = ₹1 lakh in year 1. Ind AS 102 spreads the expense over the vesting period, so 'no expense in year 1' is wrong either way. Only three options were shown in the recollection.", "st": null, "src": "EduTap"}, {"s": "Management", "q": "Which of the following is NOT a component of the 5S methodology?", "o": ["Sort", "Set in Order", "Shine", "Simplicity"], "a": 3, "e": "The 5S are Sort (Seiri), Set in Order (Seiton), Shine (Seiso), Standardise (Seiketsu) and Sustain (Shitsuke). Simplicity is not one of them.", "st": null, "src": "EduTap"}, {"s": "Management", "q": "According to Fiedler's Contingency Theory, the effectiveness of a manager's leadership behaviour primarily depends on which of the following?", "o": ["The manager's ability to change leadership styles to suit every situation", "The maturity and readiness of employees to perform their tasks", "The match between the manager's leadership style and the favourableness of the situation", "The use of rewards and punishments to influence employees", "The manager's ability to inspire employees through a shared vision"], "a": 2, "e": "Fiedler treats a leader's style (LPC score) as fixed; effectiveness depends on matching it to situational favourableness (leader-member relations, task structure, position power). Option B is Hersey-Blanchard.", "st": null, "src": "EduTap"}, {"s": "Management", "q": "A bank manager sets clear monthly targets for employees and offers incentives to those who achieve them. The manager also monitors performance and takes corrective action when employees fail to meet the prescribed standards. Which type of leadership does the manager demonstrate?", "o": ["Transformational leadership", "Charismatic leadership", "Participative leadership", "Transactional leadership", "Servant leadership"], "a": 3, "e": "Targets, rewards for meeting them and correction for missing them is the exchange-based transactional (managerial) style.", "st": null, "src": "EduTap"}, {"s": "Management", "q": "Employees at a bank receive adequate salaries and enjoy good working conditions but feel that their contributions are not valued. According to Herzberg's Two-Factor Theory, which action would address a motivator factor?", "o": ["Providing employees with higher salaries", "Ensuring comfortable physical working conditions", "Recognising employees for outstanding achievements", "Offering employees greater job security", "Maintaining friendly relationships with supervisors"], "a": 2, "e": "Recognition is a motivator (with achievement, work itself, responsibility, growth). Pay, conditions, security and supervisor relations are hygiene factors.", "st": null, "src": "EduTap"}, {"s": "Management", "q": "Which statement represents Training, while the others represent Development?", "o": ["Learning skills for the current job.", "Leading projects for future leadership.", "Mentoring for career growth.", "Job rotation for broader experience.", "Developing strategic decision-making skills."], "a": 0, "e": "Training is job-centred and short-term (skills for the current job); the others are career-oriented development.", "st": null, "src": "EduTap"}, {"s": "AI, ML & Digital India", "q": "In an AI/ML dataset, missing values are replaced with the median. If the median is calculated using information from the validation and test datasets, what problem can this lead to?", "o": ["Underfitting", "Class imbalance", "Data leakage", "Vanishing gradient", "Multicollinearity"], "a": 2, "e": "Using validation/test data to compute anything used in training leaks information the model should not see, so its test scores look better than real-world performance. Imputation statistics must come from the training set only.", "st": null, "src": "EduTap-answer"}, {"s": "AI, ML & Digital India", "q": "Which government initiative aims to make people in rural India digitally literate by providing training in digital devices and online services?", "o": ["Digital India Bhashini", "PMGDISHA (Pradhan Mantri Gramin Digital Saksharta Abhiyan)", "BharatNet", "Common Service Centres (CSC) scheme", "DigiLocker"], "a": 1, "e": "PMGDISHA trains one member of rural households in using computers, smartphones and digital services. BharatNet is rural broadband; CSCs are service outlets.", "st": null, "src": "EduTap-answer"}, {"s": "AI, ML & Digital India", "q": "Which of the following is the Government of India's initiative to provide cloud computing services for e-governance?", "o": ["DigiLocker", "MeghRaj (GI Cloud)", "Aadhaar", "UMANG", "e-Kranti"], "a": 1, "e": "MeghRaj is the GI Cloud initiative of MeitY that provides cloud infrastructure for government departments.", "st": null, "src": "EduTap-answer"}, {"s": "Media", "q": "Kan Khajura Tesan (KKT) is an initiative of which of the following companies?", "o": ["Procter & Gamble (P&G)", "Hindustan Unilever Limited (HUL)", "ITC Limited", "Dabur India Limited", "Marico Limited"], "a": 1, "e": "Kan Khajura Tesan (2014) was HUL's free, on-demand mobile radio entertainment channel aimed at 'media-dark' rural audiences in Bihar and UP, carrying HUL ads.", "st": null, "src": "EduTap"}, {"s": "Marketing & Communication", "q": "Which pricing method determines the selling price by adding a desired profit to the cost of a product?", "o": ["Penetration Pricing", "Value-Based Pricing", "Cost-Plus Pricing", "Skimming Pricing", "Competitive Pricing"], "a": 2, "e": "Cost-plus pricing = cost + markup.", "st": null, "src": "EduTap"}, {"s": "Marketing & Communication", "q": "Which type of communication barrier arises when the receiver interprets words, symbols or expressions differently from the meaning intended by the sender?", "o": ["Physical barrier", "Psychological barrier", "Organisational barrier", "Personal barrier", "Semantic barrier"], "a": 4, "e": "Semantic barriers come from differences in meaning: symbols with different meanings, jargon, faulty translation.", "st": null, "src": "EduTap"}, {"s": "Marketing & Communication", "q": "Which term refers to non-verbal communication through body movements, gestures, facial expressions and posture?", "o": ["Proxemics", "Paralanguage", "Kinesics", "Haptics", "Chronemics"], "a": 2, "e": "Kinesics is body language. Proxemics = use of space, paralanguage = tone/pitch, haptics = touch, chronemics = time.", "st": null, "src": "EduTap"}]};
+const KEY = "pfrda-mock:" + DATA.id;
+const L = ["A","B","C","D","E"];
+const $ = (s, r=document) => r.querySelector(s);
+const app = $("#app");
+let S = null; // state
+let tick = null;
+
+function load(){ try{ const v = localStorage.getItem(KEY); return v ? JSON.parse(v) : null; }catch(e){ return null; } }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+function wipe(){ try{ localStorage.removeItem(KEY); }catch(e){} }
+
+function secOf(q){ return DATA.sections.find(s => s.name === q.s); }
+function markOf(q){ const s = secOf(q); return s.marks / s.n; }
+function fmt(n){ return (Math.round(n*100)/100).toFixed(2).replace(/\.00$/,""); }
+function fmtT(ms){ ms = Math.max(0, ms); const t = Math.floor(ms/1000); return String(Math.floor(t/60)).padStart(2,"0") + ":" + String(t%60).padStart(2,"0"); }
+function esc(t){ const d = document.createElement("div"); d.textContent = t; return d.innerHTML; }
+
+/* ---------- start screen ---------- */
+function startScreen(){
+  clearInterval(tick);
+  const prev = load();
+  const total = DATA.qs.length;
+  const rows = DATA.sections.map(s => `<tr><td>${s.name}</td><td class="r num">${s.real ? s.n + " of " + s.real : s.n}</td><td class="r num">${fmt(s.marks)}</td><td class="r num">${fmt(s.pq)}</td><td class="r num">−${fmt(s.pq*DATA.neg)}</td></tr>`).join("");
+  let resume = "";
+  if (prev && prev.phase === "test") resume = `<button class="btn primary" id="resume">Continue entering answers</button>`;
+  if (prev && prev.phase === "done") resume = `<button class="btn primary" id="seeres">See last result</button>`;
+  app.innerHTML = `<div class="wrap start">
+    <div class="panel">
+      <div class="eyebrow">PFRDA Grade A 2026 · Phase I</div>
+      <h1 style="margin-top:6px">${DATA.title}</h1>
+      <p class="note" style="margin:8px 0 14px">${DATA.blurb}</p>
+      <dl class="facts">
+        <div><dt>Questions</dt><dd class="num">${total}</dd></div>
+        <div><dt>Marks covered</dt><dd class="num">${DATA.sections.reduce((a,s)=>a+s.marks,0)}</dd></div>
+        <div><dt>Recovered</dt><dd class="num">${total} of ${DATA.realTotal}</dd></div>
+        <div><dt>Wrong answer</dt><dd>−¼ of its marks</dd></div>
+      </dl>
+    </div>
+    <div class="panel"><div class="eyebrow" style="margin-bottom:8px">Sections</div>
+      <div class="tbl"><table class="sec"><tr><th>Section</th><th class="r">Recovered</th><th class="r">Marks</th><th class="r">Per Q</th><th class="r">Wrong</th></tr>${rows}</table></div>
+      <p class="note" style="margin:10px 0 0">${DATA.howto}</p>
+    </div>
+    <div class="row">${resume}<button class="btn ${resume ? "" : "primary"}" id="go">${prev ? "Start a fresh attempt" : "Enter my answers"}</button></div>
+  </div>`;
+  $("#go").onclick = () => { S = { phase:"test", deadline: Date.now() + DATA.minutes*60000, started: Date.now(), cur:0, ans:Array(total).fill(null), flag:Array(total).fill(false), seen:Array(total).fill(false) }; save(); testScreen(); };
+  if ($("#resume")) $("#resume").onclick = () => { S = prev; if (S.deadline <= Date.now()) { finish(); } else testScreen(); };
+  if ($("#seeres")) $("#seeres").onclick = () => { S = prev; resultScreen(); };
+}
+
+/* ---------- test screen ---------- */
+function testScreen(){
+  app.innerHTML = `<div class="bar"><div class="bar-in"><div class="t">${DATA.short}</div><button class="btn" id="palbtn" style="min-height:36px;padding:6px 10px">Questions</button></div>
+    <div class="chips" id="chips"></div></div>
+    <div class="wrap"><div id="q"></div></div>
+    <div class="foot"><div class="foot-in">
+      <button class="btn" id="prev">← Previous</button>
+      <button class="btn primary" id="next">Save &amp; next →</button>
+      <button class="btn" id="flag">Mark for review</button>
+      <button class="btn ghost" id="clear">Clear answer</button>
+    </div></div>
+    <div id="sheet"></div>`;
+  $("#prev").onclick = () => go(S.cur - 1);
+  $("#next").onclick = () => go(S.cur + 1);
+  $("#flag").onclick = () => { S.flag[S.cur] = !S.flag[S.cur]; save(); if (S.flag[S.cur]) go(S.cur + 1); else renderQ(); };
+  $("#clear").onclick = () => { S.ans[S.cur] = null; save(); renderQ(); };
+  $("#palbtn").onclick = openPalette;
+  renderQ();
+  clearInterval(tick);
+}
+function tickFn(){
+  const left = S.deadline - Date.now();
+  const t = $("#timer"); if (!t) return;
+  t.textContent = fmtT(left);
+  t.classList.toggle("low", left < 5*60000);
+  if (left <= 0) finish();
+}
+function go(i){ if (i < 0 || i >= DATA.qs.length) { if (i >= DATA.qs.length) openPalette(); return; } S.cur = i; save(); renderQ(); window.scrollTo(0,0); }
+function renderQ(){
+  const i = S.cur, q = DATA.qs[i];
+  S.seen[i] = true; save();
+  $("#chips").innerHTML = DATA.sections.map(s => `<button class="chip" data-s="${esc(s.name)}" aria-pressed="${s.name===q.s}">${s.name}</button>`).join("");
+  $("#chips").querySelectorAll(".chip").forEach(b => b.onclick = () => go(DATA.qs.findIndex(x => x.s === b.dataset.s)));
+  const act = $("#chips [aria-pressed=true]"); if (act) act.scrollIntoView({inline:"nearest", block:"nearest"});
+  const stem = q.st ? `<details class="stem" open><summary>Directions / passage</summary><div class="stem-body">${DATA.stems[q.st]}</div></details>` : "";
+  $("#q").innerHTML = `<div class="qhead"><div><span class="eyebrow">${q.s}</span><h2 class="num" style="font-size:18px;margin-top:2px">Question ${i+1} <span class="note">of ${DATA.qs.length}</span></h2></div>
+     <div class="marks num">+${fmt(markOf(q))} / −${fmt(markOf(q)*DATA.neg)}${S.flag[i] ? ' · <span class="pill" style="background:var(--flag-soft);color:var(--flag)">Marked</span>' : ""}</div></div>
+     ${stem}<p class="qtext">${q.q}</p>
+     <div class="opts" role="radiogroup">${q.o.map((o,k) => `<button class="opt" role="radio" aria-checked="${S.ans[i]===k}" data-k="${k}"><span class="k">${L[k]}</span><span>${o}</span></button>`).join("")}</div>`;
+  $("#q").querySelectorAll(".opt").forEach(b => b.onclick = () => { const k = +b.dataset.k; S.ans[i] = (S.ans[i] === k ? null : k); save(); renderQ(); });
+  $("#flag").textContent = S.flag[i] ? "Unmark" : "Mark for review";
+  $("#prev").disabled = i === 0;
+  $("#next").textContent = i === DATA.qs.length - 1 ? "Review & submit" : "Save & next →";
+}
+function openPalette(){
+  const answered = S.ans.filter(a => a !== null).length;
+  const flagged = S.flag.filter(Boolean).length;
+  const groups = DATA.sections.map(s => {
+    const btns = DATA.qs.map((q,i) => q.s === s.name ? i : -1).filter(i => i >= 0).map(i => {
+      const cls = S.flag[i] ? "st-flag" : S.ans[i] !== null ? "st-ans" : S.seen[i] ? "st-seen" : "";
+      return `<button class="${cls} ${i===S.cur?"st-cur":""}" data-i="${i}">${i+1}</button>`; }).join("");
+    return `<div class="pal-sec">${s.name}</div><div class="pal">${btns}</div>`; }).join("");
+  $("#sheet").innerHTML = `<div class="sheet" id="sh"><div class="sheet-in" role="dialog" aria-label="Question palette">
+     <div class="row" style="justify-content:space-between;align-items:center"><h3>Questions</h3><button class="btn" id="shx" style="min-height:36px">Close</button></div>
+     <div class="legend"><span><i class="st-ans"></i>Answered</span><span><i class="st-flag"></i>Marked for review</span><span><i class="st-seen"></i>Seen, not answered</span><span><i></i>Not visited</span></div>
+     ${groups}
+     <div class="confirm"><p style="margin:0 0 10px"><b class="num">${answered}</b> of ${DATA.qs.length} answered${flagged ? `, <b class="num">${flagged}</b> marked for review (marked answers still count)` : ""}.</p>
+       <div class="row"><button class="btn danger" id="sub1">See my score</button></div><div id="sub2"></div></div>
+  </div></div>`;
+  $("#shx").onclick = () => $("#sheet").innerHTML = "";
+  $("#sh").onclick = e => { if (e.target.id === "sh") $("#sheet").innerHTML = ""; };
+  $("#sheet").querySelectorAll(".pal button").forEach(b => b.onclick = () => { $("#sheet").innerHTML = ""; go(+b.dataset.i); });
+  $("#sub1").onclick = () => { $("#sub2").innerHTML = `<p class="note" style="margin:10px 0">This shows your score. You can start over afterwards if you need to re-enter anything. Show score now?</p><div class="row"><button class="btn danger" id="subyes">Yes, show score</button><button class="btn" id="subno">Keep going</button></div>`;
+    $("#subyes").onclick = finish; $("#subno").onclick = () => $("#sub2").innerHTML = ""; };
+}
+function finish(){
+  clearInterval(tick);
+  S.phase = "done"; S.ended = Math.min(Date.now(), S.deadline); save();
+  resultScreen();
+}
+
+/* ---------- results ---------- */
+function grade(){
+  const per = DATA.sections.map(s => ({ name:s.name, n:s.n, max:s.marks, c:0, w:0, u:0, score:0 }));
+  DATA.qs.forEach((q,i) => { const p = per.find(x => x.name === q.s), m = markOf(q), a = S.ans[i];
+    if (a === null) p.u++; else if (a === q.a) { p.c++; p.score += m; } else { p.w++; p.score -= m*DATA.neg; } });
+  return per;
+}
+let filter = "all";
+function resultScreen(){
+  clearInterval(tick);
+  const per = grade();
+  const tot = per.reduce((a,p) => a + p.score, 0), max = per.reduce((a,p) => a + p.max, 0);
+  const c = per.reduce((a,p) => a+p.c, 0), w = per.reduce((a,p) => a+p.w, 0), u = per.reduce((a,p) => a+p.u, 0);
+  const used = Math.round(((S.ended||Date.now()) - S.started)/60000);
+  const rows = per.map(p => `<tr><td>${p.name}</td><td class="r num">${p.c}</td><td class="r num">${p.w}</td><td class="r num">${p.u}</td><td class="r num"><b>${fmt(p.score)}</b>/${p.max}</td><td class="r num">${p.c+p.w ? Math.round(p.c/(p.c+p.w)*100)+"%" : "–"}</td></tr>`).join("");
+  app.innerHTML = `<div class="wrap start">
+    <div class="panel"><div class="eyebrow">${DATA.short} · Result</div>
+      <div class="score" style="margin-top:6px"><span class="big">${fmt(tot)}</span><span class="note num">/ ${max} marks</span></div>
+      <div class="row" style="margin-top:8px"><span class="pill p-ok num">${c} correct</span><span class="pill p-bad num">${w} wrong (−${fmt(per.reduce((a,p)=>a+p.w*(p.max/p.n)*DATA.neg,0))})</span><span class="pill p-skip num">${u} not attempted</span></div>
+      <p class="note" style="margin:10px 0 0">${DATA.resnote}</p>
+    </div>
+    <div class="panel"><div class="eyebrow" style="margin-bottom:8px">By section</div>
+      <div class="tbl"><table class="sec"><tr><th>Section</th><th class="r">✓</th><th class="r">✗</th><th class="r">–</th><th class="r">Score</th><th class="r">Accuracy</th></tr>${rows}</table></div></div>
+    <div class="panel" style="padding:14px"><div class="row" style="justify-content:space-between;align-items:center"><div class="eyebrow">Answers &amp; explanations</div>
+      <div class="row" id="filt">${["all","wrong","skipped","correct"].map(f => `<button class="chip" data-f="${f}" aria-pressed="${filter===f}">${{all:"All",wrong:"Wrong",skipped:"Not attempted",correct:"Correct"}[f]}</button>`).join("")}</div></div>
+      <div class="rev" id="rev"></div></div>
+    <div class="row"><button class="btn" id="again">Start over</button></div>
+  </div>`;
+  $("#filt").querySelectorAll(".chip").forEach(b => b.onclick = () => { filter = b.dataset.f; resultScreen(); });
+  $("#again").onclick = () => { wipe(); S = null; filter = "all"; startScreen(); };
+  const list = DATA.qs.map((q,i) => ({q,i})).filter(({q,i}) => { const a = S.ans[i];
+    return filter==="all" || (filter==="wrong" && a!==null && a!==q.a) || (filter==="skipped" && a===null) || (filter==="correct" && a===q.a); });
+  $("#rev").innerHTML = list.length ? list.map(({q,i}) => { const a = S.ans[i];
+    const tag = a===null ? '<span class="pill p-skip">Not attempted</span>' : a===q.a ? '<span class="pill p-ok">Correct</span>' : '<span class="pill p-bad">Wrong</span>';
+    const stem = q.st ? `<details class="stem"><summary>Directions / passage</summary><div class="stem-body">${DATA.stems[q.st]}</div></details>` : "";
+    return `<div class="panel rq"><div class="qhead"><span class="eyebrow">Q${i+1} · ${q.s}</span>${tag}</div>${stem}<p class="qtext" style="font-size:16px">${q.q}</p>
+      <div class="opts">${q.o.map((o,k) => `<div class="opt ${k===q.a?"right":(k===a?"wrong":"")}"><span class="k">${L[k]}</span><span>${o}${k===q.a?" ✓":""}${k===a&&k!==q.a?" (your answer)":""}</span></div>`).join("")}</div>
+      <div class="exp"><b>Answer: ${L[q.a]}.</b> <span class="pill ${q.src==='EduTap'?'p-ok':'p-skip'}">${{"EduTap":"EduTap key","EduTap-answer":"EduTap answer · options by Claude","Claude-checked":"Claude-checked"}[q.src]}</span> ${q.e}</div></div>`; }).join("") : '<p class="note">No questions in this filter.</p>';
+}
+
+/* boot */
+(function(){ const prev = load();
+  if (prev && prev.phase === "test" && prev.deadline > Date.now()) { S = prev; testScreen(); }
+  else if (prev && prev.phase === "test") { S = prev; finish(); }
+  else startScreen(); })();
+</script>
+
+</body>
+</html>

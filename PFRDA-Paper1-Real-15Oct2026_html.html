@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PFRDA Paper 1 · 15 Oct 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+/* Layout: exam-hall CBT console. Sticky timer bar, one question per screen, fixed action bar, sheet for the question palette. */
+:root{
+  --bg:#f3f5f7; --panel:#ffffff; --ink:#18212b; --muted:#5b6672; --line:#d9dee4;
+  --accent:#1f5f8b; --accent-ink:#ffffff; --accent-soft:#e3eef6;
+  --ok:#1d7a4a; --ok-soft:#e1f2e8; --bad:#b4352c; --bad-soft:#f8e3e1;
+  --flag:#7a4cb0; --flag-soft:#eee6f8; --skip:#8a6a12; --skip-soft:#f6efd9;
+  --ui:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --read:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1419; --panel:#182029; --ink:#e4e9ee; --muted:#9aa6b2; --line:#2c3743;
+  --accent:#6fb3e0; --accent-ink:#0b1a26; --accent-soft:#1b3346;
+  --ok:#5cc58d; --ok-soft:#173326; --bad:#ef7f75; --bad-soft:#3a1d1b;
+  --flag:#b991ea; --flag-soft:#2c2140; --skip:#e0bd5a; --skip-soft:#352c14; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1419; --panel:#182029; --ink:#e4e9ee; --muted:#9aa6b2; --line:#2c3743;
+  --accent:#6fb3e0; --accent-ink:#0b1a26; --accent-soft:#1b3346;
+  --ok:#5cc58d; --ok-soft:#173326; --bad:#ef7f75; --bad-soft:#3a1d1b;
+  --flag:#b991ea; --flag-soft:#2c2140; --skip:#e0bd5a; --skip-soft:#352c14; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:16px;line-height:1.5;-webkit-text-size-adjust:100%}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:760px;margin:0 auto;padding-inline:16px;padding-block:16px 120px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+h1,h2,h3{text-wrap:balance;line-height:1.25;margin:0}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:10px 14px;font-weight:600;min-height:44px}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+/* start */
+.start{display:grid;gap:16px}
+.start .panel{padding:18px}
+.start h1{font-size:24px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:0}
+.facts div{border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.facts dt{font-size:12px;color:var(--muted)} .facts dd{margin:0;font-weight:600}
+.tbl{overflow-x:auto}
+table.sec{border-collapse:collapse;width:100%;font-size:14px}
+table.sec th,table.sec td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
+table.sec td.r,table.sec th.r{text-align:right}
+.note{font-size:14px;color:var(--muted)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+/* top bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--panel);border-bottom:1px solid var(--line)}
+.bar-in{max-width:760px;margin:0 auto;padding:8px 16px;display:flex;align-items:center;gap:10px}
+.bar .t{font-weight:600;font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.timer{font-family:var(--mono);font-size:18px;font-weight:600;padding:4px 10px;border-radius:6px;background:var(--accent-soft)}
+.timer.low{background:var(--bad-soft);color:var(--bad)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:8px 16px;max-width:760px;margin:0 auto;scrollbar-width:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+/* question */
+.qhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.qhead .marks{font-size:13px;color:var(--muted)}
+details.stem{margin-bottom:12px}
+details.stem summary{font-size:13px;font-weight:600;color:var(--accent);padding:8px 0;cursor:pointer}
+.stem-body{font-family:var(--read);font-size:16.5px;line-height:1.6;max-height:55vh;overflow:auto;padding:4px 14px;border-left:3px solid var(--line);min-width:0}
+.stem-body p{margin:0 0 10px}
+table.dt{border-collapse:collapse;font-family:var(--ui);font-size:15px;margin:6px 0 10px}
+table.dt th,table.dt td{border:1px solid var(--line);padding:6px 12px;text-align:center}
+.qtext{font-size:17px;margin:0 0 14px;min-width:0;overflow-wrap:anywhere}
+.opts{display:grid;gap:10px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;border:1.5px solid var(--line);background:var(--panel);border-radius:10px;padding:12px 14px;min-height:52px}
+.opt .k{flex:none;width:28px;height:28px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-weight:700;font-size:14px}
+.opt[aria-checked="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.opt[aria-checked="true"] .k{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.opt span:last-child{min-width:0;overflow-wrap:anywhere}
+/* bottom bar */
+.foot{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--panel);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px))}
+.foot-in{max-width:760px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.foot-in .btn{width:100%;font-size:14px;padding:8px 6px}
+@media (min-width:560px){.foot-in{grid-template-columns:repeat(4,1fr)}}
+/* sheet */
+.sheet{position:fixed;inset:0;z-index:10;background:rgba(10,15,20,.45);display:flex;align-items:flex-end;justify-content:center}
+.sheet-in{background:var(--panel);width:100%;max-width:760px;max-height:85%;overflow:auto;border-radius:14px 14px 0 0;padding:16px 16px calc(20px + env(safe-area-inset-bottom,0px))}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:12px;color:var(--muted);margin:8px 0 14px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px;border:1px solid var(--line)}
+.pal-sec{margin:12px 0 4px;font-size:13px;font-weight:600}
+.pal{display:grid;grid-template-columns:repeat(auto-fill,minmax(42px,1fr));gap:6px}
+.pal button{height:40px;border-radius:6px;border:1px solid var(--line);background:var(--panel);font-family:var(--mono);font-size:13px}
+.st-ans{background:var(--ok-soft)!important;border-color:var(--ok)!important;color:var(--ok)}
+.st-flag{background:var(--flag-soft)!important;border-color:var(--flag)!important;color:var(--flag)}
+.st-seen{background:var(--skip-soft)!important;border-color:var(--skip)!important;color:var(--skip)}
+.st-cur{outline:2px solid var(--ink);outline-offset:1px}
+.confirm{margin-top:16px;padding:14px;border:1px solid var(--line);border-radius:10px}
+/* results */
+.score{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.score .big{font-family:var(--mono);font-size:40px;font-weight:600}
+.pill{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px}
+.p-ok{background:var(--ok-soft);color:var(--ok)} .p-bad{background:var(--bad-soft);color:var(--bad)} .p-skip{background:var(--skip-soft);color:var(--skip)}
+.rev{display:grid;gap:12px;margin-top:12px}
+.rq{padding:14px}
+.rq .opt{cursor:default;min-height:0;padding:8px 12px}
+.rq .opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.rq .opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.exp{margin-top:10px;padding:10px 12px;border-radius:8px;background:var(--bg);font-size:15px;overflow-wrap:anywhere}
+.exp b{font-weight:600}
+@media (prefers-reduced-motion:no-preference){.opt{transition:border-color .12s,background .12s}}
+</style>
+
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+const DATA = {"id": "real-p1-15oct26-v2", "title": "PFRDA Paper 1 · 15 Oct 2026", "short": "PFRDA P1 · 15 Oct 2026", "blurb": "The questions from your actual Phase I Paper 1 (15 October 2026) that EduTap recollected, with their answer key. Enter the options you marked to see what you scored on these.", "minutes": 100000, "neg": 0.25, "sections": [{"name": "English Language", "n": 12, "real": 20, "pq": 1.25, "marks": 15.0}, {"name": "General Awareness", "n": 20, "real": 20, "pq": 1.25, "marks": 25.0}], "realTotal": 90, "howto": "Pick the option you marked in the exam for each question, and leave it blank if you skipped it. There is no timer. Options are in the order EduTap showed them, which may differ from your screen, so match by the option text. No questions were recovered yet for Quantitative Aptitude, Reasoning, so those sections are not scored. Marks per question follow the 2026 notification, and a wrong answer costs a quarter of that question's marks.", "resnote": "This is your score on the 32 recovered questions out of 90, worth 40 of the paper's 100 marks. \"EduTap key\" means question, options and answer are from EduTap's discussion. \"EduTap answer · options by Claude\" means EduTap showed only the answer, so the options are reconstructed and may not match your screen. \"Claude-checked\" means the answer was not in your screenshots and was verified separately.", "stems": {}, "qs": [{"s": "English Language", "q": "In which of the following sentences is the word \"Slight\" used appropriately?<br>1. No one would have complained had there been only a slight delay in flight departures.<br>2. Hardly anyone had noticed the slight of his hand during the performance.<br>3. One who keeps slighting others is never appreciated by anyone.", "o": ["Only 1", "Only 2", "Only 3", "Both 1 and 3", "All 1, 2 and 3"], "a": 3, "e": "1 is right: 'slight' as an adjective means small or minor. 3 is right: 'to slight' means to insult or ignore someone. 2 is wrong: the phrase is 'sleight of hand' (skill in tricks), not 'slight'.", "st": null, "src": "EduTap"}, {"s": "English Language", "q": "Read the sentence and find the word that fits the blank. Then choose the word(s) that are opposite in meaning to that word.<br><i>Personalisation does not only mean inserting names into emails; true personalisation ______ customers.<\/i><br>(i) Disregards<br>(ii) Disrespects<br>(iii) Necessity", "o": ["Only (i)", "Only (ii)", "Both (i) and (ii)", "Both (ii) and (iii)", "All (i), (ii) and (iii)"], "a": 2, "e": "The blank takes 'respects' or 'values'. 'Disregards' (ignores) and 'disrespects' are both opposites of 'respects'. 'Necessity' is a noun meaning something needed, not an opposite.", "st": null, "src": "EduTap"}, {"s": "English Language", "q": "Read the sentence and find the word that fits the blank. Then choose the word(s) that are opposite in meaning to that word.<br><i>Commercial farmers should adopt new technologies and practices to ______ the implementation of waste management.<\/i><br>(i) Ignore<br>(ii) Chagrin<br>(iii) Worsen", "o": ["Only (i)", "Only (iii)", "Both (i) and (ii)", "Both (i) and (iii)", "All (i), (ii) and (iii)"], "a": 1, "e": "The blank takes 'improve' or 'enhance'. Its opposite is 'worsen'. 'Ignore' means to pay no attention to, which is not the opposite of improving something, and 'chagrin' is a noun meaning annoyance. (Your screenshot showed only options A to C and not EduTap's answer, so options D and E and this answer are Claude's.)", "st": null, "src": "Claude-checked"}, {"s": "English Language", "q": "Read the sentence and find the word that fits the blank. Then choose the word(s) that are opposite in meaning to that word.<br><i>With the rise in temperature, the ripening of vines is ______, and the harvest is brought forward by a month.<\/i><br>(i) Younger<br>(ii) Earlier<br>(iii) Later", "o": ["Only (i)", "Only (ii)", "Both (i) and (iii)", "Only (iii)", "None of these"], "a": 3, "e": "The harvest comes a month early, so the vines ripen 'earlier'. Its opposite is 'later'. 'Younger' is about age, not timing, and 'earlier' is the word itself, not its opposite.", "st": null, "src": "EduTap"}, {"s": "English Language", "q": "Read the sentence and find the word that fits the blank. Then choose the word(s) that are opposite in meaning to that word.<br><i>Creativity is constant ______ of ideas and a no-ceiling approach …<\/i><br>(i) Flow<br>(ii) Sturdy<br>(iii) Regression", "o": ["Only (i)", "Only (ii)", "Only (iii)", "Both (i) and (ii)", "All (i), (ii) and (iii)"], "a": 2, "e": "The blank takes 'progression' (ideas that keep growing with no upper limit). Its opposite is 'regression'. 'Flow' is close in meaning to progression, and 'sturdy' is an unrelated adjective meaning strong. (Option D was partly hidden in your screenshot.)", "st": null, "src": "EduTap"}, {"s": "English Language", "q": "Which of the following phrases can replace the highlighted phrase in the sentence without changing its meaning?<br><i>Diversity and inclusiveness are fundamental principles that have <b>resulted in<\/b> the success of organisations.<\/i>", "o": ["Contributed to", "Facilitated against", "Subsidized", "Been paid why", "None can replace"], "a": 0, "e": "'Resulted in' means led to; 'have contributed to the success' keeps the meaning. 'Facilitated against' is not a valid phrase, 'subsidized' changes the meaning, and 'been paid why' makes no sense.", "st": null, "src": "EduTap"}, {"s": "English Language", "q": "Which of the following phrases can replace the highlighted phrase in the sentence without changing its meaning?<br><i>A shortage of passenger airplanes globally has resulted in airplane companies <b>rushing to arrange<\/b> airplanes to meet growing demand.<\/i>", "o": ["Scrambling to lease", "Designing", "Fighting against", "Refusing to buy", "None can replace"], "a": 0, "e": "'Scrambling to lease' means hurrying to rent airplanes, which keeps the meaning. 'Designing' changes it, 'fighting against' doesn't fit and 'refusing to buy' is the opposite.", "st": null, "src": "EduTap"}, {"s": "English Language", "q": "Which of the following phrases can replace the highlighted phrase in the sentence without changing its meaning?<br><i>People <b>usually hold onto<\/b> pleasant memories, trying to relive them for as long as possible, while memories that aren't pleasant are often pushed aside.<\/i>", "o": ["Tend to cling to", "Are forgetful of", "Run off with", "Let go of", "None can replace"], "a": 0, "e": "'Tend to cling to' means generally hold on tightly, which keeps the meaning. 'Are forgetful of' and 'let go of' are opposites, and 'run off with' means to steal or leave with something.", "st": null, "src": "EduTap"}, {"s": "English Language", "q": "Rearrange the following sentences to form a meaningful paragraph.<br>(A) Climate action is the need of the hour; our planet is 1.1 degrees celcius warmer than the pre-industrial times.<br>(B) It requires comprehensive assessment coupled with long term plans for reducing emissions.<br>(C) Given the gravity of the crisis, it is imperative that we find a viable solution quickly.<br>(D) One of the primary solutions is to slash emissions, but such a transition cannot be achieved overnight.", "o": ["ACDB", "ADCB", "DCBA", "BADC", "BDAC"], "a": 0, "e": "A introduces the issue, C stresses the urgency of finding a solution, D names cutting emissions as a main solution, and B ends by saying that transition ('It' refers to D's transition) needs assessment and long-term plans.", "st": null, "src": "EduTap"}, {"s": "English Language", "q": "In the following question, four sentences are given. Identify the grammatically correct sentences and select the appropriate option.<br>A. Garfish are found throughout the Mediterranean Sea, where they inhabit coastal waters and feed on smaller fish.<br>B. Workplace friendships assistances individuals form better connections and develop a stronger sense of belonging within the organisation.<br>C. Teaching employees how to operate imported machinery can improve productivity and help a company maintain consistent quality standards.<br>D. Neither the revised guidelines nor the additional training sessions have been sufficient to address the recurring technical difficulties.", "o": ["A and B only", "A and C only", "C and D only", "B and D only", "A, C and D only"], "a": 4, "e": "A is correct ('are' agrees with plural 'garfish'). B is wrong: 'assistances' should be 'assist individuals in forming'. C is correct (gerund phrase as subject). D is correct: with neither…nor, the verb agrees with the nearer subject, plural 'sessions', so 'have'.", "st": null, "src": "EduTap"}, {"s": "English Language", "q": "Two individual statements are given below, followed by three potential starters. Check which of the given starters can be used to combine the two statements into a single, grammatically accurate, and logically continuous sentence without changing the original context.<br>I) The odds were insurmountable, but the team refused to relinquish hope.<br>II) The team members continued their arduous ascent and were eventually rewarded for their perseverance.<br>Starters:<br>A. Despite the odds,<br>B. Even though the odds<br>C. Having endured numerous setbacks,", "o": ["Only A", "A and B", "A and C", "All A, B and C", "Only C"], "a": 2, "e": "'Despite the odds, the team members continued…' and 'Having endured numerous setbacks, the team members continued…' both work. 'Even though the odds' needs a verb and doesn't complete the sentence.", "st": null, "src": "EduTap"}, {"s": "English Language", "q": "Match the following sentence fragments to form grammatically and contextually coherent sentences and select the option containing correct pairs.<br><b>Column I<\/b><br>A. China's dominance in the processing of rare earth elements has given it considerable influence over global supply chains,<br>B. By promoting the domestic exploration and processing of critical minerals,<br>C. The competition between the United States and China over critical mineral supplies has intensified,<br><b>Column II<\/b><br>D. the scheme strengthens India's vision of a resilience electrical industry by encouraging domestic production …<br>E. as both countries seek secure access to essential minerals required for electric vehicles, renewable energy systems and advanced technologies.<br>F. making several economies increasingly concerned about supply disruptions and their dependence on a single dominant supplier.", "o": ["A-E only", "A-F and C-E only", "B-D and C-F only", "A-F, B-D and C-E", "A-F and C-E"], "a": 4, "e": "A-F and C-E are coherent. B-D fails because 'resilience' is a noun; it should be 'a resilient electrical industry'.", "st": null, "src": "EduTap"}, {"s": "General Awareness", "q": "Mahatma Gandhi Marine National Park is situated in which of the following states/Union Territories of India?", "o": ["Gujarat", "Andaman and Nicobar Islands", "Madhya Pradesh", "Karnataka", "Goa"], "a": 1, "e": "Mahatma Gandhi Marine National Park (Wandoor National Park) is in the Andaman and Nicobar Islands. Trap: the Marine National Park in the Gulf of Kutch is in Gujarat.", "st": null, "src": "EduTap"}, {"s": "General Awareness", "q": "Rani ki Vav, a UNESCO World Heritage Site, is located on the banks of which river?", "o": ["Sabarmati", "Narmada", "Saraswati", "Mahi", "Tapi"], "a": 2, "e": "Rani ki Vav, the 11th-century stepwell at Patan, Gujarat, built in memory of King Bhima I, stands on the banks of the Saraswati. UNESCO listed it in 2014. (Your screenshot showed only options A and B, so options C to E are Claude's and the answer was checked separately.)", "st": null, "src": "Claude-checked"}, {"s": "General Awareness", "q": "National Space Day is celebrated every year on which of the following dates?", "o": ["July 14", "August 15", "August 23", "September 2", "October 4"], "a": 2, "e": "23 August marks Chandrayaan-3's 2023 soft landing near the Moon's south pole. The first National Space Day was in 2024.", "st": null, "src": "EduTap"}, {"s": "General Awareness", "q": "The Insurance Regulatory and Development Authority of India (IRDAI) aims to achieve \"Insurance for All\" by which year?", "o": ["2030", "2035", "2040", "2047", "2050"], "a": 3, "e": "IRDAI's vision is 'Insurance for All by 2047', the centenary of independence.", "st": null, "src": "EduTap"}, {"s": "General Awareness", "q": "Who is the Managing Director (MD) and Chief Executive Officer (CEO) of the National Securities Depository Limited (NSDL)?", "o": ["Ashish Kumar Chauhan", "Nehal Vora", "Vijay Chandok", "Sundararaman Ramamurthy", "Padmaja Chunduru"], "a": 2, "e": "Vijay Chandok succeeded Padmaja Chunduru at NSDL. Ashish Chauhan heads NSE, Nehal Vora CDSL and Sundararaman Ramamurthy BSE.", "st": null, "src": "EduTap"}, {"s": "General Awareness", "q": "Which country will host the 19th BRICS Summit in 2027?", "o": ["India", "Brazil", "Russia", "South Africa", "China"], "a": 4, "e": "China hosts the 19th BRICS Summit in 2027. India hosts the 18th in 2026 and Brazil hosted the 17th in 2025.", "st": null, "src": "EduTap"}, {"s": "General Awareness", "q": "The Cyber Suraksha Portal was launched in August 2026 by which of the following bodies?", "o": ["Reserve Bank of India (RBI)", "Securities and Exchange Board of India (SEBI)", "National Stock Exchange (NSE)", "Insurance Regulatory and Development Authority of India (IRDAI)", "National Payments Corporation of India (NPCI)"], "a": 1, "e": "SEBI launched the Cyber Suraksha Portal on 24 August 2026 as a central platform and knowledge hub on cyber security for India's securities market.", "st": null, "src": "EduTap"}, {"s": "General Awareness", "q": "Vizhinjam International Seaport is located in which of the following states/UTs?", "o": ["Tamil Nadu", "Karnataka", "Kerala", "Andhra Pradesh", "Goa"], "a": 2, "e": "Vizhinjam is in Thiruvananthapuram district, Kerala. It is India's first dedicated deepwater container transshipment port.", "st": null, "src": "EduTap"}, {"s": "General Awareness", "q": "Who won the Miss World 2026 title?", "o": ["Elisabeth Reynés", "Nikita Porwal", "Joheirry Mola Dominguez", "Opal Suchata Chuangsri", "Krystyna Pyszková"], "a": 2, "e": "Joheirry Mola Dominguez of the Dominican Republic won the 73rd Miss World. Elisabeth Reynés (Spain) was first runner-up. Opal Suchata Chuangsri won Miss World 2025 and Krystyna Pyszková won in 2024.", "st": null, "src": "EduTap"}, {"s": "General Awareness", "q": "In August 2026, the Central Board of Direct Taxes (CBDT) notified the FAST-DS Rules, 2026. What does the letter 'T' stand for in the abbreviation (FAST-DS)?", "o": ["Tax", "Taxpayers", "Transactions", "Transfer", "Treasury"], "a": 1, "e": "FAST-DS is the Foreign Assets of Small Taxpayers Disclosure Scheme, so T = Taxpayers. (EduTap's answer line was cut off in your screenshot, so Claude checked this one on the web.)", "st": null, "src": "Claude-checked"}, {"s": "General Awareness", "q": "According to the Passports (Amendment) Rules, 2026, an ordinary passport issued to a child below 15 years of age will remain valid for a period of ____ from the date of issue or until the child turns 18 years of age, whichever is earlier.", "o": ["Three years", "Five years", "Seven years", "Ten years", "Fifteen years"], "a": 1, "e": "Under amended Rule 12(1A) of the Passports Rules, 1980, an ordinary 36-page passport for a child below 15 is valid for five years or until the child turns 18, whichever is earlier. In force from 17 September 2026.", "st": null, "src": "EduTap"}, {"s": "General Awareness", "q": "As part of India's preparations for a potential bid to host the 2036 Olympic Games, the Government of India has announced a nationwide sports talent identification campaign for children aged between 5 years and ____ years.", "o": ["12", "14", "15", "17", "18"], "a": 2, "e": "The Prime Minister announced a nationwide talent-identification campaign for children aged 5 to 15, as part of preparations for a possible 2036 Olympics bid.", "st": null, "src": "EduTap"}, {"s": "General Awareness", "q": "Safran, a ____ based aerospace company, signed a deal in August 2026 with Hindustan Aeronautics Limited (HAL) to jointly develop a high-power engine named Aravali for India's next-generation helicopters.", "o": ["German", "American", "British", "French", "Russian"], "a": 3, "e": "Safran is French. It will co-develop the Aravali high-power helicopter engine with HAL.", "st": null, "src": "EduTap"}, {"s": "General Awareness", "q": "Under the National Agricultural Insurance Scheme (NAIS), the premium for the Rabi crop wheat is ____ of the sum insured or the actuarial rate, whichever is less.", "o": ["1%", "1.5%", "2%", "2.5%", "5%"], "a": 1, "e": "NAIS charged 1.5% for wheat. PMFBY, its successor, keeps 1.5% for all Rabi crops, 2% for Kharif and 5% for commercial or horticultural crops.", "st": null, "src": "EduTap"}, {"s": "General Awareness", "q": "The Department of Financial Services (DFS) has launched India's first sovereign-backed Protection & Indemnity (P&I) insurance product under the Bharat Maritime Insurance Pool (BMIP). The product was designed by ____.", "o": ["Life Insurance Corporation of India", "General Insurance Corporation of India", "The New India Assurance Company Limited", "United India Insurance Company Limited", "The Oriental Insurance Company Limited"], "a": 2, "e": "The New India Assurance Company designed the sovereign-backed P&I product under the Bharat Maritime Insurance Pool. (Option A was partly cut off in your screenshot; it read as Life Insurance Corporation of India.)", "st": null, "src": "EduTap"}, {"s": "General Awareness", "q": "The Union Ministry of Electronics and Information Technology (MeitY) has notified the Mobile Phone Manufacturing Scheme (MPMS) in August 2026. The scheme will run from FY 2026-27 to FY ____.", "o": ["2028-29", "2029-30", "2030-31", "2031-32", "2035-36"], "a": 2, "e": "MPMS has an outlay of ₹62,500 crore and runs from FY 2026-27 to FY 2030-31, to raise domestic value addition in mobile phones.", "st": null, "src": "EduTap"}, {"s": "General Awareness", "q": "Under the Employees' Pension Scheme (EPS) 2026, the minimum member pension is set at ₹1,000 per month. When an eligible member opts for commutation/early pension, the pension amount is permanently reduced by ____ for every year the member draws it before reaching the superannuation age of 58.", "o": ["2%", "3%", "4%", "5%", "6%"], "a": 2, "e": "Early pension (age 50 to 58) is permanently reduced by 4% for each year it is drawn before 58.", "st": null, "src": "EduTap"}, {"s": "General Awareness", "q": "Who is the author of the book 'Tides of Time: Bharat's History through Murals in Parliament'?", "o": ["Shashi Tharoor", "Sudha Murty", "Amish Tripathi", "Amitav Ghosh", "Arundhati Roy"], "a": 1, "e": "Sudha Murty, Rajya Sabha MP, wrote it. It is a Lok Sabha Secretariat publication released by Vice President C. P. Radhakrishnan at Samvidhan Sadan.", "st": null, "src": "EduTap"}, {"s": "General Awareness", "q": "NITI Aayog released the India Electric Mobility Index (IEMI) 2025 in September 2026. Which state has topped this index with a score of 84?", "o": ["Maharashtra", "Karnataka", "Delhi", "Tamil Nadu", "Gujarat"], "a": 2, "e": "Delhi topped IEMI 2025 with 84/100, ahead of Maharashtra (78), Karnataka (73), Chandigarh (71) and Goa (65).", "st": null, "src": "EduTap"}, {"s": "General Awareness", "q": "The Securities and Exchange Board of India (SEBI), in August 2026, introduced an IT-resilience framework for market infrastructure institutions (MIIs) on a scale of 100, with how many parameters?", "o": ["Seven", "Eight", "Nine", "Ten", "Fourteen"], "a": 2, "e": "The IT Resilience Index (ITRI) for MIIs uses nine parameters with a total weight of 100. Availability and Security carry the most weight, 20 each.", "st": null, "src": "EduTap"}]};
+const KEY = "pfrda-mock:" + DATA.id;
+const L = ["A","B","C","D","E"];
+const $ = (s, r=document) => r.querySelector(s);
+const app = $("#app");
+let S = null; // state
+let tick = null;
+
+function load(){ try{ const v = localStorage.getItem(KEY); return v ? JSON.parse(v) : null; }catch(e){ return null; } }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+function wipe(){ try{ localStorage.removeItem(KEY); }catch(e){} }
+
+function secOf(q){ return DATA.sections.find(s => s.name === q.s); }
+function markOf(q){ const s = secOf(q); return s.marks / s.n; }
+function fmt(n){ return (Math.round(n*100)/100).toFixed(2).replace(/\.00$/,""); }
+function fmtT(ms){ ms = Math.max(0, ms); const t = Math.floor(ms/1000); return String(Math.floor(t/60)).padStart(2,"0") + ":" + String(t%60).padStart(2,"0"); }
+function esc(t){ const d = document.createElement("div"); d.textContent = t; return d.innerHTML; }
+
+/* ---------- start screen ---------- */
+function startScreen(){
+  clearInterval(tick);
+  const prev = load();
+  const total = DATA.qs.length;
+  const rows = DATA.sections.map(s => `<tr><td>${s.name}</td><td class="r num">${s.real ? s.n + " of " + s.real : s.n}</td><td class="r num">${fmt(s.marks)}</td><td class="r num">${fmt(s.pq)}</td><td class="r num">−${fmt(s.pq*DATA.neg)}</td></tr>`).join("");
+  let resume = "";
+  if (prev && prev.phase === "test") resume = `<button class="btn primary" id="resume">Continue entering answers</button>`;
+  if (prev && prev.phase === "done") resume = `<button class="btn primary" id="seeres">See last result</button>`;
+  app.innerHTML = `<div class="wrap start">
+    <div class="panel">
+      <div class="eyebrow">PFRDA Grade A 2026 · Phase I</div>
+      <h1 style="margin-top:6px">${DATA.title}</h1>
+      <p class="note" style="margin:8px 0 14px">${DATA.blurb}</p>
+      <dl class="facts">
+        <div><dt>Questions</dt><dd class="num">${total}</dd></div>
+        <div><dt>Marks covered</dt><dd class="num">${DATA.sections.reduce((a,s)=>a+s.marks,0)}</dd></div>
+        <div><dt>Recovered</dt><dd class="num">${total} of ${DATA.realTotal}</dd></div>
+        <div><dt>Wrong answer</dt><dd>−¼ of its marks</dd></div>
+      </dl>
+    </div>
+    <div class="panel"><div class="eyebrow" style="margin-bottom:8px">Sections</div>
+      <div class="tbl"><table class="sec"><tr><th>Section</th><th class="r">Recovered</th><th class="r">Marks</th><th class="r">Per Q</th><th class="r">Wrong</th></tr>${rows}</table></div>
+      <p class="note" style="margin:10px 0 0">${DATA.howto}</p>
+    </div>
+    <div class="row">${resume}<button class="btn ${resume ? "" : "primary"}" id="go">${prev ? "Start a fresh attempt" : "Enter my answers"}</button></div>
+  </div>`;
+  $("#go").onclick = () => { S = { phase:"test", deadline: Date.now() + DATA.minutes*60000, started: Date.now(), cur:0, ans:Array(total).fill(null), flag:Array(total).fill(false), seen:Array(total).fill(false) }; save(); testScreen(); };
+  if ($("#resume")) $("#resume").onclick = () => { S = prev; if (S.deadline <= Date.now()) { finish(); } else testScreen(); };
+  if ($("#seeres")) $("#seeres").onclick = () => { S = prev; resultScreen(); };
+}
+
+/* ---------- test screen ---------- */
+function testScreen(){
+  app.innerHTML = `<div class="bar"><div class="bar-in"><div class="t">${DATA.short}</div><button class="btn" id="palbtn" style="min-height:36px;padding:6px 10px">Questions</button></div>
+    <div class="chips" id="chips"></div></div>
+    <div class="wrap"><div id="q"></div></div>
+    <div class="foot"><div class="foot-in">
+      <button class="btn" id="prev">← Previous</button>
+      <button class="btn primary" id="next">Save &amp; next →</button>
+      <button class="btn" id="flag">Mark for review</button>
+      <button class="btn ghost" id="clear">Clear answer</button>
+    </div></div>
+    <div id="sheet"></div>`;
+  $("#prev").onclick = () => go(S.cur - 1);
+  $("#next").onclick = () => go(S.cur + 1);
+  $("#flag").onclick = () => { S.flag[S.cur] = !S.flag[S.cur]; save(); if (S.flag[S.cur]) go(S.cur + 1); else renderQ(); };
+  $("#clear").onclick = () => { S.ans[S.cur] = null; save(); renderQ(); };
+  $("#palbtn").onclick = openPalette;
+  renderQ();
+  clearInterval(tick);
+}
+function tickFn(){
+  const left = S.deadline - Date.now();
+  const t = $("#timer"); if (!t) return;
+  t.textContent = fmtT(left);
+  t.classList.toggle("low", left < 5*60000);
+  if (left <= 0) finish();
+}
+function go(i){ if (i < 0 || i >= DATA.qs.length) { if (i >= DATA.qs.length) openPalette(); return; } S.cur = i; save(); renderQ(); window.scrollTo(0,0); }
+function renderQ(){
+  const i = S.cur, q = DATA.qs[i];
+  S.seen[i] = true; save();
+  $("#chips").innerHTML = DATA.sections.map(s => `<button class="chip" data-s="${esc(s.name)}" aria-pressed="${s.name===q.s}">${s.name}</button>`).join("");
+  $("#chips").querySelectorAll(".chip").forEach(b => b.onclick = () => go(DATA.qs.findIndex(x => x.s === b.dataset.s)));
+  const act = $("#chips [aria-pressed=true]"); if (act) act.scrollIntoView({inline:"nearest", block:"nearest"});
+  const stem = q.st ? `<details class="stem" open><summary>Directions / passage</summary><div class="stem-body">${DATA.stems[q.st]}</div></details>` : "";
+  $("#q").innerHTML = `<div class="qhead"><div><span class="eyebrow">${q.s}</span><h2 class="num" style="font-size:18px;margin-top:2px">Question ${i+1} <span class="note">of ${DATA.qs.length}</span></h2></div>
+     <div class="marks num">+${fmt(markOf(q))} / −${fmt(markOf(q)*DATA.neg)}${S.flag[i] ? ' · <span class="pill" style="background:var(--flag-soft);color:var(--flag)">Marked</span>' : ""}</div></div>
+     ${stem}<p class="qtext">${q.q}</p>
+     <div class="opts" role="radiogroup">${q.o.map((o,k) => `<button class="opt" role="radio" aria-checked="${S.ans[i]===k}" data-k="${k}"><span class="k">${L[k]}</span><span>${o}</span></button>`).join("")}</div>`;
+  $("#q").querySelectorAll(".opt").forEach(b => b.onclick = () => { const k = +b.dataset.k; S.ans[i] = (S.ans[i] === k ? null : k); save(); renderQ(); });
+  $("#flag").textContent = S.flag[i] ? "Unmark" : "Mark for review";
+  $("#prev").disabled = i === 0;
+  $("#next").textContent = i === DATA.qs.length - 1 ? "Review & submit" : "Save & next →";
+}
+function openPalette(){
+  const answered = S.ans.filter(a => a !== null).length;
+  const flagged = S.flag.filter(Boolean).length;
+  const groups = DATA.sections.map(s => {
+    const btns = DATA.qs.map((q,i) => q.s === s.name ? i : -1).filter(i => i >= 0).map(i => {
+      const cls = S.flag[i] ? "st-flag" : S.ans[i] !== null ? "st-ans" : S.seen[i] ? "st-seen" : "";
+      return `<button class="${cls} ${i===S.cur?"st-cur":""}" data-i="${i}">${i+1}</button>`; }).join("");
+    return `<div class="pal-sec">${s.name}</div><div class="pal">${btns}</div>`; }).join("");
+  $("#sheet").innerHTML = `<div class="sheet" id="sh"><div class="sheet-in" role="dialog" aria-label="Question palette">
+     <div class="row" style="justify-content:space-between;align-items:center"><h3>Questions</h3><button class="btn" id="shx" style="min-height:36px">Close</button></div>
+     <div class="legend"><span><i class="st-ans"></i>Answered</span><span><i class="st-flag"></i>Marked for review</span><span><i class="st-seen"></i>Seen, not answered</span><span><i></i>Not visited</span></div>
+     ${groups}
+     <div class="confirm"><p style="margin:0 0 10px"><b class="num">${answered}</b> of ${DATA.qs.length} answered${flagged ? `, <b class="num">${flagged}</b> marked for review (marked answers still count)` : ""}.</p>
+       <div class="row"><button class="btn danger" id="sub1">See my score</button></div><div id="sub2"></div></div>
+  </div></div>`;
+  $("#shx").onclick = () => $("#sheet").innerHTML = "";
+  $("#sh").onclick = e => { if (e.target.id === "sh") $("#sheet").innerHTML = ""; };
+  $("#sheet").querySelectorAll(".pal button").forEach(b => b.onclick = () => { $("#sheet").innerHTML = ""; go(+b.dataset.i); });
+  $("#sub1").onclick = () => { $("#sub2").innerHTML = `<p class="note" style="margin:10px 0">This shows your score. You can start over afterwards if you need to re-enter anything. Show score now?</p><div class="row"><button class="btn danger" id="subyes">Yes, show score</button><button class="btn" id="subno">Keep going</button></div>`;
+    $("#subyes").onclick = finish; $("#subno").onclick = () => $("#sub2").innerHTML = ""; };
+}
+function finish(){
+  clearInterval(tick);
+  S.phase = "done"; S.ended = Math.min(Date.now(), S.deadline); save();
+  resultScreen();
+}
+
+/* ---------- results ---------- */
+function grade(){
+  const per = DATA.sections.map(s => ({ name:s.name, n:s.n, max:s.marks, c:0, w:0, u:0, score:0 }));
+  DATA.qs.forEach((q,i) => { const p = per.find(x => x.name === q.s), m = markOf(q), a = S.ans[i];
+    if (a === null) p.u++; else if (a === q.a) { p.c++; p.score += m; } else { p.w++; p.score -= m*DATA.neg; } });
+  return per;
+}
+let filter = "all";
+function resultScreen(){
+  clearInterval(tick);
+  const per = grade();
+  const tot = per.reduce((a,p) => a + p.score, 0), max = per.reduce((a,p) => a + p.max, 0);
+  const c = per.reduce((a,p) => a+p.c, 0), w = per.reduce((a,p) => a+p.w, 0), u = per.reduce((a,p) => a+p.u, 0);
+  const used = Math.round(((S.ended||Date.now()) - S.started)/60000);
+  const rows = per.map(p => `<tr><td>${p.name}</td><td class="r num">${p.c}</td><td class="r num">${p.w}</td><td class="r num">${p.u}</td><td class="r num"><b>${fmt(p.score)}</b>/${p.max}</td><td class="r num">${p.c+p.w ? Math.round(p.c/(p.c+p.w)*100)+"%" : "–"}</td></tr>`).join("");
+  app.innerHTML = `<div class="wrap start">
+    <div class="panel"><div class="eyebrow">${DATA.short} · Result</div>
+      <div class="score" style="margin-top:6px"><span class="big">${fmt(tot)}</span><span class="note num">/ ${max} marks</span></div>
+      <div class="row" style="margin-top:8px"><span class="pill p-ok num">${c} correct</span><span class="pill p-bad num">${w} wrong (−${fmt(per.reduce((a,p)=>a+p.w*(p.max/p.n)*DATA.neg,0))})</span><span class="pill p-skip num">${u} not attempted</span></div>
+      <p class="note" style="margin:10px 0 0">${DATA.resnote}</p>
+    </div>
+    <div class="panel"><div class="eyebrow" style="margin-bottom:8px">By section</div>
+      <div class="tbl"><table class="sec"><tr><th>Section</th><th class="r">✓</th><th class="r">✗</th><th class="r">–</th><th class="r">Score</th><th class="r">Accuracy</th></tr>${rows}</table></div></div>
+    <div class="panel" style="padding:14px"><div class="row" style="justify-content:space-between;align-items:center"><div class="eyebrow">Answers &amp; explanations</div>
+      <div class="row" id="filt">${["all","wrong","skipped","correct"].map(f => `<button class="chip" data-f="${f}" aria-pressed="${filter===f}">${{all:"All",wrong:"Wrong",skipped:"Not attempted",correct:"Correct"}[f]}</button>`).join("")}</div></div>
+      <div class="rev" id="rev"></div></div>
+    <div class="row"><button class="btn" id="again">Start over</button></div>
+  </div>`;
+  $("#filt").querySelectorAll(".chip").forEach(b => b.onclick = () => { filter = b.dataset.f; resultScreen(); });
+  $("#again").onclick = () => { wipe(); S = null; filter = "all"; startScreen(); };
+  const list = DATA.qs.map((q,i) => ({q,i})).filter(({q,i}) => { const a = S.ans[i];
+    return filter==="all" || (filter==="wrong" && a!==null && a!==q.a) || (filter==="skipped" && a===null) || (filter==="correct" && a===q.a); });
+  $("#rev").innerHTML = list.length ? list.map(({q,i}) => { const a = S.ans[i];
+    const tag = a===null ? '<span class="pill p-skip">Not attempted</span>' : a===q.a ? '<span class="pill p-ok">Correct</span>' : '<span class="pill p-bad">Wrong</span>';
+    const stem = q.st ? `<details class="stem"><summary>Directions / passage</summary><div class="stem-body">${DATA.stems[q.st]}</div></details>` : "";
+    return `<div class="panel rq"><div class="qhead"><span class="eyebrow">Q${i+1} · ${q.s}</span>${tag}</div>${stem}<p class="qtext" style="font-size:16px">${q.q}</p>
+      <div class="opts">${q.o.map((o,k) => `<div class="opt ${k===q.a?"right":(k===a?"wrong":"")}"><span class="k">${L[k]}</span><span>${o}${k===q.a?" ✓":""}${k===a&&k!==q.a?" (your answer)":""}</span></div>`).join("")}</div>
+      <div class="exp"><b>Answer: ${L[q.a]}.</b> <span class="pill ${q.src==='EduTap'?'p-ok':'p-skip'}">${{"EduTap":"EduTap key","EduTap-answer":"EduTap answer · options by Claude","Claude-checked":"Claude-checked"}[q.src]}</span> ${q.e}</div></div>`; }).join("") : '<p class="note">No questions in this filter.</p>';
+}
+
+/* boot */
+(function(){ const prev = load();
+  if (prev && prev.phase === "test" && prev.deadline > Date.now()) { S = prev; testScreen(); }
+  else if (prev && prev.phase === "test") { S = prev; finish(); }
+  else startScreen(); })();
+</script>
+
+</body>
+</html>
