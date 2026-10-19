@@ -1,0 +1,316 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Descriptive English Baseline</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+/* Layout: exam console. Sticky timer bar, three question tabs, passage above the answer box. */
+:root{
+  --bg:#f3f5f7; --panel:#ffffff; --ink:#18212b; --muted:#5b6876; --line:#d6dde4;
+  --accent:#1f5f8b; --accent-soft:#e3eef6; --warn:#a2560b; --warn-soft:#fbefe1; --ok:#2f6b3a; --bad:#a3302a;
+  --display:"Source Serif 4", Georgia, "Times New Roman", serif;
+  --body:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11161c; --panel:#19212a; --ink:#e3e9ef; --muted:#97a4b2; --line:#2c3743;
+  --accent:#7cb6e0; --accent-soft:#1d3346; --warn:#e7a35c; --warn-soft:#3a2a17; --ok:#82c68f; --bad:#ef8a83; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11161c; --panel:#19212a; --ink:#e3e9ef; --muted:#97a4b2; --line:#2c3743;
+  --accent:#7cb6e0; --accent-soft:#1d3346; --warn:#e7a35c; --warn-soft:#3a2a17; --ok:#82c68f; --bad:#ef8a83; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--panel)}
+.wrap{max-width:860px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 60px;display:flex;flex-direction:column;gap:18px}
+h1,h2,h3{font-family:var(--display);font-weight:600;text-wrap:balance;margin:0}
+h1{font-size:1.7rem;line-height:1.2}
+h2{font-size:1.25rem}
+h3{font-size:1.05rem}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.meta{display:flex;flex-wrap:wrap;gap:8px 20px;color:var(--muted);font-size:.9rem}
+.meta b{color:var(--ink);font-weight:600}
+table.pat{border-collapse:collapse;width:100%;font-size:.92rem}
+.tablebox{overflow-x:auto}
+table.pat th,table.pat td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+table.pat th{font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+table.pat td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
+ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.note{background:var(--warn-soft);border-color:transparent}
+.note h3{color:var(--warn)}
+button{font:inherit;font-weight:600;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:var(--panel);padding:9px 16px;cursor:pointer}
+button.ghost{background:transparent;color:var(--accent)}
+button.danger{border-color:var(--bad);background:transparent;color:var(--bad)}
+button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+/* exam bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--panel);border-bottom:1px solid var(--line)}
+.bar-in{max-width:860px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.clock{font-family:var(--mono);font-size:1.5rem;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.clock.low{color:var(--warn)} .clock.out{color:var(--bad)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab{background:transparent;color:var(--ink);border:1px solid var(--line);font-weight:500;padding:7px 12px}
+.tab[aria-selected="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.tab small{font-family:var(--mono);color:var(--muted);margin-left:6px}
+.passage{font-family:var(--display);font-size:1.02rem;line-height:1.65;display:flex;flex-direction:column;gap:12px;max-width:68ch}
+.qhead{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;align-items:baseline}
+.marks{font-family:var(--mono);font-size:.85rem;color:var(--muted)}
+textarea,input[type=text]{width:100%;font:inherit;font-size:1rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px 12px}
+textarea{min-height:220px;resize:vertical;line-height:1.6}
+textarea.short{min-height:120px}
+textarea[readonly],input[readonly]{opacity:.75}
+.wc{font-family:var(--mono);font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.wc.ok{color:var(--ok)} .wc.over,.wc.under{color:var(--warn)}
+.topics{display:flex;flex-direction:column;gap:8px}
+.topics label{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:6px;cursor:pointer}
+.topics label:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.topics input{margin-top:4px}
+.rcq{display:flex;flex-direction:column;gap:6px}
+.confirm{border-color:var(--bad)}
+.out{font-family:var(--mono);font-size:.82rem;min-height:260px}
+.status{font-size:.9rem;color:var(--ok)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div id="intro" class="wrap">
+  <div class="panel">
+    <span class="eyebrow">PFRDA Grade A 2026 · Phase II · Paper 1</span>
+    <h1>Descriptive English baseline</h1>
+    <div class="meta"><span><b>60 min</b> total</span><span><b>100 marks</b></span><span><b>3 questions</b>, all compulsory</span><span>Typed, like the real paper</span></div>
+    <p>Take this on a laptop or desktop with a physical keyboard. Spellcheck is off, as in the exam console. The timer keeps running if you reload the page, and your answers are saved in this browser as you type.</p>
+  </div>
+
+  <div class="panel">
+    <h2>Instructions</h2>
+    <ul>
+      <li>All questions are compulsory. Figures to the right show the marks for each question.</li>
+      <li>Answers must be written only in English, in your own words.</li>
+      <li>Marks will be deducted if the word limit is not observed.</li>
+      <li>There is no suggested time split. The page records how long you spend on each question, and I'll use that in the assessment.</li>
+      <li>When you finish, press <b>Copy my answers</b> and paste the whole block into the thread.</li>
+    </ul>
+    <div class="tablebox"><table class="pat">
+      <thead><tr><th>Q</th><th>Task</th><th>Limit</th><th>Marks</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Essay on one of four topics</td><td class="n">250–270 words</td><td class="n">30</td></tr>
+        <tr><td>2</td><td>Précis of a passage, with a suitable title</td><td class="n">140–160 words</td><td class="n">30</td></tr>
+        <tr><td>3</td><td>Reading comprehension, 5 questions</td><td class="n">own words</td><td class="n">40</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="panel note">
+    <h3>What this mock covers and what it leaves out</h3>
+    <p>I checked PFRDA Phase II descriptive papers from 2021, 2022 and 2025 and SEBI Phase II papers from 2018, 2020, 2024 and 2025. Every one of them used the same three questions: essay, précis and RC. What changed was the word limits and the RC question style.</p>
+    <ul>
+      <li><b>Covered:</b> the 2025 limits (PFRDA and SEBI both used 250–270 and 140–160), and four essay types: a quotation to discuss, a social and economic issue, technology, and a government infrastructure programme. The RC questions mix "explain", "discuss", "analyse" and "examine" with one question in two parts.</li>
+      <li><b>Not covered:</b> the older limits (essay of about 200 or 250 words, précis within 120 or 170 words), the 4-question RC used in 2021 and 2022, and workplace topics like SEBI 2020's "teamwork in an organisation". If the paper on 20 Nov states different limits, follow the paper.</li>
+      <li><b>Never seen in these papers, so not included:</b> letter, report or email writing.</li>
+    </ul>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <button id="startBtn">Start the 60-minute paper</button>
+      <span id="resumeNote" class="status" hidden></span>
+    </div>
+  </div>
+</div>
+
+<div id="exam" hidden>
+  <div class="bar"><div class="bar-in">
+    <span id="clock" class="clock" aria-live="off">60:00</span>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" data-q="1" aria-selected="true">Q1 Essay<small id="tw1">0</small></button>
+      <button class="tab" role="tab" data-q="2" aria-selected="false">Q2 Précis<small id="tw2">0</small></button>
+      <button class="tab" role="tab" data-q="3" aria-selected="false">Q3 RC<small id="tw3">0</small></button>
+    </div>
+    <button id="finishBtn" class="ghost">Finish</button>
+  </div></div>
+
+  <div class="wrap">
+    <div id="confirmBox" class="panel confirm" hidden>
+      <p><b>Finish now?</b> You still have <span id="leftTxt"></span>. Your answers will be locked.</p>
+      <div class="row"><button id="confirmYes">Finish and lock</button><button id="confirmNo" class="ghost">Keep writing</button></div>
+    </div>
+
+    <!-- Q1 -->
+    <section id="q1" class="panel" role="tabpanel">
+      <div class="qhead"><h2>Q1. Essay</h2><span class="marks">30 marks</span></div>
+      <p>Write an essay of about 250–270 words on <b>any one</b> of the following topics.</p>
+      <div class="topics">
+        <label><input type="radio" name="topic" value="1" id="t1"><span>1. "What gets measured gets managed." Discuss in the context of public policy in India.</span></label>
+        <label><input type="radio" name="topic" value="2" id="t2"><span>2. Social security for India's gig and platform workers.</span></label>
+        <label><input type="radio" name="topic" value="3" id="t3"><span>3. Artificial intelligence in financial services: opportunity and risk.</span></label>
+        <label><input type="radio" name="topic" value="4" id="t4"><span>4. The expansion of metro rail in Indian cities over the last decade: benefits and challenges.</span></label>
+      </div>
+      <textarea id="a1" spellcheck="false" autocorrect="off" autocapitalize="sentences" placeholder="Choose a topic above, then write your essay here."></textarea>
+      <span class="wc" id="wc1" data-min="250" data-max="270">0 words · target 250–270</span>
+    </section>
+
+    <!-- Q2 -->
+    <section id="q2" class="panel" role="tabpanel" hidden>
+      <div class="qhead"><h2>Q2. Précis</h2><span class="marks">30 marks</span></div>
+      <p>Make a précis of the following passage in <b>140–160 words</b> and give it a suitable title.</p>
+      <div class="passage">
+        <p>For most of independent India's history, the household savings story was a simple one. Families kept a portion of their income in bank fixed deposits, bought gold for weddings and emergencies and, when they could, invested in land or a house. Physical assets dominated, and the bank branch was the main window to the financial system. That picture is now changing quickly. Over the past decade, a growing share of household money has moved into mutual funds, equities, insurance and pension products. Monthly systematic investment plans, once the preserve of salaried professionals in big cities, now draw contributions from small towns, and the number of demat accounts has multiplied several times over since the pandemic.</p>
+        <p>Several forces explain the shift. Digital public infrastructure, from Aadhaar-based e-KYC to UPI, has cut the cost of opening an account and making a small investment to almost nothing. Smartphones have put trading and fund apps in the pockets of first-time investors. Falling real returns on deposits during periods of high inflation pushed savers to look for better yields, while a long rally in equity markets made those alternatives look attractive. Regulatory changes, such as simpler fund categories and lower distribution costs, have also helped build trust.</p>
+        <p>The change brings clear benefits. Money that flows into capital markets can finance companies directly, reducing the economy's dependence on bank credit and deepening the bond and equity markets. Long-term instruments such as the National Pension System help households build a retirement corpus at a time when joint families and traditional old-age support are weakening. For savers, a diversified portfolio offers a better chance of beating inflation over twenty or thirty years than a deposit alone.</p>
+        <p>Yet the transition also carries risks that policymakers cannot ignore. Many new investors entered markets during a period of rising prices and have never experienced a prolonged downturn. Studies by the market regulator have found that a large majority of individual traders in equity derivatives lose money, often because they mistake speculation for investment. Mis-selling of complex products, unregistered "finfluencers" on social media and the lure of quick gains add to the danger. At the same time, household borrowing, especially unsecured personal loans and credit-card debt, has risen faster than incomes in some segments, so net financial savings have not grown as fast as the headline figures on investment suggest.</p>
+        <p>There is also the question of who is left behind. Rural households, women outside the paid workforce and workers in the informal economy still hold most of their savings in cash, gold or informal chit funds, and many have no pension cover at all. For them, the problem is not choosing between a deposit and a fund but gaining access to any reliable long-term saving instrument.</p>
+        <p>The policy response therefore has to work on several fronts. Financial literacy must move beyond slogans to practical guidance delivered in local languages and at the point of sale. Regulators need to tighten rules on advice and advertising while keeping products simple and low-cost. Default options, such as automatic enrolment of new employees in pension schemes, can turn the saver's inertia into an advantage. And deposit holders should not be neglected, because a stable banking system remains the foundation of household security. If these steps are taken together, the financialisation of savings can become a source of lasting wealth for Indian families rather than a cycle of boom, loss and disillusionment.</p>
+      </div>
+      <label for="a2t"><b>Title</b></label>
+      <input type="text" id="a2t" spellcheck="false" autocorrect="off" placeholder="Your title">
+      <textarea id="a2" spellcheck="false" autocorrect="off" placeholder="Write your précis here."></textarea>
+      <span class="wc" id="wc2" data-min="140" data-max="160">0 words · target 140–160 (title not counted)</span>
+    </section>
+
+    <!-- Q3 -->
+    <section id="q3" class="panel" role="tabpanel" hidden>
+      <div class="qhead"><h2>Q3. Reading comprehension</h2><span class="marks">40 marks · 8 each</span></div>
+      <p>Read the passage below and answer the questions based on it <b>in your own words</b>.</p>
+      <div class="passage">
+        <p>Heat rarely makes headlines the way floods and cyclones do. It does not tear roofs off houses or wash away bridges, and its victims often die quietly, at home, of heart or kidney failure that is recorded as something else. Yet across South Asia, extreme heat has become one of the most serious threats to health, productivity and livelihoods, and it falls hardest on cities.</p>
+        <p>The reason lies partly in the way cities are built. Concrete, asphalt and brick absorb sunlight during the day and release it slowly through the night. Tall buildings packed closely together trap warm air and block breezes. Air conditioners, vehicles and factories add waste heat of their own. Trees, wetlands and open soil, which cool the air by releasing moisture, are steadily replaced by paved surfaces. The result is the "urban heat island": a city centre can be several degrees warmer than the farmland around it, and the difference is often greatest after dark, when the human body most needs to recover.</p>
+        <p>The burden of this heat is unevenly shared. A well-off family in an air-conditioned apartment experiences a heatwave as discomfort and a higher electricity bill. A construction worker, a street vendor or a delivery rider experiences it as a direct risk to life, because their work cannot pause during the hottest hours. In crowded informal settlements, tin roofs turn homes into ovens, and water may be available for only a few hours a day. Older people, young children, pregnant women and those with chronic illness are especially vulnerable whatever their income, but poverty multiplies every risk. Heat also reduces earnings: when workers slow down or stop to avoid collapse, the economy loses output, and India is estimated to lose a significant share of its working hours every year to heat stress.</p>
+        <p>There is an uncomfortable feedback loop at work. As temperatures rise, demand for air conditioning soars. Air conditioners make individual rooms bearable, but they push hot air outside, raise night-time temperatures in the street and, where electricity comes from coal, add to the emissions that drive warming in the first place. Peak demand on hot evenings can also strain power grids, leading to outages precisely when people most need cooling.</p>
+        <p>Cities are not powerless, however. Ahmedabad became one of the first cities in South Asia to adopt a heat action plan, drawn up after a deadly heatwave in 2010. Its plan combined early warnings, the opening of public cooling spaces, training for health workers to recognise heat illness, and changes in working hours for outdoor labourers. Since then, many Indian states and cities have drawn up similar plans. Other measures are physical rather than administrative. Reflective "cool roofs" made with white paint or special coatings can lower indoor temperatures in low-income homes at very little cost. Planting trees along streets, protecting lakes and creating parks restore natural cooling. Building codes can encourage shaded courtyards, cross-ventilation and lighter-coloured materials, borrowing from traditional architecture that kept homes cool long before electricity arrived.</p>
+        <p>The obstacles are largely institutional. Heat cuts across the responsibilities of many departments, from health and labour to urban planning and power, and no single agency owns the problem. Heat action plans often lack dedicated funding and legal backing, and their warning thresholds may ignore local humidity, which makes the same temperature far more dangerous in a coastal city than in a dry one. Data on heat-related deaths is incomplete, so the true scale of the crisis stays hidden and political pressure stays weak.</p>
+        <p>Treating heat as a disaster in its own right would change this. It would mean recording deaths properly, funding cooling measures through disaster budgets, protecting outdoor workers through enforceable rules, and designing cities for the climate they will face in 2050 rather than the one they knew in 1950. Heat may be a quiet disaster, but its costs are already loud enough to be heard by anyone willing to listen.</p>
+      </div>
+      <div class="rcq"><label for="r1"><b>1.</b> Why does the author call extreme heat a "quiet disaster"?</label><textarea id="r1" class="short" spellcheck="false" autocorrect="off"></textarea><span class="wc" id="wr1">0 words</span></div>
+      <div class="rcq"><label for="r2"><b>2.</b> Explain how the way cities are built creates the urban heat island effect.</label><textarea id="r2" class="short" spellcheck="false" autocorrect="off"></textarea><span class="wc" id="wr2">0 words</span></div>
+      <div class="rcq"><label for="r3"><b>3.</b> Discuss why the burden of extreme heat falls unequally on different groups of people.</label><textarea id="r3" class="short" spellcheck="false" autocorrect="off"></textarea><span class="wc" id="wr3">0 words</span></div>
+      <div class="rcq"><label for="r4"><b>4.</b> Analyse the feedback loop created by the rising use of air conditioning.</label><textarea id="r4" class="short" spellcheck="false" autocorrect="off"></textarea><span class="wc" id="wr4">0 words</span></div>
+      <div class="rcq"><label for="r5"><b>5.</b> Examine the institutional obstacles that weaken heat action plans, and the steps the author suggests to overcome them.</label><textarea id="r5" class="short" spellcheck="false" autocorrect="off"></textarea><span class="wc" id="wr5">0 words</span></div>
+    </section>
+
+    <section id="done" class="panel" hidden>
+      <h2 id="doneHead">Paper finished</h2>
+      <p>Press <b>Copy my answers</b> and paste the whole block into the thread. If copying doesn't work, the text below is already selected; copy it yourself.</p>
+      <div class="row"><button id="copyBtn">Copy my answers</button><span id="copyStatus" class="status" aria-live="polite"></span></div>
+      <textarea id="outBox" class="out" readonly></textarea>
+      <div class="row">
+        <button id="resetBtn" class="danger">Clear and start again</button>
+      </div>
+      <div id="resetBox" class="row" hidden>
+        <span>This deletes your answers from this browser.</span>
+        <button id="resetYes" class="danger">Delete answers</button><button id="resetNo" class="ghost">Cancel</button>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+(function(){
+  var KEY='pfrda-desc-baseline-v1', LIMIT=3600;
+  var ids=['a1','a2t','a2','r1','r2','r3','r4','r5'];
+  var S={start:null,ended:null,cur:1,spent:{1:0,2:0,3:0},topic:null,ans:{}};
+  function load(){try{var raw=localStorage.getItem(KEY);if(raw){var o=JSON.parse(raw);if(o&&typeof o==='object')S=Object.assign(S,o);}}catch(e){}}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+  function $(id){return document.getElementById(id);}
+  function words(t){t=(t||'').trim();return t?t.split(/\s+/).length:0;}
+  function fmt(s){s=Math.max(0,Math.round(s));var m=Math.floor(s/60),x=s%60;return (m<10?'0':'')+m+':'+(x<10?'0':'')+x;}
+  function now(){return Date.now()/1000;}
+  function elapsed(){if(!S.start)return 0;var end=S.ended||now();return Math.min(LIMIT,end-S.start);}
+
+  function setWC(el,n){
+    var min=+el.dataset.min,max=+el.dataset.max,base=n+' words';
+    if(min){el.textContent=base+' · target '+min+'–'+max+(el.id==='wc2'?' (title not counted)':'');
+      el.className='wc '+(n===0?'':n<min?'under':n>max?'over':'ok');}
+    else el.textContent=base;
+  }
+  function counts(){
+    var e=words($('a1').value),p=words($('a2').value),r=0;
+    setWC($('wc1'),e);setWC($('wc2'),p);
+    for(var i=1;i<=5;i++){var n=words($('r'+i).value);r+=n;setWC($('wr'+i),n);}
+    $('tw1').textContent=e;$('tw2').textContent=p;$('tw3').textContent=r;
+    return {e:e,p:p,r:r};
+  }
+  function show(q){
+    S.cur=q;
+    [1,2,3].forEach(function(i){$('q'+i).hidden=(i!==q)||!!S.ended;});
+    document.querySelectorAll('.tab').forEach(function(b){b.setAttribute('aria-selected',String(+b.dataset.q===q));});
+    save();
+  }
+  var last=null;
+  function tick(){
+    var t=now();
+    if(S.start&&!S.ended){
+      if(last!==null){S.spent[S.cur]=(S.spent[S.cur]||0)+Math.min(5,t-last);}
+      last=t;
+      var left=LIMIT-elapsed(),c=$('clock');
+      c.textContent=fmt(left);
+      c.className='clock'+(left<=0?' out':left<=600?' low':'');
+      if(left<=0){finish(true);return;}
+      save();
+    }
+  }
+  function lock(){ids.forEach(function(id){$(id).readOnly=true;});document.querySelectorAll('input[name=topic]').forEach(function(r){r.disabled=true;});}
+  function summary(){
+    var c=counts(),topicTxt='(no topic chosen)';
+    if(S.topic){var lab=$('t'+S.topic).nextElementSibling;topicTxt=lab.textContent;}
+    var used=elapsed(),L=[];
+    L.push('PFRDA PHASE II DESCRIPTIVE BASELINE · my answers');
+    L.push('Time used: '+fmt(used)+' of 60:00'+(used>=LIMIT?' (time ran out)':''));
+    L.push('Time per question: Q1 '+fmt(S.spent[1]||0)+' · Q2 '+fmt(S.spent[2]||0)+' · Q3 '+fmt(S.spent[3]||0));
+    L.push('');
+    L.push('Q1 ESSAY · topic '+topicTxt+' · '+c.e+' words');
+    L.push($('a1').value.trim()||'(blank)');
+    L.push('');
+    L.push('Q2 PRÉCIS · '+c.p+' words');
+    L.push('Title: '+($('a2t').value.trim()||'(none)'));
+    L.push($('a2').value.trim()||'(blank)');
+    L.push('');
+    L.push('Q3 RC · '+c.r+' words in total');
+    for(var i=1;i<=5;i++){L.push(i+'. '+($('r'+i).value.trim()||'(blank)'));}
+    return L.join('\n');
+  }
+  function finish(timeout){
+    if(!S.ended){S.ended=Math.min(now(),S.start+LIMIT);}
+    save();lock();
+    $('confirmBox').hidden=true;
+    [1,2,3].forEach(function(i){$('q'+i).hidden=true;});
+    $('done').hidden=false;
+    $('doneHead').textContent=timeout?'Time is up':'Paper finished';
+    $('clock').textContent=fmt(LIMIT-elapsed());
+    $('finishBtn').hidden=true;
+    document.querySelectorAll('.tab').forEach(function(b){b.disabled=true;});
+    var o=$('outBox');o.value=summary();
+    try{o.focus();o.select();}catch(e){}
+  }
+  function begin(){
+    if(!S.start){S.start=now();}
+    $('intro').hidden=true;$('exam').hidden=false;
+    ids.forEach(function(id){if(S.ans[id]!=null)$(id).value=S.ans[id];});
+    if(S.topic)$('t'+S.topic).checked=true;
+    counts();
+    if(S.ended||elapsed()>=LIMIT){finish(elapsed()>=LIMIT&&!S.ended);return;}
+    show(S.cur||1);last=null;tick();
+    setInterval(tick,1000);
+    save();
+  }
+
+  load();
+  if(S.start){$('startBtn').textContent=S.ended?'See my answers':'Resume the paper';
+    var rn=$('resumeNote');rn.hidden=false;rn.textContent=S.ended?'You have finished this paper.':'Paper in progress: '+fmt(LIMIT-elapsed())+' left.';}
+  $('startBtn').addEventListener('click',begin);
+  document.querySelectorAll('.tab').forEach(function(b){b.addEventListener('click',function(){show(+b.dataset.q);window.scrollTo(0,0);});});
+  ids.forEach(function(id){$(id).addEventListener('input',function(){S.ans[id]=$(id).value;counts();save();});});
+  document.querySelectorAll('input[name=topic]').forEach(function(r){r.addEventListener('change',function(){S.topic=r.value;save();});});
+  $('finishBtn').addEventListener('click',function(){$('leftTxt').textContent=fmt(LIMIT-elapsed())+' left';$('confirmBox').hidden=false;window.scrollTo(0,0);});
+  $('confirmNo').addEventListener('click',function(){$('confirmBox').hidden=true;});
+  $('confirmYes').addEventListener('click',function(){finish(false);});
+  $('copyBtn').addEventListener('click',function(){
+    var o=$('outBox'),st=$('copyStatus');
+    function fallback(){try{o.focus();o.select();}catch(e){}st.textContent='Text selected. Copy it with Ctrl+C or Cmd+C.';}
+    try{navigator.clipboard.writeText(o.value).then(function(){st.textContent='Copied. Paste it into the thread.';},fallback);}catch(e){fallback();}
+  });
+  $('resetBtn').addEventListener('click',function(){$('resetBox').hidden=false;});
+  $('resetNo').addEventListener('click',function(){$('resetBox').hidden=true;});
+  $('resetYes').addEventListener('click',function(){try{localStorage.removeItem(KEY);}catch(e){}location.reload();});
+})();
+</script>
+
+</body></html>
