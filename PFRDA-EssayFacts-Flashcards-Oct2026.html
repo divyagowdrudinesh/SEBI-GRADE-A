@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PFRDA Essay facts flashcards (Oct 2026)</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#EEF1F5; --surface:#FFFFFF; --surface-2:#F5F7FA; --ink:#18233A; --muted:#5B6578; --line:#D5DBE5;
+  --fact:#2F4B7C; --trap:#7A3E9D; --concept:#0F766E; --changed:#D9480F;
+  --known:#2B8A3E; --learning:#A35F00; --star:#8A6A00; --focus:#2F6FEB; --on-solid:#FFFFFF;
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0F1522; --surface:#182133; --surface-2:#1E293D; --ink:#E7EBF2; --muted:#A3ACBE; --line:#2C3852;
+  --fact:#9DB8EA; --trap:#D1A3EC; --concept:#5ED0C2; --changed:#FF8A4C;
+  --known:#6CC77D; --learning:#F0B44C; --star:#E8C547; --focus:#7AA7FF; --on-solid:#0F1522;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans","Helvetica Neue",Arial,sans-serif;
+  font-size:16px; line-height:1.5; -webkit-text-size-adjust:100%; overflow-x:hidden;
+}
+.wrap{max-width:640px;margin:0 auto;padding:16px 14px calc(28px + env(safe-area-inset-bottom,0px))}
+header h1{font-size:1.3rem;line-height:1.25;margin:0;font-weight:750;letter-spacing:-0.01em}
+header p{margin:4px 0 0;color:var(--muted);font-size:.875rem}
+.banner{margin:12px 0 0;padding:10px 12px;border:1px solid var(--learning);border-radius:10px;color:var(--ink);background:var(--surface);font-size:.875rem}
+.banner[hidden]{display:none}
+
+.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:14px 0}
+.stat{background:var(--surface);padding:8px 2px 6px;text-align:center;min-width:0}
+.stat b{display:block;font-size:1.05rem;font-variant-numeric:tabular-nums;line-height:1.3}
+.stat span{display:block;font-size:.7rem;color:var(--muted);line-height:1.25}
+.stat.k b{color:var(--known)} .stat.l b{color:var(--learning)}
+
+/* Filter bar: compact native selects + toggles (same layout as the Management deck), so the card sits right below. */
+.fbar{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-bottom:14px}
+.fbar select{
+  font:inherit;font-size:.9rem;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;
+  min-height:44px;padding:8px 10px;width:100%;min-width:0;cursor:pointer;
+}
+.fbar #topicSel{grid-column:1/-1}
+.fbar select.on{border-color:var(--fact);box-shadow:inset 0 0 0 1px var(--fact)}
+.ftog{grid-column:1/-1;display:flex;gap:8px}
+.ftog button{flex:1 1 auto;min-width:0;min-height:44px;font-size:.86rem;font-weight:600;padding:6px 8px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ftog button[aria-pressed="true"]{color:var(--surface);background:var(--ink);border-color:var(--ink)}
+.ftog button.fclear{flex:0 0 auto;padding:6px 12px;color:var(--changed);border-color:var(--changed)}
+.ftog button.fclear[hidden]{display:none}
+.fbar select:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+
+.card{
+  --accent:var(--fact);
+  background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--accent);border-radius:12px;
+  padding:14px 16px 14px;min-height:min(52vh,460px);display:flex;flex-direction:column;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;outline:none;user-select:text;
+}
+.card[data-type="trap"]{--accent:var(--trap)}
+.card[data-type="concept"]{--accent:var(--concept)}
+.card:focus-visible{box-shadow:0 0 0 3px var(--focus)}
+.card.empty{cursor:default;border-left-color:var(--line);justify-content:center;align-items:flex-start;gap:12px}
+.meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.badge{font-size:.74rem;font-weight:650;padding:2px 8px;border-radius:999px;border:1px solid currentColor;line-height:1.35;max-width:100%;overflow-wrap:anywhere}
+.b-type{color:var(--accent)}
+.b-star{color:var(--star)}
+.b-pyq{color:var(--muted);font-weight:550;border-radius:8px}
+.topic{font-size:.8rem;color:var(--muted);margin:8px 0 0;overflow-wrap:anywhere}
+.q{font-size:1.2rem;font-weight:650;line-height:1.42;margin:14px 0 0;overflow-wrap:anywhere}
+.hint{margin-top:auto;padding-top:18px;color:var(--muted);font-size:.85rem}
+.a{display:none;margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.card.flipped .a{display:block}
+.card.flipped .hint{display:none}
+.ans{font-size:1.14rem;line-height:1.5;overflow-wrap:anywhere;white-space:pre-line}
+.ans strong{font-weight:800}
+.card[data-type="concept"] .ans{font-size:1.02rem;line-height:1.6}
+.note{margin-top:10px;font-size:.82rem;line-height:1.45;color:var(--muted);overflow-wrap:anywhere}
+.cfoot{display:flex;justify-content:space-between;gap:10px;margin-top:16px;font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.cfoot .s-known{color:var(--known);font-weight:650}
+.cfoot .s-learning{color:var(--learning);font-weight:650}
+@media (prefers-reduced-motion:no-preference){
+  .card.flipped .a{animation:reveal .16s ease-out}
+  @keyframes reveal{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+}
+
+.controls{display:grid;gap:8px;margin-top:12px}
+.row{display:grid;gap:8px}
+.row.nav{grid-template-columns:1fr 1.35fr 1fr}
+.row.mark{grid-template-columns:1fr 1fr}
+.row.tools{grid-template-columns:repeat(4,minmax(0,1fr))}
+button{
+  font:inherit;min-height:48px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  font-weight:650;padding:8px 10px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+}
+button:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+button:disabled{opacity:.45;cursor:default}
+.b-flip{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.b-known{background:var(--known);border-color:var(--known);color:var(--on-solid)}
+.b-learn{background:var(--surface);border:2px solid var(--learning);color:var(--learning)}
+.row.tools button{font-size:.82rem;font-weight:550;color:var(--muted);min-height:44px;padding:6px 4px}
+.kbd{display:none;margin:12px 0 0;font-size:.8rem;color:var(--muted)}
+@media (hover:hover) and (pointer:fine){.kbd{display:block}}
+@media (max-width:380px){
+  .row.tools{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .q{font-size:1.12rem}
+}
+.modal{position:fixed;inset:0;background:rgba(10,14,24,.55);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+.modal[hidden]{display:none}
+.mbox{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:18px;max-width:420px;width:100%}
+.mbox h2{font-size:1.1rem;margin:0 0 6px}
+.mbox p{margin:0 0 16px;color:var(--muted);font-size:.92rem}
+.b-danger{background:var(--changed);border-color:var(--changed);color:var(--on-solid)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Essay facts, skeletons &amp; hooks</h1>
+    <p id="sub">PFRDA Grade A 2026 · Phase I Paper 2</p>
+    <p class="banner" id="banner" hidden>Progress can't be saved in this browser view, so your marks will reset when the page closes.</p>
+  </header>
+
+  <div class="stats" aria-live="polite">
+    <div class="stat"><b id="sTotal">0</b><span>In filter</span></div>
+    <div class="stat"><b id="sUnseen">0</b><span>Unseen</span></div>
+    <div class="stat l"><b id="sLearn">0</b><span>Still learning</span></div>
+    <div class="stat k"><b id="sKnown">0</b><span>Known</span></div>
+    <div class="stat"><b id="sPct">0%</b><span>Known</span></div>
+  </div>
+
+  <div class="fbar" id="filters">
+    <select id="topicSel" aria-label="Filter by topic"></select>
+    <select id="statusSel" aria-label="Filter by status">
+      <option value="all">All statuses</option>
+      <option value="unseen">Unseen</option>
+      <option value="learning">Still learning</option>
+      <option value="known">Known</option>
+      <option value="notknown">Not yet known</option>
+    </select>
+    <select id="typeSel" aria-label="Filter by card type">
+      <option value="all">All card types</option>
+      <option value="fact">Fact</option>
+      <option value="trap">Trap</option>
+      <option value="concept">Concept</option>
+    </select>
+    <div class="ftog">
+    <button type="button" id="fHi" aria-pressed="false">★ High-yield</button>
+    <button type="button" id="fPyq" aria-pressed="false">PYQ</button>
+    <button type="button" class="fclear" id="fClear" hidden>Clear</button>
+    </div>
+  </div>
+
+  <main>
+    <div class="card" id="card" tabindex="0" role="button" aria-expanded="false"></div>
+  </main>
+
+  <div class="controls">
+    <div class="row nav">
+      <button type="button" id="bPrev">Prev</button>
+      <button type="button" class="b-flip" id="bFlip">Show answer</button>
+      <button type="button" id="bNext">Next</button>
+    </div>
+    <div class="row mark">
+      <button type="button" class="b-learn" id="bLearn">Still learning</button>
+      <button type="button" class="b-known" id="bKnown">Known</button>
+    </div>
+    <div class="row tools">
+      <button type="button" id="bShuffle">Shuffle</button>
+      <button type="button" id="bOrder">Reset order</button>
+      <button type="button" id="bReset">Reset progress</button>
+      <button type="button" id="bTheme">Dark theme</button>
+    </div>
+  </div>
+  <p class="kbd">Keyboard: left and right arrows to move, Space or Enter to flip, K for known, L for still learning.</p>
+</div>
+
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="mbox">
+    <h2 id="mTitle">Reset progress?</h2>
+    <p id="mText">This clears every Known and Still learning mark saved in this browser.</p>
+    <div class="row mark">
+      <button type="button" id="mCancel">Cancel</button>
+      <button type="button" class="b-danger" id="mOk">Reset progress</button>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" id="cards-data">[{"id": "ES001", "section": "Skeletons & Hooks", "topic": "Skeletons & Hooks - Rules", "type": "fact", "star": "hi", "front": "PFRDA essay: the 5 format rules?", "back": "1. **250-270 words** (or the stated band)\n2. **5 paragraphs, about 50 words each**\n3. **No title, headings or bullets**\n4. **Middle path**: balanced, never one-sided\n5. **2 facts**, accurate or none", "pyq": "", "changed": false, "note": "From your notes and the 2025 paper. Going over the limit costs marks."}, {"id": "ES002", "section": "Skeletons & Hooks", "topic": "Skeletons & Hooks - Rules", "type": "fact", "star": "hi", "front": "20-minute essay split?", "back": "**2 pick · 3 plan · 13 write · 2 proofread**", "pyq": "", "changed": false, "note": "Pick in 60 s if you can. The plan is 5 lines, one per paragraph."}, {"id": "ES003", "section": "Skeletons & Hooks", "topic": "Skeletons & Hooks - Rules", "type": "trap", "star": "hi", "front": "Your 5 recurring errors to hunt in the last 2 minutes?", "back": "1. **its / it's**\n2. **Spelling** (household, receive, until, than/then)\n3. **Sentence with no main verb**\n4. **Capitals** (SEBI, Uber, MeitY, Aadhaar)\n5. **Subject-verb agreement** (platforms describe, the code recognises)", "pyq": "", "changed": false, "note": "From your baseline: about 13 errors in 361 words."}, {"id": "ES004", "section": "Skeletons & Hooks", "topic": "Skeletons & Hooks - Skeletons", "type": "fact", "star": "hi", "front": "Skeleton 1, Policy or issue: the 5 paragraphs?", "back": "1. **Hook fact + the issue**\n2. **Why it matters: social side**\n3. **Economic side**\n4. **What is done, what is missing**\n5. **Middle-path way forward**", "pyq": "", "changed": false, "note": "Fits: gig workers, mental health, cyber fraud, pension coverage, water scarcity."}, {"id": "ES005", "section": "Skeletons & Hooks", "topic": "Skeletons & Hooks - Skeletons", "type": "fact", "star": "hi", "front": "Skeleton 2, Role of X in Y: the 5 paragraphs?", "back": "1. **Define X and Y + hook fact**\n2. **Role 1 + example**\n3. **Role 2 + example**\n4. **Limits or risks**\n5. **How to strengthen the role**", "pyq": "", "changed": false, "note": "Fits: banks in financial literacy, banks in healthcare spending, leadership in culture."}, {"id": "ES006", "section": "Skeletons & Hooks", "topic": "Skeletons & Hooks - Skeletons", "type": "fact", "star": "hi", "front": "Skeleton 3, Benefits / pros and cons: the 5 paragraphs?", "back": "1. **Context + your stance**\n2. **Benefit 1**\n3. **Benefit 2**\n4. **Cost or risk, and how to manage it**\n5. **Balanced verdict**", "pyq": "", "changed": false, "note": "Fits: mandatory internships, M&A, remote work, cashless economy."}, {"id": "ES007", "section": "Skeletons & Hooks", "topic": "Skeletons & Hooks - Skeletons", "type": "fact", "star": "hi", "front": "Skeleton 4, Quote: the 5 paragraphs?", "back": "1. **Meaning in your own words**\n2. **Business or organisation example**\n3. **India or society example**\n4. **When it does not hold**\n5. **Takeaway**", "pyq": "", "changed": false, "note": "Fits: 'The most unhappy customer...', '1 machine can replace 5 average humans...'."}, {"id": "ES008", "section": "Skeletons & Hooks", "topic": "Skeletons & Hooks - Skeletons", "type": "trap", "star": "hi", "front": "Multi-part topic (e.g. 'Advantages of X. Discuss how Y solves them'): what do you do?", "back": "**Give each part its own paragraph(s)**; never skip the second part", "pyq": "", "changed": false, "note": "RBI 2022's OSOWOG topic had two parts. Missing a part costs content marks."}, {"id": "ES009", "section": "Skeletons & Hooks", "topic": "Skeletons & Hooks - Hooks", "type": "fact", "star": "hi", "front": "5 ways to open an essay?", "back": "1. **A striking number** (77 lakh gig workers)\n2. **A short scene** (a delivery rider at 11 pm)\n3. **A contrast** (fastest-growing economy, yet...)\n4. **A recent event or policy**\n5. **A one-line definition** with a twist", "pyq": "", "changed": false, "note": "Opening = hook + the issue in one or two sentences. Keep it under 55 words."}, {"id": "ES010", "section": "Skeletons & Hooks", "topic": "Skeletons & Hooks - Hooks", "type": "fact", "star": "md", "front": "5 ways to close an essay?", "back": "1. **Way forward** in 2-3 steps\n2. **Balance line** (X and Y can co-exist)\n3. **Link to a national goal** (Viksit Bharat 2047)\n4. **Return to the opening image**\n5. **A short call to action**", "pyq": "", "changed": false, "note": "Never end on a new argument or a question you don't answer."}, {"id": "ES011", "section": "Skeletons & Hooks", "topic": "Skeletons & Hooks - Hooks", "type": "fact", "star": "md", "front": "Connectors for adding a point?", "back": "**Moreover · Further · Equally important · In addition · Beyond this**", "pyq": "", "changed": false, "note": "Start a body paragraph with one so the examiner sees the structure without headings."}, {"id": "ES012", "section": "Skeletons & Hooks", "topic": "Skeletons & Hooks - Hooks", "type": "fact", "star": "md", "front": "Connectors for contrast and balance?", "back": "**However · Yet · On the other hand · That said · Even so**", "pyq": "", "changed": false, "note": "Use one in paragraph 4 to show the middle path."}, {"id": "ES013", "section": "Skeletons & Hooks", "topic": "Skeletons & Hooks - Hooks", "type": "fact", "star": "md", "front": "Connectors for cause, result and conclusion?", "back": "**As a result · Therefore · Consequently · In short · Ultimately**", "pyq": "", "changed": false, "note": "'In conclusion' is fine but overused; 'Ultimately' reads better."}, {"id": "ES014", "section": "Skeletons & Hooks", "topic": "Skeletons & Hooks - Hooks", "type": "fact", "star": "md", "front": "Phrases that introduce a fact cleanly?", "back": "**According to (source, year), ...** · **Data from (source) show that ...** · **(Source) estimates that ...**", "pyq": "", "changed": false, "note": "Name the source once and keep the number exact. A vague 'studies show' adds nothing."}, {"id": "ES015", "section": "Finance & Banking", "topic": "Finance & Banking - Financial Inclusion & UPI", "type": "fact", "star": "hi", "front": "PM Jan Dhan Yojana after 12 years: accounts and deposits?", "back": "**59.09 crore accounts; ₹3.17 lakh crore deposits** (Ministry of Finance, Aug 2026)", "pyq": "", "changed": false, "note": "Use in: financial inclusion, role of banks, cashless economy"}, {"id": "ES016", "section": "Finance & Banking", "topic": "Finance & Banking - Financial Inclusion & UPI", "type": "fact", "star": "md", "front": "Jan Dhan accounts: share held by women and by rural/semi-urban people?", "back": "**About 56% women; 77.8% rural and semi-urban** (Ministry of Finance, Aug 2026)", "pyq": "", "changed": false, "note": "Use in: women empowerment, inclusive growth, financial literacy"}, {"id": "ES017", "section": "Finance & Banking", "topic": "Finance & Banking - Financial Inclusion & UPI", "type": "fact", "star": "hi", "front": "UPI's record month: volume and value?", "back": "**2,451 crore transactions worth ₹29.82 lakh crore in Aug 2026** (NPCI)\nSept 2026: 2,407 crore, ₹29.37 lakh crore", "pyq": "", "changed": false, "note": "Use in: UPI, cashless economy, digital India, fintech"}, {"id": "ES018", "section": "Finance & Banking", "topic": "Finance & Banking - Financial Inclusion & UPI", "type": "fact", "star": "hi", "front": "UPI's share of global real-time payments?", "back": "**About 49% of the world's real-time payments**; 81% of India's retail digital payments (GoI, Apr 2026). IMF: largest by volume", "pyq": "", "changed": false, "note": "Use in: UPI advantages, digital public infrastructure, soft power"}, {"id": "ES019", "section": "Finance & Banking", "topic": "Finance & Banking - Financial Inclusion & UPI", "type": "fact", "star": "hi", "front": "RBI Financial Inclusion Index for March 2026?", "back": "**70.0 out of 100**, rise driven mainly by usage (RBI FI-Index, 2026)", "pyq": "", "changed": false, "note": "Use in: financial inclusion, role of banks, inclusive growth"}, {"id": "ES020", "section": "Finance & Banking", "topic": "Finance & Banking - Financial Inclusion & UPI", "type": "fact", "star": "hi", "front": "Direct Benefit Transfer: total sent and leakages saved?", "back": "**₹52.5 lakh crore+ transferred; ₹5 lakh crore+ saved** through 900+ schemes (New India Samachar, PIB, Aug 2026)", "pyq": "", "changed": false, "note": "Use in: JAM trinity, governance, cashless economy, welfare delivery"}, {"id": "ES021", "section": "Finance & Banking", "topic": "Finance & Banking - Financial Inclusion & UPI", "type": "fact", "star": "md", "front": "What share of Indian adults are financially literate?", "back": "**About 27%** (NCFE Financial Literacy and Inclusion Survey, 2019)", "pyq": "", "changed": false, "note": "Use in: role of banks in financial literacy, investor protection"}, {"id": "ES022", "section": "Finance & Banking", "topic": "Finance & Banking - Banking Sector", "type": "trap", "star": "hi", "front": "Banks' gross NPA ratio now: 2.8% or 1.8%?", "back": "**1.8% (Mar 2026)**, a multi-decadal low; seen at 1.9% by Mar 2028 (RBI FSR, June 2026). 2.8% is old data", "pyq": "", "changed": false, "note": "Use in: banking health, asset reconstruction, credit growth"}, {"id": "ES023", "section": "Finance & Banking", "topic": "Finance & Banking - Banking Sector", "type": "fact", "star": "md", "front": "Public sector banks' net profit in FY26?", "back": "**₹1.98 lakh crore**, up 11%, fourth straight record year (Ministry of Finance, May 2026)", "pyq": "", "changed": false, "note": "Use in: bank mergers, PSB reform, banking resilience"}, {"id": "ES024", "section": "Finance & Banking", "topic": "Finance & Banking - Banking Sector", "type": "fact", "star": "md", "front": "PSB mega-merger of 2020: what changed?", "back": "**10 PSBs merged into 4 (1 Apr 2020)**; PSBs fell from 27 in 2017 to **12** (Ministry of Finance)", "pyq": "", "changed": false, "note": "Use in: mergers and acquisitions, banking consolidation"}, {"id": "ES025", "section": "Finance & Banking", "topic": "Finance & Banking - Banking Sector", "type": "fact", "star": "hi", "front": "Bank frauds reported in FY26 vs FY25?", "back": "**10,114 cases, ₹48,021 crore (FY26)** vs 23,722 cases, ₹32,803 crore (FY25) (RBI Annual Report 2025-26)", "pyq": "", "changed": false, "note": "Use in: tech in fraud detection, governance. FY26 amount includes ₹30,199 crore of old cases reclassified"}, {"id": "ES026", "section": "Finance & Banking", "topic": "Finance & Banking - Banking Sector", "type": "fact", "star": "hi", "front": "IBC so far: how much have creditors recovered?", "back": "**₹4.3 lakh crore by Mar 2026** (ICRA, IBBI data); about **32% of admitted claims** (RBI FSR, Sep 2025 data)", "pyq": "", "changed": false, "note": "Use in: asset reconstruction, NPAs, ease of doing business"}, {"id": "ES027", "section": "Finance & Banking", "topic": "Finance & Banking - Banking Sector", "type": "fact", "star": "md", "front": "Which law created ARCs, and what is NARCL?", "back": "**SARFAESI Act, 2002** created ARCs; **NARCL (2021)** is the state-backed 'bad bank' for large NPAs", "pyq": "", "changed": false, "note": "Use in: asset reconstruction in companies, banking clean-up"}, {"id": "ES028", "section": "Finance & Banking", "topic": "Finance & Banking - Insurance & Markets", "type": "fact", "star": "hi", "front": "India's insurance penetration and density?", "back": "**3.7% of GDP in 2024-25** (life 2.7%, non-life 1%); density **$97** per person (IRDAI Annual Report)", "pyq": "", "changed": false, "note": "Use in: insurance for all, financial security, banks and healthcare"}, {"id": "ES029", "section": "Finance & Banking", "topic": "Finance & Banking - Insurance & Markets", "type": "fact", "star": "md", "front": "FDI cap in insurance after the 2025 law?", "back": "**100% (from 74%)** under the Sabka Bima Sabki Raksha (Amendment of Insurance Laws) Act, passed Dec 2025", "pyq": "", "changed": false, "note": "Use in: insurance penetration, FDI, Insurance for All by 2047"}, {"id": "ES030", "section": "Finance & Banking", "topic": "Finance & Banking - Insurance & Markets", "type": "fact", "star": "hi", "front": "Ayushman Bharat PM-JAY after 8 years?", "back": "**48.5 crore cards; 13.25 crore admissions worth ₹2.03 lakh crore**; cover ₹5 lakh per family a year (GoI, Sep 2026)", "pyq": "", "changed": false, "note": "Use in: banks and social healthcare, health insurance, welfare"}, {"id": "ES031", "section": "Finance & Banking", "topic": "Finance & Banking - Insurance & Markets", "type": "fact", "star": "hi", "front": "Monthly SIP inflows into mutual funds now?", "back": "**₹32,490 crore in Sept 2026**, an all-time high (AMFI)", "pyq": "", "changed": false, "note": "Use in: financialisation of savings, financial literacy, capital markets"}, {"id": "ES032", "section": "Finance & Banking", "topic": "Finance & Banking - Insurance & Markets", "type": "fact", "star": "hi", "front": "SEBI study: share of F&O traders who lost money?", "back": "**87.7% lost in FY26; net loss ₹91,685 crore** (FY25: 91%, ₹1.12 lakh crore) (SEBI study, 2026)", "pyq": "", "changed": false, "note": "Use in: financial literacy, investor protection, speculation"}, {"id": "ES033", "section": "Finance & Banking", "topic": "Finance & Banking - ESG & Sustainable Finance", "type": "fact", "star": "hi", "front": "India's updated climate targets (NDC) and net zero year?", "back": "**45% lower emissions intensity of GDP by 2030** (vs 2005); **50% non-fossil power capacity** by 2030; **net zero 2070** (MoEFCC, 2022)", "pyq": "", "changed": false, "note": "Use in: ESG, green finance, climate change, sustainable growth"}, {"id": "ES034", "section": "Finance & Banking", "topic": "Finance & Banking - ESG & Sustainable Finance", "type": "trap", "star": "hi", "front": "Has India met its 50% non-fossil capacity target?", "back": "**Yes, in mid-2025, five years early.** By July 2026: **300.5 GW non-fossil, over 54%** of 552 GW total (GoI data, 2026)", "pyq": "", "changed": false, "note": "Use in: ESG, renewable energy, global business prospects"}, {"id": "ES035", "section": "Finance & Banking", "topic": "Finance & Banking - ESG & Sustainable Finance", "type": "fact", "star": "md", "front": "Solar and wind installed capacity now?", "back": "**Solar 164.6 GW; wind 58.1 GW** (July 2026); target **500 GW** non-fossil by 2030 (GoI)", "pyq": "", "changed": false, "note": "Use in: renewables, ESG, energy security"}, {"id": "ES036", "section": "Finance & Banking", "topic": "Finance & Banking - ESG & Sustainable Finance", "type": "fact", "star": "hi", "front": "SEBI's ESG reporting rule for listed firms?", "back": "**BRSR, mandatory for the top 1,000 listed companies** by market cap from FY 2022-23; BRSR Core assurance phased in from top 150 (SEBI)", "pyq": "", "changed": false, "note": "Use in: ESG and global business, corporate governance"}, {"id": "ES037", "section": "Finance & Banking", "topic": "Finance & Banking - ESG & Sustainable Finance", "type": "fact", "star": "md", "front": "India's first sovereign green bonds?", "back": "**₹16,000 crore in two tranches, Jan-Feb 2023** (RBI for GoI); money goes to green projects", "pyq": "", "changed": false, "note": "Use in: green finance, ESG, climate finance"}, {"id": "ES038", "section": "Finance & Banking", "topic": "Finance & Banking - ESG & Sustainable Finance", "type": "fact", "star": "md", "front": "India Inc's CSR spending in FY24?", "back": "**₹34,909 crore by 27,188 companies**; education got about 35% (National CSR Portal, FY24)", "pyq": "", "changed": false, "note": "Use in: ESG, CSR, banks and social sector, corporate responsibility"}, {"id": "ES039", "section": "Finance & Banking", "topic": "Finance & Banking - Fiscal & Growth", "type": "fact", "star": "hi", "front": "India's GDP growth in FY26 and Q1 FY27?", "back": "**FY26: 7.7%** (provisional, new base 2022-23) (MoSPI, June 2026); **Q1 FY27: 7.8%** (MoSPI, Aug 2026)", "pyq": "", "changed": false, "note": "Use in: growth vs slowdown, $5 trillion goal, any economy opener"}, {"id": "ES040", "section": "Finance & Banking", "topic": "Finance & Banking - Fiscal & Growth", "type": "fact", "star": "hi", "front": "Budget 2026-27: capex and fiscal deficit?", "back": "**Capex ₹12.2 lakh crore** (effective ₹17.15 lakh crore); **fiscal deficit 4.3% of GDP** (Union Budget 2026-27)", "pyq": "", "changed": false, "note": "Use in: infrastructure, growth, fiscal policy, railways"}, {"id": "ES041", "section": "Finance & Banking", "topic": "Finance & Banking - Fiscal & Growth", "type": "fact", "star": "hi", "front": "RBI repo rate after the Oct 2026 policy?", "back": "**5.50%, raised 25 bps on 7 Oct 2026**, first hike since Feb 2023 (RBI MPC); inflation target 4% ± 2%", "pyq": "", "changed": false, "note": "Use in: monetary policy, inflation, cost of credit"}, {"id": "ES042", "section": "Finance & Banking", "topic": "Finance & Banking - Fiscal & Growth", "type": "trap", "star": "hi", "front": "Is India already the world's 4th largest economy?", "back": "**Not yet in IMF data: Japan is 4th in 2026.** IMF (Oct 2026) sees India overtaking Japan in **2027 at $4.52 trillion**", "pyq": "", "changed": false, "note": "Use in: $5 trillion goal, growth. Say 'set to become 4th largest'"}, {"id": "ES043", "section": "Finance & Banking", "topic": "Finance & Banking - Financial Inclusion & UPI", "type": "argument", "star": "hi", "front": "Two arguments for and one risk of a cashless economy?", "back": "1. Every payment leaves a trail; cuts leakage and tax evasion.\n2. Cheap instant payments help small shops and gig earners.\n3. Risk: cyber fraud and exclusion of elderly and offline poor.", "pyq": "", "changed": false, "note": "Use in: cashless economy, UPI, demonetisation, digital India"}, {"id": "ES044", "section": "Finance & Banking", "topic": "Finance & Banking - Banking Sector", "type": "argument", "star": "hi", "front": "Two arguments for and one risk of mergers and acquisitions?", "back": "1. Scale lowers costs and funds bigger projects.\n2. Stronger balance sheets absorb losses better.\n3. Risk: culture clash, job cuts and 'too big to fail'.", "pyq": "", "changed": false, "note": "Use in: M&A pros and cons, bank consolidation"}, {"id": "ES045", "section": "Finance & Banking", "topic": "Finance & Banking - Financial Inclusion & UPI", "type": "argument", "star": "hi", "front": "Ready-made middle-path way forward: role of banks in financial literacy?", "back": "1. Teach money basics in local languages via branches and BCs.\n2. Build fraud-safety lessons into every digital onboarding.\n3. Track account usage, not just accounts opened.", "pyq": "", "changed": false, "note": "Use in: banks and financial literacy, financial inclusion"}, {"id": "ES046", "section": "Finance & Banking", "topic": "Finance & Banking - ESG & Sustainable Finance", "type": "argument", "star": "hi", "front": "Two arguments for and one risk of ESG norms for business?", "back": "1. Opens doors to global green capital and supply chains.\n2. Better disclosure lowers long-term risk and cost of capital.\n3. Risk: greenwashing and costly compliance for small firms.", "pyq": "", "changed": false, "note": "Use in: ESG and global business prospects, sustainable finance"}, {"id": "ES047", "section": "Finance & Banking", "topic": "Finance & Banking - Banking Sector", "type": "argument", "star": "md", "front": "Ready-made middle-path way forward for asset reconstruction?", "back": "1. Spot stress early, before asset value erodes.\n2. Time-bound resolution; add NCLT benches and judges.\n3. Deepen the distressed-debt market with more investors.", "pyq": "", "changed": false, "note": "Use in: asset reconstruction, IBC, NPAs"}, {"id": "ES048", "section": "Finance & Banking", "topic": "Finance & Banking - Insurance & Markets", "type": "argument", "star": "md", "front": "Two roles and one limit: banks in social healthcare spending?", "back": "1. Credit for hospitals and clinics in small towns.\n2. Sell low-cost health insurance through Jan Dhan accounts.\n3. Limit: banks must lend prudently; public spending must lead.", "pyq": "", "changed": false, "note": "Use in: banks and social healthcare expenditure (SEBI 2024)"}, {"id": "ES049", "section": "Finance & Banking", "topic": "Finance & Banking - Financial Inclusion & UPI", "type": "argument", "star": "md", "front": "Two arguments for and one risk of fintech digital lending?", "back": "1. Data-based credit reaches borrowers without credit history.\n2. Lower costs widen credit for MSMEs.\n3. Risk: predatory apps, data misuse and over-borrowing.", "pyq": "", "changed": false, "note": "Use in: fintech, financial inclusion, crowdfunding, NBFCs"}, {"id": "ES050", "section": "Finance & Banking", "topic": "Finance & Banking - Fiscal & Growth", "type": "argument", "star": "md", "front": "Ready-made middle-path way forward for an economic slowdown?", "back": "1. Short term: public capex and targeted support revive demand.\n2. Keep credit flowing to MSMEs without loosening prudence.\n3. Long term: skills, labour reform and exports lift potential growth.", "pyq": "", "changed": false, "note": "Use in: economic slowdown causes and consequences (SEBI 2018)"}, {"id": "ES051", "section": "Organisation & HR", "topic": "Organisation & HR - Culture & Wellbeing", "type": "fact", "star": "hi", "front": "Workdays lost each year to depression and anxiety worldwide?", "back": "**1,200 crore (12 billion) workdays a year, costing nearly US$1 trillion** (WHO and ILO, 2022)", "pyq": "", "changed": false, "note": "Use in: employee mental health, work-life balance, productivity"}, {"id": "ES052", "section": "Organisation & HR", "topic": "Organisation & HR - Culture & Wellbeing", "type": "fact", "star": "md", "front": "Cost of poor employee mental health to Indian employers?", "back": "**About US$14 billion a year** (Deloitte India survey, 2022)", "pyq": "", "changed": false, "note": "Use in: mental health at work, HR policy, productivity"}, {"id": "ES053", "section": "Organisation & HR", "topic": "Organisation & HR - Culture & Wellbeing", "type": "fact", "star": "hi", "front": "Employee engagement: India vs the world?", "back": "**India 23%, world 20%** engaged; 28% of Indian staff felt a lot of daily stress (Gallup State of the Global Workplace, 2026)", "pyq": "", "changed": false, "note": "Use in: motivation, organisational culture, teamwork, mental health"}, {"id": "ES054", "section": "Organisation & HR", "topic": "Organisation & HR - Internships & Skills", "type": "fact", "star": "hi", "front": "PM Internship Scheme: target and stipend?", "back": "**1 crore internships in 5 years** at top 500 firms; **₹5,000 a month** (₹4,500 govt + ₹500 firm); 12 months; age 21-24 (GoI, 2024)", "pyq": "", "changed": false, "note": "Use in: mandatory internships, employability, youth skilling"}, {"id": "ES055", "section": "Organisation & HR", "topic": "Organisation & HR - Internships & Skills", "type": "trap", "star": "hi", "front": "PM Internship pilot: how many actually joined and stayed?", "back": "**52,600 accepted offers, only 16,060 joined; 6,618 quit early** (Corporate Affairs Ministry, Lok Sabha, Dec 2025)", "pyq": "", "changed": false, "note": "Use in: internships 'risk' paragraph: quality and stipend matter"}, {"id": "ES056", "section": "Organisation & HR", "topic": "Organisation & HR - Internships & Skills", "type": "fact", "star": "md", "front": "Share of Indian youth found employable?", "back": "**56.35%**; women ahead of men for the first time in 5 years (India Skills Report 2026)", "pyq": "", "changed": false, "note": "Use in: skilling, internships, higher education, demographic dividend"}, {"id": "ES057", "section": "Organisation & HR", "topic": "Organisation & HR - Internships & Skills", "type": "fact", "star": "md", "front": "Share of India's IT and gig workforce using AI tools?", "back": "**Over 40%** (India Skills Report 2026)", "pyq": "", "changed": false, "note": "Use in: future of work, AI and jobs, upskilling"}, {"id": "ES058", "section": "Organisation & HR", "topic": "Organisation & HR - Labour & Workforce", "type": "fact", "star": "hi", "front": "Female labour force participation rate in India?", "back": "**40.0% for women vs 79.1% for men**, age 15+ (PLFS annual report 2025, MoSPI)", "pyq": "", "changed": false, "note": "Use in: workplace diversity, women in business, gender equality"}, {"id": "ES059", "section": "Organisation & HR", "topic": "Organisation & HR - Labour & Workforce", "type": "trap", "star": "hi", "front": "Youth unemployment: is it 9.9% or 15.2%?", "back": "**Both, on different measures**: 9.9% annual usual status (PLFS 2025); **15.2%** weekly status, Sept 2026 bulletin (MoSPI)", "pyq": "", "changed": false, "note": "Use in: youth jobs, skilling. Name the measure; urban youth 19%"}, {"id": "ES060", "section": "Organisation & HR", "topic": "Organisation & HR - Labour & Workforce", "type": "fact", "star": "hi", "front": "When did the four labour codes take effect, and what did they replace?", "back": "**21 Nov 2025**; they merge **29 labour laws** into 4 codes: Wages, Industrial Relations, Social Security, OSH (MoLE)", "pyq": "", "changed": false, "note": "Use in: labour reform, gig workers, ease of doing business, HR"}, {"id": "ES061", "section": "Organisation & HR", "topic": "Organisation & HR - Business & Governance", "type": "fact", "star": "hi", "front": "MSMEs' share of GDP, exports and jobs?", "back": "**31.1% of GDP, 48.58% of exports, 35.4% of manufacturing**; 38.9 crore jobs; 8.7 crore+ Udyam units (MSME Ministry, June 2026)", "pyq": "", "changed": false, "note": "Use in: MSMEs, e-commerce, women entrepreneurship, employment"}, {"id": "ES062", "section": "Organisation & HR", "topic": "Organisation & HR - Business & Governance", "type": "fact", "star": "md", "front": "DPIIT-recognised startups and the jobs they created?", "back": "**2.4 lakh+ startups (Aug 2026); 23 lakh+ direct jobs**; about 48% have a woman director or partner (DPIIT, 2026)", "pyq": "", "changed": false, "note": "Use in: entrepreneurship, creative thinking in business, women"}, {"id": "ES063", "section": "Organisation & HR", "topic": "Organisation & HR - Business & Governance", "type": "fact", "star": "md", "front": "Companies Act rule on women directors?", "back": "**At least one woman director** on boards of listed and large public companies (Companies Act, 2013)", "pyq": "", "changed": false, "note": "Use in: workplace diversity, corporate governance, women leadership"}, {"id": "ES064", "section": "Organisation & HR", "topic": "Organisation & HR - Business & Governance", "type": "fact", "star": "md", "front": "Who must spend on CSR, and how much?", "back": "**2% of average net profit** of the last 3 years, for firms with net worth ₹500 crore+, turnover ₹1,000 crore+ or profit ₹5 crore+ (Sec 135)", "pyq": "", "changed": false, "note": "Use in: CSR, ESG, corporate governance, stakeholder capitalism"}, {"id": "ES065", "section": "Organisation & HR", "topic": "Organisation & HR - Internships & Skills", "type": "argument", "star": "hi", "front": "Two arguments for and one risk of mandatory internships?", "back": "1. Links classroom to workplace; improves employability.\n2. Firms get a tested talent pipeline.\n3. Risk: unpaid, menial work and too few quality slots.", "pyq": "", "changed": false, "note": "Use in: mandatory internships (PFRDA 2025), skilling, education"}, {"id": "ES066", "section": "Organisation & HR", "topic": "Organisation & HR - Internships & Skills", "type": "argument", "star": "hi", "front": "Ready-made middle-path way forward for mandatory internships?", "back": "1. Fair stipend and learning goals agreed in advance.\n2. Credit-linked, with college mentors and feedback.\n3. Include MSMEs and remote roles for small-town students.", "pyq": "", "changed": false, "note": "Use in: mandatory internships, PM Internship Scheme"}, {"id": "ES067", "section": "Organisation & HR", "topic": "Organisation & HR - Culture & Wellbeing", "type": "argument", "star": "hi", "front": "Two arguments for and one risk of teamwork in organisations?", "back": "1. Mixed skills solve complex problems faster.\n2. Shared goals raise morale and accountability.\n3. Risk: groupthink and free-riding; fix with clear roles.", "pyq": "", "changed": false, "note": "Use in: teamwork (SEBI 2020), organisational culture, leadership"}, {"id": "ES068", "section": "Organisation & HR", "topic": "Organisation & HR - Culture & Wellbeing", "type": "argument", "star": "hi", "front": "How can management nurture organisational culture? (3 steps)", "back": "1. Leaders model values; reward behaviour, not just targets.\n2. Psychological safety: staff can speak up without fear.\n3. Hire, train and appraise for values and diversity.", "pyq": "", "changed": false, "note": "Use in: organisational culture (SEBI 2024), ethics, teamwork"}, {"id": "ES069", "section": "Organisation & HR", "topic": "Organisation & HR - Culture & Wellbeing", "type": "argument", "star": "hi", "front": "Three steps organisations can take for employee mental health?", "back": "1. Confidential counselling and trained, caring managers.\n2. Fair workloads and a right to disconnect after hours.\n3. Regular wellbeing surveys, followed by real action.", "pyq": "", "changed": false, "note": "Use in: employee mental health (RBI 2024), work-life balance"}, {"id": "ES070", "section": "Organisation & HR", "topic": "Organisation & HR - Business & Governance", "type": "argument", "star": "hi", "front": "How do firms learn from unhappy customers? (2 gains, 1 caution)", "back": "1. Complaints are free data on product and service gaps.\n2. A fast, fair fix turns critics into loyal customers.\n3. Caution: act on patterns, not every single complaint.", "pyq": "", "changed": false, "note": "Use in: 'unhappy customer' quote (PFRDA 2025), customer service"}, {"id": "ES071", "section": "Organisation & HR", "topic": "Organisation & HR - Culture & Wellbeing", "type": "argument", "star": "md", "front": "Two arguments for and one risk of workplace diversity?", "back": "1. Varied views improve decisions and innovation.\n2. Wider talent pool; better reach to diverse customers.\n3. Risk: tokenism without real inclusion and fair processes.", "pyq": "", "changed": false, "note": "Use in: workplace diversity, women in leadership, culture"}, {"id": "ES072", "section": "Organisation & HR", "topic": "Organisation & HR - Culture & Wellbeing", "type": "argument", "star": "md", "front": "Two arguments for and one risk of hybrid or flexible work?", "back": "1. Flexibility lifts productivity and keeps women in jobs.\n2. Saves commute time and office costs.\n3. Risk: always-on culture and weaker mentoring of juniors.", "pyq": "", "changed": false, "note": "Use in: work-life balance, techno-stress, motivation"}, {"id": "ES073", "section": "Technology & Society", "topic": "Technology & Society - Digital Economy & IT", "type": "fact", "star": "hi", "front": "How many internet subscribers does India have?", "back": "**111.4 crore** (June 2026) (TRAI)", "pyq": "", "changed": false, "note": "Use in: digital divide, fake news, e-commerce, social media"}, {"id": "ES074", "section": "Technology & Society", "topic": "Technology & Society - Digital Economy & IT", "type": "fact", "star": "hi", "front": "Digital economy's share of India's economy?", "back": "**11.74% of national income (2022-23)**; projected **about 20% by 2030** (MeitY and ICRIER, 2025)", "pyq": "", "changed": false, "note": "Use in: digital economy, technology and growth, e-commerce"}, {"id": "ES075", "section": "Technology & Society", "topic": "Technology & Society - Digital Economy & IT", "type": "fact", "star": "md", "front": "Indian tech industry revenue and jobs in FY26?", "back": "**$315 billion revenue** (up 6.1%); **59.5 lakh** employees; AI revenue $10-12 billion (NASSCOM, 2026)", "pyq": "", "changed": false, "note": "Use in: future of BPO/IT, AI and jobs, services exports"}, {"id": "ES076", "section": "Technology & Society", "topic": "Technology & Society - Digital Economy & IT", "type": "fact", "star": "md", "front": "Global Capability Centres (GCCs) in India?", "back": "**1,700+ GCCs employing 19 lakh+ people** (MeitY, Parliament reply, Aug 2025)", "pyq": "", "changed": false, "note": "Use in: future of BPO industry, services exports, jobs"}, {"id": "ES077", "section": "Technology & Society", "topic": "Technology & Society - Digital Economy & IT", "type": "fact", "star": "md", "front": "5G rollout reach in India?", "back": "**5.15 lakh 5G base stations; 99.9% of districts** covered (DoT, Nov 2025)", "pyq": "", "changed": false, "note": "Use in: scope of 5G, digital divide, telemedicine, e-learning"}, {"id": "ES078", "section": "Technology & Society", "topic": "Technology & Society - Digital Economy & IT", "type": "fact", "star": "md", "front": "Semiconductor push: approved chip projects?", "back": "**12 projects, ₹1.64 lakh crore** investment (2026); first ISM outlay ₹76,000 crore (2021); ISM 2.0 in Budget 2026-27", "pyq": "", "changed": false, "note": "Use in: tech self-reliance, manufacturing, AI hardware"}, {"id": "ES079", "section": "Technology & Society", "topic": "Technology & Society - AI & Data Laws", "type": "fact", "star": "hi", "front": "IndiaAI Mission: outlay and compute?", "back": "**₹10,372 crore** (approved 2024); **38,000+ GPUs** on the common compute portal (MeitY, 2026)", "pyq": "", "changed": false, "note": "Use in: AI and jobs, AI governance, tech sovereignty"}, {"id": "ES080", "section": "Technology & Society", "topic": "Technology & Society - AI & Data Laws", "type": "fact", "star": "md", "front": "AI Impact Summit 2026: where, and who signed the declaration?", "back": "**New Delhi, Feb 2026; 91 countries and bodies** joined the New Delhi Declaration on AI Impact (2026)", "pyq": "", "changed": false, "note": "Use in: AI governance, Global South, responsible AI"}, {"id": "ES081", "section": "Technology & Society", "topic": "Technology & Society - AI & Data Laws", "type": "fact", "star": "hi", "front": "India's data protection law and its rules?", "back": "**DPDP Act, 2023; Rules notified Nov 2025**, rolled out over 12-18 months; Data Protection Board enforces (MeitY)", "pyq": "", "changed": false, "note": "Use in: data privacy, fintech, AI ethics, digital trust"}, {"id": "ES082", "section": "Technology & Society", "topic": "Technology & Society - AI & Data Laws", "type": "fact", "star": "hi", "front": "New IT Rules on deepfakes (2026)?", "back": "**Mandatory labels on AI content; takedown within 3 hours** (was 36) (IT Rules amendment, Feb 2026, MeitY)", "pyq": "", "changed": false, "note": "Use in: fake news, deepfakes, social media regulation"}, {"id": "ES083", "section": "Technology & Society", "topic": "Technology & Society - Digital Life & Learning", "type": "fact", "star": "md", "front": "Coding in schools: what does NEP 2020 say?", "back": "**Coding to be taught from Class 6** (National Education Policy, 2020)", "pyq": "", "changed": false, "note": "Use in: teaching coding to school students (RBI 2021), digital skills"}, {"id": "ES084", "section": "Technology & Society", "topic": "Technology & Society - Cyber Fraud & Fake News", "type": "fact", "star": "hi", "front": "Cyber security incidents handled by CERT-In in 2025?", "back": "**29.44 lakh** incidents (CERT-In, Jan 2026)", "pyq": "", "changed": false, "note": "Use in: cyber security, digital economy risks, fraud detection"}, {"id": "ES085", "section": "Technology & Society", "topic": "Technology & Society - Cyber Fraud & Fake News", "type": "fact", "star": "hi", "front": "Cyber fraud in 2025: complaints and money lost?", "back": "**24 lakh+ complaints; ₹22,495 crore reported lost; ₹8,189 crore saved** (I4C, NCRP data, 2025)", "pyq": "", "changed": false, "note": "Use in: tech in fraud prevention, digital arrest scams, UPI risks"}, {"id": "ES086", "section": "Technology & Society", "topic": "Technology & Society - Cyber Fraud & Fake News", "type": "trap", "star": "md", "front": "29.44 lakh vs 24 lakh: which is cyber incidents, which is fraud complaints?", "back": "**29.44 lakh = CERT-In cyber incidents (2025)**; **24 lakh = cyber crime complaints on NCRP (2025)**", "pyq": "", "changed": false, "note": "Use in: cyber security essays; do not mix the two"}, {"id": "ES087", "section": "Technology & Society", "topic": "Technology & Society - Cyber Fraud & Fake News", "type": "fact", "star": "md", "front": "RBI's AI tool to catch mule bank accounts?", "back": "**MuleHunter.AI**, built by Reserve Bank Innovation Hub; Finance Ministry asked banks to adopt it (2026)", "pyq": "", "changed": false, "note": "Use in: role of technology in detecting financial frauds (SEBI 2020)"}, {"id": "ES088", "section": "Technology & Society", "topic": "Technology & Society - Cyber Fraud & Fake News", "type": "fact", "star": "md", "front": "Which body fact-checks fake news about the Centre?", "back": "**PIB Fact Check Unit** (set up Nov 2019)", "pyq": "", "changed": false, "note": "Use in: fake news and how to identify it (SEBI 2020)"}, {"id": "ES089", "section": "Technology & Society", "topic": "Technology & Society - Digital Life & Learning", "type": "fact", "star": "md", "front": "What did Economic Survey 2025-26 say on digital addiction?", "back": "**Flagged youth digital addiction**; urged a digital wellness curriculum and offline youth hubs; NIMHANS **SHUT clinic** treats overuse", "pyq": "", "changed": false, "note": "Use in: techno-stress (SEBI 2022), social media and mental health"}, {"id": "ES090", "section": "Technology & Society", "topic": "Technology & Society - AI & Data Laws", "type": "argument", "star": "hi", "front": "Two arguments for and one risk of AI for jobs?", "back": "1. Automates routine tasks; frees people for higher-value work.\n2. Creates new roles in data, AI safety and support.\n3. Risk: routine white-collar jobs vanish without reskilling.", "pyq": "", "changed": false, "note": "Use in: AI, '1 machine vs 5 humans' quote, future of BPO"}, {"id": "ES091", "section": "Technology & Society", "topic": "Technology & Society - Cyber Fraud & Fake News", "type": "argument", "star": "hi", "front": "Ready-made middle-path way forward on fake news?", "back": "1. Platforms: fast takedown and labels on AI content.\n2. Citizens: digital literacy; check sources like PIB Fact Check.\n3. Law: punish malicious spread, protect free speech.", "pyq": "", "changed": false, "note": "Use in: fake news (SEBI 2020), deepfakes, social media regulation"}, {"id": "ES092", "section": "Technology & Society", "topic": "Technology & Society - Cyber Fraud & Fake News", "type": "argument", "star": "hi", "front": "Two roles and one limit: technology in detecting financial fraud?", "back": "1. AI flags unusual transactions and mule accounts in real time.\n2. Shared fraud registries block repeat offenders across banks.\n3. Limit: fraudsters adapt; customer awareness is the first defence.", "pyq": "", "changed": false, "note": "Use in: tech in fraud detection (SEBI 2020), cyber security"}, {"id": "ES093", "section": "Technology & Society", "topic": "Technology & Society - Digital Life & Learning", "type": "argument", "star": "hi", "front": "Ready-made way forward for techno-stress among students and teachers?", "back": "1. Screen-time limits and tech-free hours in schools.\n2. Train teachers before rolling out new tools.\n3. Counselling and a digital wellness curriculum.", "pyq": "", "changed": false, "note": "Use in: techno-stress (SEBI 2022), digital addiction"}, {"id": "ES094", "section": "Technology & Society", "topic": "Technology & Society - Digital Life & Learning", "type": "argument", "star": "hi", "front": "Two arguments for and one risk of virtual reality?", "back": "1. Safe, realistic training for pilots, surgeons and engineers.\n2. Immersive learning, retail and virtual tourism.\n3. Risk: costly kit, addiction, motion sickness and privacy.", "pyq": "", "changed": false, "note": "Use in: virtual reality (PFRDA 2025), edtech, metaverse"}, {"id": "ES095", "section": "Technology & Society", "topic": "Technology & Society - Digital Life & Learning", "type": "argument", "star": "md", "front": "Two arguments for and one risk of teaching coding in schools?", "back": "1. Builds logic and problem-solving early.\n2. Prepares children for digital jobs.\n3. Risk: weak labs and teacher gaps widen rural-urban divide.", "pyq": "", "changed": false, "note": "Use in: coding in schools (RBI 2021), NEP 2020"}, {"id": "ES096", "section": "Social Policy & Infra", "topic": "Social Policy & Infra - Mental Health", "type": "fact", "star": "hi", "front": "How many Indian adults have a mental disorder, and what is the treatment gap?", "back": "**10.6% of adults**; treatment gap up to **92%** (National Mental Health Survey 2015-16, NIMHANS)", "pyq": "", "changed": false, "note": "Use in: mental health should be spoken about (SEBI 2022), stress"}, {"id": "ES097", "section": "Social Policy & Infra", "topic": "Social Policy & Infra - Mental Health", "type": "fact", "star": "md", "front": "Tele-MANAS mental health helpline: calls so far?", "back": "**32 lakh+ calls** since its Oct 2022 launch (Economic Survey 2025-26)", "pyq": "", "changed": false, "note": "Use in: mental health, techno-stress, digital health"}, {"id": "ES098", "section": "Social Policy & Infra", "topic": "Social Policy & Infra - Mental Health", "type": "fact", "star": "hi", "front": "Suicides in India (latest NCRB data)?", "back": "**1,71,418 in 2023**, rate 12.3 per lakh; daily wage earners 28% of cases (NCRB ADSI 2023)", "pyq": "", "changed": false, "note": "Use in: mental health, stress among youth, gig and informal work"}, {"id": "ES099", "section": "Social Policy & Infra", "topic": "Social Policy & Infra - Gig Workers", "type": "trap", "star": "hi", "front": "Gig workers by 2029-30: 2.35 crore or 35 crore?", "back": "**2.35 crore** (NITI Aayog, 2022), up from **77 lakh in 2020-21**; about 1 crore in 2024-25 (GoI)", "pyq": "", "changed": false, "note": "Use in: gig economy, social security, future of work"}, {"id": "ES100", "section": "Social Policy & Infra", "topic": "Social Policy & Infra - Gig Workers", "type": "fact", "star": "hi", "front": "What must gig platforms pay for workers' social security?", "back": "**1-2% of annual turnover, capped at 5% of payouts** to gig workers (Code on Social Security, in force Nov 2025)", "pyq": "", "changed": false, "note": "Use in: gig workers, labour codes, platform economy"}, {"id": "ES101", "section": "Social Policy & Infra", "topic": "Social Policy & Infra - Railways & Infra", "type": "fact", "star": "hi", "front": "Indian Railways budget for FY27?", "back": "**₹2.93 lakh crore** for 2026-27; ₹1.15 lakh crore spent by July (Ministry of Railways, Aug 2026)", "pyq": "", "changed": false, "note": "Use in: Indian Railways after 2016 (PFRDA 2025), infrastructure"}, {"id": "ES102", "section": "Social Policy & Infra", "topic": "Social Policy & Infra - Railways & Infra", "type": "fact", "star": "hi", "front": "Railways in FY26: electrification, freight and passengers?", "back": "**99.6% of broad gauge electrified; record 167 crore tonnes freight; 741 crore passengers** (Ministry of Railways, Apr 2026)", "pyq": "", "changed": false, "note": "Use in: Indian Railways, green transport, logistics"}, {"id": "ES103", "section": "Social Policy & Infra", "topic": "Social Policy & Infra - Railways & Infra", "type": "fact", "star": "md", "front": "Kavach anti-collision system: how far has it reached?", "back": "**2,633 route km** commissioned (v4.0); work on 21,794 km; 6,290 locos fitted (Ministry of Railways, July 2026)", "pyq": "", "changed": false, "note": "Use in: railway safety, technology in infrastructure"}, {"id": "ES104", "section": "Social Policy & Infra", "topic": "Social Policy & Infra - Railways & Infra", "type": "fact", "star": "md", "front": "What changed in railway finances after 2016?", "back": "**Rail budget merged into the Union Budget from 2017-18**, ending a 92-year-old practice (decided Sept 2016)", "pyq": "", "changed": false, "note": "Use in: Indian Railways after 2016, opening context"}, {"id": "ES105", "section": "Social Policy & Infra", "topic": "Social Policy & Infra - Education & Health", "type": "fact", "star": "hi", "front": "Gross enrolment ratio in higher education?", "back": "**30% (2023-24)**; female GER 31.2%; 4.5 crore enrolled (AISHE, July 2026). NEP target: **50% by 2035**", "pyq": "", "changed": false, "note": "Use in: higher education, skilling, internships, women"}, {"id": "ES106", "section": "Social Policy & Infra", "topic": "Social Policy & Infra - Education & Health", "type": "fact", "star": "md", "front": "Government health spending as a share of GDP?", "back": "**1.43% of GDP (2022-23)** vs National Health Policy target of 2.5% (National Health Accounts, 2026); out-of-pocket 39.4% (2021-22)", "pyq": "", "changed": false, "note": "Use in: banks and social healthcare, health insurance, welfare"}, {"id": "ES107", "section": "Social Policy & Infra", "topic": "Social Policy & Infra - Ageing & Pensions", "type": "fact", "star": "hi", "front": "Share of Indians aged 60+, now and by 2050?", "back": "**10.5% (2022) → 20.8% by 2050**; elderly to outnumber children by 2046 (UNFPA India Ageing Report 2023)", "pyq": "", "changed": false, "note": "Use in: ageing population, pensions, old age homes, healthcare"}, {"id": "ES108", "section": "Social Policy & Infra", "topic": "Social Policy & Infra - Ageing & Pensions", "type": "fact", "star": "hi", "front": "NPS and APY together: subscribers and assets?", "back": "**10 crore+ subscribers; about ₹18 lakh crore AUM** (PFRDA, Sept 2026)", "pyq": "", "changed": false, "note": "Use in: pensions, ageing, financialisation of savings"}, {"id": "ES109", "section": "Social Policy & Infra", "topic": "Social Policy & Infra - Ageing & Pensions", "type": "fact", "star": "hi", "front": "Atal Pension Yojana: enrolments and pension range?", "back": "**9 crore+ gross enrolments** (Mar 2026), 1.35 crore added in FY26; pension **₹1,000-5,000 a month** at 60 (PFRDA)", "pyq": "", "changed": false, "note": "Use in: pensions for informal workers, gig workers, ageing"}, {"id": "ES110", "section": "Social Policy & Infra", "topic": "Social Policy & Infra - Ageing & Pensions", "type": "fact", "star": "md", "front": "India's pension assets as a share of GDP?", "back": "**About 17% of GDP**; only 5.7% of household financial savings go to pension and PF funds (PFRDA Pension Bulletin, 2026)", "pyq": "", "changed": false, "note": "Use in: pension gap, ageing, long-term savings"}, {"id": "ES111", "section": "Social Policy & Infra", "topic": "Social Policy & Infra - Ageing & Pensions", "type": "fact", "star": "md", "front": "Unified Pension Scheme (UPS): start date and promise?", "back": "**From 1 Apr 2025**: assured **50% of average basic pay** (last 12 months) after 25 years' service, for central staff (PFRDA)", "pyq": "", "changed": false, "note": "Use in: pensions, fiscal cost of ageing, NPS reform"}, {"id": "ES112", "section": "Social Policy & Infra", "topic": "Social Policy & Infra - Gig Workers", "type": "argument", "star": "hi", "front": "Ready-made middle-path way forward for gig workers?", "back": "1. Portable social security funded by the aggregator levy.\n2. Clear pay rules and appeals against app deactivation.\n3. Keep flexibility; do not force full employee status.", "pyq": "", "changed": false, "note": "Use in: gig economy, labour codes, future of work"}, {"id": "ES113", "section": "Social Policy & Infra", "topic": "Social Policy & Infra - Railways & Infra", "type": "argument", "star": "hi", "front": "Indian Railways after 2016: two gains and one gap?", "back": "1. Budget merger and record capex modernised the network.\n2. Near-full electrification, Vande Bharat trains, Kavach safety.\n3. Gap: punctuality, finances and freight share lost to roads.", "pyq": "", "changed": false, "note": "Use in: Indian Railways after 2016 (PFRDA 2025)"}, {"id": "ES114", "section": "Social Policy & Infra", "topic": "Social Policy & Infra - Ageing & Pensions", "type": "argument", "star": "hi", "front": "Ready-made middle-path way forward for an ageing India?", "back": "1. Auto-enrol informal workers in APY or NPS via e-Shram.\n2. Pension and money literacy, especially for women.\n3. Expand geriatric care under Ayushman Vay Vandana.", "pyq": "", "changed": false, "note": "Use in: ageing population (RBI 2026 style), pensions, old age homes"}, {"id": "ES115", "section": "Social Policy & Infra", "topic": "Social Policy & Infra - Mental Health", "type": "argument", "star": "hi", "front": "Ready-made middle-path way forward on mental health?", "back": "1. Add counselling to primary care and Tele-MANAS.\n2. Train more psychiatrists, psychologists and counsellors.\n3. Fight stigma openly in schools and workplaces.", "pyq": "", "changed": false, "note": "Use in: mental health (SEBI 2022, RBI 2024), stress among youth"}, {"id": "ES116", "section": "Quotes", "topic": "Quotes - Business & Customers", "type": "quote", "star": "hi", "front": "\"Your most unhappy customers are your greatest source of learning.\" (Bill Gates)", "back": "Complaints show exactly where a product fails, so fixing them makes a firm better.\nExample: RBI's Integrated Ombudsman Scheme (2021) uses complaint data to fix bank practices.", "pyq": "", "changed": false, "note": "Use for: PFRDA 2025 quote, customer service, innovation"}, {"id": "ES117", "section": "Quotes", "topic": "Quotes - Business & Customers", "type": "quote", "star": "hi", "front": "\"It takes 20 years to build a reputation and five minutes to ruin it.\" (Warren Buffett)", "back": "Trust is slow to earn and quick to lose, so ethics must be constant.\nExample: the Satyam accounting fraud (2009) destroyed a top IT firm's name overnight.", "pyq": "", "changed": false, "note": "Use for: corporate governance, ethics, banking trust, ESG"}, {"id": "ES118", "section": "Quotes", "topic": "Quotes - Business & Customers", "type": "quote", "star": "md", "front": "\"Price is what you pay. Value is what you get.\" (Warren Buffett)", "back": "Judge an investment by what it is worth, not by its price or hype.\nExample: SEBI found 87.7% of F&O traders lost money in FY26 chasing quick gains.", "pyq": "", "changed": false, "note": "Use for: financial literacy, investing, consumer choice"}, {"id": "ES119", "section": "Quotes", "topic": "Quotes - Work & Teams", "type": "quote", "star": "hi", "front": "\"No machine can do the work of one extraordinary man.\" (Elbert Hubbard)", "back": "Machines replace routine work, but judgment and creativity stay human.\nExample: RBI's MuleHunter.AI flags mule accounts; bank officers still decide action.", "pyq": "", "changed": false, "note": "Full quote opens: 'One machine can do the work of fifty ordinary men.' Use for: SEBI 2024 '1 machine vs 5 humans', AI"}, {"id": "ES120", "section": "Quotes", "topic": "Quotes - Work & Teams", "type": "quote", "star": "hi", "front": "\"Coming together is a beginning, staying together is progress, working together is success.\" (Henry Ford)", "back": "A team succeeds only when people keep cooperating towards one goal.\nExample: ISRO's Chandrayaan-3 team landed near the Moon's south pole in Aug 2023.", "pyq": "", "changed": false, "note": "Use for: teamwork, organisational culture, leadership"}, {"id": "ES121", "section": "Quotes", "topic": "Quotes - Work & Teams", "type": "quote", "star": "hi", "front": "\"Culture eats strategy for breakfast.\" (attributed to Peter Drucker)", "back": "Even a great plan fails if people's shared habits and values work against it.\nExample: Satyam (2009) had strong systems on paper but a culture that hid fraud.", "pyq": "", "changed": false, "note": "Use for: organisational culture (SEBI 2024), change management"}, {"id": "ES122", "section": "Quotes", "topic": "Quotes - Learning & Technology", "type": "quote", "star": "hi", "front": "\"Anyone who stops learning is old, whether at twenty or eighty.\" (Henry Ford)", "back": "Staying curious keeps people useful and young at any age.\nExample: Mission Karmayogi's iGOT platform keeps government staff learning online.", "pyq": "", "changed": false, "note": "Use for: lifelong learning (RBI 2024 quote), upskilling, internships"}, {"id": "ES123", "section": "Quotes", "topic": "Quotes - Learning & Technology", "type": "quote", "star": "md", "front": "\"An investment in knowledge pays the best interest.\" (Benjamin Franklin)", "back": "Learning gives returns for life, more than any bank deposit.\nExample: only about 27% of Indian adults are financially literate (NCFE, 2019).", "pyq": "", "changed": false, "note": "Use for: education, financial literacy, skilling"}, {"id": "ES124", "section": "Quotes", "topic": "Quotes - Learning & Technology", "type": "quote", "star": "md", "front": "\"Technology is a useful servant but a dangerous master.\" (Christian Lous Lange)", "back": "Use technology as a tool, but do not let it control us.\nExample: UPI made payments easy, yet Indians lost ₹22,495 crore to cyber fraud in 2025.", "pyq": "", "changed": false, "note": "Use for: techno-stress, fake news, AI, social media"}, {"id": "ES125", "section": "Quotes", "topic": "Quotes - Learning & Technology", "type": "quote", "star": "md", "front": "\"An ounce of prevention is worth a pound of cure.\" (Benjamin Franklin)", "back": "Stopping a problem early costs far less than fixing it later.\nExample: Railways' Kavach system prevents train collisions before they happen.", "pyq": "", "changed": false, "note": "Use for: RBI 2021 quote, health, cyber security, bank NPAs"}]</script>
+<script type="application/json" id="topics-data">["Skeletons & Hooks - Rules", "Skeletons & Hooks - Skeletons", "Skeletons & Hooks - Hooks", "Finance & Banking - Financial Inclusion & UPI", "Finance & Banking - Banking Sector", "Finance & Banking - Insurance & Markets", "Finance & Banking - ESG & Sustainable Finance", "Finance & Banking - Fiscal & Growth", "Organisation & HR - Culture & Wellbeing", "Organisation & HR - Internships & Skills", "Organisation & HR - Labour & Workforce", "Organisation & HR - Business & Governance", "Technology & Society - Digital Economy & IT", "Technology & Society - AI & Data Laws", "Technology & Society - Digital Life & Learning", "Technology & Society - Cyber Fraud & Fake News", "Social Policy & Infra - Mental Health", "Social Policy & Infra - Gig Workers", "Social Policy & Infra - Railways & Infra", "Social Policy & Infra - Education & Health", "Social Policy & Infra - Ageing & Pensions", "Quotes - Business & Customers", "Quotes - Work & Teams", "Quotes - Learning & Technology"]</script>
+<script>
+(function(){
+'use strict';
+var KEY='pfrda_essay_oct2026_progress';
+var THEME_KEY='pfrda_essay_oct2026_theme';
+var CARDS=JSON.parse(document.getElementById('cards-data').textContent);
+var TOPICS=JSON.parse(document.getElementById('topics-data').textContent);
+var $=function(id){return document.getElementById(id);};
+
+/* ---------- storage (never required) ---------- */
+var storageOk=true;
+function sGet(k){try{return window.localStorage.getItem(k);}catch(e){storageOk=false;return null;}}
+function sSet(k,v){try{window.localStorage.setItem(k,v);return true;}catch(e){storageOk=false;showBanner();return false;}}
+function sDel(k){try{window.localStorage.removeItem(k);}catch(e){storageOk=false;}}
+function showBanner(){ $('banner').hidden=false; }
+(function probe(){try{var t='__pfrda_probe__';window.localStorage.setItem(t,'1');window.localStorage.removeItem(t);}catch(e){storageOk=false;}})();
+
+var progress={};
+(function(){
+  var raw=sGet(KEY);
+  if(!raw) return;
+  try{
+    var o=JSON.parse(raw);
+    if(o && typeof o==='object'){
+      for(var k in o){ if(Object.prototype.hasOwnProperty.call(o,k) && (o[k]==='known'||o[k]==='learning')) progress[k]=o[k]; }
+    }
+  }catch(e){}
+})();
+function saveProgress(){ sSet(KEY,JSON.stringify(progress)); }
+
+/* ---------- theme ---------- */
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  $('bTheme').textContent = t==='dark' ? 'Light theme' : 'Dark theme';
+}
+var theme=sGet(THEME_KEY);
+if(theme!=='light' && theme!=='dark'){
+  theme=(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';
+}
+applyTheme(theme);
+
+/* ---------- state ---------- */
+var byId={};
+CARDS.forEach(function(c){byId[c.id]=c;});
+var baseOrder=CARDS.map(function(c){return c.id;});
+var order=baseOrder.slice();
+var filters={topics:[],type:'all',status:'all',hi:false,pyq:false};
+var view=[], pos=0, flipped=false;
+
+function statusOf(id){var s=progress[id];return (s==='known'||s==='learning')?s:'unseen';}
+function matches(c){
+  if(filters.topics.length && filters.topics.indexOf(c.topic)<0) return false;
+  if(filters.type!=='all' && c.type!==filters.type) return false;
+  if(filters.hi && c.star!=='hi') return false;
+  if(filters.pyq && !c.pyq) return false;
+  if(filters.status==='notknown'){ if(statusOf(c.id)==='known') return false; }
+  else if(filters.status!=='all' && statusOf(c.id)!==filters.status) return false;
+  return true;
+}
+function rebuild(keepId){
+  view=order.filter(function(id){return matches(byId[id]);});
+  var i=keepId?view.indexOf(keepId):-1;
+  pos=i>=0?i:0;
+  flipped=false;
+  render();
+}
+
+/* ---------- rendering ---------- */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmt(s){return esc(s).replace(/\*\*([\s\S]+?)\*\*/g,'<strong>$1</strong>');}
+var TYPE_LABEL={fact:'Fact',trap:'Trap',concept:'Concept'};
+var STATUS_LABEL={unseen:'Unseen',learning:'Still learning',known:'Known'};
+
+function renderStats(){
+  var n=view.length,k=0,l=0;
+  view.forEach(function(id){var s=statusOf(id); if(s==='known')k++; else if(s==='learning')l++;});
+  $('sTotal').textContent=n;
+  $('sUnseen').textContent=n-k-l;
+  $('sLearn').textContent=l;
+  $('sKnown').textContent=k;
+  $('sPct').textContent=(n?Math.round(k*100/n):0)+'%';
+}
+function renderCard(){
+  var el=$('card');
+  if(!view.length){
+    el.className='card empty';
+    el.removeAttribute('data-type');
+    el.setAttribute('aria-expanded','false');
+    el.setAttribute('aria-label','No cards match these filters');
+    el.innerHTML='<p class="q" style="margin:0">No cards match these filters.</p><p class="note" style="margin:0">Change or clear a filter above to widen the set.</p><button type="button" id="emptyClear">Clear filters</button>';
+    var b=$('emptyClear'); if(b) b.addEventListener('click',function(e){e.stopPropagation();clearFilters();});
+    return;
+  }
+  var c=byId[view[pos]], st=statusOf(c.id);
+  var h='<div class="meta">';
+  h+='<span class="badge b-type">'+TYPE_LABEL[c.type]+'</span>';
+  if(c.star==='hi') h+='<span class="badge b-star">★ High-yield</span>';
+  else if(c.star==='md') h+='<span class="badge b-star">☆ Medium</span>';
+  if(c.pyq) h+='<span class="badge b-pyq">'+esc(c.pyq)+'</span>';
+  h+='</div>';
+  h+='<div class="topic">'+esc(c.topic)+'</div>';
+  h+='<div class="q">'+fmt(c.front)+'</div>';
+  h+='<div class="hint">Tap the card or press Space to reveal the answer.</div>';
+  h+='<div class="a"><div class="ans">'+fmt(c.back)+'</div>';
+  if(c.note) h+='<div class="note">'+fmt(c.note)+'</div>';
+  h+='</div>';
+  h+='<div class="cfoot"><span>'+(pos+1)+' of '+view.length+(pos===view.length-1?' (end of set)':'')+'</span><span class="s-'+st+'">'+STATUS_LABEL[st]+'</span></div>';
+  el.className='card'+(flipped?' flipped':'');
+  el.setAttribute('data-type',c.type);
+  el.setAttribute('aria-expanded',flipped?'true':'false');
+  el.setAttribute('aria-label','Card '+(pos+1)+' of '+view.length+'. Press Space or Enter to '+(flipped?'hide':'show')+' the answer.');
+  el.innerHTML=h;
+}
+function renderControls(){
+  var has=view.length>0;
+  $('bPrev').disabled=!has||pos===0;
+  $('bNext').disabled=!has||pos>=view.length-1;
+  $('bFlip').disabled=!has;
+  $('bKnown').disabled=!has;
+  $('bLearn').disabled=!has;
+  $('bFlip').textContent=flipped?'Hide answer':'Show answer';
+}
+function render(){ renderCard(); renderControls(); renderStats(); renderFilterSummary(); }
+
+/* ---------- actions ---------- */
+function focusCard(){ try{$('card').focus({preventScroll:true});}catch(e){$('card').focus();} }
+function flip(){
+  if(!view.length) return;
+  flipped=!flipped;
+  var el=$('card');
+  el.classList.toggle('flipped',flipped);
+  el.setAttribute('aria-expanded',flipped?'true':'false');
+  $('bFlip').textContent=flipped?'Hide answer':'Show answer';
+}
+function go(d){
+  if(!view.length) return;
+  var p=pos+d;
+  if(p<0||p>=view.length) return;
+  pos=p; flipped=false; render();
+}
+function mark(val){
+  if(!view.length) return;
+  progress[view[pos]]=val;
+  saveProgress();
+  if(pos<view.length-1){pos++;flipped=false;}
+  render();
+}
+function shuffle(){
+  var keep=null;
+  for(var i=order.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=order[i];order[i]=order[j];order[j]=t;}
+  rebuild(keep);
+}
+function resetOrder(){ order=baseOrder.slice(); rebuild(null); }
+
+/* ---------- modal ---------- */
+var lastFocus=null;
+function openModal(){
+  lastFocus=document.activeElement;
+  $('mText').textContent='This clears every Known and Still learning mark for all '+CARDS.length+' cards saved in this browser.';
+  $('modal').hidden=false;
+  $('mCancel').focus();
+}
+function closeModal(){ $('modal').hidden=true; if(lastFocus&&lastFocus.focus) lastFocus.focus(); else focusCard(); }
+function doReset(){
+  progress={}; sDel(KEY);
+  var cur=view.length?view[pos]:null;
+  $('modal').hidden=true;
+  rebuild(cur);
+  focusCard();
+}
+
+/* ---------- filters UI ---------- */
+/* Topic picker: one native select. Each area is an optgroup whose first option takes the whole area. */
+var PREF_KEY='pfrda_essay_oct2026_filters';
+var topicCounts={}, groupOf={}, GROUPS=[], groupTopics={}, groupCounts={};
+CARDS.forEach(function(c){
+  topicCounts[c.topic]=(topicCounts[c.topic]||0)+1;
+  if(!groupOf[c.topic] || (groupOf[c.topic]==='Addendum' && c.section!=='Addendum')) groupOf[c.topic]=c.section;
+});
+TOPICS.forEach(function(t){
+  if(!topicCounts[t]) return;
+  var g=groupOf[t];
+  if(!groupTopics[g]){ GROUPS.push(g); groupTopics[g]=[]; groupCounts[g]=0; }
+  groupTopics[g].push(t); groupCounts[g]+=topicCounts[t];
+});
+function shortTopic(t,g){
+  var seps=[' — ',' - '];
+  for(var i=0;i<seps.length;i++){ if(t.indexOf(g+seps[i])===0) return t.slice((g+seps[i]).length); }
+  return t.replace(/^\d+\s+/,'');
+}
+(function buildTopics(){
+  var h='<option value="all">All topics ('+CARDS.length+')</option>';
+  GROUPS.forEach(function(g,gi){
+    h+='<optgroup label="'+esc(g)+'">';
+    h+='<option value="g:'+gi+'">All of '+esc(g)+' ('+groupCounts[g]+')</option>';
+    groupTopics[g].forEach(function(t){
+      h+='<option value="t:'+TOPICS.indexOf(t)+'">'+esc(shortTopic(t,g))+' ('+topicCounts[t]+')</option>';
+    });
+    h+='</optgroup>';
+  });
+  $('topicSel').innerHTML=h;
+})();
+var topicChoice='all';
+function topicsFor(v){
+  if(v.indexOf('g:')===0){ var g=GROUPS[+v.slice(2)]; return g?groupTopics[g].slice():[]; }
+  if(v.indexOf('t:')===0){ var t=TOPICS[+v.slice(2)]; return t?[t]:[]; }
+  return [];
+}
+function savePrefs(){
+  sSet(PREF_KEY,JSON.stringify({topic:topicChoice,type:filters.type,status:filters.status,hi:filters.hi,pyq:filters.pyq}));
+}
+function syncFilterUI(){
+  $('topicSel').value=topicChoice;
+  $('typeSel').value=filters.type;
+  $('statusSel').value=filters.status;
+  $('topicSel').classList.toggle('on',topicChoice!=='all');
+  $('typeSel').classList.toggle('on',filters.type!=='all');
+  $('statusSel').classList.toggle('on',filters.status!=='all');
+  $('fHi').setAttribute('aria-pressed',filters.hi?'true':'false');
+  $('fPyq').setAttribute('aria-pressed',filters.pyq?'true':'false');
+}
+(function loadPrefs(){
+  var raw=sGet(PREF_KEY); if(!raw) return;
+  try{
+    var o=JSON.parse(raw); if(!o||typeof o!=='object') return;
+    if(typeof o.topic==='string' && $('topicSel').querySelector('option[value="'+o.topic.replace(/"/g,'')+'"]')){ topicChoice=o.topic; filters.topics=topicsFor(o.topic); }
+    if(['all','fact','trap','concept'].indexOf(o.type)>=0) filters.type=o.type;
+    if(['all','unseen','learning','known','notknown'].indexOf(o.status)>=0) filters.status=o.status;
+    filters.hi=o.hi===true; filters.pyq=o.pyq===true;
+  }catch(e){}
+})();
+function onFilterChange(){
+  savePrefs();
+  syncFilterUI();
+  var cur=view.length?view[pos]:null;
+  rebuild(cur);
+}
+$('topicSel').addEventListener('change',function(){ topicChoice=this.value; filters.topics=topicsFor(topicChoice); onFilterChange(); });
+$('typeSel').addEventListener('change',function(){ filters.type=this.value; onFilterChange(); });
+$('statusSel').addEventListener('change',function(){ filters.status=this.value; onFilterChange(); });
+$('fHi').addEventListener('click',function(){ filters.hi=!filters.hi; onFilterChange(); });
+$('fPyq').addEventListener('click',function(){ filters.pyq=!filters.pyq; onFilterChange(); });
+function clearFilters(){
+  filters={topics:[],type:'all',status:'all',hi:false,pyq:false};
+  topicChoice='all';
+  onFilterChange();
+}
+$('fClear').addEventListener('click',clearFilters);
+function renderFilterSummary(){
+  var on=topicChoice!=='all'||filters.type!=='all'||filters.status!=='all'||filters.hi||filters.pyq;
+  $('fClear').hidden=!on;
+}
+syncFilterUI();
+
+/* ---------- wiring ---------- */
+$('card').addEventListener('click',function(e){
+  if(!view.length) return;
+  var sel=window.getSelection && String(window.getSelection());
+  if(sel && sel.length>0 && flipped) return;
+  flip();
+});
+function bind(id,fn){ $(id).addEventListener('click',function(){ fn(); if(id!=='bReset') focusCard(); }); }
+bind('bPrev',function(){go(-1);});
+bind('bNext',function(){go(1);});
+bind('bFlip',flip);
+bind('bKnown',function(){mark('known');});
+bind('bLearn',function(){mark('learning');});
+bind('bShuffle',shuffle);
+bind('bOrder',resetOrder);
+bind('bReset',openModal);
+bind('bTheme',function(){ theme=theme==='dark'?'light':'dark'; applyTheme(theme); sSet(THEME_KEY,theme); });
+$('mCancel').addEventListener('click',closeModal);
+$('mOk').addEventListener('click',doReset);
+$('modal').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
+
+document.addEventListener('keydown',function(e){
+  if(!$('modal').hidden){ if(e.key==='Escape'){e.preventDefault();closeModal();} return; }
+  if(e.ctrlKey||e.metaKey||e.altKey) return;
+  var t=e.target, tag=(t&&t.tagName||'').toLowerCase();
+  if(tag==='input'||tag==='select'||tag==='textarea'||tag==='summary'||(t&&t.isContentEditable)) return;
+  var k=e.key;
+  if(k===' '||k==='Spacebar'||k==='Enter'){
+    if(tag==='button') return;
+    e.preventDefault(); flip(); return;
+  }
+  if(k==='ArrowRight'){e.preventDefault();go(1);focusCard();return;}
+  if(k==='ArrowLeft'){e.preventDefault();go(-1);focusCard();return;}
+  if(k==='k'||k==='K'){e.preventDefault();mark('known');focusCard();return;}
+  if(k==='l'||k==='L'){e.preventDefault();mark('learning');focusCard();return;}
+});
+
+$('sub').textContent='PFRDA Grade A 2026 · Phase II Paper 1 · Figures checked against official sources, Oct 2026. '+CARDS.length+' cards.';
+if(!storageOk) showBanner();
+rebuild(null);
+})();
+</script>
+</body>
+</html>

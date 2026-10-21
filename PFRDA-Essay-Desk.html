@@ -1,0 +1,287 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>PFRDA Essay Desk</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+/* Layout: one exam-console column; a control strip on top, the writing surface below, live counts beside it on wide screens */
+:root{
+  --bg:#f3f5f4; --panel:#ffffff; --ink:#1d2624; --muted:#5d6b68; --line:#d5ddda;
+  --accent:#1f6f66; --accent-ink:#ffffff; --warn:#a3520f; --bad:#b3261e; --ok:#2e7d32; --soft:#e6efed;
+  --f-ui:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-text:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121816; --panel:#1a2220; --ink:#e3ebe8; --muted:#9aaba6; --line:#2e3a37;
+  --accent:#5fb8ac; --accent-ink:#0d1413; --warn:#e0a060; --bad:#f08a80; --ok:#7fc787; --soft:#1f2b28; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121816; --panel:#1a2220; --ink:#e3ebe8; --muted:#9aaba6; --line:#2e3a37;
+  --accent:#5fb8ac; --accent-ink:#0d1413; --warn:#e0a060; --bad:#f08a80; --ok:#7fc787; --soft:#1f2b28; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:15px;line-height:1.5}
+.wrap{max-width:1040px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:16px}
+.wrap>*,.grid>*{min-width:0}
+h1{font-family:var(--f-text);font-weight:600;font-size:1.6rem;margin:0;text-wrap:balance}
+.sub{color:var(--muted);margin:2px 0 0;font-size:.92rem}
+.modes{display:flex;flex-wrap:wrap;gap:8px}
+.modes button{font:inherit;font-weight:500;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:8px 12px;border-radius:6px;cursor:pointer}
+.modes button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+button:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:grid;gap:10px;min-width:0}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+label.lbl{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+select{font:inherit;padding:7px 8px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink);width:100%;min-width:0;flex:1 1 220px}
+.btn{font:inherit;font-weight:500;padding:7px 12px;border-radius:6px;border:1px solid var(--line);background:var(--soft);color:var(--ink);cursor:pointer}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.topic{font-family:var(--f-text);font-size:1.12rem;line-height:1.45;margin:0}
+.meta{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:.75rem;font-weight:600;letter-spacing:.04em;padding:2px 8px;border-radius:999px;background:var(--soft);color:var(--muted);border:1px solid var(--line)}
+.chip.sk{color:var(--accent)}
+.task{color:var(--muted);font-size:.92rem;margin:0}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:16px;align-items:start}
+@media (max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}}
+textarea{width:100%;box-sizing:border-box;font-family:var(--f-text);font-size:1.02rem;line-height:1.6;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px 12px;resize:vertical}
+#plan{font-family:var(--f-mono);font-size:.88rem;min-height:120px}
+#essay{min-height:340px}
+.side{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);display:grid;gap:12px}
+.clock{font-family:var(--f-mono);font-size:2.2rem;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.clock.low{color:var(--warn)} .clock.over{color:var(--bad)}
+.stat{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;font-size:.92rem;border-bottom:1px dashed var(--line);padding-block:3px}
+.stat b{font-family:var(--f-mono);font-weight:500}
+.good{color:var(--ok)} .warn{color:var(--warn)} .bad{color:var(--bad)}
+.paras{display:grid;gap:4px;font-size:.88rem}
+.passage{font-family:var(--f-text);font-size:1.02rem;line-height:1.6;background:var(--soft);border-radius:6px;padding:10px 12px;margin:0}
+ol.key{margin:0;padding-left:20px;display:grid;gap:3px;font-size:.92rem}
+.note{font-size:.82rem;color:var(--muted);margin:0}
+.copied{font-size:.85rem;color:var(--ok)}
+#copyBox{font-family:var(--f-mono);font-size:.8rem;min-height:120px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>PFRDA Essay Desk</h1>
+    <p class="sub">Phase 2 essay practice, typed with spellcheck off. The timer, word limit and paragraph counts behave like the exam. Your draft stays on this device only.</p>
+  </header>
+
+  <nav class="modes" aria-label="Practice mode">
+    <button type="button" data-mode="essay" aria-pressed="true">Timed essay · 20 min</button>
+    <button type="button" data-mode="plan" aria-pressed="false">Plan only · 5 min</button>
+    <button type="button" data-mode="ends" aria-pressed="false">Opening + closing · 10 min</button>
+    <button type="button" data-mode="proof" aria-pressed="false">Proofread sprint · 4 min</button>
+  </nav>
+
+  <section class="panel" id="pickPanel">
+    <div class="row">
+      <label class="lbl" for="typeSel">Type</label>
+      <select id="typeSel"></select>
+      <label class="lbl" for="topicSel">Topic</label>
+      <select id="topicSel"></select>
+      <button type="button" class="btn" id="randBtn">Random topic</button>
+    </div>
+    <p class="topic" id="topicText"></p>
+    <div class="meta" id="topicMeta"></div>
+    <p class="task" id="taskText"></p>
+  </section>
+
+  <section class="panel" id="proofPanel" hidden>
+    <div class="row">
+      <label class="lbl" for="proofSel">Passage</label>
+      <select id="proofSel"></select>
+    </div>
+    <p class="task">Copy is already in the box below. Fix every error in place within 4 minutes, then press Show the errors. Count how many you caught, and note any type you missed.</p>
+  </section>
+
+  <div class="grid">
+    <div class="panel" style="gap:12px">
+      <div id="planWrap">
+        <label class="lbl" for="plan">Plan: one line per paragraph, skeleton named on top</label>
+        <textarea id="plan" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
+      </div>
+      <div id="essayWrap">
+        <label class="lbl" for="essay" id="essayLbl">Essay: leave a blank line between paragraphs</label>
+        <textarea id="essay" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off"></textarea>
+      </div>
+      <div id="keyWrap" hidden>
+        <label class="lbl">Planted errors</label>
+        <ol class="key" id="keyList"></ol>
+      </div>
+      <div class="row">
+        <button type="button" class="btn primary" id="startBtn">Start timer</button>
+        <button type="button" class="btn" id="resetBtn">Clear and reset</button>
+        <button type="button" class="btn" id="keyBtn" hidden>Show the errors</button>
+        <button type="button" class="btn" id="copyBtn">Copy my answer for marking</button>
+        <span class="copied" id="copied" hidden>Copied. Paste it in the thread.</span>
+      </div>
+      <textarea id="copyBox" readonly hidden aria-label="Answer block to copy"></textarea>
+    </div>
+
+    <aside class="side panel" aria-label="Live counts">
+      <div>
+        <label class="lbl">Time left</label>
+        <div class="clock" id="clock">20:00</div>
+      </div>
+      <div>
+        <div class="stat"><span>Words</span><b id="wc">0</b></div>
+        <div class="stat"><span>Limit</span><b id="lim">250–270</b></div>
+        <div class="stat"><span>Paragraphs</span><b id="pc">0</b></div>
+      </div>
+      <div>
+        <label class="lbl">Words per paragraph</label>
+        <div class="paras" id="paras"><span class="note">Aim for about 50 each, 5 paragraphs.</span></div>
+      </div>
+      <p class="note" id="splitNote">Split: 2 min pick, 3 plan, 13 write, 2 proofread.</p>
+    </aside>
+  </div>
+
+  <section class="panel">
+    <label class="lbl">The four skeletons (5 paragraphs, about 50 words each)</label>
+    <div class="paras" style="font-size:.9rem;gap:6px">
+      <div><b>Policy or issue:</b> hook fact and the issue · social side · economic side · what is done and what is missing · middle-path way forward</div>
+      <div><b>Role of X in Y:</b> define both, with a hook fact · role 1 with an example · role 2 with an example · limits or risks · how to strengthen it</div>
+      <div><b>Benefits / pros and cons:</b> context and your stance · benefit 1 · benefit 2 · cost or risk and how to manage it · balanced verdict</div>
+      <div><b>Quote:</b> meaning in your own words · business example · India or society example · when it does not hold · takeaway</div>
+      <div class="note">Rules: no title, no headings, no bullets. Answer every part of the question. Two facts. Proofread for its/it's, spelling, capitals, sentences without a verb.</div>
+    </div>
+  </section>
+</div>
+
+<script>
+var TOPICS=[
+ ["F01","Finance & Banking","Role of banks in promoting financial literacy among first-time investors.","role",250],
+ ["F02","Finance & Banking","UPI has transformed payments in India. What should the next decade of digital payments focus on?","policy",200],
+ ["F03","Finance & Banking","Financialisation of household savings: an opportunity or a risk for Indian families?","pros",250],
+ ["F04","Finance & Banking","How can India extend pension coverage to its informal workforce?","policy",250],
+ ["F05","Finance & Banking","ESG investing: genuine change or green-washing? Comment.","pros",250],
+ ["F06","Finance & Banking","Rising retail participation in derivatives trading: should regulators step in?","policy",250],
+ ["F07","Finance & Banking","Role of credit to MSMEs in creating jobs in India.","role",200],
+ ["F08","Finance & Banking","Cyber frauds in digital banking: causes and remedies.","policy",250],
+ ["F09","Finance & Banking","Is a cashless economy desirable for India? Discuss.","pros",250],
+ ["F10","Finance & Banking","Financial inclusion of women: going beyond bank accounts.","policy",250],
+ ["F11","Finance & Banking","Mergers of public sector banks: benefits and concerns.","pros",250],
+ ["F12","Finance & Banking","Role of insurance in protecting households from health shocks.","role",250],
+ ["F13","Finance & Banking","India is ageing. Why must retirement planning begin early?","policy",200],
+ ["F14","Finance & Banking","The e-rupee (CBDC): promise and challenges.","pros",250],
+ ["F15","Finance & Banking","Infrastructure investment as a driver of India's growth.","role",250],
+ ["F16","Finance & Banking","Finfluencers and investor protection in India.","policy",250],
+ ["O01","Organisation & HR","Importance of continuous upskilling for employees in a changing workplace.","benefits",250],
+ ["O02","Organisation & HR","Work-life balance and productivity: are they in conflict?","pros",250],
+ ["O03","Organisation & HR","Role of leadership in building an ethical organisational culture.","role",250],
+ ["O04","Organisation & HR","Remote and hybrid work: boon or bane for organisations?","pros",200],
+ ["O05","Organisation & HR","Mental health of employees is an organisation's responsibility. Discuss.","policy",250],
+ ["O06","Organisation & HR","Diversity and inclusion at the workplace: why it matters and how to promote it.","benefits",250],
+ ["O07","Organisation & HR","Customer grievance redressal as a source of competitive advantage.","role",250],
+ ["O08","Organisation & HR","Importance of teamwork in public institutions.","benefits",250],
+ ["O09","Organisation & HR","Performance appraisal: does it motivate or demotivate employees?","pros",200],
+ ["O10","Organisation & HR","Role of startups in generating employment in India.","role",250],
+ ["T01","Technology & Society","Artificial intelligence in financial services: efficiency versus accountability.","pros",250],
+ ["T02","Technology & Society","Deepfakes and misinformation: a threat to public trust.","policy",200],
+ ["T03","Technology & Society","Data privacy in the digital age: is India prepared?","policy",250],
+ ["T04","Technology & Society","India's digital public infrastructure as a model for the world.","benefits",250],
+ ["T05","Technology & Society","Screen time and its effect on young people.","policy",250],
+ ["T06","Technology & Society","Will artificial intelligence replace jobs or reshape them?","pros",250],
+ ["T07","Technology & Society","Cybersecurity as a national priority.","policy",250],
+ ["T08","Technology & Society","Role of technology in school education after the pandemic.","role",250],
+ ["T09","Technology & Society","Social media: connecting people or isolating them?","pros",200],
+ ["T10","Technology & Society","Electric vehicles and India's energy transition.","policy",250],
+ ["Q01","Quotes","“The best way to predict the future is to create it.” (Peter Drucker) Elaborate.","quote",250],
+ ["Q02","Quotes","“Quality is never an accident; it is always the result of intelligent effort.” (John Ruskin) Elaborate.","quote",200],
+ ["Q03","Quotes","“Coming together is a beginning, staying together is progress, and working together is success.” (Henry Ford) Elaborate.","quote",250],
+ ["Q04","Quotes","“An investment in knowledge pays the best interest.” (Benjamin Franklin) Elaborate.","quote",250],
+ ["H01","Off-type hedge","Water scarcity in Indian cities: causes and solutions.","policy",250],
+ ["H02","Off-type hedge","Climate change and its impact on Indian agriculture.","policy",250]
+];
+var SK={policy:"Skeleton: Policy or issue",role:"Skeleton: Role of X in Y",pros:"Skeleton: Benefits / pros and cons",benefits:"Skeleton: Benefits / pros and cons",quote:"Skeleton: Quote"};
+var PROOF=[
+ {t:"Payments",p:"Digital payments has transformed the way Indian households manage there money. Since it's launch in 2016, UPI have grown into the worlds largest real-time payment system. Small vendors in tier-2 citys now accept QR payments, and many of them have opened bank account for the first time. However the rise in cyber frauds is a serious concern. Every week, thousands of users loose money to phishing calls. Banks and NPCI must invest in awareness, because a payment system is only as strong as it's weakest user.",
+  k:["has → have (payments are plural)","there → their","it's launch → its launch","UPI have → UPI has","worlds → world's","citys → cities","bank account → bank accounts","However → However, (comma after an opening connector)","loose → lose","it's weakest → its weakest"]},
+ {t:"Gig workers",p:"The gig economy offers flexibility, but it also leave workers without social security. Over 77 lakh workers in 2020-21 alone. Platforms describes delivery riders as partners rather then employees. As a result, they recieve no health cover, no paid leave and no pension. The Code on Social Security, 2020 recognise gig workers for the first time. Its implementation, however, has been slow. A balanced approach would combine flexibility with portable benefits funded by a small cess on platform turnover. Such a model protect workers without killing the innovation that makes the sector grow.",
+  k:["it also leave → it also leaves","'Over 77 lakh workers in 2020-21 alone.' has no verb → 'There were over 77 lakh such workers in 2020-21 alone.'","Platforms describes → Platforms describe","rather then → rather than","recieve → receive","The Code ... recognise → recognises","Such a model protect → protects"]},
+ {t:"Organisational culture",p:"A healthy organisational culture do not appear overnight. It is build through everyday decisions about who is rewarded, how mistakes are handled and whether employees feels heard. Leaders who admit there own errors make it safe for others to speak up. In contrast, a culture of fear makes employees hide problems untill they become crises. Organisations should therefore measure culture as carefully as they measure profit, through regular surveys, exit interviews and open forums. after all, a company's culture is it's most durable competitive advantage.",
+  k:["do not → does not","is build → is built","employees feels → employees feel","there own → their own","untill → until","after all → After all (capital at sentence start)","it's most durable → its most durable"]},
+ {t:"AI in banking",p:"Artificial intelligence is changing banking at a remarkable pace. Chatbots answers customer queries round the clock, and algorithms flags suspicious transactions in seconds. Yet AI also raises difficult questions. Who is responsible when an algorithm deny a loan unfairly. How can customers challenge a decision they cannot see. Regulators like RBI and sebi have begun to issue guidelines on fairness and transparency. The goal should be to use AI to assist human judgement, not replace it entirely, specially in decisions that effects a person's livelihood.",
+  k:["Chatbots answers → answer","algorithms flags → flag","an algorithm deny → denies","'...unfairly.' → '...unfairly?' (a question)","'...cannot see.' → '...cannot see?'","sebi → SEBI","specially → especially","effects → affect (verb)"]},
+ {t:"Mental health",p:"Mental health remain one of the most neglected areas of public policy in India. According to the National Mental Health Survey, about one in ten adults has a mental disorder, yet most never recieve treatment. The stigma attached to mental illness, combined with a shortage of psychiatrists, mean that many people suffer silently. Workplaces can play a important role. Simple steps like flexible hours, access to counselling and training managers to notice signs of distress can make a real diffrence. Mental well-being is not a luxury, it is the foundation of productivity.",
+  k:["Mental health remain → remains","recieve → receive","The stigma ... mean → means (the subject is 'stigma')","a important → an important","diffrence → difference","'not a luxury, it is' joins two sentences with a comma → 'not a luxury; it is' or two sentences"]},
+ {t:"Pensions",p:"India is ageing faster then most people realise. By 2050, about one in five Indians will be over sixty, according to the UNFPA India Ageing Report 2023. Yet a large majority of the workforce have no pension coverage at all. Schemes like the Atal Pension Yojana and NPS has expanded access, but enrolment among informal workers remain low. Financial literacy, auto-enrolment and simple digital onboarding could change this. A secure old age should not depend on luck, it should be the result of planning that begins early.",
+  k:["faster then → faster than","a large majority ... have → has (the subject is 'majority')","Schemes ... has expanded → have expanded","enrolment ... remain → remains","'depend on luck, it should' joins two sentences with a comma → use a semicolon or a full stop"]}
+];
+var MODES={
+ essay:{min:20,task:"Write the full essay. 2 min to pick, 3 to plan in the box above, 13 to write, 2 to proofread. Stop at the word limit.",lbl:"Essay: leave a blank line between paragraphs",split:"Split: 2 min pick, 3 plan, 13 write, 2 proofread."},
+ plan:{min:5,task:"Plan only. Pick in 60 seconds, then write 5 lines: one per paragraph, with the skeleton named and one fact in line 1. No essay text.",lbl:"",split:"60 s to pick, 4 min to plan."},
+ ends:{min:10,task:"Write only the opening (with one fact) and the closing (a way forward), about 50 words each, with a blank line between them.",lbl:"Opening and closing: blank line between them",split:"About 5 min each, 50 words each."},
+ proof:{min:4,task:"",lbl:"Passage: fix the errors in place",split:"Fix everything you can in 4 minutes."}
+};
+var KEY="pfrda_essay_desk_v1";
+var S={mode:"essay",topic:"F01",proof:0,plan:"",essay:"",start:null,used:0,run:false};
+function load(){try{var j=JSON.parse(localStorage.getItem(KEY)||"null");if(j)for(var k in j)S[k]=j[k];}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+function $(id){return document.getElementById(id)}
+function words(t){var m=t.trim().match(/\S+/g);return m?m.length:0}
+function paras(t){return t.split(/\n\s*\n/).map(function(x){return x.trim()}).filter(Boolean)}
+function topicById(id){for(var i=0;i<TOPICS.length;i++)if(TOPICS[i][0]===id)return TOPICS[i];return TOPICS[0]}
+function limitOf(t){return t[4]===200?[200,220]:[250,270]}
+
+var types=[];TOPICS.forEach(function(t){if(types.indexOf(t[1])<0)types.push(t[1])});
+function fillTypes(){var h='<option value="all">All types</option>';types.forEach(function(t){h+='<option>'+t+'</option>'});$("typeSel").innerHTML=h}
+function fillTopics(){var ty=$("typeSel").value,h="";TOPICS.forEach(function(t){if(ty==="all"||t[1]===ty)h+='<option value="'+t[0]+'">'+t[0]+' · '+t[2].replace(/</g,"&lt;").slice(0,70)+(t[2].length>70?"…":"")+'</option>'});$("topicSel").innerHTML=h;
+  if([].some.call($("topicSel").options,function(o){return o.value===S.topic}))$("topicSel").value=S.topic;else{S.topic=$("topicSel").value}}
+function fillProof(){var h="";PROOF.forEach(function(p,i){h+='<option value="'+i+'">'+(i+1)+' · '+p.t+'</option>'});$("proofSel").innerHTML=h;$("proofSel").value=S.proof}
+
+function render(){
+  document.querySelectorAll(".modes button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.mode===S.mode?"true":"false")});
+  var M=MODES[S.mode],proof=S.mode==="proof";
+  $("pickPanel").hidden=proof;$("proofPanel").hidden=!proof;
+  $("planWrap").hidden=proof||S.mode==="ends";
+  $("essayWrap").hidden=S.mode==="plan";
+  $("keyBtn").hidden=!proof;
+  $("essayLbl").textContent=M.lbl;$("splitNote").textContent=M.split;
+  var t=topicById(S.topic),L=limitOf(t);
+  $("topicText").textContent=t[2];
+  $("topicMeta").innerHTML='<span class="chip">'+t[0]+'</span><span class="chip">'+t[1]+'</span><span class="chip sk">'+SK[t[3]]+'</span><span class="chip">'+L[0]+'–'+L[1]+' words</span>';
+  $("taskText").textContent=M.task;
+  $("lim").textContent=S.mode==="essay"?L[0]+"–"+L[1]:S.mode==="ends"?"about 100":S.mode==="plan"?"5 lines":"fix all";
+  $("plan").value=S.plan;$("essay").value=S.essay;
+  $("startBtn").textContent=S.run?"Pause":(S.used>0?"Resume":"Start timer");
+  counts();tick();
+}
+function counts(){
+  var t=$("essay").value,w=words(t),ps=paras(t),L=limitOf(topicById(S.topic));
+  $("wc").textContent=w;$("pc").textContent=ps.length;
+  var cls="";if(S.mode==="essay"){cls=w>L[1]?"bad":w>=L[0]?"good":w>=L[0]-30?"warn":""}
+  $("wc").className=cls;
+  if(!ps.length||S.mode==="proof"){$("paras").innerHTML='<span class="note">'+(S.mode==="proof"?"Not used in this mode.":"Aim for about 50 each, 5 paragraphs.")+'</span>';return}
+  $("paras").innerHTML=ps.map(function(p,i){var n=words(p),c=n>65?"bad":n<35?"warn":"good";return '<div class="stat"><span>P'+(i+1)+'</span><b class="'+c+'">'+n+'</b></div>'}).join("");
+}
+function elapsed(){return S.used+(S.run&&S.start?(Date.now()-S.start)/1000:0)}
+function fmt(s){var neg=s<0;s=Math.abs(Math.round(s));return (neg?"−":"")+Math.floor(s/60)+":"+("0"+s%60).slice(-2)}
+function tick(){var left=MODES[S.mode].min*60-elapsed(),c=$("clock");c.textContent=fmt(left);c.className="clock"+(left<0?" over":left<120?" low":"")}
+setInterval(function(){if(S.run)tick()},500);
+
+document.querySelectorAll(".modes button").forEach(function(b){b.addEventListener("click",function(){
+  if(b.dataset.mode===S.mode)return;S.mode=b.dataset.mode;S.run=false;S.used=0;S.start=null;S.plan="";
+  S.essay=S.mode==="proof"?PROOF[S.proof].p:"";$("keyWrap").hidden=true;$("copyBox").hidden=true;save();render()})});
+$("typeSel").addEventListener("change",function(){fillTopics();save();render()});
+$("topicSel").addEventListener("change",function(){S.topic=this.value;save();render()});
+$("randBtn").addEventListener("click",function(){var o=$("topicSel").options;S.topic=o[Math.floor(Math.random()*o.length)].value;$("topicSel").value=S.topic;save();render()});
+$("proofSel").addEventListener("change",function(){S.proof=+this.value;S.essay=PROOF[S.proof].p;S.used=0;S.run=false;$("keyWrap").hidden=true;save();render()});
+$("plan").addEventListener("input",function(){S.plan=this.value;save()});
+$("essay").addEventListener("input",function(){S.essay=this.value;save();counts()});
+$("startBtn").addEventListener("click",function(){if(S.run){S.used=elapsed();S.run=false;S.start=null}else{S.run=true;S.start=Date.now()}save();render()});
+$("resetBtn").addEventListener("click",function(){S.run=false;S.used=0;S.start=null;S.plan="";S.essay=S.mode==="proof"?PROOF[S.proof].p:"";$("keyWrap").hidden=true;$("copyBox").hidden=true;save();render()});
+$("keyBtn").addEventListener("click",function(){$("keyList").innerHTML=PROOF[S.proof].k.map(function(x){return "<li>"+x.replace(/</g,"&lt;")+"</li>"}).join("");$("keyWrap").hidden=false;if(S.run){S.used=elapsed();S.run=false;S.start=null;save();render()}});
+$("copyBtn").addEventListener("click",function(){
+  var t=topicById(S.topic),L=limitOf(t),ps=paras(S.essay),M=S.mode;
+  var head="PFRDA ESSAY DESK · "+{essay:"Timed essay",plan:"Plan only",ends:"Opening + closing",proof:"Proofread sprint"}[M]+"\nTime used: "+fmt(elapsed())+" of "+MODES[M].min+":00\n";
+  var body;
+  if(M==="proof"){body="Passage "+(S.proof+1)+" ("+PROOF[S.proof].t+"), my corrected version:\n"+S.essay}
+  else{body="Topic "+t[0]+" ("+t[1]+", limit "+(M==="essay"?L[0]+"-"+L[1]:"n/a")+"): "+t[2]+"\n"+(M!=="ends"?"\nPLAN\n"+S.plan+"\n":"")+(M!=="plan"?"\nTEXT · "+words(S.essay)+" words · paragraphs: "+ps.map(function(p){return words(p)}).join(", ")+"\n"+S.essay:"")}
+  var out=head+body;var box=$("copyBox");box.value=out;
+  var done=function(){$("copied").hidden=false;setTimeout(function(){$("copied").hidden=true},3000)};
+  try{navigator.clipboard.writeText(out).then(done,function(){box.hidden=false;box.focus();box.select()})}catch(e){box.hidden=false;box.focus();box.select()}
+});
+load();fillTypes();fillTopics();fillProof();
+if(S.mode==="proof"&&!S.essay)S.essay=PROOF[S.proof].p;
+render();
+</script>
+
+</body></html>
