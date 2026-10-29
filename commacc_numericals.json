@@ -1,0 +1,228 @@
+[
+ {
+  "topic": "AS 2 Inventories",
+  "exam": "SEBI 2022 Ph-II",
+  "q": "A company purchased inventory 1000 units @ ₹1,200 per unit from outside vendors. Vendor allowed a trade discount of 5%. Vendors offered a cash discount of 3% if payment is made in 45 days. Company decided to avail that. Custom duty is ₹50 per unit and delivery charges are ₹6,000 as a whole. Find the value of inventory as per AS 2.",
+  "options": [
+   "₹12,00,000",
+   "₹11,96,000",
+   "₹10,90,000",
+   "₹12,25,000",
+   "None of the above"
+  ],
+  "ans": 1,
+  "solution": "Purchase cost 1,000 x 1,200 = ₹12,00,000. Less trade discount 5% = ₹60,000. Cash discount ignored under AS 2. Add customs duty 50 x 1,000 = ₹50,000 and delivery ₹6,000. Cost = 12,00,000 - 60,000 + 50,000 + 6,000 = ₹11,96,000.",
+  "concept": "Cost of purchase, trade discount",
+  "id": "AS2.S1"
+ },
+ {
+  "topic": "AS 2 Inventories",
+  "exam": "PFRDA 2021 Ph-I",
+  "q": "A company purchased 50,000 units at ₹2 per unit. Market price of the units as on 31.03.2021 is ₹0.90 per unit. Calculate the value of closing stock to be recorded in the books of accounts of the company.",
+  "options": [
+   "₹1,00,000",
+   "₹45,000",
+   "₹1,45,000",
+   "₹55,000",
+   "₹72,500"
+  ],
+  "ans": 1,
+  "solution": "Cost = 50,000 x 2 = ₹1,00,000. NRV (market price) = 50,000 x 0.90 = ₹45,000. Lower of cost and NRV = ₹45,000.",
+  "concept": "Lower of cost and NRV",
+  "id": "AS2.P1"
+ },
+ {
+  "topic": "AS 2 Inventories",
+  "exam": "PFRDA 2025 Ph-II",
+  "q": "A company purchased inventory for ₹35 lakhs. It sold 60% of it. The remaining inventory is now expected to be sold for ₹16 lakhs, but a 15% sales commission will be incurred to sell it. What is the value at which this remaining inventory should be reported in the financial statements as per AS 2?",
+  "options": [
+   "₹16.0 lakhs",
+   "₹15.0 lakhs",
+   "₹14.4 lakhs",
+   "₹13.6 lakhs",
+   "₹12.0 lakhs"
+  ],
+  "ans": 3,
+  "solution": "Cost of remaining 40% = 0.40 x 35 = ₹14 lakhs. NRV = 16 - 15% of 16 = 16 - 2.4 = ₹13.6 lakhs. Lower of cost and NRV = ₹13.6 lakhs.",
+  "concept": "NRV less selling commission",
+  "id": "AS2.P2"
+ },
+ {
+  "topic": "AS 2 Inventories",
+  "exam": "IFSCA 2025",
+  "q": "During FY 2024-25, a company has partially completed goods costing ₹5,000. To complete these goods, additional expenses of ₹1,000 are required. The goods are expected to be sold for ₹6,042 with a brokerage of 4% on the selling price. As per AS 2 Valuation of Inventories, calculate the value of closing inventory.",
+  "options": [
+   "₹4,000",
+   "₹4,500",
+   "₹4,800",
+   "₹5,000",
+   "₹5,500"
+  ],
+  "ans": 2,
+  "solution": "NRV = 6,042 - 1,000 (completion) - 241.68 (4% brokerage on 6,042) = ₹4,800.32. Cost ₹5,000. Lower of cost and NRV = ₹4,800.32, i.e. ₹4,800.",
+  "concept": "NRV of WIP with brokerage",
+  "id": "AS2.I1",
+  "key_note": "EduTap key C (₹4,800) is correct. Its Section C arithmetic is wrong: it states NRV = ₹4,790.32, but 6,042 - 1,000 - 241.68 = ₹4,800.32."
+ },
+ {
+  "topic": "AS 10 PPE & Depreciation",
+  "exam": "SEBI 2020 Ph-II",
+  "q": "Calculate the total machine cost from the following: Machine cost Rs 15 lakh, Cartage Rs 2,000, Freight Rs 25,000, Installation Rs 40,000, Testing Rs 18,000.",
+  "options": [
+   "Rs 15.67 lakh",
+   "Rs 15.27 lakh",
+   "Rs 15.85 lakh",
+   "Rs 15.45 lakh",
+   "None of the above"
+  ],
+  "ans": 2,
+  "solution": "All are directly attributable costs. 15,00,000 + 2,000 + 25,000 + 40,000 + 18,000 = Rs 15,85,000 = Rs 15.85 lakh.",
+  "concept": "Cost of PPE components",
+  "id": "AS10.S1"
+ },
+ {
+  "topic": "AS 10 PPE & Depreciation",
+  "exam": "SEBI 2022 Ph-II",
+  "q": "Value of Machine is Rs 12,00,000 for 10 years and its residual value is nil. After 5 years, the remaining machine life is increased by 3 years and the value increased by Rs 1,20,000. Find the Depreciation for the 6th year on SLM basis.",
+  "options": [
+   "90,000",
+   "1,00,000",
+   "1,20,000",
+   "50,000",
+   "None of the above"
+  ],
+  "ans": 0,
+  "solution": "Annual SLM = 12,00,000/10 = 1,20,000. WDV after 5 years = 12,00,000 - 6,00,000 = 6,00,000. Add increase: 7,20,000. Remaining life = 5 + 3 = 8 years. Year 6 depreciation = 7,20,000/8 = Rs 90,000.",
+  "concept": "Revised life and value",
+  "id": "AS10.S2"
+ },
+ {
+  "topic": "AS 10 PPE & Depreciation",
+  "exam": "SEBI 2025 Ph-I",
+  "q": "XYZ Ltd. has an item of plant and machinery with an initial cost of Rs 10,00,000. At the date of revaluation, accumulated depreciation amounts to Rs 5,50,000. The fair value of the asset, based on transactions in similar assets, is assessed at Rs 6,50,000. What is the surplus on revaluation as per AS 16?",
+  "options": [
+   "Rs 1,00,000",
+   "Rs 1,50,000",
+   "Rs 2,00,000",
+   "Rs 4,50,000",
+   "Rs 5,50,000"
+  ],
+  "ans": 2,
+  "solution": "Carrying amount = 10,00,000 - 5,50,000 = 4,50,000. Revaluation surplus = fair value - carrying amount = 6,50,000 - 4,50,000 = Rs 2,00,000.",
+  "concept": "Revaluation surplus computation",
+  "id": "AS10.S5"
+ },
+ {
+  "topic": "AS 10 PPE & Depreciation",
+  "exam": "PFRDA 2022 Ph-I",
+  "q": "An asset is valued at Rs 10,00,000 and the current scrap value is Rs 4,00,000 and the asset has a useful life of 3 years. What will be the depreciation charged if the company is using the Straight Line Method?",
+  "options": [
+   "1,00,000",
+   "2,00,000",
+   "3,00,000",
+   "4,00,000",
+   "5,00,000"
+  ],
+  "ans": 1,
+  "solution": "SLM depreciation = (cost - salvage)/life = (10,00,000 - 4,00,000)/3 = Rs 2,00,000.",
+  "concept": "Straight line depreciation",
+  "id": "AS10.P2"
+ },
+ {
+  "topic": "AS 11 Foreign Exchange",
+  "exam": "SEBI 2020 Ph-II",
+  "q": "Calculate exchange profit and loss for 2011-12 and 2012-13 as per AS 11. Goods worth USD 1 lakh purchased on 23/03/2012 at ₹46.60 per dollar. Dollar rate on 31 March 2012 = ₹47. In May 2012, when payment was made, the rate was ₹47.50 per dollar.",
+  "options": [
+   "₹40,000",
+   "₹50,000",
+   "₹90,000",
+   "₹10,000",
+   "None of the above"
+  ],
+  "ans": 2,
+  "solution": "Creditor is a monetary item, restated at closing rate. 2011-12: (47.00 - 46.60) x 1,00,000 = ₹40,000 loss. 2012-13: (47.50 - 47.00) x 1,00,000 = ₹50,000 loss. Total loss = ₹90,000.",
+  "concept": "monetary item restated at closing rate",
+  "id": "AS11.S1"
+ },
+ {
+  "topic": "AS 11 Foreign Exchange",
+  "exam": "SEBI 2022 Ph-II",
+  "q": "ABC Ltd took a loan of $10 million for 3 months on 1 January 2021 when $1 = ₹70. On repayment on 31 March 2021, $1 = ₹72.5. Find the P&L effect for 2020-21.",
+  "options": [
+   "Profit of ₹2.5 crore",
+   "Loss of ₹2.5 crore",
+   "Loss of ₹5 crore",
+   "Profit of ₹3 crore",
+   "None of the above"
+  ],
+  "ans": 1,
+  "solution": "Loan taken = 1,00,00,000 x 70 = ₹70 crore. Repaid = 1,00,00,000 x 72.5 = ₹72.5 crore. Exchange loss = ₹2.5 crore, charged to P&L.",
+  "concept": "exchange loss on foreign loan",
+  "id": "AS11.S2"
+ },
+ {
+  "topic": "AS 11 Foreign Exchange",
+  "exam": "PFRDA 2022 Ph-II",
+  "q": "XYZ Ltd took a loan of $2,00,000 on 1 December when $1 = ₹74.43. On 31 March the (forward) exchange rate stands at ₹76.78. Calculate the profit or loss of the company.",
+  "options": [
+   "1,70,000",
+   "4,70,000",
+   "5,78,000",
+   "5,88,000",
+   "6,88,000"
+  ],
+  "ans": 1,
+  "solution": "Loan is monetary, restated at 31 March rate. Initial: 2,00,000 x 74.43 = ₹1,48,86,000. At 31 March: 2,00,000 x 76.78 = ₹1,53,56,000. Loss = ₹4,70,000 (shortcut: 2.35 x 2,00,000).",
+  "concept": "exchange loss on foreign loan",
+  "id": "AS11.P1",
+  "key_note": "Key B is correct. EduTap's explanation wrongly says 74.43 means 1 rupee = 74.43 dollars; it means $1 = ₹74.43. The question calls 76.78 a forward rate but the solution uses it as the 31 March closing rate."
+ },
+ {
+  "topic": "Buy-back & ESOP",
+  "exam": "PFRDA 2021 Ph-I",
+  "q": "The ESOP is offered at ₹75 when market value of the share is ₹90. Market price on the date of exercise of option is ₹84. What is the fair value of option recorded in the books of accounts?",
+  "options": [
+   "Rs 75",
+   "Rs 9",
+   "Rs 15",
+   "Rs 6",
+   "Rs 84"
+  ],
+  "ans": 2,
+  "solution": "Fair value of stock options is measured at the grant date based on market prices. Fair value = market price at grant ₹90 less exercise price ₹75 = ₹15. The exercise-date price of ₹84 is irrelevant.",
+  "concept": "ESOP value at grant date",
+  "id": "ESOP.P1"
+ },
+ {
+  "topic": "Final & Company Accounts",
+  "exam": "SEBI 2022 Ph-II",
+  "q": "Calculate the Gross Profit Ratio from: Sales ₹1,00,000; Purchase ₹75,000; Carriage Inward ₹2,000; Wages ₹5,000; Salary ₹15,000; Decrease in Inventory ₹10,000; Purchase Return ₹2,000.",
+  "options": [
+   "5%",
+   "10%",
+   "15%",
+   "20%",
+   "None of the above"
+  ],
+  "ans": 1,
+  "solution": "Net purchases = 75,000 - 2,000 = 73,000. COGS = decrease in inventory 10,000 + 73,000 + carriage inward 2,000 + wages 5,000 = ₹90,000 (salary is indirect, excluded). GP = 1,00,000 - 90,000 = 10,000. GP ratio = 10,000 / 1,00,000 x 100 = 10%.",
+  "concept": "GP ratio and COGS",
+  "id": "FIN.S9"
+ },
+ {
+  "topic": "Final & Company Accounts",
+  "exam": "PFRDA 2022 Ph-I",
+  "q": "From the following, calculate the amount of debtors shown in the balance sheet: Debtors ₹3,00,000; Provision for doubtful debts 5%; Provision for discount 2%.",
+  "options": [
+   "₹7,50,900",
+   "₹1,89,000",
+   "₹2,00,00",
+   "₹2,79,300",
+   "₹8,04,000"
+  ],
+  "ans": 3,
+  "solution": "Provision for doubtful debts = 5% of 3,00,000 = 15,000; net debtors = 2,85,000. Provision for discount on good debtors = 2% of 2,85,000 = 5,700. Debtors shown = 2,85,000 - 5,700 = ₹2,79,300.",
+  "concept": "Debtors net of provisions",
+  "id": "FIN.P2"
+ }
+]

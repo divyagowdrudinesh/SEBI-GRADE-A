@@ -1,0 +1,799 @@
+[
+ {
+  "topic": "Accounting Basics & AIS",
+  "name": "Profit or loss for a period",
+  "formula": "Profit = Total revenue - Total expenses (a negative result is a loss)",
+  "terms": "Revenue = income of the period; expenses = costs of the period",
+  "note": "Revenue ₹6,00,000, expenses ₹5,40,000: profit ₹60,000."
+ },
+ {
+  "topic": "Accounting Basics & AIS",
+  "name": "Cost benefit analysis",
+  "formula": "Net benefit = Sum of benefits of an action - Costs of taking that action",
+  "terms": "Benefits and costs of the decision being analysed",
+  "note": "Listed among new fields of accounting."
+ },
+ {
+  "topic": "Concepts & Conventions",
+  "name": "Capital after drawings (entity concept)",
+  "formula": "Closing capital = Capital introduced - Drawings",
+  "terms": "Drawings = owner's withdrawals for personal use",
+  "note": "₹7,00,000 - ₹5,000 = ₹6,95,000."
+ },
+ {
+  "topic": "Concepts & Conventions",
+  "name": "Cost of an asset (cost concept)",
+  "formula": "Cost = Purchase price + Transport + Installation + Repairs or other costs to make it ready to use",
+  "terms": "All outlays until the asset is ready for use",
+  "note": "₹50,00,000 + ₹10,000 + ₹15,000 + ₹25,000 = ₹50,50,000."
+ },
+ {
+  "topic": "Concepts & Conventions",
+  "name": "Revenue on a long-term contract",
+  "formula": "Revenue realised = % of contract completed x Total contract revenue",
+  "terms": "Exception to revenue recognition concept",
+  "note": "10% x ₹20 lakh = ₹2 lakh."
+ },
+ {
+  "topic": "Concepts & Conventions",
+  "name": "Revenue on instalment sale",
+  "formula": "Revenue realised in a period = Instalments collected in that period",
+  "terms": "Exception to revenue recognition concept",
+  "note": "12 instalments of ₹1,500: ₹1,500 per month."
+ },
+ {
+  "topic": "Concepts & Conventions",
+  "name": "Accrual concept recognition",
+  "formula": "Revenue = Total sales value (received or not); Cost = Total cost incurred (paid or not)",
+  "terms": "Cash received or paid is irrelevant",
+  "note": "Bought ₹50,000 (paid ₹20,000), sold ₹60,000 (received ₹50,000): revenue ₹60,000, cost ₹50,000."
+ },
+ {
+  "topic": "Concepts & Conventions",
+  "name": "Matching concept profit",
+  "formula": "Profit = Units sold x Selling price - Units sold x Cost per unit - Expenses of the period (accrued)",
+  "terms": "Only cost of goods actually sold is matched; period expenses on accrual",
+  "note": "8,000 x ₹150 - 8,000 x ₹100 - 12 x ₹3,000 = ₹12,00,000 - ₹8,00,000 - ₹36,000 = ₹3,64,000."
+ },
+ {
+  "topic": "Concepts & Conventions",
+  "name": "Annual charge under going concern",
+  "formula": "Annual charge = Cost of asset / Years of use",
+  "terms": "Spreads cost over the years the asset earns revenue",
+  "note": "₹50,000 / 5 = ₹10,000 a year."
+ },
+ {
+  "topic": "Recording & Trial Balance",
+  "name": "Accounting equation",
+  "formula": "Assets = Liabilities + Capital (A = L + C)",
+  "terms": "A assets, L liabilities, C capital (owner's equity)",
+  "note": "Also called the Balance Sheet Equation."
+ },
+ {
+  "topic": "Recording & Trial Balance",
+  "name": "Balancing an account",
+  "formula": "Balance c/d = larger side total - smaller side total, written on the smaller side",
+  "terms": "c/d carried down; brought down next period as b/d on the larger side",
+  "note": "Debit side larger gives a debit balance. Only asset, liability and capital accounts are balanced."
+ },
+ {
+  "topic": "Recording & Trial Balance",
+  "name": "Net invoice amount after trade discount",
+  "formula": "Amount = Sum(quantity x rate) x (1 - trade discount %)",
+  "terms": "Used for purchases, sales and return books",
+  "note": "Sheet example: (25 x 300) + (20 x 700) = 21,500 less 10% = 19,350."
+ },
+ {
+  "topic": "Recording & Trial Balance",
+  "name": "Trial balance difference to suspense",
+  "formula": "Suspense A/c opening = Total debits - Total credits of the trial balance (on the shorter side)",
+  "terms": "Excess credit is put on the debit side of Suspense A/c, and vice versa",
+  "note": "After all one-sided errors are rectified the Suspense A/c balances."
+ },
+ {
+  "topic": "Recording & Trial Balance",
+  "name": "Posting to the wrong side",
+  "formula": "Correction = 2 x amount",
+  "terms": "An amount posted to the debit instead of the credit of an account",
+  "note": "Sheet example: Rs 20,000 credit purchase posted to debit of Raghu: credit Raghu Rs 40,000, debit Suspense Rs 40,000."
+ },
+ {
+  "topic": "Recording & Trial Balance",
+  "name": "Net casting error from carry forward",
+  "formula": "Net over/undercast = sum of overcasts - sum of undercasts",
+  "terms": "Wrong page totals carried forward in a subsidiary book",
+  "note": "Sheet example: undercast Rs 200 and overcast Rs 600 give net overcast Rs 400 in sales."
+ },
+ {
+  "topic": "Bills of Exchange",
+  "name": "Maturity date of a bill",
+  "formula": "Maturity date = date of drawing + term of bill + 3 days of grace",
+  "terms": "Term in days: count exact days; term in months: same date in the later month",
+  "note": "5 March + 30 days = 4 April + 3 = 7 April; 5 March + 1 month = 5 April + 3 = 8 April."
+ },
+ {
+  "topic": "Bills of Exchange",
+  "name": "Discount on discounting a bill",
+  "formula": "Discount = Bill amount x Rate p.a. x Unexpired months / 12",
+  "terms": "Rate charged by bank; period from discounting to maturity",
+  "note": "Rs 20,000 x 12% x 3/12 = Rs 600; Rs 8,000 x 12% x 1/12 = Rs 80."
+ },
+ {
+  "topic": "Bills of Exchange",
+  "name": "Cash received on discounting",
+  "formula": "Bank proceeds = Bill amount - Discount",
+  "terms": "Discount is debited to Discount A/c (expense)",
+  "note": "Rs 20,000 - Rs 600 = Rs 19,400."
+ },
+ {
+  "topic": "Bills of Exchange",
+  "name": "Discount on endorsement in full settlement",
+  "formula": "Discount received = Debt settled - Bill amount endorsed",
+  "terms": "Endorser credits Discount Received; endorsee debits Discount Allowed",
+  "note": "Rs 8,250 debt settled by an Rs 8,000 bill: discount Rs 250."
+ },
+ {
+  "topic": "AS 2 Inventories",
+  "name": "Valuation of finished goods and WIP",
+  "formula": "Inventory value = Lower of (Cost, NRV)",
+  "terms": "NRV = net realisable value"
+ },
+ {
+  "topic": "AS 2 Inventories",
+  "name": "Valuation of raw material",
+  "formula": "RM value = Cost, if FG sell at or above cost; else Replacement cost",
+  "terms": "Replacement cost = cost of buying the next best substitute"
+ },
+ {
+  "topic": "AS 2 Inventories",
+  "name": "Net realisable value",
+  "formula": "NRV = Estimated selling price - Estimated cost of completion - Estimated costs to sell",
+  "terms": "Costs to sell: brokerage, sales commission"
+ },
+ {
+  "topic": "AS 2 Inventories",
+  "name": "Inventory write-down",
+  "formula": "Written down value = Cost of inventory - NRV",
+  "terms": "Applies when NRV < cost",
+  "note": "AS 2 does not allow reversal; Ind AS 2 does"
+ },
+ {
+  "topic": "AS 2 Inventories",
+  "name": "Cost of inventory",
+  "formula": "Cost = Cost of purchase + Cost of conversion + Other costs",
+  "terms": "Other costs: bringing inventory to present location and condition"
+ },
+ {
+  "topic": "AS 2 Inventories",
+  "name": "Cost of purchase",
+  "formula": "Cost of purchase = Purchase price + Import duties + Transport + Handling - Trade discounts and rebates",
+  "terms": "Cash discount is not deducted"
+ },
+ {
+  "topic": "AS 2 Inventories",
+  "name": "Cost of conversion",
+  "formula": "Cost of conversion = Direct labour + Fixed production overheads (normal capacity) + Variable production overheads (actual production)",
+  "terms": "Less value of any by-product (summary chart)"
+ },
+ {
+  "topic": "AS 2 Inventories",
+  "name": "Fixed overhead absorption rate",
+  "formula": "Rate = Fixed production overheads / Normal capacity, if actual <= normal; Fixed overheads / Actual output, if actual > normal",
+  "terms": "Unabsorbed (normal rate x shortfall) goes to P&L",
+  "note": "₹18 lakh / 1 lakh units = ₹18; at 90,000 units absorb ₹16.2 lakh, ₹1.8 lakh to P&L; at 1.2 lakh units rate ₹15"
+ },
+ {
+  "topic": "AS 2 Inventories",
+  "name": "Weighted average cost",
+  "formula": "Average cost per unit = Total cost of goods purchased / Total units",
+  "terms": "Used for both issues and closing inventory",
+  "note": "(500 x 10 + 100 x 20) / 600 = ₹11.667"
+ },
+ {
+  "topic": "AS 2 Inventories",
+  "name": "FIFO closing inventory",
+  "formula": "Closing inventory = remaining units valued at the latest purchase prices (earliest units issued first)",
+  "terms": "FIFO = first in, first out"
+ },
+ {
+  "topic": "AS 9 Revenue Recognition",
+  "name": "Interest income (time proportion)",
+  "formula": "Interest recognised = Total interest x (Months elapsed in the period / Total months)",
+  "terms": "Time proportion basis under AS 9",
+  "note": "₹1,200 over 12 months from 1 Jan, year ending March: 1,200 / 12 x 3 = ₹300. Loan ₹20,000 at 2% for 4 years: ₹1,600 total, ₹400 a year"
+ },
+ {
+  "topic": "AS 9 Revenue Recognition",
+  "name": "Revenue of a commission agent",
+  "formula": "Revenue = Commission rate x Gross value of bookings",
+  "terms": "Only the commission is revenue",
+  "note": "2% x ₹5 lakh = ₹10,000"
+ },
+ {
+  "topic": "AS 9 Revenue Recognition",
+  "name": "Interest in an instalment sale",
+  "formula": "Interest = Total instalments - Cash sale price",
+  "terms": "Sale price excl. interest recognised on date of sale",
+  "note": "12 x 1,020 - 12,000 = ₹240"
+ },
+ {
+  "topic": "AS 9 Revenue Recognition",
+  "name": "Subscription revenue",
+  "formula": "Revenue = Sum of sales value of items delivered (varying value); or Total subscription / periods, straight-line (equal value)",
+  "terms": "Publications subscription",
+  "note": "6 x 100 + 6 x 80 = ₹1,080"
+ },
+ {
+  "topic": "AS 10 PPE & Depreciation",
+  "name": "Cost of acquired PPE",
+  "formula": "Cost = Purchase price (incl. import duties, non-refundable taxes, less trade discounts, rebates, scrap value) + Directly attributable costs + PV of dismantling/restoration costs",
+  "terms": "Directly attributable: site preparation, delivery, installation, testing net of sample proceeds, professional fees, employee benefits",
+  "note": "Exclude govt grants, admin overheads, cash discounts, deferred-credit interest."
+ },
+ {
+  "topic": "AS 10 PPE & Depreciation",
+  "name": "Testing cost capitalised",
+  "formula": "Testing cost - Net proceeds from sale of samples produced during testing",
+  "terms": "Samples produced while bringing the asset to working condition"
+ },
+ {
+  "topic": "AS 10 PPE & Depreciation",
+  "name": "Self-constructed asset: capitalised interest",
+  "formula": "Interest = Loan x Rate x (Construction months till ready for use / 12)",
+  "terms": "Only the period until the asset is ready for use",
+  "note": "Example: 1,20,00,000 x 10% x 8/12 = 8,00,000."
+ },
+ {
+  "topic": "AS 10 PPE & Depreciation",
+  "name": "Exchange of assets",
+  "formula": "Cost of asset received = Fair value of asset given up (+ cash paid); if that fair value is unknown, fair value of asset received",
+  "terms": "Applies when the exchange has commercial substance and a fair value is reliably measurable"
+ },
+ {
+  "topic": "AS 10 PPE & Depreciation",
+  "name": "Deferred payment",
+  "formula": "Cost of PPE = Cash price equivalent; (Total deferred payments - Cash price) = interest, not capitalised",
+  "terms": "Example: 180 lakh over 3 years vs 150 lakh cash: cost 150 lakh"
+ },
+ {
+  "topic": "AS 10 PPE & Depreciation",
+  "name": "Replacement of a part",
+  "formula": "New carrying amount = Carrying amount + Cost of new part - Carrying amount of replaced part",
+  "terms": "80,00,000 + 16,00,000 - 12,00,000 = 84,00,000"
+ },
+ {
+  "topic": "AS 10 PPE & Depreciation",
+  "name": "Major inspection",
+  "formula": "New carrying amount = Carrying amount + Cost of new inspection - Remaining carrying amount of previous inspection",
+  "terms": "82,00,000 + 3,00,000 - 2,00,000 = 83,00,000 (ignoring depreciation)"
+ },
+ {
+  "topic": "AS 10 PPE & Depreciation",
+  "name": "Cost model carrying amount",
+  "formula": "Carrying amount = Cost - Accumulated depreciation - Accumulated impairment loss",
+  "terms": ""
+ },
+ {
+  "topic": "AS 10 PPE & Depreciation",
+  "name": "Revaluation model carrying amount",
+  "formula": "Carrying amount = Fair value at revaluation date - Subsequent accumulated depreciation - Subsequent impairment loss",
+  "terms": ""
+ },
+ {
+  "topic": "AS 10 PPE & Depreciation",
+  "name": "Revaluation surplus",
+  "formula": "Revaluation surplus = Fair value - (Cost - Accumulated depreciation)",
+  "terms": "Credited to revaluation reserve (OCI) on first revaluation",
+  "note": "10,00,000 cost, 5,50,000 AD, FV 6,50,000: surplus 2,00,000."
+ },
+ {
+  "topic": "AS 10 PPE & Depreciation",
+  "name": "Proportional method of revaluation",
+  "formula": "Restated gross = Gross x (Revalued amount / Carrying amount); Restated AD = AD x (Revalued amount / Carrying amount)",
+  "terms": "1,000 x 1,100/750 = 1,467; 250 x 1,100/750 = 367; net 1,100",
+  "note": "Elimination method: gross = revalued amount, AD = nil."
+ },
+ {
+  "topic": "AS 10 PPE & Depreciation",
+  "name": "Depreciable amount",
+  "formula": "Depreciable amount = Cost (or revalued amount) - Residual value",
+  "terms": "Residual value capped at 5% of original cost under Companies Act 2013 Schedule II"
+ },
+ {
+  "topic": "AS 10 PPE & Depreciation",
+  "name": "Rate of depreciation (SLM)",
+  "formula": "Rate % = Annual depreciation / Depreciable amount x 100",
+  "terms": "90,000 / 9,00,000 = 10%",
+  "note": "The sheet's printed formula is blank; rate derived from its worked example."
+ },
+ {
+  "topic": "AS 10 PPE & Depreciation",
+  "name": "Straight line method",
+  "formula": "Annual depreciation = (Cost - Residual value) / Useful life",
+  "terms": "(10,500 - 500)/10 = 1,000"
+ },
+ {
+  "topic": "AS 10 PPE & Depreciation",
+  "name": "Diminishing balance (WDV) method",
+  "formula": "Depreciation = (Opening NBV - Residual value) x Rate %; final year = Opening NBV - Residual value",
+  "terms": "NBV = cost less depreciation charged so far",
+  "note": "As taught in the sheet: 2,000, residual 500, 50%: 750, 375, last year 375."
+ },
+ {
+  "topic": "AS 10 PPE & Depreciation",
+  "name": "Units of production method",
+  "formula": "Depreciation = (Cost - Residual value) x Output this period / Total expected output",
+  "terms": "(12m - 2m) x 2/50 = 0.4m",
+  "note": "Zero if no production."
+ },
+ {
+  "topic": "AS 10 PPE & Depreciation",
+  "name": "Revised estimate of life or value",
+  "formula": "New annual depreciation = (Carrying amount at change + any increase - Residual value) / Revised remaining useful life",
+  "terms": "(6,00,000 + 1,20,000)/8 = 90,000"
+ },
+ {
+  "topic": "AS 10 PPE & Depreciation",
+  "name": "Component significance (Schedule II)",
+  "formula": "Depreciate separately if Component cost >= 10% of total cost of the asset",
+  "terms": "Gear box 5 lakh, engine 2 lakh of 10 lakh car"
+ },
+ {
+  "topic": "AS 10 PPE & Depreciation",
+  "name": "Impairment loss",
+  "formula": "Impairment loss = Carrying amount - Recoverable amount",
+  "terms": "Recoverable amount: amount recoverable through use or sale (AS 28 / Ind AS 36)"
+ },
+ {
+  "topic": "AS 11 Foreign Exchange",
+  "name": "Initial recognition amount",
+  "formula": "Rupee amount = Foreign currency amount x Exchange rate on transaction date (or average rate)",
+  "terms": "Transaction-date spot rate",
+  "note": "$100 loan at ₹50 = ₹5,000."
+ },
+ {
+  "topic": "AS 11 Foreign Exchange",
+  "name": "Exchange difference on a monetary item",
+  "formula": "Exchange difference = Foreign currency amount x (Closing or settlement rate - Rate last used)",
+  "terms": "Rate last used = transaction rate or previous balance sheet rate",
+  "note": "On a liability, a rise in the rate is a loss; on an asset, a gain. $100 loan 50 to 55 to 56: losses ₹500 then ₹100."
+ },
+ {
+  "topic": "AS 11 Foreign Exchange",
+  "name": "Revaluation of a non-monetary asset (AS 11 example)",
+  "formula": "Revaluation = (Fair value in FC - Cost in FC) x Historical rate; Exchange difference = Fair value in FC x (Closing rate - Historical rate)",
+  "terms": "FC = foreign currency",
+  "note": "$100 machine at ₹70 revalued to $105, rate ₹72: revaluation 5 x 70 = ₹350; exchange gain 105 x 2 = ₹210."
+ },
+ {
+  "topic": "AS 11 Foreign Exchange",
+  "name": "Capitalisation into depreciable asset",
+  "formula": "Revised cost = Cost + Exchange loss (or - gain); Depreciation = Revised cost / Remaining useful life",
+  "terms": "Applies to long-term foreign currency monetary item used for a depreciable asset",
+  "note": "₹48 lakh + ₹2 lakh = ₹50 lakh; depreciation 50/10 = ₹5 lakh; WDV ₹45 lakh."
+ },
+ {
+  "topic": "AS 11 Foreign Exchange",
+  "name": "FCMITDA amortisation",
+  "formula": "Amount to P&L for the year = Exchange difference / Balance period of the long-term monetary item",
+  "terms": "Unamortised balance stays in FCMITDA (Reserves and Surplus)",
+  "note": "₹2 lakh / 5 years = ₹0.40 lakh to P&L; ₹1.60 lakh in FCMITDA."
+ },
+ {
+  "topic": "AS 11 Foreign Exchange",
+  "name": "Forward contract premium (hedging)",
+  "formula": "Premium per unit = Forward rate - Spot rate; Total premium = Premium per unit x Contract amount, amortised over the contract period",
+  "terms": "Forward rate = contracted rate; spot rate = rate on contract date",
+  "note": "49.15 - 48.85 = ₹0.30 x $1,00,000 = ₹30,000. Loss for a buyer, gain for a seller."
+ },
+ {
+  "topic": "AS 11 Foreign Exchange",
+  "name": "Exchange difference on hedging forward contract",
+  "formula": "Exchange difference = Contract amount x (Spot rate on reporting/settlement date - Rate at last calculation)",
+  "terms": "Recognised in P&L at once, not amortised",
+  "note": "Rau Ltd: 31 March (49.20 - 48.85) x 1,00,000 = ₹35,000 gain; 1 May (49.20 - 49.10) x 1,00,000 = ₹10,000 loss."
+ },
+ {
+  "topic": "AS 11 Foreign Exchange",
+  "name": "Mark to market (speculative forward contract)",
+  "formula": "MTM = Contract amount x (Current forward rate for remaining maturity - Rate last used); on early sale, MTM = Selling price - Last forward rate",
+  "terms": "Rate last used = contract rate at first, then previous MTM rate",
+  "note": "Contract at 51; forward 54 on 31 March: gain 3 x 100 = 300; 55 on 1 May: gain 1 x 100 = 100. MTM goes to P&L."
+ },
+ {
+  "topic": "AS 11 Foreign Exchange",
+  "name": "Proportionate FCTR reclassification (Ind AS 21 partial disposal, control retained)",
+  "formula": "Amount to P&L = FCTR balance x Stake sold / Stake held",
+  "terms": "FCTR = Foreign Currency Translation Reserve",
+  "note": "Sell 5% of a 35% associate: 5/35 = one-seventh of FCTR to P&L. Loss of control or 100% sale: whole FCTR."
+ },
+ {
+  "topic": "AS 13 Investments",
+  "name": "Cost of investment",
+  "formula": "Cost = Purchase price + Brokerage + Fees + Duties + Commissions + Misc. acquisition costs",
+  "terms": "All acquisition charges are capitalised",
+  "note": "Sheet: shares ₹1,000 + 2% brokerage ₹20 + stamp duty 50 paise per ₹100 (₹5) = ₹1,025"
+ },
+ {
+  "topic": "AS 13 Investments",
+  "name": "Cost when acquired by issuing shares",
+  "formula": "Cost = Fair value of securities issued + issue expenses + taxes",
+  "terms": "Fair value of the asset acquired is ignored",
+  "note": "1,000 shares x ₹120 + ₹20,000 + ₹10,000 = ₹1,50,000"
+ },
+ {
+  "topic": "AS 13 Investments",
+  "name": "Cost when acquired in exchange for another asset",
+  "formula": "Cost = Fair value of asset given up (or fair value of investment received if more clearly evident)",
+  "terms": ""
+ },
+ {
+  "topic": "AS 13 Investments",
+  "name": "Pre-acquisition (accrued) interest",
+  "formula": "Accrued interest = Face value x Coupon rate x Months since last interest date / 12; Net cost = Cum-interest cost (incl. brokerage, taxes) - Accrued interest",
+  "terms": "Taxes in the sheet example are computed on price less interest; brokerage on the full price",
+  "note": "2,000 x ₹130 = ₹2,60,000 + ₹5,200 + ₹12,600 = ₹2,77,800 - ₹8,000 = ₹2,69,800"
+ },
+ {
+  "topic": "AS 13 Investments",
+  "name": "Pre-acquisition dividend",
+  "formula": "Net cost = Cost - Dividend received out of pre-acquisition profits",
+  "terms": ""
+ },
+ {
+  "topic": "AS 13 Investments",
+  "name": "Rights subscribed",
+  "formula": "New cost = Old cost + (Rights shares x Rights price)",
+  "terms": "",
+  "note": "₹50,000 + 200 x ₹110 = ₹72,000 for 400 shares"
+ },
+ {
+  "topic": "AS 13 Investments",
+  "name": "Rights sold (shares bought cum-right)",
+  "formula": "Reduce cost by (Cost - Ex-right market value), limited to sale proceeds; Balance of proceeds to P&L",
+  "terms": "If shares were not bought cum-right, all proceeds go to P&L",
+  "note": "₹15,000 proceeds: ₹10,000 reduces cost to ₹40,000, ₹5,000 to P&L"
+ },
+ {
+  "topic": "AS 13 Investments",
+  "name": "Average cost with bonus shares",
+  "formula": "Average cost = Total cost / (Original shares + Bonus shares)",
+  "terms": "Bonus shares carry nil cost",
+  "note": "₹1,23,000 / 1,500 = ₹82"
+ },
+ {
+  "topic": "AS 13 Investments",
+  "name": "Carrying amount: current investment",
+  "formula": "Carrying amount = Lower of cost and fair value; write-back on recovery = min(Fair value, Cost) - Written-down amount",
+  "terms": "Write-back is credited to P&L, capped at cost"
+ },
+ {
+  "topic": "AS 13 Investments",
+  "name": "Carrying amount: long-term investment",
+  "formula": "Carrying amount = Cost - Decline other than temporary",
+  "terms": "Temporary declines ignored; non-temporary recovery written back to P&L"
+ },
+ {
+  "topic": "AS 13 Investments",
+  "name": "Profit on disposal",
+  "formula": "Profit/loss = Net sale proceeds (gross sale - expenses) - Carrying amount of investment sold",
+  "terms": "Part disposal: carrying amount at average carrying amount; stock-in-trade securities: FIFO or average",
+  "note": "Average ₹2,20,000/2,000 = ₹110; 500 x ₹150 - 500 x ₹110 = ₹20,000; FIFO 500 x (150 - 120) = ₹15,000"
+ },
+ {
+  "topic": "AS 13 Investments",
+  "name": "Reclassification value",
+  "formula": "LT to current = lower of cost and carrying amount; Current to LT = lower of cost and fair value",
+  "terms": "At date of transfer"
+ },
+ {
+  "topic": "Buy-back & ESOP",
+  "name": "Maximum buy-back (resource test)",
+  "formula": "Buy-back ≤ 25% x (Paid-up capital + Free reserves)",
+  "terms": "SEBI: on standalone or consolidated, whichever is lower; ≤10% board resolution, >10% special resolution"
+ },
+ {
+  "topic": "Buy-back & ESOP",
+  "name": "Post buy-back debt-equity ratio",
+  "formula": "(Secured + Unsecured debt) / (Paid-up capital + Free reserves) ≤ 2:1",
+  "terms": "Debt includes long and short term; NBFC/HFC subsidiaries excluded but each must be ≤ 6:1 standalone"
+ },
+ {
+  "topic": "Buy-back & ESOP",
+  "name": "Transfer to Capital Redemption Reserve (Sec 69)",
+  "formula": "CRR transfer = Number of shares bought back x Face value",
+  "terms": "When bought back out of free reserves or securities premium",
+  "note": "50 x ₹10 = ₹500"
+ },
+ {
+  "topic": "Buy-back & ESOP",
+  "name": "Buy-back balance sheet effect",
+  "formula": "Cash falls by shares x buy-back price; Share capital falls by shares x face value; Reserves fall by shares x premium paid",
+  "terms": "",
+  "note": "50 shares at ₹50 (FV ₹10): cash -₹2,500, capital -₹500, reserves -₹2,000"
+ },
+ {
+  "topic": "Buy-back & ESOP",
+  "name": "EPS after buy-back",
+  "formula": "EPS = Earnings / Number of shares",
+  "terms": "Fewer shares after buy-back raise EPS if earnings are constant"
+ },
+ {
+  "topic": "Buy-back & ESOP",
+  "name": "Promoter holding after buy-back",
+  "formula": "Promoter % = Promoter shares / (Total shares - Shares cancelled)",
+  "terms": "",
+  "note": "200/1,000 = 20% becomes 200/500 = 40%"
+ },
+ {
+  "topic": "Buy-back & ESOP",
+  "name": "Tender offer small shareholder reservation",
+  "formula": "Reserved = max(15% of shares to be bought back, shares entitled as per holding)",
+  "terms": "Small shareholder: holding ≤ ₹2 lakh at closing price on record date"
+ },
+ {
+  "topic": "Buy-back & ESOP",
+  "name": "Tender offer escrow",
+  "formula": "Escrow = 25% of buy-back size up to ₹100 crore + 10% of amount above ₹100 crore",
+  "terms": ""
+ },
+ {
+  "topic": "Buy-back & ESOP",
+  "name": "Open market utilisation",
+  "formula": "Minimum use = 75% of buy-back size; at least 40% within first half of buy-back period",
+  "terms": "",
+  "note": "₹300 crore: ₹225 crore and ₹120 crore"
+ },
+ {
+  "topic": "Buy-back & ESOP",
+  "name": "ESOP value at grant (PYQ)",
+  "formula": "Value of option = Market price at grant date - Exercise price",
+  "terms": "Price on exercise date is ignored",
+  "note": "₹90 - ₹75 = ₹15. EduTap calls this fair value; the same difference is the intrinsic value."
+ },
+ {
+  "topic": "Final & Company Accounts",
+  "name": "Gross Profit",
+  "formula": "Gross Profit = Sales - COGS",
+  "terms": "Sales net of sales returns; COGS = cost of goods sold"
+ },
+ {
+  "topic": "Final & Company Accounts",
+  "name": "Cost of Goods Sold",
+  "formula": "COGS = Opening Stock + Purchases + Direct Expenses - Closing Stock",
+  "terms": "Direct expenses: wages, carriage/freight inwards, factory rent, fuel etc.",
+  "note": "With no opening or closing stock, COGS = purchases + direct expenses. Net purchases = purchases - purchase returns."
+ },
+ {
+  "topic": "Final & Company Accounts",
+  "name": "Net Profit",
+  "formula": "Net Profit = Gross Profit + Other Incomes - Indirect Expenses = Total Revenue - Total Expenses",
+  "terms": "Indirect expenses: salaries, rent, bad debts etc."
+ },
+ {
+  "topic": "Final & Company Accounts",
+  "name": "Gross Profit Ratio",
+  "formula": "GP Ratio = (Total Revenue - COGS) / Total Revenue x 100",
+  "terms": "Total revenue = sales",
+  "note": "From PYQ FIN.S9 solution."
+ },
+ {
+  "topic": "Final & Company Accounts",
+  "name": "Debtors in Balance Sheet",
+  "formula": "Debtors shown = (Debtors - Provision for doubtful debts) - Discount % x (Debtors - Provision for doubtful debts)",
+  "terms": "Provision for discount is computed on good debtors only",
+  "note": "From PYQ FIN.P2 solution."
+ },
+ {
+  "topic": "Final & Company Accounts",
+  "name": "Commission on profit before charging commission",
+  "formula": "Commission = Profit before commission x Rate of commission / 100",
+  "terms": "Rate in %"
+ },
+ {
+  "topic": "Final & Company Accounts",
+  "name": "Interest on capital",
+  "formula": "Interest = Opening capital x rate + Additional capital x rate x period from date introduced",
+  "terms": "Rate given; period in fraction of year",
+  "note": "Treated as an expense."
+ },
+ {
+  "topic": "Final & Company Accounts",
+  "name": "Accounting equation (Framework)",
+  "formula": "Assets = Equity + Liabilities; Equity = Assets - Liabilities",
+  "terms": "Equity = residual interest"
+ },
+ {
+  "topic": "Final & Company Accounts",
+  "name": "Operating Profit (EBIT)",
+  "formula": "Operating Profit = Gross Profit - Operating Expenses",
+  "terms": "Operating (indirect) expenses: depreciation, office rent, marketing, admin"
+ },
+ {
+  "topic": "Final & Company Accounts",
+  "name": "EBITD",
+  "formula": "EBITD = EBIT + Depreciation",
+  "terms": "EBIT = operating profit"
+ },
+ {
+  "topic": "Final & Company Accounts",
+  "name": "Profit Before Tax",
+  "formula": "PBT = Operating Profit + Non-Operating Income - Non-Operating Expenses",
+  "terms": "Non-operating: sale of assets, investment income, loss by fire, interest expense"
+ },
+ {
+  "topic": "Final & Company Accounts",
+  "name": "Profit After Tax",
+  "formula": "PAT = PBT - Tax",
+  "terms": "Net profit = PAT"
+ },
+ {
+  "topic": "Final & Company Accounts",
+  "name": "Net Sales",
+  "formula": "Net Sales = Sales - Sales Returns",
+  "terms": ""
+ },
+ {
+  "topic": "AS 10 PPE & Depreciation",
+  "name": "Units of production depreciation",
+  "formula": "Depreciation = (Cost - Residual Value) x Output Produced / Total Output",
+  "terms": "Total output = expected production capacity"
+ },
+ {
+  "topic": "Final & Company Accounts",
+  "name": "Schedule III note threshold",
+  "formula": "Disclose any item > higher of (1% of Revenue from Operations, ₹1,00,000)",
+  "terms": "Applies to items of income or expenditure"
+ },
+ {
+  "topic": "Fund Flow & FS Analysis",
+  "name": "Working Capital",
+  "formula": "Working Capital = Current Assets - Current Liabilities",
+  "terms": "CA: cash, receivables, prepaid, inventory; CL: payables, creditors, short-term borrowings"
+ },
+ {
+  "topic": "Fund Flow & FS Analysis",
+  "name": "Change in working capital",
+  "formula": "Change in WC = WC (current year) - WC (previous year)",
+  "terms": "Rise in CA raises WC; rise in CL lowers WC",
+  "note": "Example: 42,000 - 42,200 = decrease of 200."
+ },
+ {
+  "topic": "Fund Flow & FS Analysis",
+  "name": "Horizontal (comparative) % change",
+  "formula": "% Change = (Current year value - Previous year value) / Previous year value x 100",
+  "terms": "Absolute change = current - previous",
+  "note": "Example: (75,00,000 - 60,00,000) / 60,00,000 = 25%."
+ },
+ {
+  "topic": "Fund Flow & FS Analysis",
+  "name": "Common size percentage",
+  "formula": "Item % = Item / Base x 100",
+  "terms": "Base: revenue from operations (P&L) or total assets/liabilities (Balance Sheet)"
+ },
+ {
+  "topic": "Fund Flow & FS Analysis",
+  "name": "Funds from operations",
+  "formula": "Funds from Operations = Net Income + Non-cash charges (e.g., Depreciation)",
+  "terms": "Depreciation is a non-cash loss",
+  "note": "Example: 3,800 + 2,800 = 6,600."
+ },
+ {
+  "topic": "Fund Flow & FS Analysis",
+  "name": "Fund flow balancing",
+  "formula": "Sources of Funds - Applications of Funds = Increase (or Decrease) in Working Capital",
+  "terms": "Positive = increase in WC (shown as application); negative = decrease (shown on sources side)"
+ },
+ {
+  "topic": "Gap Topics (web)",
+  "name": "Current ratio",
+  "formula": "Current assets ÷ Current liabilities",
+  "terms": "",
+  "note": "Liquidity; 2:1 taken as acceptable. Web source (not EduTap): ICAI BoS ratio material (live.icai.org) and NIOS Accountancy ratios lesson."
+ },
+ {
+  "topic": "Gap Topics (web)",
+  "name": "Quick (acid-test) ratio",
+  "formula": "(Current assets − Inventories − Prepaid expenses) ÷ Current liabilities",
+  "terms": "",
+  "note": "Liquidity; 1:1 taken as satisfactory. Web source (not EduTap): ICAI BoS ratio material (live.icai.org) and NIOS Accountancy ratios lesson."
+ },
+ {
+  "topic": "Gap Topics (web)",
+  "name": "Debt-equity ratio",
+  "formula": "Total debt ÷ Shareholders' equity",
+  "terms": "",
+  "note": "Leverage. Web source (not EduTap): ICAI BoS ratio material (live.icai.org) and NIOS Accountancy ratios lesson."
+ },
+ {
+  "topic": "Gap Topics (web)",
+  "name": "Proprietary ratio",
+  "formula": "(Equity share capital + Preference share capital + Reserves and surplus) ÷ Total assets",
+  "terms": "",
+  "note": "Leverage. Web source (not EduTap): ICAI BoS ratio material (live.icai.org) and NIOS Accountancy ratios lesson."
+ },
+ {
+  "topic": "Gap Topics (web)",
+  "name": "Capital gearing ratio",
+  "formula": "(Preference share capital + Debentures + Other borrowings) ÷ Equity",
+  "terms": "",
+  "note": "Leverage. Web source (not EduTap): ICAI BoS ratio material (live.icai.org) and NIOS Accountancy ratios lesson."
+ },
+ {
+  "topic": "Gap Topics (web)",
+  "name": "Interest coverage ratio",
+  "formula": "EBIT ÷ Interest",
+  "terms": "",
+  "note": "Coverage. Web source (not EduTap): ICAI BoS ratio material (live.icai.org) and NIOS Accountancy ratios lesson."
+ },
+ {
+  "topic": "Gap Topics (web)",
+  "name": "Debt service coverage ratio",
+  "formula": "Earnings available for debt service ÷ (Interest + Instalments)",
+  "terms": "",
+  "note": "Coverage. Web source (not EduTap): ICAI BoS ratio material (live.icai.org) and NIOS Accountancy ratios lesson."
+ },
+ {
+  "topic": "Gap Topics (web)",
+  "name": "Inventory turnover ratio",
+  "formula": "Cost of goods sold ÷ Average inventory; Average inventory = (Opening + Closing) ÷ 2",
+  "terms": "",
+  "note": "Activity, in times. Web source (not EduTap): ICAI BoS ratio material (live.icai.org) and NIOS Accountancy ratios lesson."
+ },
+ {
+  "topic": "Gap Topics (web)",
+  "name": "Receivables turnover ratio",
+  "formula": "Net credit sales ÷ Average receivables",
+  "terms": "",
+  "note": "Activity, in times. Web source (not EduTap): ICAI BoS ratio material (live.icai.org) and NIOS Accountancy ratios lesson."
+ },
+ {
+  "topic": "Gap Topics (web)",
+  "name": "Average collection period",
+  "formula": "12 months (or 360 days) ÷ Receivables turnover",
+  "terms": "",
+  "note": "Activity. Web source (not EduTap): ICAI BoS ratio material (live.icai.org) and NIOS Accountancy ratios lesson."
+ },
+ {
+  "topic": "Gap Topics (web)",
+  "name": "Payables turnover ratio",
+  "formula": "Net credit purchases ÷ Average payables",
+  "terms": "",
+  "note": "Activity. Web source (not EduTap): ICAI BoS ratio material (live.icai.org) and NIOS Accountancy ratios lesson."
+ },
+ {
+  "topic": "Gap Topics (web)",
+  "name": "Return on equity",
+  "formula": "(EAT − Preference dividend) ÷ Equity shareholders' funds",
+  "terms": "",
+  "note": "Profitability. Web source (not EduTap): ICAI BoS ratio material (live.icai.org) and NIOS Accountancy ratios lesson."
+ },
+ {
+  "topic": "Gap Topics (web)",
+  "name": "Net profit margin",
+  "formula": "Net income ÷ Sales",
+  "terms": "",
+  "note": "Profitability. Web source (not EduTap): ICAI BoS ratio material (live.icai.org) and NIOS Accountancy ratios lesson."
+ },
+ {
+  "topic": "Gap Topics (web)",
+  "name": "Earnings per share",
+  "formula": "Net profit available to equity shareholders ÷ Weighted average number of equity shares",
+  "terms": "",
+  "note": "Market. Web source (not EduTap): ICAI BoS ratio material (live.icai.org) and NIOS Accountancy ratios lesson."
+ },
+ {
+  "topic": "Gap Topics (web)",
+  "name": "Price-earnings ratio",
+  "formula": "Market price per share ÷ EPS",
+  "terms": "",
+  "note": "Market. Web source (not EduTap): ICAI BoS ratio material (live.icai.org) and NIOS Accountancy ratios lesson."
+ },
+ {
+  "topic": "Gap Topics (web)",
+  "name": "Dividend payout ratio",
+  "formula": "DPS ÷ EPS",
+  "terms": "",
+  "note": "Market. Web source (not EduTap): ICAI BoS ratio material (live.icai.org) and NIOS Accountancy ratios lesson."
+ }
+]
