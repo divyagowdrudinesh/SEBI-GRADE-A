@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PFRDA Finance Part 2 flashcards (Oct 2026)</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#EEF1F5; --surface:#FFFFFF; --surface-2:#F5F7FA; --ink:#18233A; --muted:#5B6578; --line:#D5DBE5;
+  --fact:#2F4B7C; --trap:#7A3E9D; --concept:#0F766E; --changed:#D9480F;
+  --known:#2B8A3E; --learning:#A35F00; --star:#8A6A00; --focus:#2F6FEB; --on-solid:#FFFFFF;
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0F1522; --surface:#182133; --surface-2:#1E293D; --ink:#E7EBF2; --muted:#A3ACBE; --line:#2C3852;
+  --fact:#9DB8EA; --trap:#D1A3EC; --concept:#5ED0C2; --changed:#FF8A4C;
+  --known:#6CC77D; --learning:#F0B44C; --star:#E8C547; --focus:#7AA7FF; --on-solid:#0F1522;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans","Helvetica Neue",Arial,sans-serif;
+  font-size:16px; line-height:1.5; -webkit-text-size-adjust:100%; overflow-x:hidden;
+}
+.wrap{max-width:640px;margin:0 auto;padding:16px 14px calc(28px + env(safe-area-inset-bottom,0px))}
+header h1{font-size:1.3rem;line-height:1.25;margin:0;font-weight:750;letter-spacing:-0.01em}
+header p{margin:4px 0 0;color:var(--muted);font-size:.875rem}
+.banner{margin:12px 0 0;padding:10px 12px;border:1px solid var(--learning);border-radius:10px;color:var(--ink);background:var(--surface);font-size:.875rem}
+.banner[hidden]{display:none}
+
+.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:14px 0}
+.stat{background:var(--surface);padding:8px 2px 6px;text-align:center;min-width:0}
+.stat b{display:block;font-size:1.05rem;font-variant-numeric:tabular-nums;line-height:1.3}
+.stat span{display:block;font-size:.7rem;color:var(--muted);line-height:1.25}
+.stat.k b{color:var(--known)} .stat.l b{color:var(--learning)}
+
+/* Filter bar: compact native selects + toggles (same layout as the Management deck), so the card sits right below. */
+.fbar{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-bottom:14px}
+.fbar select{
+  font:inherit;font-size:.9rem;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;
+  min-height:44px;padding:8px 10px;width:100%;min-width:0;cursor:pointer;
+}
+.fbar #topicSel{grid-column:1/-1}
+.fbar select.on{border-color:var(--fact);box-shadow:inset 0 0 0 1px var(--fact)}
+.ftog{grid-column:1/-1;display:flex;gap:8px}
+.ftog button{flex:1 1 auto;min-width:0;min-height:44px;font-size:.86rem;font-weight:600;padding:6px 8px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ftog button[aria-pressed="true"]{color:var(--surface);background:var(--ink);border-color:var(--ink)}
+.ftog button.fclear{flex:0 0 auto;padding:6px 12px;color:var(--changed);border-color:var(--changed)}
+.ftog button.fclear[hidden]{display:none}
+.fbar select:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+
+.card{
+  --accent:var(--fact);
+  background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--accent);border-radius:12px;
+  padding:14px 16px 14px;min-height:min(52vh,460px);display:flex;flex-direction:column;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;outline:none;user-select:text;
+}
+.card[data-type="trap"]{--accent:var(--trap)}
+.card[data-type="concept"]{--accent:var(--concept)}
+.card:focus-visible{box-shadow:0 0 0 3px var(--focus)}
+.card.empty{cursor:default;border-left-color:var(--line);justify-content:center;align-items:flex-start;gap:12px}
+.meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.badge{font-size:.74rem;font-weight:650;padding:2px 8px;border-radius:999px;border:1px solid currentColor;line-height:1.35;max-width:100%;overflow-wrap:anywhere}
+.b-type{color:var(--accent)}
+.b-star{color:var(--star)}
+.b-pyq{color:var(--muted);font-weight:550;border-radius:8px}
+.topic{font-size:.8rem;color:var(--muted);margin:8px 0 0;overflow-wrap:anywhere}
+.q{font-size:1.2rem;font-weight:650;line-height:1.42;margin:14px 0 0;overflow-wrap:anywhere}
+.hint{margin-top:auto;padding-top:18px;color:var(--muted);font-size:.85rem}
+.a{display:none;margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.card.flipped .a{display:block}
+.card.flipped .hint{display:none}
+.ans{font-size:1.14rem;line-height:1.5;overflow-wrap:anywhere;white-space:pre-line}
+.ans strong{font-weight:800}
+.card[data-type="concept"] .ans{font-size:1.02rem;line-height:1.6}
+.note{margin-top:10px;font-size:.82rem;line-height:1.45;color:var(--muted);overflow-wrap:anywhere}
+.cfoot{display:flex;justify-content:space-between;gap:10px;margin-top:16px;font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.cfoot .s-known{color:var(--known);font-weight:650}
+.cfoot .s-learning{color:var(--learning);font-weight:650}
+@media (prefers-reduced-motion:no-preference){
+  .card.flipped .a{animation:reveal .16s ease-out}
+  @keyframes reveal{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+}
+
+.controls{display:grid;gap:8px;margin-top:12px}
+.row{display:grid;gap:8px}
+.row.nav{grid-template-columns:1fr 1.35fr 1fr}
+.row.mark{grid-template-columns:1fr 1fr}
+.row.tools{grid-template-columns:repeat(4,minmax(0,1fr))}
+button{
+  font:inherit;min-height:48px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  font-weight:650;padding:8px 10px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+}
+button:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+button:disabled{opacity:.45;cursor:default}
+.b-flip{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.b-known{background:var(--known);border-color:var(--known);color:var(--on-solid)}
+.b-learn{background:var(--surface);border:2px solid var(--learning);color:var(--learning)}
+.row.tools button{font-size:.82rem;font-weight:550;color:var(--muted);min-height:44px;padding:6px 4px}
+.kbd{display:none;margin:12px 0 0;font-size:.8rem;color:var(--muted)}
+@media (hover:hover) and (pointer:fine){.kbd{display:block}}
+@media (max-width:380px){
+  .row.tools{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .q{font-size:1.12rem}
+}
+.modal{position:fixed;inset:0;background:rgba(10,14,24,.55);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+.modal[hidden]{display:none}
+.mbox{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:18px;max-width:420px;width:100%}
+.mbox h2{font-size:1.1rem;margin:0 0 6px}
+.mbox p{margin:0 0 16px;color:var(--muted);font-size:.92rem}
+.b-danger{background:var(--changed);border-color:var(--changed);color:var(--on-solid)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Finance Part 2: Derivatives, Forex, Tax, Fiscal &amp; more</h1>
+    <p id="sub">PFRDA Grade A 2026 · Phase II Paper 2</p>
+    <p class="banner" id="banner" hidden>Progress can't be saved in this browser view, so your marks will reset when the page closes.</p>
+  </header>
+
+  <div class="stats" aria-live="polite">
+    <div class="stat"><b id="sTotal">0</b><span>In filter</span></div>
+    <div class="stat"><b id="sUnseen">0</b><span>Unseen</span></div>
+    <div class="stat l"><b id="sLearn">0</b><span>Still learning</span></div>
+    <div class="stat k"><b id="sKnown">0</b><span>Known</span></div>
+    <div class="stat"><b id="sPct">0%</b><span>Known</span></div>
+  </div>
+
+  <div class="fbar" id="filters">
+    <select id="topicSel" aria-label="Filter by topic"></select>
+    <select id="statusSel" aria-label="Filter by status">
+      <option value="all">All statuses</option>
+      <option value="unseen">Unseen</option>
+      <option value="learning">Still learning</option>
+      <option value="known">Known</option>
+      <option value="notknown">Not yet known</option>
+    </select>
+    <select id="typeSel" aria-label="Filter by card type">
+      <option value="all">All card types</option>
+      <option value="fact">Fact</option>
+      <option value="trap">Trap</option>
+      <option value="concept">Concept</option>
+    </select>
+    <div class="ftog">
+    <button type="button" id="fHi" aria-pressed="false">★ High-yield</button>
+    <button type="button" id="fPyq" aria-pressed="false">PYQ</button>
+    <button type="button" class="fclear" id="fClear" hidden>Clear</button>
+    </div>
+  </div>
+
+  <main>
+    <div class="card" id="card" tabindex="0" role="button" aria-expanded="false"></div>
+  </main>
+
+  <div class="controls">
+    <div class="row nav">
+      <button type="button" id="bPrev">Prev</button>
+      <button type="button" class="b-flip" id="bFlip">Show answer</button>
+      <button type="button" id="bNext">Next</button>
+    </div>
+    <div class="row mark">
+      <button type="button" class="b-learn" id="bLearn">Still learning</button>
+      <button type="button" class="b-known" id="bKnown">Known</button>
+    </div>
+    <div class="row tools">
+      <button type="button" id="bShuffle">Shuffle</button>
+      <button type="button" id="bOrder">Reset order</button>
+      <button type="button" id="bReset">Reset progress</button>
+      <button type="button" id="bTheme">Dark theme</button>
+    </div>
+  </div>
+  <p class="kbd">Keyboard: left and right arrows to move, Space or Enter to flip, K for known, L for still learning.</p>
+</div>
+
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="mbox">
+    <h2 id="mTitle">Reset progress?</h2>
+    <p id="mText">This clears every Known and Still learning mark saved in this browser.</p>
+    <div class="row mark">
+      <button type="button" id="mCancel">Cancel</button>
+      <button type="button" class="b-danger" id="mOk">Reset progress</button>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" id="cards-data">[{"id": "DV01", "section": "Derivatives", "topic": "Derivatives - Basics", "type": "fact", "star": "hi", "front": "A derivative derives its value from?", "back": "**The underlying asset**\nIts value moves with the underlying: up when the underlying rises, down when it falls.", "pyq": "Asked: RBI Gr B 2016, RBI Gr B 2017, IFSCA 2025, SEBI (year n/a)", "changed": false, "note": "Four underlyings: shares, commodities, currency, interest rate. Distractors used: future price, inflation, nominal rate, 'fixed by SEBI', 'exchange determined'."}, {"id": "DV02", "section": "Derivatives", "topic": "Derivatives - Basics", "type": "fact", "star": "hi", "front": "What is a derivative contract?", "back": "**A contract between two parties that locks in the price of an underlying today, with the trade executed in the future**", "pyq": "", "changed": false, "note": "Features: two parties (buyer, seller); a zero-sum game (one side's gain is the other's loss); main purpose is managing risk; many are tradable."}, {"id": "DV03", "section": "Derivatives", "topic": "Derivatives - Basics", "type": "fact", "star": "hi", "front": "Four types of derivative contracts?", "back": "**Forwards, futures, options, swaps**", "pyq": "Asked: SEBI 2018 Ph-II, PFRDA 2021 Ph-II", "changed": false, "note": "'Which is NOT a derivative' PYQs: credit agreement (SEBI 2018 Ph-II), debentures (PFRDA 2021 Ph-II)."}, {"id": "DV04", "section": "Derivatives", "topic": "Derivatives - Basics", "type": "fact", "star": "hi", "front": "Which risk can a derivative eliminate: market, systematic, systemic or interest rate risk?", "back": "**Interest rate risk** (via an interest rate swap)", "pyq": "Asked: RBI Gr B 2019, IFSCA 2025", "changed": false, "note": "Market risk can only be mitigated; systematic (undiversifiable) and systemic risk stay. IFSCA 2025: interest rate swaps hedge interest rate risk (not Nifty futures, equity options or commodity forwards)."}, {"id": "DV05", "section": "Derivatives", "topic": "Derivatives - Basics", "type": "fact", "star": "hi", "front": "A market where gold and silver and their derivatives are traded is called?", "back": "**Bullion market**", "pyq": "Asked: SEBI 2020 Ph-I", "changed": false, "note": "The London Bullion Market is the main global platform."}, {"id": "DV06", "section": "Derivatives", "topic": "Derivatives - Basics", "type": "fact", "star": "hi", "front": "The Forward Markets Commission's role passed to whom, and when?", "back": "**SEBI, from 28 September 2015**", "pyq": "Asked: SEBI 2020 Ph-II", "changed": false, "note": "FMC merged with SEBI; the Forward Contracts (Regulation) Act 1952 was repealed and commodity derivatives moved under the SCRA 1956."}, {"id": "DV07", "section": "Derivatives", "topic": "Derivatives - Forwards vs Futures", "type": "fact", "star": "hi", "front": "A customised private agreement to buy or sell an asset on a future date at a price agreed today?", "back": "**Forward contract**", "pyq": "Asked: SEBI 2018 Ph-II", "changed": false, "note": "OTC, customised, high counterparty (default) risk, low liquidity, usually physical delivery. The locked price is called the forward price."}, {"id": "DV08", "section": "Derivatives", "topic": "Derivatives - Forwards vs Futures", "type": "fact", "star": "hi", "front": "A standardised forward contract traded on an exchange?", "back": "**Futures contract**", "pyq": "Asked: SEBI 2018 Ph-II", "changed": false, "note": "Exchange-traded (NSE, BSE), standardised, low counterparty risk (the clearing house guarantees settlement), high liquidity, cash or physical settlement."}, {"id": "DV09", "section": "Derivatives", "topic": "Derivatives - Forwards vs Futures", "type": "trap", "star": "hi", "front": "Futures are traded OTC and forwards on exchanges. Correct?", "back": "**Wrong: reversed.** Forwards and swaps trade OTC; futures and options trade on exchanges.", "pyq": "Asked: RBI Gr B 2017, SEBI 2025 Ph-II", "changed": false, "note": "RBI 2017 asked which is generally NOT traded off-exchange: futures. Forward vs futures: price discovery not efficient vs efficient; counterparty risk exists vs taken over by the clearing agency; settlement physical vs cash or physical."}, {"id": "DV10", "section": "Derivatives", "topic": "Derivatives - Forwards vs Futures", "type": "fact", "star": "hi", "front": "When does a forward contract mature?", "back": "**On the maturity date** (the settlement or delivery date)", "pyq": "Asked: IFSCA 2024", "changed": false, "note": "Distractors: initiation date, trade date, execution date, revision date. In the summary's example the execution date falls on the maturity date."}, {"id": "DV11", "section": "Derivatives", "topic": "Derivatives - Forwards vs Futures", "type": "fact", "star": "md", "front": "Maximum duration of a stock futures or options contract on Indian exchanges?", "back": "**Three months** (one-, two- and three-month contracts)", "pyq": "", "changed": false, "note": "So at any time three futures series of a stock trade."}, {"id": "DV12", "section": "Derivatives", "topic": "Derivatives - Forwards vs Futures", "type": "fact", "star": "md", "front": "Expiry day of equity derivatives from 1 Sept 2025: NSE vs BSE?", "back": "**NSE: last Tuesday of the month. BSE: last Thursday.**", "pyq": "", "changed": false, "note": "Earlier every contract expired on the last Thursday."}, {"id": "DV13", "section": "Derivatives", "topic": "Derivatives - Participants and Payoffs", "type": "fact", "star": "hi", "front": "Taking an equal and opposite position to protect against adverse price moves is called?", "back": "**Hedging**", "pyq": "Asked: RBI Gr B 2017, PFRDA 2022 Ph-I, IFSCA 2025", "changed": false, "note": "Hedgers lock in today's price (an exporter 'playing safe'). Price risk is transferred by hedging, not speculation or arbitrage."}, {"id": "DV14", "section": "Derivatives", "topic": "Derivatives - Participants and Payoffs", "type": "fact", "star": "hi", "front": "Simultaneously buying and selling the same asset in two markets to profit from a price gap?", "back": "**Arbitrage**", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": "Example: buy a future at ₹100 on NSE and sell it at ₹102 on BSE, a risk-free ₹2. Three market players: hedgers, speculators, arbitrageurs."}, {"id": "DV15", "section": "Derivatives", "topic": "Derivatives - Participants and Payoffs", "type": "fact", "star": "md", "front": "In futures, who profits when the market price rises above the locked price?", "back": "**The buyer (long position)**\nWhen the price falls below it, the seller (short) profits.", "pyq": "", "changed": false, "note": "Going long = buying a futures contract; going short = selling one. Both payoff lines are straight lines."}, {"id": "DV16", "section": "Derivatives", "topic": "Derivatives - Margins and Leverage", "type": "fact", "star": "hi", "front": "A futures margin is a fee paid to the exchange. Correct?", "back": "**Wrong.** It is a security deposit, a fraction of the contract value; trading on it is leverage.", "pyq": "Asked: RBI Gr B 2017", "changed": false, "note": "PYQ (RBI 2017): spot buy at 400, sell at 440 = 10% return; futures bought at 400 with 20% margin (₹80), sold at 440 = 40 ÷ 80 = 50%. Numerical in the PYQ Book."}, {"id": "DV17", "section": "Derivatives", "topic": "Derivatives - Margins and Leverage", "type": "trap", "star": "hi", "front": "Initial margin vs maintenance margin?", "back": "**Initial: deposited to open the trade. Maintenance: the minimum balance to keep it open**\nFalling to it triggers a margin call to top up to the initial margin.", "pyq": "Asked: SEBI 2020 Ph-II", "changed": false, "note": "Mark to market: profit or loss is settled in the margin account daily. Margins matter only for losses. Long position: margin call price = Price × (1 − IM) ÷ (1 − MM); ₹60 × 0.6 ÷ 0.8 = ₹45 (SEBI 2020; also in the PYQ Book as F-DER-02)."}, {"id": "DV18", "section": "Derivatives", "topic": "Derivatives - Margins and Leverage", "type": "fact", "star": "hi", "front": "How many futures contracts hedge a portfolio?", "back": "**Contracts = Portfolio value × Beta ÷ (Futures price × Lot size)**\n₹20,00,000 × 1.25 ÷ (₹1,050 × 100) = 23.8, so 24.", "pyq": "Asked: PFRDA 2025 Ph-II", "changed": false, "note": "A higher beta needs more contracts. The later market price (₹1,020) is a distractor."}, {"id": "DV19", "section": "Derivatives", "topic": "Derivatives - Pricing and Basis", "type": "fact", "star": "hi", "front": "The difference between spot price and futures price is called?", "back": "**Basis** (Basis = Spot price − Futures price)", "pyq": "Asked: SEBI 2025 Ph-I", "changed": false, "note": "Distractors: premium, discount, margin, settlement price."}, {"id": "DV20", "section": "Derivatives", "topic": "Derivatives - Pricing and Basis", "type": "trap", "star": "hi", "front": "Contango vs backwardation?", "back": "**Contango: futures price above spot (normal market), basis negative. Backwardation: futures below spot, basis positive.**", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "SEBI 2025 Ph-II statement 3 said the basis is positive in contango: false. Example: spot 40, futures 50, basis −10."}, {"id": "DV21", "section": "Derivatives", "topic": "Derivatives - Pricing and Basis", "type": "fact", "star": "hi", "front": "Two models for pricing futures?", "back": "**1. Expectancy model** (futures price = expected future spot price)\n**2. Cost of carry model** (FP = SP + cost of carry − return expected)", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "Cost of carry: storage, interest, financing. Carry return: dividends, bonuses. SEBI 2025: forward ₹432 in 6 months at 9% simple, so spot = 432 ÷ 1.045 = ₹413.4 (keyed ₹414)."}, {"id": "DV22", "section": "Derivatives", "topic": "Derivatives - Swaps and CDS", "type": "fact", "star": "hi", "front": "In an interest rate swap, the party paying the fixed rate is called?", "back": "**The buyer of the swap** (the party receiving fixed is the seller)", "pyq": "Asked: SEBI 2024 Ph-I", "changed": false, "note": "SEBI 2024 Ph-I asked 'What is a Forward Rate Agreement?' and EduTap's key picks this buyer/seller statement. Its own explanation admits option E is the FRA's general definition: an agreement to lock in an interest rate for a future period on a notional principal. If both appear, EduTap marks the buyer/seller one."}, {"id": "DV23", "section": "Derivatives", "topic": "Derivatives - Swaps and CDS", "type": "fact", "star": "md", "front": "Features of swaps?", "back": "**Customised, OTC, high counterparty risk, low liquidity, low price transparency**", "pyq": "", "changed": false, "note": "Like forwards. Types: interest rate swap (fixed vs floating on a notional principal), currency swap (cash flows in two currencies; hedges exchange-rate and interest-rate risk), credit default swap."}, {"id": "DV24", "section": "Derivatives", "topic": "Derivatives - Swaps and CDS", "type": "fact", "star": "hi", "front": "Paying a periodic premium to get compensation if a borrower defaults is a?", "back": "**Credit Default Swap (CDS)**", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "Works like insurance on a bond: buyer of protection pays premium; seller compensates on a credit event (default, restructuring). Used for credit risk transfer."}, {"id": "DV25", "section": "Derivatives", "topic": "Derivatives - Swaps and CDS", "type": "trap", "star": "hi", "front": "You must hold the underlying bond to buy a CDS. Correct?", "back": "**Wrong.** The protection buyer need not own the bond.", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "SEBI 2025 Ph-II: statements 1, 2 and 4 correct; 3 (only bondholders) false."}, {"id": "OP01", "section": "Options", "topic": "Options - Call and Put", "type": "fact", "star": "hi", "front": "What is an option?", "back": "**The right, but not the obligation, to buy or sell an underlying at the strike price within a set period**", "pyq": "", "changed": false, "note": "Exchange-traded, standardised, liquid, low counterparty risk, cash or physical settlement, zero-sum. Buyer = holder; seller = writer."}, {"id": "OP02", "section": "Options", "topic": "Options - Call and Put", "type": "trap", "star": "hi", "front": "Call option vs put option?", "back": "**Call: the holder's right to buy. Put: the holder's right to sell.**\nThe seller (writer) always carries the obligation.", "pyq": "Asked: RBI Gr B 2019", "changed": false, "note": "RBI 2019: the right to sell the security before maturity = put buyer."}, {"id": "OP03", "section": "Options", "topic": "Options - Call and Put", "type": "fact", "star": "hi", "front": "Who pays the option premium, and is it refunded if the option lapses?", "back": "**The buyer pays the seller; it is never refunded**\nA buyer who lets the option lapse loses only the premium.", "pyq": "", "changed": false, "note": ""}, {"id": "OP04", "section": "Options", "topic": "Options - Call and Put", "type": "trap", "star": "hi", "front": "Maximum loss and maximum profit of a call buyer vs a call writer?", "back": "**Buyer: loss limited to the premium, profit unlimited. Writer: profit limited to the premium, loss unlimited.**", "pyq": "Asked: SEBI 2020 Ph-II", "changed": false, "note": "Buyer's P&L = (exit premium − entry premium) × lot × lots − costs: (80 − 50) × 75 × 10 − 225 = ₹22,275 (SEBI 2020). Put buyer: loss limited to premium, profit grows as price falls. Put writer: loss grows as price falls, capped when the price hits zero."}, {"id": "OP05", "section": "Options", "topic": "Options - Call and Put", "type": "trap", "star": "md", "front": "American vs European option?", "back": "**American: exercisable on or before maturity. European: only on the maturity date.**", "pyq": "", "changed": false, "note": ""}, {"id": "OP06", "section": "Options", "topic": "Options - Moneyness and Value", "type": "fact", "star": "hi", "front": "A call option whose strike price is above the market price is?", "back": "**Out of the money (OTM)**", "pyq": "Asked: SEBI 2022 Ph-I", "changed": false, "note": "Call ITM: spot > strike; call OTM: spot < strike. Put ITM: spot < strike; put OTM: spot > strike. ATM: spot = strike."}, {"id": "OP07", "section": "Options", "topic": "Options - Moneyness and Value", "type": "fact", "star": "md", "front": "Which options have intrinsic value?", "back": "**Only in-the-money options**\nCall: CMP − strike; put: strike − CMP; never negative.", "pyq": "", "changed": false, "note": "Option premium = intrinsic value + time value. Time value falls as expiry nears (time decay)."}, {"id": "OP08", "section": "Options", "topic": "Options - Moneyness and Value", "type": "fact", "star": "hi", "front": "Open interest means?", "back": "**The number of contracts still outstanding (not yet settled)**", "pyq": "Asked: SEBI 2020 Ph-II", "changed": false, "note": "Distractors: number of long contracts, short contracts, contracts settled."}, {"id": "OP09", "section": "Options", "topic": "Options - Moneyness and Value", "type": "fact", "star": "hi", "front": "Underlying price rises and open interest rises together. This signals?", "back": "**Long build-up** (fresh long positions, bullish)", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": ""}, {"id": "OP10", "section": "Options", "topic": "Options - Greeks and Pricing", "type": "fact", "star": "hi", "front": "Which option Greek measures the decline in option value as time passes?", "back": "**Theta** (time decay)", "pyq": "Asked: PFRDA 2022 Ph-II", "changed": false, "note": "Delta: premium change per unit change in the underlying. Gamma: change in delta (second derivative). Vega: sensitivity to volatility. Rho: sensitivity to the risk-free interest rate."}, {"id": "OP11", "section": "Options", "topic": "Options - Greeks and Pricing", "type": "trap", "star": "md", "front": "Gamma vs Vega?", "back": "**Gamma: rate of change of delta with the underlying's price. Vega: change in premium for a change in volatility.**", "pyq": "", "changed": false, "note": ""}, {"id": "OP12", "section": "Options", "topic": "Options - Greeks and Pricing", "type": "fact", "star": "md", "front": "Effect of higher volatility and longer time to expiry on call and put premiums?", "back": "**Both raise the premium of calls and puts**", "pyq": "", "changed": false, "note": "A higher spot price raises calls and lowers puts. A higher strike price lowers calls and raises puts."}, {"id": "OP13", "section": "Options", "topic": "Options - Greeks and Pricing", "type": "fact", "star": "md", "front": "Option pricing model published in 1973 using stock price, strike, volatility, time and the risk-free rate?", "back": "**Black-Scholes model** (Fischer Black and Myron Scholes)", "pyq": "", "changed": false, "note": "It gives a theoretical call price, ignoring dividends."}, {"id": "FX01", "section": "Forex Market", "topic": "Forex Market - Basics and Settlement", "type": "fact", "star": "md", "front": "Three functions of the foreign exchange market?", "back": "**1. Transfer** (converting and moving currencies)\n**2. Credit** (short-term loans to importers)\n**3. Hedging** (against exchange risk)", "pyq": "", "changed": false, "note": "Features: liquidity, promptness (24-hour market), decentralisation (no central exchange)."}, {"id": "FX02", "section": "Forex Market", "topic": "Forex Market - Basics and Settlement", "type": "fact", "star": "hi", "front": "FX settlement: Cash/Ready vs Tom vs Spot vs Forward?", "back": "**Cash: same day. Tom: next working day. Spot: second working day. Forward: any day after the spot date.**", "pyq": "", "changed": false, "note": "Most trades settle on a spot basis."}, {"id": "FX03", "section": "Forex Market", "topic": "Forex Market - Basics and Settlement", "type": "trap", "star": "md", "front": "Direct quote vs indirect quote (for India)?", "back": "**Direct: rupees per unit of foreign currency (1 USD = ₹75). Indirect: foreign currency per rupee (₹1 = $0.0133).**", "pyq": "", "changed": false, "note": "DQ = 1 ÷ IQ. An indirect quote is also called a quantity quotation."}, {"id": "FX04", "section": "Forex Market", "topic": "Forex Market - Basics and Settlement", "type": "fact", "star": "md", "front": "USD/INR moves from 75 to 80. Which currency appreciated?", "back": "**The US dollar appreciated; the rupee depreciated**", "pyq": "", "changed": false, "note": "Factors: BoP (deficit → depreciation), growth rate, interest rates (higher rates attract capital, currency strengthens), government controls, speculation."}, {"id": "FX05", "section": "Forex Market", "topic": "Forex Market - Basics and Settlement", "type": "trap", "star": "md", "front": "Revaluation vs appreciation?", "back": "**Revaluation: a deliberate government/central-bank increase in value. Appreciation: a rise by market forces.**", "pyq": "", "changed": false, "note": "Devaluation = deliberate reduction; depreciation = market-driven fall."}, {"id": "FX06", "section": "Forex Market", "topic": "Forex Market - Basics and Settlement", "type": "fact", "star": "md", "front": "In a two-way quote USD/INR 48.10/11, what is the 1-paisa gap called?", "back": "**The spread** (ask − bid)", "pyq": "", "changed": false, "note": "Bid = highest price a buyer pays; offer/ask = lowest price a seller accepts. Forward rate above spot = premium; below = discount, measured in pips."}, {"id": "FX07", "section": "Forex Market", "topic": "Forex Market - Parity and Exchange Regimes", "type": "fact", "star": "hi", "front": "Interest rate parity says?", "back": "**Interest rate differentials between two countries offset the forward-spot exchange rate differential**", "pyq": "Asked: SEBI 2022 Ph-II", "changed": false, "note": "Distractors: 'same goods sell for the same price everywhere' (that is purchasing power parity); 'interest rates will eventually be equal'."}, {"id": "FX08", "section": "Forex Market", "topic": "Forex Market - Parity and Exchange Regimes", "type": "fact", "star": "md", "front": "A floating rate with occasional central-bank intervention is called?", "back": "**Dirty float** (managed float)", "pyq": "", "changed": false, "note": "Sterilisation: offsetting the money-supply effect of forex intervention by buying or selling domestic securities."}, {"id": "FX09", "section": "Forex Market", "topic": "Forex Market - RBI's Role and Players", "type": "fact", "star": "hi", "front": "The rupee is weakening fast. What does RBI do in the forex market?", "back": "**Sells dollars** (buys rupees)\nWhen the rupee rises too fast and hurts exports, RBI buys dollars.", "pyq": "Asked: RBI Gr B 2018", "changed": false, "note": "RBI's three roles: licensing authorised dealers, keeping forex reserves, intervening. Its Exchange Control Department was renamed Foreign Exchange Department in 2004."}, {"id": "FX10", "section": "Forex Market", "topic": "Forex Market - RBI's Role and Players", "type": "fact", "star": "md", "front": "Authorised dealer categories under FEMA s.10?", "back": "**Category I: all current and capital account transactions (banks). II: specified non-trade current account deals + money changing. III: forex incidental to their business.**", "pyq": "", "changed": false, "note": "Full-Fledged Money Changers sit outside the AD categories; minimum NOF ₹25 lakh (single branch), ₹50 lakh (multiple branches)."}, {"id": "FX11", "section": "Forex Market", "topic": "Forex Market - RBI's Role and Players", "type": "fact", "star": "md", "front": "Self-regulatory body for forex dealing by banks in India (1958)?", "back": "**FEDAI** (Foreign Exchange Dealers' Association of India)", "pyq": "", "changed": false, "note": "Sets rules for forex transactions, resolves disputes between member banks, promotes best practice. ECGC (1957 as Export Risks Insurance Corp; ECGC Ltd since Aug 2014) gives export credit guarantees."}, {"id": "FX12", "section": "Forex Market", "topic": "Forex Market - LRS and NRI Accounts", "type": "fact", "star": "hi", "front": "Limit under the Liberalised Remittance Scheme?", "back": "**USD 2,50,000 per financial year** per resident individual (minors included)", "pyq": "Asked: RBI Gr B 2023, IFSCA 2024", "changed": false, "note": "Introduced by RBI in 2004. Covers private visits (except Nepal, Bhutan), gifts, studies, medical treatment, emigration, maintenance of relatives. Distractor: INR 2,50,000."}, {"id": "FX13", "section": "Forex Market", "topic": "Forex Market - LRS and NRI Accounts", "type": "trap", "star": "hi", "front": "NRE vs NRO vs FCNR accounts?", "back": "**NRE: rupee account for foreign earnings, fully repatriable, tax-free. NRO: rupee account for income earned in India, taxable. FCNR: term deposits in foreign currency, no currency risk.**", "pyq": "", "changed": false, "note": "NRO principal repatriable up to USD 1 million a year. SNRR: non-interest rupee account for specified transactions, repatriable."}, {"id": "FX14", "section": "Forex Market", "topic": "Forex Market - LRS and NRI Accounts", "type": "trap", "star": "md", "front": "Translation exposure vs economic exposure?", "back": "**Translation: losses on converting foreign-currency balance sheet items. Economic (operating): long-term effect of rate changes on cash flows and value.**", "pyq": "", "changed": false, "note": "Transaction exposure: uncertainty on individual international trade deals."}, {"id": "AF01", "section": "Alternate Finance", "topic": "Alternate Finance - Leasing and Franchising", "type": "fact", "star": "hi", "front": "In a lease, who owns the asset and who uses it?", "back": "**Lessor owns it (asset-based lender); lessee uses it** and pays lease rentals; ownership never passes", "pyq": "", "changed": false, "note": "Elements: lessor, lessee, lease broker, lease asset. Lessee gains: no large outlay, predictable cash outflow. Disadvantages: no ownership, long-term expense, usage restrictions."}, {"id": "AF02", "section": "Alternate Finance", "topic": "Alternate Finance - Leasing and Franchising", "type": "trap", "star": "hi", "front": "Operating lease vs financial lease?", "back": "**Operating: short-term, cancellable, asset returned (service lease). Financial: long-term, 'full payout' lease.**", "pyq": "", "changed": false, "note": ""}, {"id": "AF03", "section": "Alternate Finance", "topic": "Alternate Finance - Leasing and Franchising", "type": "fact", "star": "md", "front": "An owner sells an asset for cash and then leases the same asset back. This is?", "back": "**Sale and leaseback**", "pyq": "", "changed": false, "note": "Direct lease: owner and user deal directly. Leveraged lease: three parties (lessor buys with a loan from a financial institution, then leases out). Single-investor lease: only lessor and lessee."}, {"id": "AF04", "section": "Alternate Finance", "topic": "Alternate Finance - Leasing and Franchising", "type": "fact", "star": "md", "front": "Three types of franchise, with examples?", "back": "**1. Product franchise** (Coca-Cola, Maruti Suzuki)\n**2. Business format franchise** (name + full operating format)\n**3. Management franchise** (Hilton, Hyatt)", "pyq": "", "changed": false, "note": "Franchisor grants brand and model; franchisee pays fees. Franchisor grows with no capital of its own."}, {"id": "AF05", "section": "Alternate Finance", "topic": "Alternate Finance - Factoring and Forfaiting", "type": "fact", "star": "hi", "front": "Selling unpaid invoices (receivables) to a third party at a discount for immediate cash is?", "back": "**Factoring** (invoice financing)", "pyq": "", "changed": false, "note": "Three parties: factor (bank), seller of the receivable, debtor. Ownership of the receivable passes to the factor. Holdback: part of the invoice the factor retains until the debtor pays."}, {"id": "AF06", "section": "Alternate Finance", "topic": "Alternate Finance - Factoring and Forfaiting", "type": "trap", "star": "hi", "front": "Factoring with recourse vs without recourse?", "back": "**With recourse: the factor recovers from the seller if the debtor defaults. Without recourse: the factor bears the loss.**", "pyq": "", "changed": false, "note": ""}, {"id": "AF07", "section": "Alternate Finance", "topic": "Alternate Finance - Factoring and Forfaiting", "type": "fact", "star": "md", "front": "Maximum debt period under domestic factoring?", "back": "**150 days**, including a maximum grace period of 60 days", "pyq": "", "changed": false, "note": ""}, {"id": "AF08", "section": "Alternate Finance", "topic": "Alternate Finance - Factoring and Forfaiting", "type": "fact", "star": "md", "front": "Which Act governs factoring, and who regulates factors?", "back": "**Factoring Regulation Act, 2011 (amended 2021); factors register with RBI as NBFCs**", "pyq": "", "changed": false, "note": "RBI's Kalyanasundaram Study Group (Jan 1988) paved the way; the BR Act was amended to let banks do factoring."}, {"id": "AF09", "section": "Alternate Finance", "topic": "Alternate Finance - Factoring and Forfaiting", "type": "trap", "star": "hi", "front": "Factoring vs discounting of bills?", "back": "**Factoring: bills receivable, recourse or non-recourse, ownership passes to the factor, Factoring Regulation Act 2011. Bill discounting: bill of exchange, always with recourse, ownership stays with the drawer, NI Act 1881.**", "pyq": "", "changed": false, "note": "Parties: factoring = debtor, customer, factor; discounting = drawer, drawee, discounting bank."}, {"id": "AF10", "section": "Alternate Finance", "topic": "Alternate Finance - Factoring and Forfaiting", "type": "fact", "star": "hi", "front": "A lends ₹25,000 to B and writes an order making B pay that sum directly to C, discharging A's own debt to C. The instrument?", "back": "**Bill of exchange** (A = drawer, B = drawee, C = payee)", "pyq": "Asked: RBI Gr B 2023", "changed": false, "note": "A bill of exchange is a written unconditional order by the drawer to the drawee to pay a sum on a future date."}, {"id": "AF11", "section": "Alternate Finance", "topic": "Alternate Finance - Factoring and Forfaiting", "type": "fact", "star": "hi", "front": "Exporters selling foreign receivables at a discount for immediate cash is called?", "back": "**Forfaiting**", "pyq": "Asked: RBI Gr B 2023", "changed": false, "note": "RBI 2023: the alternative source among overdraft, G-secs, bonds, bank loan, forfaiting. Flow: exporter sells invoice to the export factor; the import factor collects from the importer on the due date."}, {"id": "AF12", "section": "Alternate Finance", "topic": "Alternate Finance - Factoring and Forfaiting", "type": "trap", "star": "hi", "front": "Forfaiting vs international factoring?", "back": "**Forfaiting: medium to long-term receivables, capital goods, always non-recourse. International factoring: short-term, consumer goods, recourse or non-recourse.**", "pyq": "", "changed": false, "note": ""}, {"id": "AF13", "section": "Alternate Finance", "topic": "Alternate Finance - TReDS", "type": "fact", "star": "hi", "front": "Who regulates the Trade Receivables Discounting System (TReDS)?", "back": "**RBI**, under the Payment and Settlement Systems Act, 2007", "pyq": "Asked: RBI Gr B 2025", "changed": false, "note": "TReDS lets MSMEs discount invoices accepted by corporate and government buyers; financiers bid for them. Distractors: SEBI, Ministry of MSME, CCIL, NPCI."}, {"id": "AF14", "section": "Alternate Finance", "topic": "Alternate Finance - TReDS", "type": "trap", "star": "hi", "front": "TReDS platforms are market infrastructure institutions. Correct?", "back": "**Wrong.** They are RBI-authorised payment system operators, not MIIs. Settlement runs through RBI-regulated payment systems.", "pyq": "Asked: RBI Gr B 2025", "changed": false, "note": "RBI 2025: statements 1 (MSMEs discount receivables from corporate/government buyers) and 2 (multiple financiers bid) correct; 3 (MIIs) wrong. Flow: MSME uploads invoice, buyer accepts, MSME picks the best financier's bid, financier pays early."}, {"id": "AF15", "section": "Alternate Finance", "topic": "Alternate Finance - Crowdfunding, Angels, VCs and P2P", "type": "fact", "star": "hi", "front": "Raising capital online from many people, bypassing conventional gatekeepers and regulations, is?", "back": "**Crowdfunding** (a form of crowdsourcing)", "pyq": "Asked: RBI Gr B 2018", "changed": false, "note": "Types: rewards (pre-selling a product), equity, debt (P2P), litigation funding, charity/donation."}, {"id": "AF16", "section": "Alternate Finance", "topic": "Alternate Finance - Crowdfunding, Angels, VCs and P2P", "type": "trap", "star": "md", "front": "Angel investor vs venture capitalist?", "back": "**Angel: wealthy individual, smaller amounts, start-ups, seed capital, decides fast, little day-to-day role. VC: professional fund manager, large amounts, more established firms, sits on the board, slow decisions.**", "pyq": "", "changed": false, "note": "Example angel in the summary: Ratan Tata."}, {"id": "AF17", "section": "Alternate Finance", "topic": "Alternate Finance - Crowdfunding, Angels, VCs and P2P", "type": "trap", "star": "hi", "front": "Peer-to-peer lending is unregulated in India. Correct?", "back": "**Wrong.** P2P platforms are regulated by RBI as NBFC-P2P (P2P Lending Platform Directions, 2017).", "pyq": "Asked: RBI Gr B 2017", "changed": false, "note": "RBI 2017 asked for the false statement. Registration needs net owned funds of at least ₹2 crore (₹20 million). Funds move only through an escrow account."}, {"id": "AF18", "section": "Alternate Finance", "topic": "Alternate Finance - Crowdfunding, Angels, VCs and P2P", "type": "fact", "star": "hi", "front": "NBFC-P2P exposure caps?", "back": "**1. A lender across all platforms: ₹50 lakh\n2. A lender to one borrower: ₹50,000\n3. A borrower across all platforms: ₹10 lakh**", "pyq": "", "changed": false, "note": "A lender above ₹10 lakh needs a CA certificate of net worth ≥ ₹50 lakh. Leverage ratio ≤ 2; maximum dividend payout 50%."}, {"id": "AF19", "section": "Alternate Finance", "topic": "Alternate Finance - Crowdfunding, Angels, VCs and P2P", "type": "fact", "star": "md", "front": "What can an NBFC-P2P NOT do?", "back": "**Take deposits, lend on its own, guarantee lenders, hold funds on its balance sheet, sell products other than loan insurance, or move funds across borders**", "pyq": "", "changed": false, "note": ""}, {"id": "AF20", "section": "Alternate Finance", "topic": "Alternate Finance - Social Cost and InvITs", "type": "fact", "star": "md", "front": "Social cost = ?", "back": "**Private cost + External cost**\nSocial benefit = private benefit + external benefit; start a project only if social benefit > social cost.", "pyq": "", "changed": false, "note": "Example: a cement plant's pollution is an external cost; new roads and jobs are external benefits."}, {"id": "AF21", "section": "Alternate Finance", "topic": "Alternate Finance - Social Cost and InvITs", "type": "fact", "star": "hi", "front": "In a public issue of InvIT units, minimum reservation for QIBs and for retail?", "back": "**QIBs at least 75%; retail at least 10%**", "pyq": "Asked: RBI Gr B (year n/a)", "changed": false, "note": "The rest goes to non-institutional investors."}, {"id": "PP01", "section": "PPP", "topic": "PPP - Concept and Lifecycle", "type": "fact", "star": "hi", "front": "Public Private Partnership is mainly used to fund which projects?", "back": "**Large-scale infrastructure projects** (roads, bridges, metros, hospitals) with private funding", "pyq": "Asked: RBI Gr B 2018", "changed": false, "note": "Example: Hyderabad Metro, the world's largest metro PPP: L&T brought ~90% of the cost and operates it for 35 years before transfer."}, {"id": "PP02", "section": "PPP", "topic": "PPP - Concept and Lifecycle", "type": "fact", "star": "hi", "front": "When does a government-private arrangement count as a PPP?", "back": "**1. Private partner chosen by transparent competitive bidding\n2. Contract/concession agreement\n3. Roles defined, risks shared\n4. Private party does O&M or invests**", "pyq": "", "changed": false, "note": "Other essentials: a public asset or service, a specified period, performance-linked payments."}, {"id": "PP03", "section": "PPP", "topic": "PPP - Concept and Lifecycle", "type": "fact", "star": "md", "front": "Six stages of the PPP project lifecycle?", "back": "**1. Identification 2. Feasibility analysis 3. Structuring 4. Appraisal 5. Procurement 6. Contract management**", "pyq": "", "changed": false, "note": "Bid documents: EOI, RFQ (capability), RFP (actual proposal), PIM, draft concession agreement. The winner gets a Letter of Award and forms an SPV."}, {"id": "PP04", "section": "PPP", "topic": "PPP - Concept and Lifecycle", "type": "fact", "star": "hi", "front": "The four cardinal risks used to classify PPP models?", "back": "**Ownership, Finance, Design/Construction, Operation**", "pyq": "", "changed": false, "note": ""}, {"id": "PP05", "section": "PPP", "topic": "PPP - PPP Models", "type": "fact", "star": "hi", "front": "Three models of limited private participation, and their concession periods?", "back": "**Service contract (1-3 yrs), O&M contract (3-5 yrs), Leasing contract (5-15 yrs)**", "pyq": "", "changed": false, "note": "In all three the government keeps ownership, design/construction and finance risk (finance shared in leasing); the private party bears operation risk. In leasing it also takes commercial risk by collecting revenue."}, {"id": "PP06", "section": "PPP", "topic": "PPP - PPP Models", "type": "fact", "star": "md", "front": "A municipality hires a private firm only for meter reading and bill collection. Which PPP structure?", "back": "**Service contract**", "pyq": "", "changed": false, "note": ""}, {"id": "PP07", "section": "PPP", "topic": "PPP - PPP Models", "type": "fact", "star": "hi", "front": "Full form of BOT?", "back": "**Build, Operate, Transfer**", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "The private party builds, operates for the concession period, recovers investment through user charges or government payments, then transfers the asset to the government."}, {"id": "PP08", "section": "PPP", "topic": "PPP - PPP Models", "type": "fact", "star": "hi", "front": "In BOT, who bears design, construction, finance and ownership risk (in that order)?", "back": "**Private, private, private, public**", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "Ownership ultimately stays with the government."}, {"id": "PP09", "section": "PPP", "topic": "PPP - PPP Models", "type": "fact", "star": "hi", "front": "Highway PPP model mixing EPC and BOT-Annuity, used to revive highway PPPs?", "back": "**Hybrid Annuity Model (HAM)**", "pyq": "Asked: RBI Gr B 2021", "changed": false, "note": "BOT-Annuity alone: the developer recovers its whole investment through fixed annuities from the government/NHAI, which takes very long."}, {"id": "PP10", "section": "PPP", "topic": "PPP - PPP Models", "type": "fact", "star": "hi", "front": "HAM: share of project cost paid by the government during construction vs as annuities?", "back": "**40 : 60**\n40% in five milestone-linked tranches during construction; the developer arranges 60%, repaid as annuities.", "pyq": "Asked: RBI Gr B 2021", "changed": false, "note": ""}, {"id": "PP11", "section": "PPP", "topic": "PPP - PPP Models", "type": "trap", "star": "md", "front": "Is a pure EPC contract a PPP?", "back": "**No.** The contractor only engineers, procures and constructs, then hands over; no O&M or investment by the private party.", "pyq": "", "changed": false, "note": ""}, {"id": "PP12", "section": "PPP", "topic": "PPP - PPP Models", "type": "trap", "star": "hi", "front": "DBFOT vs DBFOO?", "back": "**DBFOT: private designs, builds, finances, operates, then transfers; ownership risk with the government. DBFOO: the private party also owns the asset; all four risks private.**", "pyq": "", "changed": false, "note": "Both have indicative concession periods of 30-45 years. BOO is a DBFOO variant. BOOT: build, own, operate, then transfer."}, {"id": "PP13", "section": "PPP", "topic": "PPP - PPP Models", "type": "fact", "star": "md", "front": "Toll Operate Transfer (TOT) means?", "back": "**Government hands an already-built toll road to a private player for O&M and toll collection for a fixed period, for an upfront payment**", "pyq": "", "changed": false, "note": "OMDA (Operation, Management and Development Agreement): private party runs and expands/modernises an existing asset."}, {"id": "PP14", "section": "PPP", "topic": "PPP - Appraisal and Support Schemes", "type": "fact", "star": "md", "front": "Who chairs the PPP Appraisal Committee (PPPAC)?", "back": "**Secretary, Department of Economic Affairs**", "pyq": "", "changed": false, "note": "Set up by the CCEA; serviced by DEA. Members: CEO NITI Aayog, Secretaries of Expenditure, Legal Affairs and the sponsoring ministry. PPPAC appraises projects above ₹250 crore; above ₹1,000 crore the CCEA approves."}, {"id": "PP15", "section": "PPP", "topic": "PPP - Appraisal and Support Schemes", "type": "fact", "star": "hi", "front": "Under the VGF scheme, maximum central government grant as a share of total project cost?", "back": "**20%** (the State or sponsoring authority may add up to 20%, total 40%)", "pyq": "Asked: PFRDA 2021 Ph-II", "changed": false, "note": "VGF = a capital grant for projects that are economically justified but not commercially viable."}, {"id": "PP16", "section": "PPP", "topic": "PPP - Appraisal and Support Schemes", "type": "fact", "star": "md", "front": "Revamped VGF for social infrastructure: support under Sub-scheme 1 and Sub-scheme 2?", "back": "**Sub-scheme 1 (100% operating cost recovery): Centre 30% + State 30% = up to 60% of project cost. Sub-scheme 2 (pilot, ≥50% recovery): up to 80% of capex + up to 50% of O&M for 5 years.**", "pyq": "", "changed": false, "note": ""}, {"id": "PP17", "section": "PPP", "topic": "PPP - Appraisal and Support Schemes", "type": "fact", "star": "md", "front": "IIPDF funds what share of PPP project development costs, and does it fund construction?", "back": "**Up to 75%; no construction cost**\nOnly pre-project costs: feasibility studies, legal and financial structuring, transaction advisers.", "pyq": "", "changed": false, "note": ""}, {"id": "PP18", "section": "PPP", "topic": "PPP - Appraisal and Support Schemes", "type": "trap", "star": "md", "front": "National Infrastructure Pipeline vs National Monetisation Pipeline?", "back": "**NIP: build new (greenfield) infrastructure, ~₹100 lakh crore over 5 years. NMP: raise money from existing (brownfield) assets for a fixed period without selling them.**", "pyq": "", "changed": false, "note": "NIP aggregate funding target: Centre 39%, States 39%, private 22% (announced in Budget 2019-20)."}, {"id": "PP19", "section": "PPP", "topic": "PPP - Appraisal and Support Schemes", "type": "fact", "star": "md", "front": "Vijay Kelkar Committee on PPP (after Budget 2015-16) recommended?", "back": "**PPP for service delivery, not fiscal saving; risks to the party best able to manage them; 3P India; independent sector regulators; a National PPP Policy; discourage the Swiss Challenge method**", "pyq": "", "changed": false, "note": "Swiss Challenge: an unsolicited proposal that others may challenge and the proposer may match. IIFCL: wholly GoI-owned, set up 2006, NBFC-ND-IFC since Sept 2013."}, {"id": "TX01", "section": "Taxation", "topic": "Taxation - Direct Tax Basics", "type": "fact", "star": "hi", "front": "Which board administers direct taxes in India?", "back": "**CBDT** (Central Board of Direct Taxes). Indirect taxes and customs: **CBIC**.", "pyq": "Asked: SEBI 2020 Ph-I", "changed": false, "note": "Both are under the Department of Revenue, Ministry of Finance."}, {"id": "TX02", "section": "Taxation", "topic": "Taxation - Direct Tax Basics", "type": "trap", "star": "hi", "front": "Direct vs indirect tax: where do impact and incidence fall?", "back": "**Direct: impact and incidence on the same person** (income tax). **Indirect: impact on the seller, incidence shifted to the consumer** (GST, customs).", "pyq": "", "changed": false, "note": "Impact = who pays the government first; incidence = who finally bears the burden."}, {"id": "TX03", "section": "Taxation", "topic": "Taxation - Direct Tax Basics", "type": "fact", "star": "md", "front": "When is an individual resident in India (basic conditions)?", "back": "**In India 182 days or more in the year, OR 60 days in the year plus 365 days in the previous 4 years.** Residents are taxed on global income; non-residents only on Indian income.", "pyq": "", "changed": false, "note": "Source conflict: the summary's text says RNOR test uses 729 days in 7 years, while its table says 9 of 10 years for NR; check before relying on RNOR detail."}, {"id": "TX04", "section": "Taxation", "topic": "Taxation - Direct Tax Basics", "type": "fact", "star": "hi", "front": "Who is the head of a Hindu Undivided Family under income tax law?", "back": "**Karta** (usually the eldest member), who manages the HUF's affairs and taxes.", "pyq": "Asked: IFSCA 2023", "changed": false, "note": ""}, {"id": "TX05", "section": "Taxation", "topic": "Taxation - Direct Tax Basics", "type": "fact", "star": "hi", "front": "Which law replaced the Income Tax Act 1961, and from when?", "back": "**Income Tax Act 2025, in force from 1 April 2026.** 'Previous year' and 'assessment year' are replaced by one term: **Tax Year** (1 April to 31 March).", "pyq": "", "changed": false, "note": "23 chapters, 536 sections, 16 schedules. Policy is largely unchanged; the language is simplified. Old PYQs quote 1961 section numbers."}, {"id": "TX06", "section": "Taxation", "topic": "Taxation - Direct Tax Basics", "type": "fact", "star": "hi", "front": "New tax regime (default): income up to which tax is nil, and the standard deduction for salaried?", "back": "**Zero tax up to ₹12 lakh taxable income** (s.87A rebate of ₹60,000); **standard deduction ₹75,000** (so ₹12.75 lakh for salaried).", "pyq": "", "changed": false, "note": "Slabs: 0-4L nil, 4-8L 5%, 8-12L 10%, 12-16L 15%, 16-20L 20%, 20-24L 25%, above 24L 30%. Default since 2023; old regime optional (0/5/20/30%). Web check (Budget 2026-27, PRS): slabs unchanged."}, {"id": "TX07", "section": "Taxation", "topic": "Taxation - Direct Tax Basics", "type": "fact", "star": "md", "front": "Capital gains holding periods and rates now?", "back": "**Listed shares/equity MFs: long-term after 12 months; STCG 20%, LTCG 12.5% above ₹1.25 lakh. Land, gold, unlisted shares: long-term after 24 months; LTCG 12.5% without indexation.**", "pyq": "", "changed": false, "note": "The 36-month category is gone. Land/building bought before 23 July 2024: choose 20% with indexation or 12.5% without."}, {"id": "TX08", "section": "Taxation", "topic": "Taxation - Direct Tax Basics", "type": "fact", "star": "hi", "front": "Minimum Alternate Tax (MAT) rate for companies now?", "back": "**14% of book profit** (was 15%); IFSC units 9%.", "pyq": "", "changed": false, "note": "Web check (Budget 2026-27, PRS): MAT cut from 15% to 14%; from 1 April 2026 no new MAT credit accrues. The summary's first part still says 15%. MAT dates from 1997-98."}, {"id": "TX09", "section": "Taxation", "topic": "Taxation - Direct Tax Basics", "type": "fact", "star": "hi", "front": "Which tax on startups' share premium above fair value was abolished in Budget 2024?", "back": "**Angel Tax**", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": "It taxed capital raised by unlisted companies at a price above fair market value, to curb money laundering."}, {"id": "TX10", "section": "Taxation", "topic": "Taxation - Direct Tax Basics", "type": "fact", "star": "hi", "front": "Which challan deposits TDS/TCS?", "back": "**ITNS 281**", "pyq": "Asked: SEBI 2020 Ph-I", "changed": false, "note": "ITNS 280: income tax (advance, self-assessment). ITNS 282: STT, gift and wealth tax."}, {"id": "TX11", "section": "Taxation", "topic": "Taxation - Direct Tax Basics", "type": "fact", "star": "hi", "front": "In DTAA, what does DT stand for?", "back": "**Double Taxation** (Double Taxation Avoidance Agreement, a tax treaty)", "pyq": "Asked: SEBI 2020 Ph-I", "changed": false, "note": ""}, {"id": "TX12", "section": "Taxation", "topic": "Taxation - Direct Tax Basics", "type": "fact", "star": "hi", "front": "Income Tax Act 1961: which section lets the Assessing Officer rectify a mistake apparent from the record, and which penalises failure to quote PAN?", "back": "**Rectification: Section 154. PAN quoting failure: Section 272B** (₹10,000 per default).", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "s.147/148 are reassessment (income escaping assessment); s.263 is revision by the Commissioner."}, {"id": "TX13", "section": "Taxation", "topic": "Taxation - Direct Tax Basics", "type": "fact", "star": "hi", "front": "Maximum cash donation to a political party?", "back": "**₹2,000.** Anything above must go through banking channels.", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": ""}, {"id": "TX14", "section": "Taxation", "topic": "Taxation - Direct Tax Basics", "type": "fact", "star": "hi", "front": "Which Indian tax is a form of Tobin tax?", "back": "**Securities Transaction Tax (STT)**", "pyq": "Asked: PFRDA 2021 Ph-II", "changed": false, "note": "Tobin (1972) proposed a tax on spot currency conversions to curb short-term speculation. Web check (Budget 2026-27, PRS): STT on futures raised 0.02% to 0.05%, options 0.10% to 0.15% of premium."}, {"id": "TX15", "section": "Taxation", "topic": "Taxation - Direct Tax Basics", "type": "trap", "star": "md", "front": "Cess vs surcharge?", "back": "**Cess: for a specific purpose, charged on tax. Surcharge: a tax on tax for high incomes, for general use.** States share neither (both are outside the divisible pool).", "pyq": "", "changed": false, "note": ""}, {"id": "TX16", "section": "Taxation", "topic": "Taxation - Direct Tax Basics", "type": "trap", "star": "md", "front": "Tax elasticity vs tax buoyancy?", "back": "**Elasticity: % change in revenue / % change in tax base, rates unchanged. Buoyancy: % change in revenue / % change in GDP, including rate and policy changes.**", "pyq": "", "changed": false, "note": ""}, {"id": "TX17", "section": "Taxation", "topic": "Taxation - GST", "type": "fact", "star": "hi", "front": "GST came into force on which date, and by which amendment?", "back": "**1 July 2017; 101st Constitutional Amendment Act, 2016.** Replaced VAT, excise, service tax, CST, entry and luxury tax, etc.", "pyq": "Asked: SEBI (year n/a)", "changed": false, "note": "GST is multi-stage, destination-based and levied on value addition, with input tax credit."}, {"id": "TX18", "section": "Taxation", "topic": "Taxation - GST", "type": "fact", "star": "hi", "front": "GST slabs today, and the top rate?", "back": "**5% and 18%, plus 40% for luxury and sin goods** (and 0%/exempt). Old structure: 5/12/18/28%.", "pyq": "Asked: RBI Gr B 2018, SEBI (year n/a)", "changed": false, "note": "Web check (GST Council, 56th meeting, Sept 2025; in force 22 Sep 2025): GST now has two main slabs, 5% and 18%, plus a 40% special rate for luxury and sin goods; 12% and 28% were removed. The PYQ key (four slabs 5/12/18/28, max 28%) was right when asked (2018-2020)."}, {"id": "TX19", "section": "Taxation", "topic": "Taxation - GST", "type": "fact", "star": "hi", "front": "Who chairs the GST Council, and under which Article?", "back": "**Union Finance Minister; Article 279A.** Members: MoS Finance/Revenue and each State's finance minister.", "pyq": "Asked: RBI Gr B 2019", "changed": false, "note": "Quorum 50%; decisions need 75% of weighted votes (Centre 1/3, States 2/3). Recommendations not binding (SC, 2022). Secretary (Revenue) is ex officio Secretary; CBIC chair is a non-voting invitee."}, {"id": "TX20", "section": "Taxation", "topic": "Taxation - GST", "type": "fact", "star": "hi", "front": "Which items are still outside GST?", "back": "**Petroleum crude, diesel, petrol, natural gas, ATF** (until notified) and **alcohol for human consumption.**", "pyq": "Asked: RBI Gr B 2019", "changed": false, "note": "CGST Act s.9(2). These still attract excise/VAT."}, {"id": "TX21", "section": "Taxation", "topic": "Taxation - GST", "type": "fact", "star": "hi", "front": "Where does GST apply geographically?", "back": "**Whole of India**, including J&K and Ladakh.", "pyq": "Asked: SEBI 2020 Ph-I", "changed": false, "note": ""}, {"id": "TX22", "section": "Taxation", "topic": "Taxation - GST", "type": "fact", "star": "hi", "front": "GSTIN is based on which number, and how many digits?", "back": "**PAN; 15 digits**", "pyq": "Asked: SEBI 2020 Ph-I", "changed": false, "note": ""}, {"id": "TX23", "section": "Taxation", "topic": "Taxation - GST", "type": "trap", "star": "hi", "front": "CGST + SGST vs IGST: when does each apply, and who collects?", "back": "**Intra-state: CGST (Centre) + SGST/UTGST (State) split equally. Inter-state, imports and SEZ supplies: IGST, collected by the Centre and passed to the consuming State.**", "pyq": "Asked: PFRDA 2025 Ph-II", "changed": false, "note": "The four components are CGST, SGST, UTGST, IGST. 'UIGST' does not exist. UTGST applies in UTs without a legislature (Chandigarh, Lakshadweep, A&N); Delhi and Puducherry use SGST."}, {"id": "TX24", "section": "Taxation", "topic": "Taxation - GST", "type": "fact", "star": "hi", "front": "Which GST applies to exports from India?", "back": "**IGST**, but exports are **zero-rated**: no tax, input credit refunded.", "pyq": "Asked: SEBI 2025 Ph-II, PFRDA 2025 Ph-I", "changed": false, "note": ""}, {"id": "TX25", "section": "Taxation", "topic": "Taxation - GST", "type": "trap", "star": "hi", "front": "Zero-rated vs exempt (nil-rated) vs non-GST supply?", "back": "**Zero-rated (exports, SEZ): 0% with ITC. Exempt/nil (fresh vegetables, school education): 0% and no ITC. Non-GST (petrol, liquor): outside GST.**", "pyq": "Asked: PFRDA 2025 Ph-I", "changed": false, "note": ""}, {"id": "TX26", "section": "Taxation", "topic": "Taxation - GST", "type": "trap", "star": "hi", "front": "Composite vs mixed supply: rate applied?", "back": "**Composite (naturally bundled, e.g. hotel room with breakfast): rate of the principal supply. Mixed (artificial bundle, e.g. gift hamper): the highest rate in the bundle.**", "pyq": "Asked: SEBI 2020 Ph-II", "changed": false, "note": ""}, {"id": "TX27", "section": "Taxation", "topic": "Taxation - GST", "type": "fact", "star": "hi", "front": "Inputs taxed at a higher GST rate than the output: what is it called?", "back": "**Inverted duty structure** (credit piles up; refund allowed)", "pyq": "Asked: PFRDA 2021 Ph-I", "changed": false, "note": ""}, {"id": "TX28", "section": "Taxation", "topic": "Taxation - GST", "type": "fact", "star": "hi", "front": "Recipient must pay the supplier within how many days of the invoice to keep ITC?", "back": "**180 days** (CGST Act s.16(2)); otherwise ITC is added back with interest, and can be re-availed on payment.", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": ""}, {"id": "TX29", "section": "Taxation", "topic": "Taxation - GST", "type": "fact", "star": "hi", "front": "GST: TDS deposit deadline, and the return in which e-commerce operators report TCS?", "back": "**TDS by the 10th of the next month** (invoice value includes CGST, SGST/UTGST and cess). **E-commerce TCS: GSTR-8 (monthly).**", "pyq": "Asked: SEBI 2025 Ph-I, SEBI 2025 Ph-II", "changed": false, "note": "GSTR-7: TDS return. GSTR-1: outward supplies. GSTR-3B: summary return. GSTR-9: annual."}, {"id": "TX30", "section": "Taxation", "topic": "Taxation - GST", "type": "fact", "star": "hi", "front": "Dynamic QR code on B2C invoices (from 1 July 2021) is mandatory above what turnover?", "back": "**Aggregate turnover above ₹500 crore**", "pyq": "Asked: SEBI 2022 Ph-II", "changed": false, "note": "E-invoicing (IRN from the Invoice Registration Portal) is mandatory above ₹5 crore turnover."}, {"id": "TX31", "section": "Taxation", "topic": "Taxation - GST", "type": "fact", "star": "md", "front": "Reverse charge mechanism: what is it, with examples?", "back": "**The recipient, not the supplier, pays GST**: e.g. legal services from advocates, director services to a company, insurance and recovery agents, imports of services, supplies from unregistered persons.", "pyq": "", "changed": false, "note": ""}, {"id": "TX32", "section": "Taxation", "topic": "Taxation - GST", "type": "fact", "star": "md", "front": "GST composition scheme: turnover limit and tax rates?", "back": "**Goods: up to ₹1.5 crore (₹75 lakh in special-category States); services up to ₹50 lakh. Traders 1%, manufacturers 2%. No ITC, no inter-state supply.**", "pyq": "", "changed": false, "note": "Turnover of all businesses under one PAN is added. Must display 'Composition Taxable Person'."}, {"id": "FC01", "section": "Finance Commission", "topic": "Finance Commission - Constitution and History", "type": "fact", "star": "hi", "front": "Finance Commission: Article, who appoints, composition?", "back": "**Article 280; appointed by the President every five years; a chairman + 4 members.**", "pyq": "Asked: SEBI 2018 Ph-I, NPS Trust 2025 Ph-II", "changed": false, "note": "Qualifications are set by the Finance Commission (Miscellaneous Provisions) Act, 1951. State Finance Commissions: Article 243-I, constituted by the Governor every five years. Statutory grants: Art. 275; discretionary grants: Art. 282."}, {"id": "FC02", "section": "Finance Commission", "topic": "Finance Commission - Constitution and History", "type": "fact", "star": "hi", "front": "Main guiding principle when the FC fixes the States' share (vertical devolution)?", "back": "**Correct the vertical fiscal imbalance** between the Centre (more revenue) and States (more spending duties).", "pyq": "Asked: PFRDA 2025 Ph-I", "changed": false, "note": ""}, {"id": "FC03", "section": "Finance Commission", "topic": "Finance Commission - Constitution and History", "type": "trap", "star": "hi", "front": "Finance Commission vs Finance Ministry: who recommends the Centre-State tax split?", "back": "**Finance Commission** (constitutional, Art. 280) recommends the split and grants. The **Finance Ministry** prepares the Budget and accepts or rejects them; the Planning Commission/NITI Aayog never had this role.", "pyq": "Asked: NPS Trust 2025 Ph-II", "changed": false, "note": ""}, {"id": "FC04", "section": "Finance Commission", "topic": "Finance Commission - Constitution and History", "type": "fact", "star": "md", "front": "First Finance Commission: year and chairman?", "back": "**1951, K.C. Neogy**", "pyq": "", "changed": false, "note": ""}, {"id": "FC05", "section": "Finance Commission", "topic": "Finance Commission - Constitution and History", "type": "fact", "star": "hi", "front": "Chairman of the 15th and the 16th Finance Commission?", "back": "**15th: N.K. Singh (2020-26). 16th: Arvind Panagariya (award 2026-27 to 2030-31).**", "pyq": "Asked: SEBI 2018 Ph-I", "changed": false, "note": "16th FC constituted Dec 2023; members include Ajay Narayan Jha, Annie George Mathew, Manoj Panda."}, {"id": "FC06", "section": "Finance Commission", "topic": "Finance Commission - Devolution", "type": "fact", "star": "hi", "front": "16th FC vertical devolution: States' share of the divisible pool?", "back": "**41%** (unchanged from the 15th FC). The divisible pool excludes cesses, surcharges and cost of collection.", "pyq": "Asked: RBI Gr B 2026", "changed": false, "note": "Web check (16th FC report, tabled 1 Feb 2026; Drishti 4 Feb 2026): 41% confirmed."}, {"id": "FC07", "section": "Finance Commission", "topic": "Finance Commission - Devolution", "type": "fact", "star": "hi", "front": "16th FC horizontal devolution weights?", "back": "**Income distance 42.5%, Population (2011) 17.5%, Area 10%, Forest & ecology 10%, Demographic performance 10%, Contribution to GDP 10% (new).**", "pyq": "", "changed": false, "note": "Web check (Drishti, 4 Feb 2026): weights confirmed. Tax effort (2.5% in the 15th FC) is dropped."}, {"id": "FC08", "section": "Finance Commission", "topic": "Finance Commission - Devolution", "type": "trap", "star": "hi", "front": "15th FC vs 16th FC weights: income distance, population, area, demographic performance?", "back": "**15th: 45%, 15%, 15%, 12.5% (+ forest 10%, tax effort 2.5%). 16th: 42.5%, 17.5%, 10%, 10% (+ forest 10%, GDP contribution 10%).**", "pyq": "Asked: PFRDA 2022 Ph-II, SEBI 2024 Ph-II", "changed": false, "note": "PYQs on 'income distance 45%' and 'demographic performance 12.5%' are 15th FC figures."}, {"id": "FC09", "section": "Finance Commission", "topic": "Finance Commission - Devolution", "type": "fact", "star": "hi", "front": "15th FC performance-based incentives: the four themes?", "back": "**Social sector (health, education), Rural economy, Governance & administrative reforms, Power sector.** Not manufacturing.", "pyq": "Asked: SEBI 2022 Ph-II", "changed": false, "note": ""}, {"id": "FC10", "section": "Finance Commission", "topic": "Finance Commission - Devolution", "type": "fact", "star": "md", "front": "Grants under the 16th FC?", "back": "**Only local body grants and disaster management grants** (about ₹9.47 lakh crore). Revenue deficit, sector-specific and State-specific grants are discontinued.", "pyq": "", "changed": false, "note": "Local body grants: 80% basic, 20% performance. Also recommends Centre's fiscal deficit at 3.5% of GDP by 2030-31 and States at 3% of GSDP."}, {"id": "FR01", "section": "FRBM", "topic": "FRBM - Act and Targets", "type": "fact", "star": "md", "front": "FRBM Act: year enacted, rules in force, and the committee that reviewed it?", "back": "**Enacted 2003; Rules from 5 July 2004. Reviewed by the N.K. Singh Committee (2016, report Jan 2017).**", "pyq": "", "changed": false, "note": "Amended in 2004, 2012, 2015, 2018; suspended 2008-09 to 2012-13."}, {"id": "FR02", "section": "FRBM", "topic": "FRBM - Act and Targets", "type": "fact", "star": "hi", "front": "FRBM fiscal deficit target, and debt ceilings after the 2018 amendment?", "back": "**Fiscal deficit 3% of GDP. General government debt 60% of GDP: Centre 40%, States 20%.**", "pyq": "Asked: NPS Trust 2025 Ph-II, SEBI 2024 Ph-II, RBI Gr B 2018", "changed": false, "note": "The 2018 amendment dropped the revenue deficit and effective revenue deficit targets. FRBM.R1 (2018-19 target 3.3%) is a dated figure."}, {"id": "FR03", "section": "FRBM", "topic": "FRBM - Act and Targets", "type": "fact", "star": "hi", "front": "FRBM definition of fiscal deficit?", "back": "**Total expenditure EXCLUDING debt repayment minus total receipts EXCLUDING debt receipts.**", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": ""}, {"id": "FR04", "section": "FRBM", "topic": "FRBM - Act and Targets", "type": "fact", "star": "hi", "front": "Fiscal deficit: FY26 (revised) and FY27 target; Centre's new debt anchor?", "back": "**FY26 RE 4.4% of GDP; FY27 BE 4.3%. Anchor: central debt about 50% (±1) of GDP by 31 March 2031** (55.6% in 2026-27).", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "Web check (Union Budget 2026-27, PRS): the PDF's figures (FY25 5.1%, revenue deficit 2.0%) are dated. FY27 revenue deficit 1.5%."}, {"id": "FR05", "section": "FRBM", "topic": "FRBM - Act and Targets", "type": "fact", "star": "hi", "front": "FRBM clause that lets the government deviate from the annual deficit target in a calamity or a national-security situation?", "back": "**Escape clause**", "pyq": "Asked: PFRDA 2021 Ph-I", "changed": false, "note": ""}, {"id": "FR06", "section": "FRBM", "topic": "FRBM - Act and Targets", "type": "trap", "star": "md", "front": "Fiscal vs revenue vs primary vs effective revenue deficit?", "back": "**Fiscal: total expenditure - non-debt receipts. Revenue: revenue expenditure - revenue receipts. Primary: fiscal deficit - interest. Effective revenue: revenue deficit - grants for capital assets.**", "pyq": "", "changed": false, "note": ""}, {"id": "FR07", "section": "FRBM", "topic": "FRBM - Act and Targets", "type": "fact", "star": "md", "front": "Four statements laid under the FRBM Act?", "back": "**Medium-term Fiscal Policy Statement, Fiscal Policy Strategy Statement, Macro-economic Framework Statement, Medium-term Expenditure Framework Statement.**", "pyq": "", "changed": false, "note": ""}, {"id": "IN01", "section": "Inflation", "topic": "Inflation - Concepts", "type": "fact", "star": "hi", "front": "When inflation rises, what happens to the value of money?", "back": "**It falls**: each rupee buys less (purchasing power erodes).", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": "Inflation tax: the loss of purchasing power on cash holdings."}, {"id": "IN02", "section": "Inflation", "topic": "Inflation - Concepts", "type": "fact", "star": "hi", "front": "Real interest rate (approx.) from nominal rate and inflation?", "back": "**Real ≈ Nominal - Inflation** (e.g. 10% - 6% = 4%).", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "Exact (Fisher): (1 + nominal) / (1 + inflation) - 1 = 3.77%."}, {"id": "IN03", "section": "Inflation", "topic": "Inflation - Concepts", "type": "trap", "star": "md", "front": "Demand-pull vs cost-push inflation?", "back": "**Demand-pull: too much demand chasing goods. Cost-push: rising input costs (wages, oil) on the supply side.**", "pyq": "", "changed": false, "note": ""}, {"id": "IN04", "section": "Inflation", "topic": "Inflation - Concepts", "type": "trap", "star": "hi", "front": "Stagflation vs disinflation vs deflation vs reflation vs skewflation?", "back": "**Stagflation: high inflation + high unemployment/stagnant growth. Disinflation: inflation slowing but still positive. Deflation: prices falling. Reflation: deliberate revival after a slowdown. Skewflation: price rises in a few items only.**", "pyq": "Asked: RBI Gr B 2019", "changed": false, "note": "US stagflation in the 1970s followed the oil shock."}, {"id": "IN05", "section": "Inflation", "topic": "Inflation - Concepts", "type": "fact", "star": "hi", "front": "Which curve shows an inverse relation between inflation and unemployment?", "back": "**Phillips curve**", "pyq": "Asked: RBI Gr B 2025, SEBI 2020 Ph-II", "changed": false, "note": "Laffer: tax rate vs revenue. Kuznets: inequality vs income. Lorenz: income distribution. Beveridge: vacancies vs unemployment."}, {"id": "IN06", "section": "Inflation", "topic": "Inflation - Concepts", "type": "trap", "star": "hi", "front": "Headline vs core inflation?", "back": "**Headline: all items including food and fuel (CPI-Combined in India). Core: excludes volatile food and fuel.**", "pyq": "Asked: PFRDA (year n/a)", "changed": false, "note": ""}, {"id": "IN07", "section": "Inflation", "topic": "Inflation - Concepts", "type": "fact", "star": "hi", "front": "What does Quantitative Easing mean?", "back": "**Central bank buys securities to release liquidity into the system.**", "pyq": "Asked: NPS Trust 2024 Ph-I", "changed": false, "note": ""}, {"id": "IN08", "section": "Inflation", "topic": "Inflation - Indices and Targeting", "type": "fact", "star": "hi", "front": "Most significant price index in India (used for inflation targeting)?", "back": "**CPI (Combined)**, compiled monthly by the NSO (MoSPI). Not WPI or the GDP deflator.", "pyq": "Asked: PFRDA 2025 Ph-II, PFRDA (year n/a)", "changed": false, "note": ""}, {"id": "IN09", "section": "Inflation", "topic": "Inflation - Indices and Targeting", "type": "fact", "star": "hi", "front": "Current base years: CPI (Combined) and WPI?", "back": "**CPI: 2024 = 100 (new series from Feb 2026, food weight down to about 36.75%). WPI: 2022-23 (new series June 2026, replacing 2011-12), compiled by the Office of the Economic Adviser, DPIIT.**", "pyq": "Asked: RBI Gr B 2018", "changed": false, "note": "Web check (OEA press release, June 2026): WPI base 2022-23 confirmed; the PYQ answer 2011-12 was right in 2018. A Producer Price Index (base 2022-23) was launched alongside. CPI-IW base 2016; CPI-AL/RL base 2019."}, {"id": "IN10", "section": "Inflation", "topic": "Inflation - Indices and Targeting", "type": "trap", "star": "hi", "front": "CPI rising while WPI falls means?", "back": "**Retail prices rising while wholesale prices decline** (e.g. retail food and services up, manufactured goods and fuel down).", "pyq": "Asked: RBI Gr B 2025", "changed": false, "note": ""}, {"id": "IN11", "section": "Inflation", "topic": "Inflation - Indices and Targeting", "type": "fact", "star": "hi", "front": "India's inflation target and tolerance band?", "back": "**CPI inflation 4% ± 2% (2%-6%)**, set by the Centre with RBI under s.45ZA of the RBI Act.", "pyq": "Asked: RBI Gr B (year n/a), IFSCA 2024", "changed": false, "note": "Web check (Govt notification 25 Mar 2026; Drishti): the 4% ±2% CPI target is retained to 31 March 2031. The PYQ asked 'till 2021'."}, {"id": "IN12", "section": "Inflation", "topic": "Inflation - Indices and Targeting", "type": "fact", "star": "md", "front": "When must RBI explain a target failure to the Government?", "back": "**If inflation stays outside 2%-6% for three consecutive quarters.**", "pyq": "", "changed": false, "note": ""}, {"id": "RM01", "section": "Risk Management", "topic": "Risk Management - Types of Risk", "type": "fact", "star": "hi", "front": "Which coefficient measures a stock's systematic risk relative to the market?", "back": "**Beta (β)**. β > 1 more volatile than the market; β < 1 less; β = 1 moves with it.", "pyq": "Asked: RBI Gr B 2017", "changed": false, "note": "Systematic (market) risk cannot be diversified away; unsystematic (firm-specific) risk can. CAPM: E(R) = Rf + β(Rm - Rf)."}, {"id": "RM02", "section": "Risk Management", "topic": "Risk Management - Types of Risk", "type": "trap", "star": "hi", "front": "Market risk vs operational risk: what causes each?", "back": "**Market risk: external factors (interest rates, exchange rates, asset prices). Operational risk: inadequate or failed internal processes, people, systems** (or external events).", "pyq": "Asked: RBI Gr B 2019", "changed": false, "note": ""}, {"id": "RM03", "section": "Risk Management", "topic": "Risk Management - Types of Risk", "type": "fact", "star": "hi", "front": "A business plan loses relevance as markets and consumer tastes change. Which risk?", "back": "**Strategic risk**", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "Reputation risk: loss of public confidence, the 'risk of risks'. Systemic risk: failure spreading across the system."}, {"id": "RM04", "section": "Risk Management", "topic": "Risk Management - Types of Risk", "type": "fact", "star": "hi", "front": "Which is not a credit-risk safeguard: mortgage, collateral, insurance, interest rate swap?", "back": "**Interest rate swap** (it hedges interest rate risk, not default).", "pyq": "Asked: SEBI 2018 Ph-I", "changed": false, "note": ""}, {"id": "RM05", "section": "Risk Management", "topic": "Risk Management - Types of Risk", "type": "fact", "star": "hi", "front": "Define VaR, LGD and EAD.", "back": "**VaR: maximum likely loss over a period at a given confidence level (normal markets). LGD: share of exposure lost on default after recoveries. EAD: total exposure when the borrower defaults.**", "pyq": "Asked: RBI Gr B 2026", "changed": false, "note": "Expected loss = PD × LGD × EAD."}, {"id": "RM06", "section": "Risk Management", "topic": "Risk Management - BIS and Basel Norms", "type": "fact", "star": "hi", "front": "The Bank for International Settlements serves whom, and since when?", "back": "**Central banks** (the 'bank for central banks'); est. **1930** in Basel, the oldest international financial institution.", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": ""}, {"id": "RM07", "section": "Risk Management", "topic": "Risk Management - BIS and Basel Norms", "type": "fact", "star": "hi", "front": "The Basel Committee (BCBS, 1974) was set up to address what, and who represents India?", "back": "**Risks faced by banks** (common supervisory and capital standards). **India: RBI Governor.**", "pyq": "Asked: RBI Gr B 2019, SEBI 2018 Ph-I", "changed": false, "note": ""}, {"id": "RM08", "section": "Risk Management", "topic": "Risk Management - BIS and Basel Norms", "type": "fact", "star": "hi", "front": "Minimum CAR: Basel norm vs RBI norm?", "back": "**Basel: 8% of RWA. RBI: 9%.**", "pyq": "Asked: RBI Gr B 2017", "changed": false, "note": "CAR = (Tier 1 + Tier 2) / RWA. Basel I (1988) covered credit risk; Basel II (2004) added market and operational risk."}, {"id": "RM09", "section": "Risk Management", "topic": "Risk Management - BIS and Basel Norms", "type": "fact", "star": "hi", "front": "Basel II/III three pillars?", "back": "**1. Minimum capital requirement 2. Supervisory review 3. Market discipline (disclosure)**", "pyq": "Asked: RBI Gr B 2018", "changed": false, "note": ""}, {"id": "RM10", "section": "Risk Management", "topic": "Risk Management - BIS and Basel Norms", "type": "fact", "star": "hi", "front": "Which risks must Basel III capital cover?", "back": "**Credit, market and operational risk.** Liquidity risk is handled by LCR and NSFR, not a capital charge.", "pyq": "Asked: RBI Gr B 2018", "changed": false, "note": ""}, {"id": "RM11", "section": "Risk Management", "topic": "Risk Management - BIS and Basel Norms", "type": "fact", "star": "hi", "front": "Basel III capital components and Tier 2 minimum?", "back": "**Tier 1 (CET1 + AT1), Tier 2 and the Capital Conservation Buffer. Tier 2 can be at most 2% of RWA** (8% total less 6% Tier 1).", "pyq": "Asked: RBI Gr B 2018, SEBI 2018 Ph-I", "changed": false, "note": "CCB 2.5% in CET1, so total 10.5% and CET1 4.5% to 7% with buffer. Countercyclical buffer 0-2.5% (RBI: notified but at 0%)."}, {"id": "RM12", "section": "Risk Management", "topic": "Risk Management - BIS and Basel Norms", "type": "fact", "star": "md", "front": "Basel III leverage ratio, LCR and NSFR minimums?", "back": "**Leverage ratio 3% (Tier 1 / total exposure). LCR 100% (HQLA covers 30 days of net outflows). NSFR 100% (stable funding over one year).**", "pyq": "", "changed": false, "note": ""}, {"id": "BT01", "section": "Bonds and TVM", "topic": "Bonds and TVM - Bond Types", "type": "fact", "star": "hi", "front": "Zero-coupon bond: payments?", "back": "**No coupons; issued at a discount, one payment of face value at maturity.** Price = FV / (1 + y)^n.", "pyq": "Asked: RBI Gr B 2017", "changed": false, "note": ""}, {"id": "BT02", "section": "Bonds and TVM", "topic": "Bonds and TVM - Bond Types", "type": "fact", "star": "hi", "front": "Consol bond: what is it, and its synonym?", "back": "**A British government bond with no maturity paying a fixed coupon forever; a perpetual bond.** PV = C / r.", "pyq": "Asked: RBI Gr B 2017, NPS Trust 2025 Ph-I", "changed": false, "note": ""}, {"id": "BT03", "section": "Bonds and TVM", "topic": "Bonds and TVM - Bond Types", "type": "fact", "star": "hi", "front": "Bond that matures and is redeemed in instalments over several dates?", "back": "**Serial bond**", "pyq": "Asked: RBI Gr B 2019", "changed": false, "note": ""}, {"id": "BT04", "section": "Bonds and TVM", "topic": "Bonds and TVM - Bond Types", "type": "trap", "star": "hi", "front": "Municipal revenue bond vs general obligation bond?", "back": "**Revenue bond: for a specific project, repaid from its revenue (tolls, water fees). General obligation bond: backed by the issuer's general taxing power.**", "pyq": "Asked: NPS Trust 2025 Ph-II", "changed": false, "note": ""}, {"id": "BT05", "section": "Bonds and TVM", "topic": "Bonds and TVM - Bond Types", "type": "fact", "star": "md", "front": "Inverse floater coupon?", "back": "**Fixed rate minus the benchmark** (e.g. 6% - repo): coupon rises when rates fall.", "pyq": "", "changed": false, "note": ""}, {"id": "BT06", "section": "Bonds and TVM", "topic": "Bonds and TVM - Bond Types", "type": "trap", "star": "hi", "front": "Bond vs equity: which feature belongs to bonds?", "back": "**Fixed income.** Equity: variable dividend and ownership dilution.", "pyq": "Asked: RBI Gr B 2019", "changed": false, "note": ""}, {"id": "BT07", "section": "Bonds and TVM", "topic": "Bonds and TVM - Yield and Price", "type": "fact", "star": "hi", "front": "YTM assumes coupons are reinvested at what rate?", "back": "**At the YTM itself.** YTM = return if held to maturity with coupons reinvested at that rate.", "pyq": "Asked: RBI Gr B 2017, SEBI 2018 Ph-I", "changed": false, "note": ""}, {"id": "BT08", "section": "Bonds and TVM", "topic": "Bonds and TVM - Yield and Price", "type": "trap", "star": "hi", "front": "Bond price and yield: which statement is false? 'When price increases, yield increases.'", "back": "**False: price and yield move inversely** (Malkiel's first property); the curve is convex, more so for longer maturities.", "pyq": "Asked: SEBI 2018 Ph-I", "changed": false, "note": ""}, {"id": "BT09", "section": "Bonds and TVM", "topic": "Bonds and TVM - Yield and Price", "type": "fact", "star": "hi", "front": "Call risk is associated with which securities?", "back": "**Debt securities (callable bonds)**: the issuer may redeem early when rates fall, forcing reinvestment at lower rates.", "pyq": "Asked: SEBI 2018 Ph-I", "changed": false, "note": "Reinvestment risk: coupons reinvested at lower rates. Yield to call (YTC) is computed to the call date at the call price."}, {"id": "BT10", "section": "Bonds and TVM", "topic": "Bonds and TVM - Yield and Price", "type": "fact", "star": "hi", "front": "Which bond measure is the weighted time to recover the investment in present-value terms?", "back": "**Macaulay duration**", "pyq": "Asked: SEBI 2025 Ph-I", "changed": false, "note": "Modified duration = Macaulay / (1 + y): % price change for a 1% yield change."}, {"id": "BT11", "section": "Bonds and TVM", "topic": "Bonds and TVM - Yield and Price", "type": "trap", "star": "hi", "front": "Clean price vs dirty price?", "back": "**Clean: quoted price without accrued interest. Dirty: clean + interest accrued since the last coupon** (what the buyer pays).", "pyq": "Asked: NPS Trust 2025 Ph-II", "changed": false, "note": ""}, {"id": "BT12", "section": "Bonds and TVM", "topic": "Bonds and TVM - Time Value of Money", "type": "fact", "star": "hi", "front": "Which is not an annuity: monthly rent, quarterly income, semi-annual interest, a one-time lump sum?", "back": "**One-time lump sum.** An annuity is a series of equal payments at equal intervals.\nFV of ordinary annuity = payment × FVIFA (₹5,000 × 5.52 = ₹27,600).", "pyq": "Asked: RBI Gr B 2017", "changed": false, "note": "Ordinary annuity: paid at period end. Annuity due: at the start (FV of annuity due = ordinary × (1 + r))."}, {"id": "BT13", "section": "Bonds and TVM", "topic": "Bonds and TVM - Time Value of Money", "type": "trap", "star": "hi", "front": "Rule of 72 vs rule of 114 vs rule of 144?", "back": "**Years to double = 72 / r. To triple = 114 / r. To quadruple = 144 / r.**", "pyq": "Asked: SEBI 2024 Ph-II, RBI Gr B 2017", "changed": false, "note": ""}, {"id": "MF01", "section": "Mutual Funds", "topic": "Mutual Funds - Structure and Schemes", "type": "fact", "star": "hi", "front": "Mutual fund three-tier structure in India?", "back": "**Sponsor → Trust (trustees) → AMC.** The trust is registered with SEBI (Indian Trusts Act 1882); custodian holds the securities.", "pyq": "", "changed": false, "note": "At least 2/3 of trustees and 50% of AMC directors must be independent. Distributors need AMFI certification and an AMFI registration number (ARN)."}, {"id": "MF02", "section": "Mutual Funds", "topic": "Mutual Funds - Structure and Schemes", "type": "fact", "star": "hi", "front": "NAV stands for?", "back": "**Net Asset Value** = (assets - liabilities) / units outstanding", "pyq": "Asked: SEBI 2020 Ph-I", "changed": false, "note": "NAVs (except fund of funds) go on AMFI's and the fund's website by 9 pm on each business day."}, {"id": "MF03", "section": "Mutual Funds", "topic": "Mutual Funds - Structure and Schemes", "type": "fact", "star": "hi", "front": "Open-ended equity scheme with a 3-year lock-in and tax benefit?", "back": "**ELSS** (Equity Linked Savings Scheme)", "pyq": "Asked: SEBI 2022 Ph-I", "changed": false, "note": "NFO may stay open up to 30 days for ELSS; 15 days for other schemes."}, {"id": "MF04", "section": "Mutual Funds", "topic": "Mutual Funds - Structure and Schemes", "type": "fact", "star": "hi", "front": "A fund that invests in other mutual funds?", "back": "**Fund of Funds**", "pyq": "Asked: NPS Trust 2025 Ph-II", "changed": false, "note": ""}, {"id": "MF05", "section": "Mutual Funds", "topic": "Mutual Funds - Structure and Schemes", "type": "fact", "star": "md", "front": "Entry load vs exit load today?", "back": "**Entry load banned by SEBI; only exit load allowed.** Redemption = units × NAV × (1 - exit load).", "pyq": "", "changed": false, "note": ""}, {"id": "MF06", "section": "Mutual Funds", "topic": "Mutual Funds - Structure and Schemes", "type": "trap", "star": "md", "front": "SIP vs SWP vs STP?", "back": "**SIP: invest a fixed sum regularly. SWP: withdraw regularly from a scheme. STP: move money regularly from one scheme to another.**", "pyq": "", "changed": false, "note": ""}, {"id": "MF07", "section": "Mutual Funds", "topic": "Mutual Funds - Structure and Schemes", "type": "fact", "star": "hi", "front": "Which is treated as risk-free: corporate bonds, gilt funds, FDs, REITs?", "back": "**Gilt (mutual) funds**: they hold only government securities, so no default risk.", "pyq": "Asked: SEBI 2024 Ph-I", "changed": false, "note": "They still carry interest rate risk."}, {"id": "BK01", "section": "Banking", "topic": "Banking - Structure and History", "type": "fact", "star": "md", "front": "Bank nationalisation milestones?", "back": "**Imperial Bank (1921, from the 3 Presidency banks) became SBI in 1955; 14 banks nationalised 1969; 6 more in 1980.** First bank: Bank of Hindustan (1770).", "pyq": "", "changed": false, "note": "Liberalisation began after the Narasimham Committee report of Dec 1991."}, {"id": "BK02", "section": "Banking", "topic": "Banking - Structure and History", "type": "fact", "star": "hi", "front": "Which banks act as the Government's agent for financial inclusion in rural areas?", "back": "**Regional Rural Banks (RRBs)**", "pyq": "Asked: RBI Gr B 2019", "changed": false, "note": ""}, {"id": "BK03", "section": "Banking", "topic": "Banking - Structure and History", "type": "fact", "star": "hi", "front": "Small finance banks (2014): aim, customers, and a non-banking contribution?", "back": "**Serve the underserved: small enterprises, small farmers and low-income households; they also promote financial literacy.** 75% of credit to priority sectors.", "pyq": "Asked: RBI Gr B 2024", "changed": false, "note": "Initial capital ₹200 crore (a committee suggested ₹300 crore); universal banks ₹500 crore (suggested ₹1,000 crore). SFBs can become universal banks."}, {"id": "BK04", "section": "Banking", "topic": "Banking - Structure and History", "type": "fact", "star": "hi", "front": "Which microfinance institution became a universal bank (2015)?", "back": "**Bandhan Financial Services (Bandhan Bank)**", "pyq": "Asked: RBI Gr B 2019", "changed": false, "note": "RBI gave licences to Bandhan and IDFC in 2013-14; on-tap licensing came in 2016."}, {"id": "BK05", "section": "Banking", "topic": "Banking - Structure and History", "type": "fact", "star": "hi", "front": "Narasimham Committee on Banking Sector Reforms (1997-98) recommended what, and which tool came from it?", "back": "**Licensing new private (domestic and foreign) banks; indirect, market-based liquidity tools: the Liquidity Adjustment Facility (LAF).** It did not favour reliance on CRR.", "pyq": "Asked: RBI Gr B 2025", "changed": false, "note": ""}, {"id": "BK06", "section": "Banking", "topic": "Banking - Banking Operations", "type": "trap", "star": "hi", "front": "Hypothecation vs pledge vs mortgage: what passes to the lender?", "back": "**Hypothecation (movables): neither possession nor ownership. Pledge (movables): possession only. Mortgage (immovable): an interest in the property** (Transfer of Property Act 1882).", "pyq": "Asked: RBI Gr B 2019", "changed": false, "note": ""}, {"id": "BK07", "section": "Banking", "topic": "Banking - Banking Operations", "type": "fact", "star": "hi", "front": "Which is non-fund-based: RD, cash credit, fixed credit, letter of credit?", "back": "**Letter of credit** (also bank guarantees): no cash leaves the bank unless invoked.", "pyq": "Asked: RBI Gr B 2019", "changed": false, "note": ""}, {"id": "BK08", "section": "Banking", "topic": "Banking - Banking Operations", "type": "fact", "star": "hi", "front": "Bank outsourcing: what may and may not be outsourced?", "back": "**May: applications processing, document and data processing, investment management, marketing, loan supervision, back office. May not: core management (planning, control, decisions), e.g. KYC compliance, loan sanction, investment portfolio management.**", "pyq": "Asked: RBI Gr B 2022", "changed": false, "note": ""}, {"id": "BK09", "section": "Banking", "topic": "Banking - Banking Operations", "type": "fact", "star": "hi", "front": "Which is non-negotiable: demand draft, currency note, bill of exchange, promissory note, cheque?", "back": "**Currency note** (legal tender, not a negotiable instrument under the NI Act).", "pyq": "Asked: SEBI 2020 Ph-I", "changed": false, "note": ""}, {"id": "BK10", "section": "Banking", "topic": "Banking - Landscape and Payments", "type": "trap", "star": "md", "front": "SARFAESI Act vs IBC?", "back": "**SARFAESI (2002): secured financial creditors enforce security without courts after a 60-day notice. IBC (2016): time-bound resolution for all creditors; prevails over SARFAESI during insolvency.**", "pyq": "", "changed": false, "note": ""}, {"id": "BK11", "section": "Banking", "topic": "Banking - Landscape and Payments", "type": "fact", "star": "hi", "front": "Who runs UPI, when was it set up, and what do you need to pay someone?", "back": "**NPCI (incorporated 2008)** runs and monitors UPI; you need only the receiver's **virtual payment address (UPI ID)**, not bank details.", "pyq": "Asked: RBI Gr B 2017, RBI Gr B 2018, RBI Gr B 2021", "changed": false, "note": "UPI is not run by UIDAI. UPI 123Pay works without internet. NPCI also runs BBPS."}, {"id": "FI01", "section": "Financial Inclusion", "topic": "Financial Inclusion - Social Security Schemes", "type": "trap", "star": "hi", "front": "PMJJBY vs PMSBY: cover type, sum, age band, premium?", "back": "**PMJJBY: life cover for death from any cause, ₹2 lakh, join at 18-50. PMSBY: accidental death/disability, ages 18-70, premium ₹20 a year.**", "pyq": "Asked: RBI Gr B 2023", "changed": false, "note": "Both are one-year covers renewed every 1 June to 31 May through bank or post office accounts with auto-debit. PMJJBY is offered through LIC and other life insurers."}, {"id": "FI02", "section": "Financial Inclusion", "topic": "Financial Inclusion - Social Security Schemes", "type": "fact", "star": "hi", "front": "Atal Pension Yojana: entry age and guaranteed pension range?", "back": "**Join at 18-40; guaranteed ₹1,000 to ₹5,000 a month from age 60** (max ₹5,000).", "pyq": "Asked: RBI Gr B 2023", "changed": false, "note": "Launched 2015 for unorganised workers, with government co-contribution; administered by PFRDA."}, {"id": "FI03", "section": "Financial Inclusion", "topic": "Financial Inclusion - Social Security Schemes", "type": "fact", "star": "hi", "front": "Stand-Up India supports SC/ST and women entrepreneurs in which sectors?", "back": "**Greenfield ventures in manufacturing, services, trading and agriculture-allied activities: all of them.**", "pyq": "Asked: IFSCA 2024", "changed": false, "note": ""}, {"id": "IM01", "section": "Institutions and Markets", "topic": "Institutions and Markets - Regulators and DFIs", "type": "fact", "star": "hi", "front": "Who regulates the capital market, commodity derivatives markets and depository participants?", "back": "**SEBI for all three** (commodity markets since the FMC merged into SEBI in 2015). RBI regulates NBFCs.", "pyq": "Asked: RBI Gr B 2021, NPS Trust 2025 Ph-I", "changed": false, "note": ""}, {"id": "IM02", "section": "Institutions and Markets", "topic": "Institutions and Markets - Regulators and DFIs", "type": "fact", "star": "hi", "front": "SIDBI's Udyami Mitra portal serves whom?", "back": "**Micro, small and medium enterprises** (credit and handholding).", "pyq": "Asked: RBI Gr B 2018", "changed": false, "note": ""}, {"id": "EQ01", "section": "Equity Market", "topic": "Equity Market - Markets and Issues", "type": "trap", "star": "hi", "front": "Primary vs secondary market?", "back": "**Primary: new issues of securities (IPO, FPO). Secondary: trading of existing securities between investors.**", "pyq": "Asked: RBI Gr B 2017, RBI Gr B 2019", "changed": false, "note": ""}, {"id": "EQ02", "section": "Equity Market", "topic": "Equity Market - Markets and Issues", "type": "fact", "star": "hi", "front": "An FPO is which type of issue?", "back": "**Public issue** (by an already listed company)", "pyq": "Asked: IFSCA 2024", "changed": false, "note": ""}, {"id": "EQ03", "section": "Equity Market", "topic": "Equity Market - Markets and Issues", "type": "fact", "star": "hi", "front": "Effect of a 1:1 bonus issue on tangible net worth?", "back": "**No change**: reserves are capitalised into share capital; no cash comes in.", "pyq": "Asked: RBI Gr B 2018", "changed": false, "note": ""}, {"id": "EQ04", "section": "Equity Market", "topic": "Equity Market - Markets and Issues", "type": "fact", "star": "hi", "front": "SEBI's T+2 settlement applies to which corporate action?", "back": "**Bonus issue**", "pyq": "Asked: RBI Gr B 2025", "changed": false, "note": ""}, {"id": "EQ05", "section": "Equity Market", "topic": "Equity Market - Markets and Issues", "type": "fact", "star": "hi", "front": "EPS and P/E ratio?", "back": "**EPS = earnings per share = net profit to equity / number of shares. P/E = market price / EPS** (₹100 / ₹20 = 5).", "pyq": "Asked: SEBI 2018 Ph-II, RBI Gr B 2018", "changed": false, "note": ""}, {"id": "EQ06", "section": "Equity Market", "topic": "Equity Market - Markets and Issues", "type": "fact", "star": "hi", "front": "Method used to compute Sensex and Nifty?", "back": "**Free-float market capitalisation**", "pyq": "Asked: IFSCA (year n/a)", "changed": false, "note": ""}, {"id": "EQ07", "section": "Equity Market", "topic": "Equity Market - Markets and Issues", "type": "fact", "star": "hi", "front": "Minimum government shareholding for a 'government company'?", "back": "**51% of paid-up capital**", "pyq": "Asked: IFSCA 2023", "changed": false, "note": ""}, {"id": "DM01", "section": "Debt Market", "topic": "Debt Market - Recent Rules", "type": "fact", "star": "hi", "front": "Small and Medium REITs (SM REITs): asset size band?", "back": "**₹50 crore** (EduTap's key calls it the regulatory investment cap)", "pyq": "Asked: RBI Gr B 2024", "changed": false, "note": ""}, {"id": "DM02", "section": "Debt Market", "topic": "Debt Market - Recent Rules", "type": "fact", "star": "hi", "front": "Settlement timeline for listed debt securities and NCDs was cut from T+6 to?", "back": "**T+3**", "pyq": "Asked: RBI Gr B 2024", "changed": false, "note": ""}]</script>
+<script type="application/json" id="topics-data">["Derivatives - Basics", "Derivatives - Forwards vs Futures", "Derivatives - Participants and Payoffs", "Derivatives - Margins and Leverage", "Derivatives - Pricing and Basis", "Derivatives - Swaps and CDS", "Options - Call and Put", "Options - Moneyness and Value", "Options - Greeks and Pricing", "Forex Market - Basics and Settlement", "Forex Market - Parity and Exchange Regimes", "Forex Market - RBI's Role and Players", "Forex Market - LRS and NRI Accounts", "Alternate Finance - Leasing and Franchising", "Alternate Finance - Factoring and Forfaiting", "Alternate Finance - TReDS", "Alternate Finance - Crowdfunding, Angels, VCs and P2P", "Alternate Finance - Social Cost and InvITs", "PPP - Concept and Lifecycle", "PPP - PPP Models", "PPP - Appraisal and Support Schemes", "Taxation - Direct Tax Basics", "Taxation - GST", "Finance Commission - Constitution and History", "Finance Commission - Devolution", "FRBM - Act and Targets", "Inflation - Concepts", "Inflation - Indices and Targeting", "Risk Management - Types of Risk", "Risk Management - BIS and Basel Norms", "Bonds and TVM - Bond Types", "Bonds and TVM - Yield and Price", "Bonds and TVM - Time Value of Money", "Mutual Funds - Structure and Schemes", "Banking - Structure and History", "Banking - Banking Operations", "Banking - Landscape and Payments", "Financial Inclusion - Social Security Schemes", "Institutions and Markets - Regulators and DFIs", "Equity Market - Markets and Issues", "Debt Market - Recent Rules"]</script>
+<script id="deck-sync">
+/* DeckSync: cross-device sync of Known / Still learning marks through a private GitHub gist.
+   One token per device (localStorage 'pfrda_sync_token', shared by every deck on this site).
+   One secret gist holds one JSON file per deck. Local marks stay in the deck's own key, unchanged.
+   Merge: union of marks; where devices disagree, the most recent change wins. */
+(function(){
+'use strict';
+var TOKEN_KEY='pfrda_sync_token', GIST_KEY='pfrda_sync_gist', LAST_KEY='pfrda_sync_last';
+var DESC='PFRDA flashcard marks sync (do not delete)';
+var API='https://api.github.com';
+var has=function(o,k){return Object.prototype.hasOwnProperty.call(o,k);};
+function lsGet(k){try{return window.localStorage.getItem(k);}catch(e){return null;}}
+function lsSet(k,v){try{window.localStorage.setItem(k,v);return true;}catch(e){return false;}}
+function lsDel(k){try{window.localStorage.removeItem(k);}catch(e){}}
+function readJSON(k){var r=lsGet(k);if(!r)return null;try{var o=JSON.parse(r);return (o&&typeof o==='object')?o:null;}catch(e){return null;}}
+function clean(o){var p={};if(o)for(var k in o){if(has(o,k)&&(o[k]==='known'||o[k]==='learning'))p[k]=o[k];}return p;}
+function same(a,b){var k;for(k in a){if(has(a,k)&&a[k]!==b[k])return false;}for(k in b){if(has(b,k)&&a[k]!==b[k])return false;}return true;}
+
+var cfg=null, metaKey='', fileName='', meta=null, lastRemote={}, timer=null, busy=false, again=false, dirty=false, ui={};
+
+function token(){var t=lsGet(TOKEN_KEY);return t?t.trim():'';}
+function saveMeta(){lsSet(metaKey,JSON.stringify(meta));}
+function local(){return clean(readJSON(cfg.key));}
+function loadMeta(){
+  meta=readJSON(metaKey);
+  if(!meta||!meta.ts||!meta.snap){
+    /* First run: marks made before sync existed get time 1, so any later change on another device wins over them. */
+    var p=local();meta={ts:{},snap:{}};
+    for(var id in p){meta.ts[id]=1;meta.snap[id]=p[id];}
+    saveMeta();
+  }
+}
+/* Record a time for every card whose mark changed since the last look (mark, unmark, reset, restore). */
+function touch(){
+  if(!cfg)return;
+  var p=local(),now=Date.now(),ch=false,id,seen={};
+  for(id in p){if(has(p,id))seen[id]=1;}
+  for(id in meta.snap){if(has(meta.snap,id))seen[id]=1;}
+  for(id in seen){
+    if((p[id]||'')!==(meta.snap[id]||'')){
+      meta.ts[id]=Math.max(now,(meta.ts[id]||0)+1);
+      if(p[id])meta.snap[id]=p[id];else delete meta.snap[id];
+      ch=true;
+    }
+  }
+  if(ch){saveMeta();dirty=true;if(token())schedule(1500);renderUI();}
+}
+function pick(L,R){
+  if(L[1]>R[1])return L;
+  if(R[1]>L[1])return R;
+  if(L[0]===R[0])return L;
+  if(!L[0])return R;
+  if(!R[0])return L;
+  return ['learning',L[1]]; /* same time, different marks: keep the safer one */
+}
+function merge(rc){
+  touch();
+  var out={},id,seen={};
+  for(id in meta.ts){if(has(meta.ts,id))seen[id]=1;}
+  for(id in rc){if(has(rc,id))seen[id]=1;}
+  for(id in seen){
+    var L=[meta.snap[id]||'',+meta.ts[id]||0];
+    var r=rc[id],R=(r&&r.length===2)?[(r[0]==='known'||r[0]==='learning')?r[0]:'',+r[1]||0]:['',0];
+    var w=pick(L,R);
+    if(w[1]>0)out[id]=w;
+  }
+  var p={},ts={},push=false;
+  for(id in out){
+    ts[id]=out[id][1];if(out[id][0])p[id]=out[id][0];
+    var r2=rc[id];
+    if(!r2||r2[0]!==out[id][0]||+r2[1]!==out[id][1])push=true;
+  }
+  var before=local();
+  meta={ts:ts,snap:p};saveMeta();
+  if(!same(before,p)){lsSet(cfg.key,JSON.stringify(p));try{cfg.onRemote(clean(p));}catch(e){}}
+  return {cards:out,push:push};
+}
+function doc(cards){return JSON.stringify({v:1,deck:cfg.label||fileName,updated:new Date().toISOString(),cards:cards});}
+
+function api(method,path,body,keepalive){
+  var o={method:method,cache:'no-store',headers:{'Authorization':'Bearer '+token(),'Accept':'application/vnd.github+json'}};
+  if(body){o.body=JSON.stringify(body);o.headers['Content-Type']='application/json';}
+  if(keepalive)o.keepalive=true;
+  return fetch(API+path,o).then(function(r){
+    if(!r.ok){var e=new Error('HTTP '+r.status);e.status=r.status;throw e;}
+    return r.status===204?null:r.json();
+  });
+}
+function findOrCreate(){
+  return api('GET','/gists?per_page=100').then(function(list){
+    var m=(list||[]).filter(function(g){return g.description===DESC;});
+    m.sort(function(a,b){return a.created_at<b.created_at?-1:1;});
+    if(m.length)return api('GET','/gists/'+m[0].id);
+    var files={'README.md':{content:'Flashcard marks for the PFRDA decks. Written by the decks; please keep this gist.'}};
+    return api('POST','/gists',{description:DESC,public:false,files:files});
+  }).then(function(g){lsSet(GIST_KEY,g.id);return g;});
+}
+function getGist(){
+  var id=lsGet(GIST_KEY);
+  if(!id)return findOrCreate();
+  return api('GET','/gists/'+id).catch(function(e){if(e.status===404){lsDel(GIST_KEY);return findOrCreate();}throw e;});
+}
+function schedule(ms){clearTimeout(timer);timer=setTimeout(sync,ms);}
+function sync(){
+  clearTimeout(timer);
+  if(!cfg||!token())return;
+  if(busy){again=true;return;}
+  busy=true;setState('Syncing…','busy');
+  getGist().then(function(g){
+    var f=g.files&&g.files[fileName],rc={};
+    if(f&&f.content){try{var d=JSON.parse(f.content);if(d&&d.cards&&typeof d.cards==='object')rc=d.cards;}catch(e){}}
+    var res=merge(rc);
+    lastRemote=res.cards;
+    if(!res.push)return;
+    var files={};files[fileName]={content:doc(res.cards)};
+    return api('PATCH','/gists/'+g.id,{files:files});
+  }).then(function(){
+    dirty=false;lsSet(LAST_KEY,String(Date.now()));setState('','ok');
+  },function(e){
+    var s=e&&e.status;
+    setState(s===401?'Token rejected. Make a new one and connect again.':s===403||s===429?'GitHub is limiting requests. Will retry shortly.':s?'Sync failed ('+s+'). Will retry.':'Offline. Will sync when back online.','err');
+    if(s===401){lsDel(TOKEN_KEY);lsDel(GIST_KEY);setState('','');setNote('GitHub rejected that token. Check it was copied whole, or make a new one, then paste it again.');}
+    else schedule(60000);
+  }).then(function(){busy=false;if(again){again=false;schedule(300);}});
+}
+/* Leaving the page: push what we have without waiting for a read. */
+function flush(){
+  if(!dirty||!token()||busy)return;
+  var id=lsGet(GIST_KEY);if(!id)return;
+  touch();
+  var out={},k;
+  for(k in lastRemote){if(has(lastRemote,k))out[k]=lastRemote[k];}
+  for(k in meta.ts){if(has(meta.ts,k)){var L=[meta.snap[k]||'',+meta.ts[k]];out[k]=out[k]?pick(L,out[k]):L;}}
+  var files={};files[fileName]={content:doc(out)};
+  try{api('PATCH','/gists/'+id,{files:files},true).then(function(){dirty=false;},function(){});}catch(e){}
+}
+
+/* ---------- backup / restore (works with or without sync) ---------- */
+function backup(){
+  var data={deck:cfg.label||fileName,key:cfg.key,exported:new Date().toISOString(),marks:local()};
+  var blob=new Blob([JSON.stringify(data,null,1)],{type:'application/json'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=fileName.replace(/\.json$/,'')+'-marks-'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1500);
+  setNote('Backup saved: '+count(data.marks)+' marked cards.');
+}
+function restore(file){
+  var rd=new FileReader();
+  rd.onload=function(){
+    var d;try{d=JSON.parse(rd.result);}catch(e){setNote('That file is not a marks backup.');return;}
+    if(!d||!d.marks){setNote('That file is not a marks backup.');return;}
+    if(d.key&&d.key!==cfg.key&&!window.confirm('This backup is from another deck ('+(d.deck||d.key)+'). Restore it here anyway?'))return;
+    var p=clean(d.marks);
+    if(!window.confirm('Replace the marks in this deck with the '+count(p)+' marks in the backup?'))return;
+    lsSet(cfg.key,JSON.stringify(p));touch();
+    try{cfg.onRemote(p);}catch(e){}
+    setNote('Restored '+count(p)+' marks.');
+  };
+  rd.readAsText(file);
+}
+function count(p){var n=0;for(var k in p){if(has(p,k))n++;}return n;}
+
+/* ---------- UI ---------- */
+var CSS='.dsync{margin:14px 0 0;border:1px solid var(--line,#d5dbe5);border-radius:10px;background:var(--surface,var(--panel,#fff));color:var(--ink,#18233a);font-size:.875rem}'+
+'.dsync summary{cursor:pointer;padding:10px 12px;display:flex;gap:8px;align-items:center;list-style:none;min-height:44px}'+
+'.dsync summary::-webkit-details-marker{display:none}'+
+'.dsync summary b{font-weight:650}.dsync .dsst{margin-left:auto;color:var(--muted,#5b6578);font-size:.8rem;text-align:right}'+
+'.dsync .dsst.ok{color:var(--known,#2b8a3e)}.dsync .dsst.err{color:var(--changed,var(--learning,#a35f00))}'+
+'.dsync .dsb{padding:0 12px 12px;display:grid;gap:8px}.dsync p{margin:0;color:var(--muted,#5b6578)}'+
+'.dsync input[type=password]{font:inherit;font-size:16px;width:100%;padding:9px 10px;border:1px solid var(--line,#d5dbe5);border-radius:8px;background:var(--surface-2,var(--bg,#f5f7fa));color:inherit}'+
+'.dsync .dsr{display:flex;gap:8px;flex-wrap:wrap}.dsync .dsr button,.dsync .dsr label{flex:1 1 0;min-width:120px;min-height:40px;font:inherit;font-size:.82rem;font-weight:600;border:1px solid var(--line,#d5dbe5);border-radius:8px;background:var(--surface-2,var(--bg,#f5f7fa));color:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:6px 8px;text-align:center}'+
+'.dsync .dsr label input{display:none}.dsync hr{border:0;border-top:1px solid var(--line,#d5dbe5);margin:4px 0}.dsync .dsnote{color:var(--ink,#18233a)}.dsync [hidden]{display:none!important}';
+function el(tag,attrs,text){var e=document.createElement(tag);for(var k in attrs){if(has(attrs,k))e.setAttribute(k,attrs[k]);}if(text)e.textContent=text;return e;}
+function buildUI(anchor){
+  var st=el('style');st.textContent=CSS;document.head.appendChild(st);
+  var d=el('details',{'class':'dsync'});
+  var s=el('summary');s.appendChild(el('b',{},'Sync across devices'));ui.state=el('span',{'class':'dsst'});s.appendChild(ui.state);d.appendChild(s);
+  var b=el('div',{'class':'dsb'});d.appendChild(b);
+  ui.off=el('div',{'class':'dsb',style:'padding:0'});
+  ui.off.appendChild(el('p',{},'Paste your GitHub sync token. You do this once per device; every deck on this site then syncs.'));
+  ui.tok=el('input',{type:'password',autocomplete:'off',autocapitalize:'off',spellcheck:'false',placeholder:'ghp_…','aria-label':'GitHub sync token'});ui.off.appendChild(ui.tok);
+  var r1=el('div',{'class':'dsr'});var bc=el('button',{type:'button'},'Connect this device');r1.appendChild(bc);ui.off.appendChild(r1);
+  ui.on=el('div',{'class':'dsb',style:'padding:0'});
+  ui.msg=el('p');ui.on.appendChild(ui.msg);
+  var r2=el('div',{'class':'dsr'});var bs=el('button',{type:'button'},'Sync now');var bd=el('button',{type:'button'},'Disconnect this device');r2.appendChild(bs);r2.appendChild(bd);ui.on.appendChild(r2);
+  b.appendChild(ui.off);b.appendChild(ui.on);b.appendChild(el('hr'));
+  b.appendChild(el('p',{},'Safety copy of this deck’s marks as a file:'));
+  var r3=el('div',{'class':'dsr'});var bb=el('button',{type:'button'},'Back up marks');var lr=el('label',{},'Restore from backup');var fi=el('input',{type:'file',accept:'.json,application/json'});lr.appendChild(fi);r3.appendChild(bb);r3.appendChild(lr);b.appendChild(r3);
+  ui.note=el('p',{'class':'dsnote',role:'status'});b.appendChild(ui.note);
+  bc.addEventListener('click',function(){var t=ui.tok.value.trim();if(!t){ui.tok.focus();return;}lsSet(TOKEN_KEY,t);ui.tok.value='';renderUI();sync();});
+  bs.addEventListener('click',function(){sync();});
+  bd.addEventListener('click',function(){if(!window.confirm('Stop syncing on this device? Marks already here stay. Other decks on this device stop syncing too.'))return;lsDel(TOKEN_KEY);lsDel(GIST_KEY);setState('','');renderUI();});
+  bb.addEventListener('click',backup);
+  fi.addEventListener('change',function(){if(fi.files&&fi.files[0])restore(fi.files[0]);fi.value='';});
+  anchor.parentNode.insertBefore(d,anchor.nextSibling);
+  ui.root=d;
+}
+var stateText='',stateKind='';
+function setState(t,k){stateText=t;stateKind=k;renderUI();}
+function setNote(t){if(ui.note)ui.note.textContent=t;}
+function ago(ms){var m=Math.round(ms/60000);if(m<1)return 'just now';if(m<60)return m+' min ago';var h=Math.round(m/60);if(h<24)return h+' h ago';return Math.round(h/24)+' d ago';}
+function renderUI(){
+  if(!ui.root)return;
+  var on=!!token();
+  ui.off.hidden=on;ui.on.hidden=!on;
+  var last=+lsGet(LAST_KEY)||0;
+  var lbl=!on?'Off':stateKind==='busy'?'Syncing…':stateKind==='err'?'Not synced':dirty?'Changes waiting':last?'Synced '+ago(Date.now()-last):'On';
+  ui.state.textContent=lbl;
+  ui.state.className='dsst'+(on&&stateKind==='err'?' err':on&&stateKind==='ok'&&!dirty?' ok':'');
+  ui.msg.textContent=stateKind==='err'?stateText:(last?'Last synced '+ago(Date.now()-last)+'. Marks sync by themselves after each change and when you come back to this tab.':'Connected. First sync merges this device’s marks with the other device’s.');
+}
+
+window.DeckSync={
+  init:function(c){
+    try{
+      if(!c||!c.key||!window.localStorage)return;
+      cfg=c;metaKey=c.key+'_sync';fileName=c.key.replace(/_progress$/,'')+'.json';
+      loadMeta();touch();dirty=false;
+      if(c.anchor)buildUI(c.anchor);
+      renderUI();
+      if(token())sync();
+      document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'){if(token())schedule(300);}else flush();});
+      window.addEventListener('pagehide',flush);
+      window.addEventListener('online',function(){if(token())schedule(300);});
+      setInterval(renderUI,60000);
+    }catch(e){cfg=null;}
+  },
+  touch:function(){try{touch();}catch(e){}},
+  sync:sync
+};
+})();
+</script><!--/deck-sync-->
+<script>
+(function(){
+'use strict';
+var KEY='pfrda_finance2_oct2026_progress';
+var THEME_KEY='pfrda_finance2_oct2026_theme';
+var CARDS=JSON.parse(document.getElementById('cards-data').textContent);
+var TOPICS=JSON.parse(document.getElementById('topics-data').textContent);
+var $=function(id){return document.getElementById(id);};
+
+/* ---------- storage (never required) ---------- */
+var storageOk=true;
+function sGet(k){try{return window.localStorage.getItem(k);}catch(e){storageOk=false;return null;}}
+function sSet(k,v){try{window.localStorage.setItem(k,v);return true;}catch(e){storageOk=false;showBanner();return false;}}
+function sDel(k){try{window.localStorage.removeItem(k);}catch(e){storageOk=false;}}
+function showBanner(){ $('banner').hidden=false; }
+(function probe(){try{var t='__pfrda_probe__';window.localStorage.setItem(t,'1');window.localStorage.removeItem(t);}catch(e){storageOk=false;}})();
+
+var progress={};
+(function(){
+  var raw=sGet(KEY);
+  if(!raw) return;
+  try{
+    var o=JSON.parse(raw);
+    if(o && typeof o==='object'){
+      for(var k in o){ if(Object.prototype.hasOwnProperty.call(o,k) && (o[k]==='known'||o[k]==='learning')) progress[k]=o[k]; }
+    }
+  }catch(e){}
+})();
+function saveProgress(){ sSet(KEY,JSON.stringify(progress)); if(window.DeckSync)DeckSync.touch(); }
+
+/* ---------- theme ---------- */
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  $('bTheme').textContent = t==='dark' ? 'Light theme' : 'Dark theme';
+}
+var theme=sGet(THEME_KEY);
+if(theme!=='light' && theme!=='dark'){
+  theme=(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';
+}
+applyTheme(theme);
+
+/* ---------- state ---------- */
+var byId={};
+CARDS.forEach(function(c){byId[c.id]=c;});
+var baseOrder=CARDS.map(function(c){return c.id;});
+var order=baseOrder.slice();
+var filters={topics:[],type:'all',status:'all',hi:false,pyq:false};
+var view=[], pos=0, flipped=false;
+
+function statusOf(id){var s=progress[id];return (s==='known'||s==='learning')?s:'unseen';}
+function matches(c){
+  if(filters.topics.length && filters.topics.indexOf(c.topic)<0) return false;
+  if(filters.type!=='all' && c.type!==filters.type) return false;
+  if(filters.hi && c.star!=='hi') return false;
+  if(filters.pyq && !c.pyq) return false;
+  if(filters.status==='notknown'){ if(statusOf(c.id)==='known') return false; }
+  else if(filters.status!=='all' && statusOf(c.id)!==filters.status) return false;
+  return true;
+}
+function rebuild(keepId){
+  view=order.filter(function(id){return matches(byId[id]);});
+  var i=keepId?view.indexOf(keepId):-1;
+  pos=i>=0?i:0;
+  flipped=false;
+  render();
+}
+
+/* ---------- rendering ---------- */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmt(s){return esc(s).replace(/\*\*([\s\S]+?)\*\*/g,'<strong>$1</strong>');}
+var TYPE_LABEL={fact:'Fact',trap:'Trap',concept:'Concept'};
+var STATUS_LABEL={unseen:'Unseen',learning:'Still learning',known:'Known'};
+
+function renderStats(){
+  var n=view.length,k=0,l=0;
+  view.forEach(function(id){var s=statusOf(id); if(s==='known')k++; else if(s==='learning')l++;});
+  $('sTotal').textContent=n;
+  $('sUnseen').textContent=n-k-l;
+  $('sLearn').textContent=l;
+  $('sKnown').textContent=k;
+  $('sPct').textContent=(n?Math.round(k*100/n):0)+'%';
+}
+function renderCard(){
+  var el=$('card');
+  if(!view.length){
+    el.className='card empty';
+    el.removeAttribute('data-type');
+    el.setAttribute('aria-expanded','false');
+    el.setAttribute('aria-label','No cards match these filters');
+    el.innerHTML='<p class="q" style="margin:0">No cards match these filters.</p><p class="note" style="margin:0">Change or clear a filter above to widen the set.</p><button type="button" id="emptyClear">Clear filters</button>';
+    var b=$('emptyClear'); if(b) b.addEventListener('click',function(e){e.stopPropagation();clearFilters();});
+    return;
+  }
+  var c=byId[view[pos]], st=statusOf(c.id);
+  var h='<div class="meta">';
+  h+='<span class="badge b-type">'+TYPE_LABEL[c.type]+'</span>';
+  if(c.star==='hi') h+='<span class="badge b-star">★ High-yield</span>';
+  else if(c.star==='md') h+='<span class="badge b-star">☆ Medium</span>';
+  if(c.pyq) h+='<span class="badge b-pyq">'+esc(c.pyq)+'</span>';
+  h+='</div>';
+  h+='<div class="topic">'+esc(c.topic)+'</div>';
+  h+='<div class="q">'+fmt(c.front)+'</div>';
+  h+='<div class="hint">Tap the card or press Space to reveal the answer.</div>';
+  h+='<div class="a"><div class="ans">'+fmt(c.back)+'</div>';
+  if(c.note) h+='<div class="note">'+fmt(c.note)+'</div>';
+  h+='</div>';
+  h+='<div class="cfoot"><span>'+(pos+1)+' of '+view.length+(pos===view.length-1?' (end of set)':'')+'</span><span class="s-'+st+'">'+STATUS_LABEL[st]+'</span></div>';
+  el.className='card'+(flipped?' flipped':'');
+  el.setAttribute('data-type',c.type);
+  el.setAttribute('aria-expanded',flipped?'true':'false');
+  el.setAttribute('aria-label','Card '+(pos+1)+' of '+view.length+'. Press Space or Enter to '+(flipped?'hide':'show')+' the answer.');
+  el.innerHTML=h;
+}
+function renderControls(){
+  var has=view.length>0;
+  $('bPrev').disabled=!has||pos===0;
+  $('bNext').disabled=!has||pos>=view.length-1;
+  $('bFlip').disabled=!has;
+  $('bKnown').disabled=!has;
+  $('bLearn').disabled=!has;
+  $('bFlip').textContent=flipped?'Hide answer':'Show answer';
+}
+function render(){ renderCard(); renderControls(); renderStats(); renderFilterSummary(); }
+
+/* ---------- actions ---------- */
+function focusCard(){ try{$('card').focus({preventScroll:true});}catch(e){$('card').focus();} }
+function flip(){
+  if(!view.length) return;
+  flipped=!flipped;
+  var el=$('card');
+  el.classList.toggle('flipped',flipped);
+  el.setAttribute('aria-expanded',flipped?'true':'false');
+  $('bFlip').textContent=flipped?'Hide answer':'Show answer';
+}
+function go(d){
+  if(!view.length) return;
+  var p=pos+d;
+  if(p<0||p>=view.length) return;
+  pos=p; flipped=false; render();
+}
+function mark(val){
+  if(!view.length) return;
+  progress[view[pos]]=val;
+  saveProgress();
+  if(pos<view.length-1){pos++;flipped=false;}
+  render();
+}
+function shuffle(){
+  var keep=null;
+  for(var i=order.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=order[i];order[i]=order[j];order[j]=t;}
+  rebuild(keep);
+}
+function resetOrder(){ order=baseOrder.slice(); rebuild(null); }
+
+/* ---------- modal ---------- */
+var lastFocus=null;
+function openModal(){
+  lastFocus=document.activeElement;
+  $('mText').textContent='This clears every Known and Still learning mark for all '+CARDS.length+' cards saved in this browser.';
+  $('modal').hidden=false;
+  $('mCancel').focus();
+}
+function closeModal(){ $('modal').hidden=true; if(lastFocus&&lastFocus.focus) lastFocus.focus(); else focusCard(); }
+function doReset(){
+  progress={}; sDel(KEY); if(window.DeckSync)DeckSync.touch();
+  var cur=view.length?view[pos]:null;
+  $('modal').hidden=true;
+  rebuild(cur);
+  focusCard();
+}
+
+/* ---------- filters UI ---------- */
+/* Topic picker: one native select. Each area is an optgroup whose first option takes the whole area. */
+var PREF_KEY='pfrda_finance2_oct2026_filters';
+var topicCounts={}, groupOf={}, GROUPS=[], groupTopics={}, groupCounts={};
+CARDS.forEach(function(c){
+  topicCounts[c.topic]=(topicCounts[c.topic]||0)+1;
+  if(!groupOf[c.topic] || (groupOf[c.topic]==='Addendum' && c.section!=='Addendum')) groupOf[c.topic]=c.section;
+});
+TOPICS.forEach(function(t){
+  if(!topicCounts[t]) return;
+  var g=groupOf[t];
+  if(!groupTopics[g]){ GROUPS.push(g); groupTopics[g]=[]; groupCounts[g]=0; }
+  groupTopics[g].push(t); groupCounts[g]+=topicCounts[t];
+});
+function shortTopic(t,g){
+  var seps=[' — ',' - '];
+  for(var i=0;i<seps.length;i++){ if(t.indexOf(g+seps[i])===0) return t.slice((g+seps[i]).length); }
+  return t.replace(/^\d+\s+/,'');
+}
+(function buildTopics(){
+  var h='<option value="all">All topics ('+CARDS.length+')</option>';
+  GROUPS.forEach(function(g,gi){
+    h+='<optgroup label="'+esc(g)+'">';
+    h+='<option value="g:'+gi+'">All of '+esc(g)+' ('+groupCounts[g]+')</option>';
+    groupTopics[g].forEach(function(t){
+      h+='<option value="t:'+TOPICS.indexOf(t)+'">'+esc(shortTopic(t,g))+' ('+topicCounts[t]+')</option>';
+    });
+    h+='</optgroup>';
+  });
+  $('topicSel').innerHTML=h;
+})();
+var topicChoice='all';
+function topicsFor(v){
+  if(v.indexOf('g:')===0){ var g=GROUPS[+v.slice(2)]; return g?groupTopics[g].slice():[]; }
+  if(v.indexOf('t:')===0){ var t=TOPICS[+v.slice(2)]; return t?[t]:[]; }
+  return [];
+}
+function savePrefs(){
+  sSet(PREF_KEY,JSON.stringify({topic:topicChoice,type:filters.type,status:filters.status,hi:filters.hi,pyq:filters.pyq}));
+}
+function syncFilterUI(){
+  $('topicSel').value=topicChoice;
+  $('typeSel').value=filters.type;
+  $('statusSel').value=filters.status;
+  $('topicSel').classList.toggle('on',topicChoice!=='all');
+  $('typeSel').classList.toggle('on',filters.type!=='all');
+  $('statusSel').classList.toggle('on',filters.status!=='all');
+  $('fHi').setAttribute('aria-pressed',filters.hi?'true':'false');
+  $('fPyq').setAttribute('aria-pressed',filters.pyq?'true':'false');
+}
+(function loadPrefs(){
+  var raw=sGet(PREF_KEY); if(!raw) return;
+  try{
+    var o=JSON.parse(raw); if(!o||typeof o!=='object') return;
+    if(typeof o.topic==='string' && $('topicSel').querySelector('option[value="'+o.topic.replace(/"/g,'')+'"]')){ topicChoice=o.topic; filters.topics=topicsFor(o.topic); }
+    if(['all','fact','trap','concept'].indexOf(o.type)>=0) filters.type=o.type;
+    if(['all','unseen','learning','known','notknown'].indexOf(o.status)>=0) filters.status=o.status;
+    filters.hi=o.hi===true; filters.pyq=o.pyq===true;
+  }catch(e){}
+})();
+function onFilterChange(){
+  savePrefs();
+  syncFilterUI();
+  var cur=view.length?view[pos]:null;
+  rebuild(cur);
+}
+$('topicSel').addEventListener('change',function(){ topicChoice=this.value; filters.topics=topicsFor(topicChoice); onFilterChange(); });
+$('typeSel').addEventListener('change',function(){ filters.type=this.value; onFilterChange(); });
+$('statusSel').addEventListener('change',function(){ filters.status=this.value; onFilterChange(); });
+$('fHi').addEventListener('click',function(){ filters.hi=!filters.hi; onFilterChange(); });
+$('fPyq').addEventListener('click',function(){ filters.pyq=!filters.pyq; onFilterChange(); });
+function clearFilters(){
+  filters={topics:[],type:'all',status:'all',hi:false,pyq:false};
+  topicChoice='all';
+  onFilterChange();
+}
+$('fClear').addEventListener('click',clearFilters);
+function renderFilterSummary(){
+  var on=topicChoice!=='all'||filters.type!=='all'||filters.status!=='all'||filters.hi||filters.pyq;
+  $('fClear').hidden=!on;
+}
+syncFilterUI();
+
+/* ---------- wiring ---------- */
+$('card').addEventListener('click',function(e){
+  if(!view.length) return;
+  var sel=window.getSelection && String(window.getSelection());
+  if(sel && sel.length>0 && flipped) return;
+  flip();
+});
+function bind(id,fn){ $(id).addEventListener('click',function(){ fn(); if(id!=='bReset') focusCard(); }); }
+bind('bPrev',function(){go(-1);});
+bind('bNext',function(){go(1);});
+bind('bFlip',flip);
+bind('bKnown',function(){mark('known');});
+bind('bLearn',function(){mark('learning');});
+bind('bShuffle',shuffle);
+bind('bOrder',resetOrder);
+bind('bReset',openModal);
+bind('bTheme',function(){ theme=theme==='dark'?'light':'dark'; applyTheme(theme); sSet(THEME_KEY,theme); });
+$('mCancel').addEventListener('click',closeModal);
+$('mOk').addEventListener('click',doReset);
+$('modal').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
+
+document.addEventListener('keydown',function(e){
+  if(!$('modal').hidden){ if(e.key==='Escape'){e.preventDefault();closeModal();} return; }
+  if(e.ctrlKey||e.metaKey||e.altKey) return;
+  var t=e.target, tag=(t&&t.tagName||'').toLowerCase();
+  if(tag==='input'||tag==='select'||tag==='textarea'||tag==='summary'||(t&&t.isContentEditable)) return;
+  var k=e.key;
+  if(k===' '||k==='Spacebar'||k==='Enter'){
+    if(tag==='button') return;
+    e.preventDefault(); flip(); return;
+  }
+  if(k==='ArrowRight'){e.preventDefault();go(1);focusCard();return;}
+  if(k==='ArrowLeft'){e.preventDefault();go(-1);focusCard();return;}
+  if(k==='k'||k==='K'){e.preventDefault();mark('known');focusCard();return;}
+  if(k==='l'||k==='L'){e.preventDefault();mark('learning');focusCard();return;}
+});
+
+$('sub').textContent='PFRDA Grade A 2026 · Phase II Paper 2 · EduTap summaries + PYQs; only facts Part 1 lacks. '+CARDS.length+' cards.';
+if(!storageOk) showBanner();
+rebuild(null);
+if(window.DeckSync)DeckSync.init({key:KEY,label:document.title,anchor:document.querySelector('.kbd')||$('modal'),onRemote:function(p){var cur=view.length?view[pos]:null,f=flipped;progress=p;rebuild(cur);if(f&&view[pos]===cur)flip();}});
+})();
+</script>
+</body>
+</html>
