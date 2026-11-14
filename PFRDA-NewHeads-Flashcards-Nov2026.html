@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PFRDA AI, Media & Marketing flashcards (Nov 2026)</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#EEF1F5; --surface:#FFFFFF; --surface-2:#F5F7FA; --ink:#18233A; --muted:#5B6578; --line:#D5DBE5;
+  --fact:#2F4B7C; --trap:#7A3E9D; --concept:#0F766E; --changed:#D9480F;
+  --known:#2B8A3E; --learning:#A35F00; --star:#8A6A00; --focus:#2F6FEB; --on-solid:#FFFFFF;
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0F1522; --surface:#182133; --surface-2:#1E293D; --ink:#E7EBF2; --muted:#A3ACBE; --line:#2C3852;
+  --fact:#9DB8EA; --trap:#D1A3EC; --concept:#5ED0C2; --changed:#FF8A4C;
+  --known:#6CC77D; --learning:#F0B44C; --star:#E8C547; --focus:#7AA7FF; --on-solid:#0F1522;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans","Helvetica Neue",Arial,sans-serif;
+  font-size:16px; line-height:1.5; -webkit-text-size-adjust:100%; overflow-x:hidden;
+}
+.wrap{max-width:640px;margin:0 auto;padding:16px 14px calc(28px + env(safe-area-inset-bottom,0px))}
+header h1{font-size:1.3rem;line-height:1.25;margin:0;font-weight:750;letter-spacing:-0.01em}
+header p{margin:4px 0 0;color:var(--muted);font-size:.875rem}
+.banner{margin:12px 0 0;padding:10px 12px;border:1px solid var(--learning);border-radius:10px;color:var(--ink);background:var(--surface);font-size:.875rem}
+.banner[hidden]{display:none}
+
+.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:14px 0}
+.stat{background:var(--surface);padding:8px 2px 6px;text-align:center;min-width:0}
+.stat b{display:block;font-size:1.05rem;font-variant-numeric:tabular-nums;line-height:1.3}
+.stat span{display:block;font-size:.7rem;color:var(--muted);line-height:1.25}
+.stat.k b{color:var(--known)} .stat.l b{color:var(--learning)}
+
+/* Filter bar: compact native selects + toggles (same layout as the Management deck), so the card sits right below. */
+.fbar{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-bottom:14px}
+.fbar select{
+  font:inherit;font-size:.9rem;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;
+  min-height:44px;padding:8px 10px;width:100%;min-width:0;cursor:pointer;
+}
+.fbar #topicSel{grid-column:1/-1}
+.fbar select.on{border-color:var(--fact);box-shadow:inset 0 0 0 1px var(--fact)}
+.ftog{grid-column:1/-1;display:flex;gap:8px}
+.ftog button{flex:1 1 auto;min-width:0;min-height:44px;font-size:.86rem;font-weight:600;padding:6px 8px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ftog button[aria-pressed="true"]{color:var(--surface);background:var(--ink);border-color:var(--ink)}
+.ftog button.fclear{flex:0 0 auto;padding:6px 12px;color:var(--changed);border-color:var(--changed)}
+.ftog button.fclear[hidden]{display:none}
+.fbar select:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+
+.card{
+  --accent:var(--fact);
+  background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--accent);border-radius:12px;
+  padding:14px 16px 14px;min-height:min(52vh,460px);display:flex;flex-direction:column;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;outline:none;user-select:text;
+}
+.card[data-type="trap"]{--accent:var(--trap)}
+.card[data-type="concept"]{--accent:var(--concept)}
+.card:focus-visible{box-shadow:0 0 0 3px var(--focus)}
+.card.empty{cursor:default;border-left-color:var(--line);justify-content:center;align-items:flex-start;gap:12px}
+.meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.badge{font-size:.74rem;font-weight:650;padding:2px 8px;border-radius:999px;border:1px solid currentColor;line-height:1.35;max-width:100%;overflow-wrap:anywhere}
+.b-type{color:var(--accent)}
+.b-star{color:var(--star)}
+.b-pyq{color:var(--muted);font-weight:550;border-radius:8px}
+.topic{font-size:.8rem;color:var(--muted);margin:8px 0 0;overflow-wrap:anywhere}
+.q{font-size:1.2rem;font-weight:650;line-height:1.42;margin:14px 0 0;overflow-wrap:anywhere}
+.hint{margin-top:auto;padding-top:18px;color:var(--muted);font-size:.85rem}
+.a{display:none;margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.card.flipped .a{display:block}
+.card.flipped .hint{display:none}
+.ans{font-size:1.14rem;line-height:1.5;overflow-wrap:anywhere;white-space:pre-line}
+.ans strong{font-weight:800}
+.card[data-type="concept"] .ans{font-size:1.02rem;line-height:1.6}
+.note{margin-top:10px;font-size:.82rem;line-height:1.45;color:var(--muted);overflow-wrap:anywhere}
+.cfoot{display:flex;justify-content:space-between;gap:10px;margin-top:16px;font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.cfoot .s-known{color:var(--known);font-weight:650}
+.cfoot .s-learning{color:var(--learning);font-weight:650}
+@media (prefers-reduced-motion:no-preference){
+  .card.flipped .a{animation:reveal .16s ease-out}
+  @keyframes reveal{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+}
+
+.controls{display:grid;gap:8px;margin-top:12px}
+.row{display:grid;gap:8px}
+.row.nav{grid-template-columns:1fr 1.35fr 1fr}
+.row.mark{grid-template-columns:1fr 1fr}
+.row.tools{grid-template-columns:repeat(4,minmax(0,1fr))}
+button{
+  font:inherit;min-height:48px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  font-weight:650;padding:8px 10px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+}
+button:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+button:disabled{opacity:.45;cursor:default}
+.b-flip{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.b-known{background:var(--known);border-color:var(--known);color:var(--on-solid)}
+.b-learn{background:var(--surface);border:2px solid var(--learning);color:var(--learning)}
+.row.tools button{font-size:.82rem;font-weight:550;color:var(--muted);min-height:44px;padding:6px 4px}
+.kbd{display:none;margin:12px 0 0;font-size:.8rem;color:var(--muted)}
+@media (hover:hover) and (pointer:fine){.kbd{display:block}}
+@media (max-width:380px){
+  .row.tools{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .q{font-size:1.12rem}
+}
+.modal{position:fixed;inset:0;background:rgba(10,14,24,.55);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+.modal[hidden]{display:none}
+.mbox{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:18px;max-width:420px;width:100%}
+.mbox h2{font-size:1.1rem;margin:0 0 6px}
+.mbox p{margin:0 0 16px;color:var(--muted);font-size:.92rem}
+.b-danger{background:var(--changed);border-color:var(--changed);color:var(--on-solid)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>AI, Media, Marketing & Communication</h1>
+    <p id="sub">PFRDA Grade A 2026 · Phase I Paper 2</p>
+    <p class="banner" id="banner" hidden>Progress can't be saved in this browser view, so your marks will reset when the page closes.</p>
+  </header>
+
+  <div class="stats" aria-live="polite">
+    <div class="stat"><b id="sTotal">0</b><span>In filter</span></div>
+    <div class="stat"><b id="sUnseen">0</b><span>Unseen</span></div>
+    <div class="stat l"><b id="sLearn">0</b><span>Still learning</span></div>
+    <div class="stat k"><b id="sKnown">0</b><span>Known</span></div>
+    <div class="stat"><b id="sPct">0%</b><span>Known</span></div>
+  </div>
+
+  <div class="fbar" id="filters">
+    <select id="topicSel" aria-label="Filter by topic"></select>
+    <select id="statusSel" aria-label="Filter by status">
+      <option value="all">All statuses</option>
+      <option value="unseen">Unseen</option>
+      <option value="learning">Still learning</option>
+      <option value="known">Known</option>
+      <option value="notknown">Not yet known</option>
+    </select>
+    <select id="typeSel" aria-label="Filter by card type">
+      <option value="all">All card types</option>
+      <option value="fact">Fact</option>
+      <option value="trap">Trap</option>
+      <option value="concept">Concept</option>
+    </select>
+    <div class="ftog">
+    <button type="button" id="fHi" aria-pressed="false">★ High-yield</button>
+    <button type="button" id="fPyq" aria-pressed="false">PYQ</button>
+    <button type="button" class="fclear" id="fClear" hidden>Clear</button>
+    </div>
+  </div>
+
+  <main>
+    <div class="card" id="card" tabindex="0" role="button" aria-expanded="false"></div>
+  </main>
+
+  <div class="controls">
+    <div class="row nav">
+      <button type="button" id="bPrev">Prev</button>
+      <button type="button" class="b-flip" id="bFlip">Show answer</button>
+      <button type="button" id="bNext">Next</button>
+    </div>
+    <div class="row mark">
+      <button type="button" class="b-learn" id="bLearn">Still learning</button>
+      <button type="button" class="b-known" id="bKnown">Known</button>
+    </div>
+    <div class="row tools">
+      <button type="button" id="bShuffle">Shuffle</button>
+      <button type="button" id="bOrder">Reset order</button>
+      <button type="button" id="bReset">Reset progress</button>
+      <button type="button" id="bTheme">Dark theme</button>
+    </div>
+  </div>
+  <p class="kbd">Keyboard: left and right arrows to move, Space or Enter to flip, K for known, L for still learning.</p>
+</div>
+
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="mbox">
+    <h2 id="mTitle">Reset progress?</h2>
+    <p id="mText">This clears every Known and Still learning mark saved in this browser.</p>
+    <div class="row mark">
+      <button type="button" id="mCancel">Cancel</button>
+      <button type="button" class="b-danger" id="mOk">Reset progress</button>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" id="cards-data">[{"id": "NH001", "section": "AI & ML", "topic": "AI & ML - Learning Types & Models", "type": "trap", "star": "hi", "front": "Missing values are filled with the median, but the median is computed using the validation and test data too. What problem is this?", "back": "**Data leakage**: information from data the model should never see gets into training, so test scores look better than real-world performance", "pyq": "PFRDA 2026 Ph-I", "changed": false, "note": "Source: Real P1 2026. Fix: compute every preprocessing statistic (median, mean, scaling) on the training set only, then apply it to validation/test. Distractors in the paper: underfitting, class imbalance, vanishing gradient, multicollinearity."}, {"id": "NH002", "section": "AI & ML", "topic": "AI & ML - Learning Types & Models", "type": "trap", "star": "hi", "front": "Name the learning type: (a) predict loan default yes/no from labelled history (b) predict a house price (c) group customers with no labels (d) an app learns by rewards and penalties", "back": "**(a) supervised classification (b) supervised regression (c) unsupervised clustering (d) reinforcement learning**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Logistic regression is a CLASSIFICATION method despite its name. Predicting a number = regression."}, {"id": "NH003", "section": "AI & ML", "topic": "AI & ML - Learning Types & Models", "type": "trap", "star": "hi", "front": "k-NN vs k-means?", "back": "**k-NN: supervised; labels a new point by the majority of its k nearest neighbours\nk-means: unsupervised; splits data into k clusters around centroids**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Same letter, different families. Clustering is always unsupervised."}, {"id": "NH004", "section": "AI & ML", "topic": "AI & ML - Learning Types & Models", "type": "fact", "star": "md", "front": "Semi-supervised vs self-supervised learning?", "back": "**Semi-supervised: a few labelled + many unlabelled examples\nSelf-supervised: the data labels itself (hide a word, predict it); how LLMs are pre-trained**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH005", "section": "AI & ML", "topic": "AI & ML - Learning Types & Models", "type": "fact", "star": "hi", "front": "Reinforcement learning: its six terms, and the exploration-exploitation trade-off?", "back": "**Agent, environment, state, action, reward, policy** (the strategy mapping states to actions)\n**Exploration: try new actions to learn; exploitation: use the best known action**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Algorithms: Q-learning, deep Q-networks. Uses: games (AlphaGo), robotics, trading, ad bidding. RLHF = RL from human feedback, used to align chatbots."}, {"id": "NH006", "section": "AI & ML", "topic": "AI & ML - Learning Types & Models", "type": "trap", "star": "hi", "front": "Parameters vs hyperparameters? Give examples.", "back": "**Parameters: learned from data during training (weights, coefficients)\nHyperparameters: set BEFORE training (learning rate, k in k-NN, tree depth, number of epochs)**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Hyperparameters are tuned with the validation set or cross-validation (grid search, random search)."}, {"id": "NH007", "section": "AI & ML", "topic": "AI & ML - Learning Types & Models", "type": "fact", "star": "md", "front": "Introduction to ML models: decision tree, random forest, gradient boosting, SVM, Naive Bayes in one line each?", "back": "**Decision tree: if-then splits\nRandom forest: many trees on random samples, majority vote (bagging)\nGradient boosting (XGBoost): trees built in sequence, each fixing the last one's errors (boosting)\nSVM: widest-margin boundary between classes\nNaive Bayes: Bayes' theorem assuming features independent (spam filters)**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Bagging = parallel, reduces variance. Boosting = sequential, reduces bias."}, {"id": "NH008", "section": "AI & ML", "topic": "AI & ML - Learning Types & Models", "type": "fact", "star": "md", "front": "Deep learning: which network for which data?", "back": "**CNN: images (convolutions)\nRNN / LSTM: sequences and time series\nTransformer: language, via self-attention (basis of LLMs)**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). A neural network = layers of nodes with activation functions, trained by backpropagation and gradient descent."}, {"id": "NH009", "section": "AI & ML", "topic": "AI & ML - Data Preprocessing", "type": "fact", "star": "hi", "front": "ML workflow in order?", "back": "**Define problem → collect data → preprocess → split (train/validation/test) → train → evaluate → tune → deploy → monitor** (for drift)", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Model drift: real-world data changes after deployment, so performance decays; retrain."}, {"id": "NH010", "section": "AI & ML", "topic": "AI & ML - Data Preprocessing", "type": "trap", "star": "hi", "front": "Missing values: options, and why median over mean?", "back": "**Delete rows/columns, or impute with mean / median / mode** (mode for categories), or model-based imputation\n**Median is robust to outliers**; the mean gets pulled by extremes", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH011", "section": "AI & ML", "topic": "AI & ML - Data Preprocessing", "type": "trap", "star": "hi", "front": "Numerical: x = 50 in a feature with min 10, max 110, mean 40, SD 5. Min-max normalised value? Standardised (z) value?", "back": "**Normalised = (50−10)/(110−10) = 0.4** (range 0 to 1)\n**z = (50−40)/5 = 2** (mean 0, SD 1)", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Normalisation = min-max scaling. Standardisation = z-score. Distance-based models (k-NN, SVM, k-means) need scaling; trees don't."}, {"id": "NH012", "section": "AI & ML", "topic": "AI & ML - Data Preprocessing", "type": "trap", "star": "md", "front": "One-hot vs label encoding: when is label encoding a mistake?", "back": "**Label encoding gives 0,1,2… which implies an order**: fine for ordinal data (low/medium/high), wrong for nominal data (city names) → use **one-hot** (one 0/1 column per category)", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH013", "section": "AI & ML", "topic": "AI & ML - Data Preprocessing", "type": "trap", "star": "hi", "front": "Train vs validation vs test set?", "back": "**Train: fit the model\nValidation: tune hyperparameters, choose a model\nTest: used ONCE at the end for an unbiased score**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Typical split 70/15/15 or 80/10/10. Using test data during tuning is leakage."}, {"id": "NH014", "section": "AI & ML", "topic": "AI & ML - Data Preprocessing", "type": "trap", "star": "hi", "front": "99% of transactions are genuine. A model that calls everything genuine scores 99% accuracy. What is the problem and the fix?", "back": "**Class imbalance**: accuracy misleads\nFix: use **precision, recall, F1, PR-AUC**; resample (oversample minority, **SMOTE**, undersample majority) or use class weights", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). SMOTE = Synthetic Minority Over-sampling Technique."}, {"id": "NH015", "section": "AI & ML", "topic": "AI & ML - Data Preprocessing", "type": "fact", "star": "md", "front": "PCA and the curse of dimensionality?", "back": "**PCA (principal component analysis): unsupervised dimensionality reduction**; turns many correlated features into a few uncorrelated components that keep most variance\n**Curse of dimensionality: with too many features, data gets sparse and models overfit**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH016", "section": "AI & ML", "topic": "AI & ML - Model Evaluation", "type": "trap", "star": "hi", "front": "Confusion matrix: which error is a false positive, and which is Type II?", "back": "**FP = Type I error: flagged positive, actually negative (false alarm)\nFN = Type II error: missed a real positive**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH017", "section": "AI & ML", "topic": "AI & ML - Model Evaluation", "type": "trap", "star": "hi", "front": "Numerical: TP 80, FP 20, FN 40, TN 860. Accuracy, precision, recall, F1?", "back": "**Accuracy = 940/1000 = 94%\nPrecision = 80/100 = 0.80\nRecall = 80/120 = 0.67\nF1 = 2×0.8×0.67/(0.8+0.67) ≈ 0.73**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Precision divides by everything FLAGGED (TP+FP). Recall divides by everything REAL (TP+FN). F1 = harmonic mean, so it sits nearer the lower number."}, {"id": "NH018", "section": "AI & ML", "topic": "AI & ML - Model Evaluation", "type": "trap", "star": "hi", "front": "Which metric matters most: (a) cancer or fraud screening (b) a spam filter that must not lose real mail (c) imbalanced data where both errors matter?", "back": "**(a) Recall** (don't miss positives)\n**(b) Precision** (don't flag good mail)\n**(c) F1 score**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH019", "section": "AI & ML", "topic": "AI & ML - Model Evaluation", "type": "fact", "star": "md", "front": "Specificity, ROC curve and AUC?", "back": "**Specificity = TN/(TN+FP)** (true negative rate)\n**ROC: plots TPR (recall) against FPR at every threshold\nAUC: 0.5 = random guessing, 1 = perfect**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH020", "section": "AI & ML", "topic": "AI & ML - Model Evaluation", "type": "trap", "star": "md", "front": "Numerical: a regression model's errors are 2, −4 and 4. MAE, MSE, RMSE?", "back": "**MAE = (2+4+4)/3 = 3.33\nMSE = (4+16+16)/3 = 12\nRMSE = √12 ≈ 3.46**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). RMSE punishes big errors more than MAE. R² = share of variance explained (1 = perfect)."}, {"id": "NH021", "section": "AI & ML", "topic": "AI & ML - Overfitting & Cross-Validation", "type": "trap", "star": "hi", "front": "Model A: train 98%, test 70%. Model B: train 60%, test 58%. Diagnose each and give fixes.", "back": "**A = overfitting (high variance, low bias)**: more data, regularisation, simpler model, dropout, early stopping, pruning\n**B = underfitting (high bias)**: more complex model, more features, train longer, less regularisation", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Bias-variance trade-off: making a model more complex lowers bias but raises variance."}, {"id": "NH022", "section": "AI & ML", "topic": "AI & ML - Overfitting & Cross-Validation", "type": "trap", "star": "hi", "front": "L1 vs L2 regularisation?", "back": "**L1 = Lasso: can shrink weights to exactly zero → also does feature selection\nL2 = Ridge: shrinks all weights towards zero, none to zero**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Elastic Net = both. Regularisation adds a penalty for large weights to curb overfitting."}, {"id": "NH023", "section": "AI & ML", "topic": "AI & ML - Overfitting & Cross-Validation", "type": "trap", "star": "hi", "front": "Numerical: 5-fold cross-validation on 1,000 rows. How many rows train and test in each round, and how many times is the model trained?", "back": "**Each fold = 200 rows; train on 800, test on 200; trained 5 times**, then the 5 scores are averaged", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Leave-one-out: k = number of rows. Stratified k-fold keeps the class ratio in each fold. Time-series CV: rolling forward, never shuffle (no future data in training)."}, {"id": "NH024", "section": "AI & ML", "topic": "AI & ML - Overfitting & Cross-Validation", "type": "fact", "star": "md", "front": "Why cross-validate instead of one train-test split?", "back": "**A more reliable estimate of performance on unseen data**, uses all data for both training and testing, and **reveals overfitting**; also used to tune hyperparameters (grid / random search)", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH025", "section": "AI & ML", "topic": "AI & ML - NLP & Sentiment", "type": "trap", "star": "hi", "front": "NLP terms: tokenisation, stop words, stemming vs lemmatisation, POS tagging, NER?", "back": "**Tokenisation: split text into tokens\nStop words: drop 'the, is, a'\nStemming: crude chop (studies → studi); lemmatisation: dictionary form (studies → study)\nPOS: noun/verb tags\nNER: finds names of people, places, firms**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH026", "section": "AI & ML", "topic": "AI & ML - NLP & Sentiment", "type": "fact", "star": "md", "front": "Bag of words / TF-IDF vs word embeddings?", "back": "**BoW / TF-IDF: count-based; ignore meaning and order** (TF-IDF downweights common words)\n**Embeddings (Word2Vec, GloVe, BERT): dense vectors where similar meanings sit close** (king − man + woman ≈ queen)", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH027", "section": "AI & ML", "topic": "AI & ML - NLP & Sentiment", "type": "trap", "star": "hi", "front": "A bank sorts app reviews into positive, negative or neutral, and separately scores 'speed' and 'charges'. Name both tasks and the hardest case.", "back": "**Sentiment analysis (opinion mining), an NLP classification task; per-feature scoring = aspect-based sentiment analysis\nHardest: sarcasm** (also negation, mixed emotions)", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Approaches: lexicon / rule-based (word scores) vs ML / deep learning. Levels: document, sentence, aspect."}, {"id": "NH028", "section": "AI & ML", "topic": "AI & ML - LLMs & Agentic AI", "type": "fact", "star": "hi", "front": "LLM basics: architecture, training objective, key terms?", "back": "**Transformer** ('Attention Is All You Need', Google, 2017) using **self-attention**\n**Pre-trained to predict the next token** on huge text\nTerms: tokens, **context window** (how much text it takes at once), parameters", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). GPT = Generative Pre-trained Transformer. Examples: GPT, Claude, Gemini, Llama."}, {"id": "NH029", "section": "AI & ML", "topic": "AI & ML - LLMs & Agentic AI", "type": "trap", "star": "hi", "front": "LLM training stages in order, and what RLHF is?", "back": "**Pre-training → (supervised) fine-tuning / instruction tuning → RLHF**\nRLHF = reinforcement learning from human feedback: humans rank answers, a reward model learns from them, the LLM is tuned to it", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH030", "section": "AI & ML", "topic": "AI & ML - LLMs & Agentic AI", "type": "trap", "star": "hi", "front": "Hallucination, and what is RAG?", "back": "**Hallucination: confident but false output** (e.g. a citation that doesn't exist)\n**RAG (retrieval-augmented generation): retrieve relevant documents first, then answer from them** → grounded, current, fewer hallucinations", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Hallucination is not overfitting and not bias. Fine-tuning changes the model's weights; RAG doesn't."}, {"id": "NH031", "section": "AI & ML", "topic": "AI & ML - LLMs & Agentic AI", "type": "fact", "star": "md", "front": "Zero-shot, few-shot, chain-of-thought prompting; what does temperature do?", "back": "**Zero-shot: no examples; few-shot: a few examples in the prompt; chain-of-thought: ask for step-by-step reasoning\nTemperature: higher = more random/creative; lower = more deterministic**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH032", "section": "AI & ML", "topic": "AI & ML - LLMs & Agentic AI", "type": "trap", "star": "hi", "front": "Agentic AI: its features, and how it differs from generative AI?", "back": "**Takes a goal and acts autonomously: plans, breaks it into steps, uses tools / APIs, keeps memory, checks its own results**\n**GenAI produces content on request; agentic AI completes tasks** (finds, compares and books a ticket)", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Needs guardrails and a human in the loop. Multi-agent systems = several agents working together."}, {"id": "NH033", "section": "AI & ML", "topic": "AI & ML - LLMs & Agentic AI", "type": "fact", "star": "md", "front": "Generative vs discriminative models; how are AI images made?", "back": "**Discriminative: learns boundaries to classify (P(y|x))\nGenerative: learns the data distribution to create new data**\nImages: **diffusion models** (start from noise, denoise step by step); earlier GANs (generator vs discriminator)", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH034", "section": "AI & ML", "topic": "AI & ML - Responsible AI & Regulation", "type": "fact", "star": "hi", "front": "Responsible AI principles, and two standard harms?", "back": "**Fairness, transparency & explainability, accountability, privacy & security, safety & robustness, human oversight, inclusiveness**\nHarms: **algorithmic bias** (from skewed training data) and **deepfakes**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). XAI tools: SHAP and LIME explain individual predictions (the 'black box' problem). Bias sources: historical, sampling, measurement, labelling."}, {"id": "NH035", "section": "AI & ML", "topic": "AI & ML - Responsible AI & Regulation", "type": "trap", "star": "hi", "front": "RBI FREE-AI: full form, date, chair, and its 7-6-26 structure?", "back": "**Framework for Responsible and Ethical Enablement of AI; report 13 Aug 2025; committee chair Pushpak Bhattacharyya (IIT Bombay)\n7 sutras, 6 pillars, 26 recommendations**\nSutras: Trust, People First, Innovation over Restraint, Fairness & Equity, Accountability, Understandable by Design, Safety-Resilience-Sustainability", "pyq": "", "changed": false, "note": "Source: Web-checked 14 Nov 2026 + Claude's knowledge (not web-checked). Pillars: Infrastructure, Policy, Capacity (enable innovation); Governance, Protection, Assurance (manage risk). Date, structure and chair web-checked 14 Oct; sutra wording from Claude's knowledge."}, {"id": "NH036", "section": "AI & ML", "topic": "AI & ML - Responsible AI & Regulation", "type": "trap", "star": "hi", "front": "MeitY's India AI Governance Guidelines: date, drafting chair, stance on a new AI law, proposed bodies?", "back": "**5 Nov 2025, under the IndiaAI Mission; drafting committee chaired by Prof. Balaraman Ravindran (IIT Madras)\nNo separate AI law for now**: use existing laws (IT Act, DPDP) and fix gaps\nBodies: **AI Governance Group (AIGG), Technology & Policy Expert Committee (TPEC), AI Safety Institute (AISI)**", "pyq": "", "changed": false, "note": "Source: Web-checked 14 Nov 2026 + Claude's knowledge (not web-checked). Same 7 sutras as FREE-AI. Six pillars: infrastructure, capacity building, policy & regulation, risk mitigation, accountability, institutions. Date and chair web-checked; the bodies and pillars from Claude's knowledge (sources disagree on wording)."}, {"id": "NH037", "section": "AI & ML", "topic": "AI & ML - Responsible AI & Regulation", "type": "trap", "star": "hi", "front": "SEBI and AI/ML: the 2019 rule, the 2025 proposal, and where things stood in Oct 2026?", "back": "**Jan 2019: market intermediaries must report AI/ML systems** they use (exchanges collect; NSE: half-yearly for algo users)\n**20 Jun 2025 consultation: 5 principles: model governance, investor protection & disclosure, testing, fairness & bias, data privacy & cybersecurity**; regulated entities stay fully responsible even for vendor AI\n**Oct 2026: chairman Tuhin Kanta Pandey said final rules 'shortly': tiered by risk, kill switches, human oversight**", "pyq": "", "changed": false, "note": "Source: Web-checked 14 Nov 2026. As of 11 Oct 2026 the final guidelines were not yet issued. Check news before 20 Nov."}, {"id": "NH038", "section": "AI & ML", "topic": "AI & ML - Responsible AI & Regulation", "type": "trap", "star": "hi", "front": "EU AI Act: in force when, four risk tiers, and the 2026 'omnibus' delay?", "back": "**In force 1 Aug 2024; bans from 2 Feb 2025; GPAI rules from 2 Aug 2025\nTiers: unacceptable (banned, e.g. social scoring), high, limited (transparency), minimal**\n**Omnibus deal (May 2026): high-risk Annex III rules pushed to 2 Dec 2027, Annex I to 2 Aug 2028; new ban on 'nudifier' apps**", "pyq": "", "changed": false, "note": "Source: Web-checked 14 Nov 2026. World's first comprehensive AI law. Omnibus dates bind once published in the EU Official Journal."}, {"id": "NH039", "section": "AI & ML", "topic": "AI & ML - Responsible AI & Regulation", "type": "trap", "star": "hi", "front": "DPDP Rules 2025: notified when, phasing, breach reporting, maximum penalty?", "back": "**Notified 13 Nov 2025 (DPDP Act 2023)\nImmediately: Data Protection Board; after 12 months (13 Nov 2026): consent managers; after 18 months (13 May 2027): core duties of data fiduciaries\nBreach: tell the Board without delay, full report within 72 hours\nPenalty up to ₹250 crore** per breach", "pyq": "", "changed": false, "note": "Source: Web-checked 14 Nov 2026."}, {"id": "NH040", "section": "AI & ML", "topic": "AI & ML - Responsible AI & Regulation", "type": "fact", "star": "md", "front": "IndiaAI Mission and the AI Impact Summit?", "back": "**IndiaAI Mission: approved Mar 2024, ₹10,372 crore; 38,000+ GPUs on its common compute portal (2026)**\n**India AI Impact Summit: New Delhi, Feb 2026; New Delhi Declaration**", "pyq": "", "changed": false, "note": "Source: Web-checked 14 Nov 2026 + Claude's knowledge (not web-checked). Mission pillars (Claude's knowledge): compute, innovation centre, datasets (AIKosh), application development, FutureSkills, startup financing, safe & trusted AI."}, {"id": "NH041", "section": "Digital India", "topic": "Digital India - Schemes & Platforms", "type": "trap", "star": "hi", "front": "Which scheme makes rural Indians digitally literate, and how does it differ from BharatNet and CSCs?", "back": "**PMGDISHA (Pradhan Mantri Gramin Digital Saksharta Abhiyan)**: digital literacy training, one person per rural household (ages 14-60), target 6 crore; approved 2017\n**BharatNet = broadband pipes; CSCs = service outlets**", "pyq": "PFRDA 2026 Ph-I", "changed": false, "note": "Source: Real P1 2026. Not in the syllabus list, but 2 of the 8 real questions on these heads came from it. Target and ages from Claude's knowledge."}, {"id": "NH042", "section": "Digital India", "topic": "Digital India - Schemes & Platforms", "type": "trap", "star": "hi", "front": "Government's cloud computing initiative for e-governance?", "back": "**MeghRaj (GI Cloud)**, MeitY: cloud infrastructure for government departments", "pyq": "PFRDA 2026 Ph-I", "changed": false, "note": "Source: Real P1 2026. Not in the syllabus list, but 2 of the 8 real questions on these heads came from it. Distractors in the paper: DigiLocker, Aadhaar, UMANG, e-Kranti."}, {"id": "NH043", "section": "Digital India", "topic": "Digital India - Schemes & Platforms", "type": "fact", "star": "hi", "front": "Digital India: launch date, three vision areas, and how many pillars?", "back": "**1 Jul 2015, MeitY\nVision: (1) digital infrastructure as a core utility (2) governance and services on demand (3) digital empowerment of citizens\nNine pillars**", "pyq": "", "changed": false, "note": "Source: Inferred (hedge, not from a real paper) + Claude's knowledge (not web-checked). Pillars include broadband highways, universal mobile access, public internet access, e-Governance, e-Kranti, information for all, electronics manufacturing, IT for jobs, early harvest."}, {"id": "NH044", "section": "Digital India", "topic": "Digital India - Schemes & Platforms", "type": "trap", "star": "hi", "front": "DigiLocker vs UMANG vs e-Sign?", "back": "**DigiLocker (2015): cloud wallet of documents, legally equal to originals under IT Rules 2016\nUMANG (2017): one app for many central and state services\ne-Sign: online Aadhaar-based signature**", "pyq": "", "changed": false, "note": "Source: Inferred (hedge, not from a real paper) + Claude's knowledge (not web-checked)."}, {"id": "NH045", "section": "Digital India", "topic": "Digital India - Schemes & Platforms", "type": "fact", "star": "md", "front": "BharatNet: goal, executor, and the 2023 revamp?", "back": "**Broadband to all ~2.5 lakh gram panchayats; built by BBNL (merged into BSNL, 2022)\nAmended BharatNet (Aug 2023): about ₹1.39 lakh crore**, extends to villages, run with village entrepreneurs", "pyq": "", "changed": false, "note": "Source: Inferred (hedge, not from a real paper) + Claude's knowledge (not web-checked)."}, {"id": "NH046", "section": "Digital India", "topic": "Digital India - Schemes & Platforms", "type": "fact", "star": "md", "front": "Common Service Centres (CSCs)?", "back": "**Village-level access points for e-services, run by village-level entrepreneurs (VLEs)**; managed by the SPV **CSC e-Governance Services India Ltd** under MeitY", "pyq": "", "changed": false, "note": "Source: Inferred (hedge, not from a real paper) + Claude's knowledge (not web-checked)."}, {"id": "NH047", "section": "Digital India", "topic": "Digital India - Schemes & Platforms", "type": "fact", "star": "md", "front": "Bhashini?", "back": "**National Language Translation Mission (2022), MeitY: AI translation and speech tools for Indian languages**, open to apps and government services", "pyq": "", "changed": false, "note": "Source: Inferred (hedge, not from a real paper) + Claude's knowledge (not web-checked)."}, {"id": "NH048", "section": "Digital India", "topic": "Digital India - Schemes & Platforms", "type": "trap", "star": "hi", "front": "India Stack: its three layers, with an example of each?", "back": "**Identity: Aadhaar (UIDAI 2009; statutory under Aadhaar Act 2016)\nPayments: UPI (NPCI, 2016)\nData: DigiLocker, Account Aggregator** (consent layer, DEPA)", "pyq": "", "changed": false, "note": "Source: Inferred (hedge, not from a real paper) + Claude's knowledge (not web-checked). JAM trinity = Jan Dhan, Aadhaar, Mobile, the base for DBT. India calls this Digital Public Infrastructure (DPI)."}, {"id": "NH049", "section": "Digital India", "topic": "Digital India - Schemes & Platforms", "type": "fact", "star": "md", "front": "Account Aggregator: regulator and the FIP / FIU terms?", "back": "**RBI-licensed NBFC-AA (Master Directions 2016)**; moves your financial data only with your consent\n**FIP = information provider (bank, insurer, pension fund); FIU = information user (lender)**", "pyq": "", "changed": false, "note": "Source: Inferred (hedge, not from a real paper) + Claude's knowledge (not web-checked). PFRDA is one of the regulators whose entities join as FIPs (NPS data)."}, {"id": "NH050", "section": "Digital India", "topic": "Digital India - Schemes & Platforms", "type": "fact", "star": "md", "front": "ONDC?", "back": "**Open Network for Digital Commerce, DPIIT-backed not-for-profit (Section 8) company; open protocol so any buyer app can reach any seller**, breaking platform lock-in", "pyq": "", "changed": false, "note": "Source: Inferred (hedge, not from a real paper) + Claude's knowledge (not web-checked)."}, {"id": "NH051", "section": "Digital India", "topic": "Digital India - Schemes & Platforms", "type": "trap", "star": "md", "front": "NeGP vs e-Kranti?", "back": "**NeGP (2006): National e-Governance Plan, 27 Mission Mode Projects\ne-Kranti (NeGP 2.0, 2015): a Digital India pillar, 44 MMPs**; 'transforming e-governance for transforming governance'", "pyq": "", "changed": false, "note": "Source: Inferred (hedge, not from a real paper) + Claude's knowledge (not web-checked)."}, {"id": "NH052", "section": "Digital India", "topic": "Digital India - Schemes & Platforms", "type": "fact", "star": "md", "front": "CERT-In: role, and its incident-reporting window?", "back": "**Indian Computer Emergency Response Team under MeitY (s.70B, IT Act): national nodal agency for cyber incidents\nReport cyber incidents within 6 hours** (2022 directions)", "pyq": "", "changed": false, "note": "Source: Inferred (hedge, not from a real paper) + Claude's knowledge (not web-checked)."}, {"id": "NH053", "section": "Digital India", "topic": "Digital India - Schemes & Platforms", "type": "trap", "star": "md", "front": "IT Act 2000: which section was struck down, and what is meant to replace the Act?", "back": "**Section 66A** (offensive online messages), struck down in **Shreya Singhal v Union of India (2015)**\nReplacement proposed: **Digital India Act**", "pyq": "", "changed": false, "note": "Source: Inferred (hedge, not from a real paper) + Claude's knowledge (not web-checked)."}, {"id": "NH054", "section": "Digital India", "topic": "Digital India - Schemes & Platforms", "type": "trap", "star": "hi", "front": "PFRDA's AI-powered grievance redressal platform?", "back": "**Pension Sahayak** (EduTap's answer key)", "pyq": "PFRDA 2026 Ph-I", "changed": false, "note": "Source: Real P1 2026 + Inferred (hedge, not from a real paper). Asked under Pension in your paper; kept here because it is AI-in-pension. Other options were Claude's made-up names, so recognise this one."}, {"id": "NH055", "section": "Digital India", "topic": "Digital India - Schemes & Platforms", "type": "fact", "star": "md", "front": "AIKosh and MuleHunter.AI?", "back": "**AIKosh: IndiaAI's platform of datasets and models (2025)\nMuleHunter.AI: RBI Innovation Hub's AI tool to catch mule bank accounts**; banks asked to adopt it (2026)", "pyq": "", "changed": false, "note": "Source: Web-checked 14 Nov 2026 + Claude's knowledge (not web-checked)."}, {"id": "NH056", "section": "Media", "topic": "Media - Audiences & Consumers", "type": "trap", "star": "hi", "front": "Kan Khajura Tesan (KKT): whose initiative, and how did it work?", "back": "**Hindustan Unilever (HUL), 2014: free mobile radio for 'media-dark' rural audiences (mainly Bihar)**; give a missed call, get free entertainment carrying HUL ads", "pyq": "PFRDA 2026 Ph-I", "changed": false, "note": "Source: Real P1 2026. Distractors: P&G, ITC, Dabur, Marico. Expect other Indian rural media cases next (see the next card)."}, {"id": "NH057", "section": "Media", "topic": "Media - Audiences & Consumers", "type": "trap", "star": "md", "front": "Indian rural reach cases: Project Shakti, e-Choupal, Mobile Vaani?", "back": "**Project Shakti: HUL, 2001, rural women as door-to-door distributors\ne-Choupal: ITC, 2000, internet kiosks for farmers\nMobile Vaani: Gram Vaani's phone-based (IVR) community media**", "pyq": "", "changed": false, "note": "Source: Inferred (hedge, not from a real paper) + Claude's knowledge (not web-checked). Community radio is licensed under the 2006 policy (Ministry of I&B)."}, {"id": "NH058", "section": "Media", "topic": "Media - Audiences & Consumers", "type": "trap", "star": "hi", "front": "Micro-targeting vs mass marketing vs retargeting?", "back": "**Micro-targeting: personal data (demographics, browsing, location) used to send tailored messages to small groups or individuals**\nMass: one message for all\nRetargeting: ads follow someone who already visited", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Classic case: Cambridge Analytica and Facebook (2018). Concerns: privacy, manipulation, voter profiling."}, {"id": "NH059", "section": "Media", "topic": "Media - Audiences & Consumers", "type": "trap", "star": "hi", "front": "Assael's four buying behaviours (involvement × brand differences)?", "back": "**Complex: high involvement, big brand differences (car)\nDissonance-reducing: high involvement, few differences (carpet)\nHabitual: low involvement, few differences (salt)\nVariety-seeking: low involvement, big differences (biscuits)**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH060", "section": "Media", "topic": "Media - Audiences & Consumers", "type": "fact", "star": "hi", "front": "Consumer buying process and the four groups of influences?", "back": "**Need recognition → information search → evaluation of alternatives → purchase → post-purchase behaviour**\nInfluences (Kotler): **cultural, social, personal, psychological**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Doubt after buying = cognitive dissonance. Selective attention, distortion and retention explain why ads get missed."}, {"id": "NH061", "section": "Media", "topic": "Media - Audiences & Consumers", "type": "fact", "star": "md", "front": "ZMOT, social proof, and the influencer tiers?", "back": "**ZMOT: Zero Moment of Truth (Google, 2011), the online research before buying\nSocial proof: we copy what others do (reviews, 'bestseller')**\nInfluencers: **nano < micro < macro < mega** (by followers)", "pyq": "", "changed": false, "note": "Source: Inferred (hedge, not from a real paper) + Claude's knowledge (not web-checked). India: ASCI influencer guidelines (2021) require clear ad disclosure; CCPA endorsement guidelines (2023)."}, {"id": "NH062", "section": "Media", "topic": "Media - Audiences & Consumers", "type": "trap", "star": "hi", "front": "Stuart Hall's encoding/decoding: the three readings?", "back": "**Dominant (hegemonic): accepts the message as meant\nNegotiated: accepts some, adapts or rejects parts\nOppositional: understands it but rejects it**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Reception theory treats the audience as active. Opposite idea: hypodermic needle / magic bullet."}, {"id": "NH063", "section": "Media", "topic": "Media - Audiences & Consumers", "type": "trap", "star": "hi", "front": "Match the media-effects theory: agenda setting, framing, cultivation, two-step flow, uses & gratifications, spiral of silence?", "back": "**Agenda setting (McCombs & Shaw, 1972): media decide WHAT we think about\nFraming: HOW we think about it\nCultivation (Gerbner): heavy TV shapes our view of reality\nTwo-step flow (Lazarsfeld & Katz): via opinion leaders\nUses & gratifications (Katz, Blumler): people pick media to meet needs\nSpiral of silence (Noelle-Neumann): minority views go quiet**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH064", "section": "Media", "topic": "Media - Audiences & Consumers", "type": "fact", "star": "md", "front": "Cultural representation terms: stereotyping, symbolic annihilation, male gaze, Orientalism, tokenism?", "back": "**Stereotyping: fixed, simplified images of a group\nSymbolic annihilation (Tuchman): absence or trivialising of a group\nMale gaze (Laura Mulvey, 1975)\nOrientalism (Edward Said, 1978): the West's exotic view of the East\nTokenism: one token member to look diverse**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Bechdel test: two named women talk about something other than a man."}, {"id": "NH065", "section": "Media", "topic": "Media - Audiences & Consumers", "type": "trap", "star": "md", "front": "Cultural imperialism vs glocalisation?", "back": "**Cultural imperialism: a dominant (Western) culture's media swamp local cultures\nGlocalisation: global brand, local adaptation** (McAloo Tikki, MTV India)", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH066", "section": "Media", "topic": "Media - Technology & Platforms", "type": "trap", "star": "hi", "front": "Media convergence: who, and its three types?", "back": "**Merging of print, broadcast, telecom and internet through digital tech** (one smartphone does it all); **Henry Jenkins, 'Convergence Culture' (2006)**\nTypes: **technological, economic (ownership), cultural** (users create content)", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Prosumer (Alvin Toffler, 1980) = producer + consumer. Transmedia storytelling: one story across many platforms."}, {"id": "NH067", "section": "Media", "topic": "Media - Technology & Platforms", "type": "trap", "star": "hi", "front": "Classify VR, AR, MR, XR with one example each.", "back": "**VR: replaces reality (headset; flight simulator)\nAR: overlays digital content on reality (Pokémon Go, IKEA Place, try-on filters)\nMR: digital objects interact with the real world (HoloLens)\nXR: umbrella term for all three**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). The metaverse = persistent shared virtual worlds."}, {"id": "NH068", "section": "Media", "topic": "Media - Technology & Platforms", "type": "trap", "star": "hi", "front": "Digital divide: three levels?", "back": "**First level: access (devices, internet)\nSecond: skills and usage\nThird: outcomes (benefits gained)**\nAxes in India: gender, rural-urban, age, income, language", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). It is about access and ability, not internet speed or content quality."}, {"id": "NH069", "section": "Media", "topic": "Media - Technology & Platforms", "type": "trap", "star": "hi", "front": "OTT models: SVOD, AVOD, TVOD, FAST?", "back": "**SVOD: subscription (Netflix)\nAVOD: free, ad-funded (YouTube)\nTVOD: pay per title or rental\nFAST: free ad-supported streaming TV channels**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). OTT = over-the-top: delivered over the internet, bypassing cable or DTH."}, {"id": "NH070", "section": "Media", "topic": "Media - Technology & Platforms", "type": "fact", "star": "md", "front": "How does India regulate OTT and digital news?", "back": "**IT (Intermediary Guidelines and Digital Media Ethics Code) Rules, 2021, Part III (MIB)\nThree-tier grievance system: publisher → self-regulatory body → Ministry oversight\nAge ratings: U, U/A 7+, 13+, 16+, A**", "pyq": "", "changed": false, "note": "Source: Claude's knowledge (not web-checked). Films in cinemas: CBFC. TV news: NBDSA (self-regulation). Ads: ASCI (1985). Print: Press Council of India."}, {"id": "NH071", "section": "Media", "topic": "Media - Technology & Platforms", "type": "trap", "star": "hi", "front": "Social media algorithms: ranking signals, and the two kinds of recommender?", "back": "**Signals: likes, shares, comments, watch time, recency, relationships\nCollaborative filtering: 'people like you watched'\nContent-based: 'similar to what you watched'** (hybrid = both)", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Cold-start problem: a new user or item has no history to learn from."}, {"id": "NH072", "section": "Media", "topic": "Media - Technology & Platforms", "type": "trap", "star": "hi", "front": "Filter bubble vs echo chamber?", "back": "**Filter bubble (Eli Pariser, 2011): the ALGORITHM hides views you don't like\nEcho chamber: PEOPLE of like mind reinforce each other**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Related: algorithmic amplification, 'rabbit hole' recommendations."}, {"id": "NH073", "section": "Media", "topic": "Media - Technology & Platforms", "type": "trap", "star": "md", "front": "Misinformation vs disinformation vs malinformation?", "back": "**Misinformation: false, shared without intent to harm\nDisinformation: false, spread deliberately\nMalinformation: TRUE information used to harm** (leaked private data)", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH074", "section": "Media", "topic": "Media - Technology & Platforms", "type": "trap", "star": "hi", "front": "IT Rules amendment on AI content (2026): dates, label rule, takedown times?", "back": "**Notified 10 Feb 2026, in force 20 Feb 2026\nAI ('synthetically generated') content must carry a prominent label and, where feasible, permanent metadata; labels can't be removed\nTakedown on lawful order: 3 hours (was 36); specified content complaints: 2 hours (was 24); grievances: 7 days (was 15)**", "pyq": "", "changed": false, "note": "Source: Web-checked 14 Nov 2026."}, {"id": "NH075", "section": "Media", "topic": "Media - Technology & Platforms", "type": "trap", "star": "md", "front": "Media planning numbers: reach, frequency, GRP, and India's TV ratings body?", "back": "**Reach: % of the target audience seeing the ad at least once\nFrequency: average times seen\nGRP = reach % × frequency** (40% × 3 = 120)\n**TV ratings in India: BARC (TRP)**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH076", "section": "Media", "topic": "Media - Trends, Global Practice & Negotiation", "type": "fact", "star": "md", "front": "Media market trends to quote?", "back": "**Digital overtook TV as India's largest media segment (2024, FICCI-EY)\nShort video and the creator economy; regional-language content; connected TV; retail media; AI-generated content and personalisation**", "pyq": "", "changed": false, "note": "Source: Inferred (hedge, not from a real paper) + Claude's knowledge (not web-checked). WAVES (World Audio Visual & Entertainment Summit), Mumbai, May 2025, is India's media-industry summit."}, {"id": "NH077", "section": "Media", "topic": "Media - Trends, Global Practice & Negotiation", "type": "trap", "star": "hi", "front": "Global best practices: GDPR, DSA, DMA, Australia's two firsts, UK?", "back": "**GDPR (EU, 2018): consent, right to be forgotten\nDSA (EU): platform transparency and illegal-content duties; 'very large' platforms = 45 million+ EU users\nDMA (EU): rules for 'gatekeeper' platforms\nAustralia: News Media Bargaining Code (2021, platforms pay news publishers); under-16 social media ban (from Dec 2025)\nUK: Online Safety Act 2023**", "pyq": "", "changed": false, "note": "Source: Claude's knowledge (not web-checked)."}, {"id": "NH078", "section": "Media", "topic": "Media - Trends, Global Practice & Negotiation", "type": "trap", "star": "hi", "front": "BATNA, reservation point, ZOPA, anchoring?", "back": "**BATNA: best alternative to a negotiated agreement = your walk-away option\nReservation point: the worst deal you would still accept\nZOPA: the overlap of both reservation points\nAnchoring: the first offer sets the reference**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). BATNA comes from Fisher & Ury, 'Getting to Yes' (Harvard, 1981)."}, {"id": "NH079", "section": "Media", "topic": "Media - Trends, Global Practice & Negotiation", "type": "trap", "star": "hi", "front": "Numerical: seller's lowest acceptable price ₹40 lakh, buyer's highest ₹50 lakh. ZOPA? And if the buyer's highest were ₹38 lakh?", "back": "**ZOPA = ₹40-50 lakh**\nAt ₹38 lakh there is **no ZOPA, so no deal** (both walk to their BATNAs)", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH080", "section": "Media", "topic": "Media - Trends, Global Practice & Negotiation", "type": "trap", "star": "hi", "front": "Distributive vs integrative negotiation, and Fisher & Ury's four principles?", "back": "**Distributive: fixed pie, win-lose, claim value\nIntegrative: expand the pie, win-win, trade on interests** (logrolling)\nPrincipled negotiation: **(1) separate people from the problem (2) interests, not positions (3) options for mutual gain (4) objective criteria**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH081", "section": "Media", "topic": "Media - Trends, Global Practice & Negotiation", "type": "fact", "star": "md", "front": "Negotiation stages and common hardball tactics?", "back": "**Preparation → ground rules → clarification → bargaining & problem solving → closure & implementation** (Robbins)\nTactics: **good cop/bad cop, nibbling** (small extra asks at the end), **the flinch, false deadlines, highball/lowball**", "pyq": "", "changed": false, "note": "Source: Claude's knowledge (not web-checked)."}, {"id": "NH082", "section": "Media", "topic": "Media - Trends, Global Practice & Negotiation", "type": "trap", "star": "md", "front": "Who self-regulates what in Indian media?", "back": "**ASCI: advertising (1985)\nNBDSA: TV news (News Broadcasters & Digital Association)\nPress Council of India: print (statutory, 1978 Act)\nCBFC: film certification (Cinematograph Act 1952)**", "pyq": "", "changed": false, "note": "Source: Claude's knowledge (not web-checked). PIB Fact Check Unit checks claims about the Central Government."}, {"id": "NH083", "section": "Marketing", "topic": "Marketing - Concepts, Research & Planning", "type": "trap", "star": "hi", "front": "Marketing concepts in order of evolution, and the holistic concept's four parts?", "back": "**Production → product → selling → marketing → societal → holistic**\nHolistic (Kotler): **relationship, integrated, internal, performance (socially responsible) marketing**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Selling starts from the product (push what you make); marketing starts from customer needs. Societal adds society's long-term welfare."}, {"id": "NH084", "section": "Marketing", "topic": "Marketing - Concepts, Research & Planning", "type": "trap", "star": "md", "front": "Needs vs wants vs demands; and 'marketing myopia'?", "back": "**Need: basic deprivation; want: a need shaped by culture; demand: a want backed by buying power**\n**Marketing myopia (Theodore Levitt, 1960): defining your business by its product, not the customer need** (railways thought they were in railways, not transport)", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH085", "section": "Marketing", "topic": "Marketing - Concepts, Research & Planning", "type": "trap", "star": "hi", "front": "Marketing research: exploratory vs descriptive vs causal, with a method for each?", "back": "**Exploratory: define the problem (focus groups, depth interviews)\nDescriptive: who, what, how many (surveys)\nCausal: cause and effect (experiments, A/B tests)**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Process: define problem → design → collect → analyse → report. Primary data = collected fresh; secondary = already exists."}, {"id": "NH086", "section": "Marketing", "topic": "Marketing - Concepts, Research & Planning", "type": "trap", "star": "md", "front": "Probability vs non-probability sampling, and a Likert scale?", "back": "**Probability: simple random, stratified, cluster, systematic\nNon-probability: convenience, judgement, quota, snowball**\n**Likert: agree-disagree scale (5 or 7 points)**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Ethnography = observing customers in their own setting."}, {"id": "NH087", "section": "Marketing", "topic": "Marketing - Concepts, Research & Planning", "type": "trap", "star": "hi", "front": "Ansoff matrix: name the strategy (a) same product, new city (b) new product, same customers (c) push current product harder in current market (d) new product, new market", "back": "**(a) market development (b) product development (c) market penetration (d) diversification** (riskiest)", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH088", "section": "Marketing", "topic": "Marketing - Concepts, Research & Planning", "type": "fact", "star": "md", "front": "GE-McKinsey matrix vs BCG?", "back": "**GE-McKinsey: 9 cells, industry attractiveness × business strength (many factors)\nBCG: 4 cells, market growth × relative market share**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). BCG cells are in your Management Part 2 deck. Remember: high share + low growth = cash cow."}, {"id": "NH089", "section": "Marketing", "topic": "Marketing - Concepts, Research & Planning", "type": "fact", "star": "md", "front": "Porter's generic strategies, and SWOT vs PESTEL?", "back": "**Cost leadership, differentiation, focus** (cost focus or differentiation focus)\n**SWOT: strengths and weaknesses internal; opportunities and threats external\nPESTEL: political, economic, social, technological, environmental, legal (external only)**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH090", "section": "Marketing", "topic": "Marketing - Concepts, Research & Planning", "type": "trap", "star": "hi", "front": "STP: segmentation bases and the targeting strategies?", "back": "**Segmentation bases: geographic, demographic, psychographic (lifestyle, values), behavioural (usage, loyalty, benefits)\nTargeting: undifferentiated (mass), differentiated (several segments), concentrated (niche), micromarketing (local / individual)**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH091", "section": "Marketing", "topic": "Marketing - Concepts, Research & Planning", "type": "fact", "star": "hi", "front": "Positioning, USP, repositioning?", "back": "**Positioning: designing the offer and image to hold a distinct place in the target customer's mind\nUSP (Rosser Reeves): one unique selling proposition\nRepositioning: changing an existing position** (Dettol from antiseptic to everyday hygiene)", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH092", "section": "Marketing", "topic": "Marketing - Concepts, Research & Planning", "type": "trap", "star": "hi", "front": "4Ps, 7Ps and 4Cs: who and what?", "back": "**4Ps (McCarthy, 1960): product, price, place, promotion\n7Ps for services (Booms & Bitner, 1981): + people, process, physical evidence\n4Cs (Lauterborn, 1990): customer value, cost, convenience, communication**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Distractors for the extra 3Ps: packaging, profit, positioning."}, {"id": "NH093", "section": "Marketing", "topic": "Marketing - Concepts, Research & Planning", "type": "trap", "star": "hi", "front": "Services: the four IHIP traits?", "back": "**Intangibility, heterogeneity (variability), inseparability (made and used together), perishability (can't be stored)**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). SERVQUAL measures service quality: see the Brands & Customers block."}, {"id": "NH094", "section": "Marketing", "topic": "Marketing - Marketing Types", "type": "trap", "star": "hi", "front": "Name the type: (a) a brand runs 'Nothing official about it' ads during a World Cup it didn't sponsor (b) a liquor brand advertises its 'soda' (c) cheap street stunts (d) content people share on their own", "back": "**(a) ambush marketing (Pepsi vs official sponsor Coca-Cola, 1996 Cricket World Cup)\n(b) surrogate advertising\n(c) guerrilla marketing\n(d) viral marketing**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook) + Claude's knowledge (not web-checked)."}, {"id": "NH095", "section": "Marketing", "topic": "Marketing - Marketing Types", "type": "trap", "star": "hi", "front": "Cause-related vs social marketing vs green marketing vs greenwashing?", "back": "**Cause-related: a brand ties sales to a cause (ITC's 'Classmate' notebook donations)\nSocial marketing (Kotler & Zaltman, 1971): selling IDEAS and behaviour (Swachh Bharat, 'Mutual Funds Sahi Hai')\nGreen: genuinely eco-friendly offers\nGreenwashing: false eco claims**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH096", "section": "Marketing", "topic": "Marketing - Marketing Types", "type": "fact", "star": "md", "front": "Buzz, stealth, relationship, experiential, rural marketing in one line each?", "back": "**Buzz: word of mouth deliberately sparked\nStealth: marketing the customer doesn't know is marketing\nRelationship: long-term retention over one sale\nExperiential: brand experiences and events\nRural: adapted to rural price, access and media** (sachets, haats)", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH097", "section": "Marketing", "topic": "Marketing - Product & Pricing", "type": "trap", "star": "hi", "front": "Kotler's five product levels?", "back": "**Core benefit → basic (generic) → expected → augmented (warranty, service) → potential product** (future upgrades)", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Hotel: core = rest; basic = bed; expected = clean towels; augmented = free breakfast; potential = new extras."}, {"id": "NH098", "section": "Marketing", "topic": "Marketing - Product & Pricing", "type": "trap", "star": "md", "front": "Consumer product classes: convenience, shopping, specialty, unsought?", "back": "**Convenience: bought often, little effort (soap)\nShopping: compared on price and quality (furniture)\nSpecialty: unique, special effort (Rolex)\nUnsought: not actively wanted (life insurance, burial plots)**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Why pensions and insurance need push selling: they are unsought goods."}, {"id": "NH099", "section": "Marketing", "topic": "Marketing - Product & Pricing", "type": "trap", "star": "hi", "front": "PLC: name the stage (a) sales growth slows, price wars (b) losses, high promotion to build awareness (c) fast sales rise, new rivals (d) sales falling, products dropped", "back": "**(a) maturity (b) introduction (c) growth (d) decline**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Maturity is usually the longest stage. Extension strategies: new uses, new markets, modifications."}, {"id": "NH100", "section": "Marketing", "topic": "Marketing - Product & Pricing", "type": "trap", "star": "md", "front": "Numerical: a firm has 4 product lines with 3, 5, 2 and 6 items. Product mix width and length? Average length?", "back": "**Width = 4 lines; length = 16 items; average length = 4**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Depth = versions of each item (sizes, flavours). Consistency = how closely the lines are related."}, {"id": "NH101", "section": "Marketing", "topic": "Marketing - Product & Pricing", "type": "fact", "star": "md", "front": "New product development stages in order?", "back": "**Idea generation → screening → concept development & testing → marketing strategy → business analysis → product development → test marketing → commercialisation**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH102", "section": "Marketing", "topic": "Marketing - Product & Pricing", "type": "trap", "star": "hi", "front": "Rogers' diffusion of innovation: the five adopter groups and their shares?", "back": "**Innovators 2.5% → early adopters 13.5% → early majority 34% → late majority 34% → laggards 16%**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). 'Crossing the chasm' (Geoffrey Moore) = the gap between early adopters and the early majority."}, {"id": "NH103", "section": "Marketing", "topic": "Marketing - Product & Pricing", "type": "trap", "star": "hi", "front": "Which pricing method sets price by adding a desired profit to cost?", "back": "**Cost-plus pricing** (cost + mark-up)", "pyq": "PFRDA 2026 Ph-I", "changed": false, "note": "Source: Real P1 2026. Distractors in the paper: penetration, value-based, skimming, competitive pricing."}, {"id": "NH104", "section": "Marketing", "topic": "Marketing - Product & Pricing", "type": "trap", "star": "hi", "front": "Numerical: cost ₹80. Price with a 25% mark-up on COST? With a 20% mark-up on SELLING PRICE?", "back": "**On cost: 80 × 1.25 = ₹100\nOn price: 80 ÷ (1 − 0.20) = ₹100**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Same answer here by design: 25% on cost = 20% on price. Mark-up on price = mark-up on cost ÷ (1 + mark-up on cost)."}, {"id": "NH105", "section": "Marketing", "topic": "Marketing - Product & Pricing", "type": "trap", "star": "hi", "front": "Penetration vs skimming: which suits (a) price-sensitive mass market, elastic demand (b) a new tech gadget with eager early buyers and patent protection?", "back": "**(a) penetration: low launch price for share\n(b) skimming: high launch price, cut later**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH106", "section": "Marketing", "topic": "Marketing - Product & Pricing", "type": "trap", "star": "hi", "front": "Name the pricing: (a) ₹999 not ₹1,000 (b) cheap printer, costly ink (c) surge fares (d) below cost to kill rivals (e) one item sold at a loss to draw shoppers (f) price set at rivals' level", "back": "**(a) psychological (b) captive-product (c) dynamic (d) predatory (illegal under the Competition Act) (e) loss leader (f) going-rate / competition-based**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Also: prestige pricing (high to signal quality), freemium, bundle pricing, target-return pricing, sealed-bid."}, {"id": "NH107", "section": "Marketing", "topic": "Marketing - Distribution & Promotion", "type": "trap", "star": "hi", "front": "Intensive vs selective vs exclusive distribution, with examples?", "back": "**Intensive: every possible outlet (soap, biscuits)\nSelective: a few chosen outlets (electronics)\nExclusive: one dealer per area (luxury cars)**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH108", "section": "Marketing", "topic": "Marketing - Distribution & Promotion", "type": "trap", "star": "md", "front": "Channel levels, channel conflict, and the three vertical marketing systems?", "back": "**Zero-level: direct; one-level: via retailer; two-level: wholesaler + retailer\nVertical conflict: between levels; horizontal: within a level\nVMS: corporate (one owner), contractual (franchise), administered (a dominant member leads)**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH109", "section": "Marketing", "topic": "Marketing - Distribution & Promotion", "type": "trap", "star": "hi", "front": "Push vs pull; multichannel vs omnichannel?", "back": "**Push: incentives and margins to dealers to stock and sell\nPull: ads build consumer demand that pulls stock through**\n**Multichannel: many channels run separately; omnichannel: one seamless experience across them**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). D2C = direct-to-consumer brands selling online without middlemen."}, {"id": "NH110", "section": "Marketing", "topic": "Marketing - Distribution & Promotion", "type": "fact", "star": "hi", "front": "Promotion mix elements, and IMC?", "back": "**Advertising, sales promotion, personal selling, public relations, direct (and digital) marketing**\n**IMC (integrated marketing communication): one consistent message across all of them**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). PR = goodwill and unpaid publicity. Sales promotion = short-term incentive (coupons). Personal selling = face to face, two-way."}, {"id": "NH111", "section": "Marketing", "topic": "Marketing - Distribution & Promotion", "type": "trap", "star": "hi", "front": "AIDA vs Lavidge-Steiner hierarchy of effects vs DAGMAR?", "back": "**AIDA: attention → interest → desire → action\nLavidge & Steiner (1961): awareness → knowledge → liking → preference → conviction → purchase\nDAGMAR (Colley, 1961): Defining Advertising Goals for Measured Advertising Results**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH112", "section": "Marketing", "topic": "Marketing - Distribution & Promotion", "type": "fact", "star": "md", "front": "Consumer vs trade promotions, and the personal selling process?", "back": "**Consumer: coupons, samples, contests, cashback; trade: dealer margins, allowances, display incentives**\nSelling: **prospecting → pre-approach → approach → presentation → handling objections → closing → follow-up**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH113", "section": "Marketing", "topic": "Marketing - Brands & Customers", "type": "trap", "star": "hi", "front": "Aaker's brand equity vs Keller's CBBE pyramid?", "back": "**Aaker: awareness, perceived quality, associations, loyalty** (+ other assets)\n**Keller: salience → performance & imagery → judgements & feelings → resonance (top)**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH114", "section": "Marketing", "topic": "Marketing - Brands & Customers", "type": "trap", "star": "hi", "front": "Line extension vs brand extension vs multibrand vs co-branding?", "back": "**Line extension: same category, new variant (new flavour)\nBrand extension: same name, new category (Amul ice cream)\nMultibrand: many brands in one category (HUL soaps)\nCo-branding: two brands on one offer (co-branded credit card)**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH115", "section": "Marketing", "topic": "Marketing - Brands & Customers", "type": "fact", "star": "md", "front": "Aaker's brand personality dimensions, and Kapferer's identity prism?", "back": "**Aaker (1997): sincerity, excitement, competence, sophistication, ruggedness\nKapferer's prism (6): physique, personality, culture, relationship, reflection, self-image**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH116", "section": "Marketing", "topic": "Marketing - Brands & Customers", "type": "trap", "star": "hi", "front": "Numerical: 200 surveyed; 110 score 9-10, 50 score 7-8, 40 score 0-6. Net Promoter Score?", "back": "**Promoters 55% − detractors 20% = NPS +35**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Passives (7-8) count in the total but not in the subtraction. NPS runs from −100 to +100."}, {"id": "NH117", "section": "Marketing", "topic": "Marketing - Brands & Customers", "type": "trap", "star": "md", "front": "SERVQUAL's five dimensions?", "back": "**RATER: reliability, assurance, tangibles, empathy, responsiveness** (Parasuraman, Zeithaml & Berry, 1988)", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Gap model: service quality = perceived service − expected service."}, {"id": "NH118", "section": "Marketing", "topic": "Marketing - Brands & Customers", "type": "fact", "star": "md", "front": "Indian brand cases often quoted?", "back": "**Amul girl ads (daCunha, 1966), Amul's cooperative 'Taste of India'\nNirma: low-price penetration against HUL's Surf\nFevicol: humour-led ads\n'Mutual Funds Sahi Hai' (AMFI, 2017): category, not brand, marketing**", "pyq": "", "changed": false, "note": "Source: Claude's knowledge (not web-checked)."}, {"id": "NH119", "section": "Marketing", "topic": "Marketing - Digital & Advanced", "type": "trap", "star": "hi", "front": "SEO vs SEM, and owned vs paid vs earned media?", "back": "**SEO: free organic search ranking; SEM: paid search ads (pay-per-click)\nOwned: your site and channels; paid: ads; earned: shares, reviews, press**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH120", "section": "Marketing", "topic": "Marketing - Digital & Advanced", "type": "trap", "star": "hi", "front": "Numerical: 2,00,000 impressions, 3,000 clicks, ₹60,000 spent, 150 purchases. CTR, CPC, CPM, conversion rate, cost per acquisition?", "back": "**CTR = 3,000/2,00,000 = 1.5%\nCPC = 60,000/3,000 = ₹20\nCPM = 60,000/200 = ₹300\nConversion = 150/3,000 = 5%\nCPA = 60,000/150 = ₹400**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). CPM: M = mille = 1,000 impressions. Conversion usually = purchases ÷ clicks (visitors)."}, {"id": "NH121", "section": "Marketing", "topic": "Marketing - Digital & Advanced", "type": "trap", "star": "hi", "front": "Numerical: average order ₹500, 4 orders a year, kept 5 years, margin 30%. Customer lifetime value? Is a CAC of ₹1,000 worth it?", "back": "**CLV = 500 × 4 × 5 × 0.30 = ₹3,000\nYes: CLV/CAC = 3:1**, the usual healthy benchmark", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). ROAS = revenue from ads ÷ ad spend. Churn = share of customers lost in a period."}, {"id": "NH122", "section": "Marketing", "topic": "Marketing - Digital & Advanced", "type": "fact", "star": "md", "front": "Funnel stages, retargeting and programmatic advertising?", "back": "**TOFU (awareness) → MOFU (consideration) → BOFU (conversion)\nRetargeting: ads to past visitors\nProgrammatic: software buys ad slots automatically, often by real-time bidding (RTB)**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH123", "section": "Marketing", "topic": "Marketing - Digital & Advanced", "type": "fact", "star": "hi", "front": "Advanced marketing techniques in one line each?", "back": "**Neuromarketing: brain and biometric responses to ads\nGrowth hacking: fast, cheap experiments for growth\nMarketing automation: triggered emails and journeys\nPredictive analytics and AI personalisation\nGamification; AR try-on; conversational (chatbot) marketing**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). CRM = managing data and relationships to retain customers; retaining is cheaper than acquiring."}, {"id": "NH124", "section": "Communication", "topic": "Communication - Barriers & Non-verbal", "type": "trap", "star": "hi", "front": "Name the barrier: (a) the receiver reads words or symbols differently from what the sender meant (b) machine noise (c) too many levels of hierarchy (d) anger or distrust (e) hearing only what fits your beliefs", "back": "**(a) semantic (b) physical (c) organisational (d) psychological / emotional (e) perceptual (selective perception)**", "pyq": "PFRDA 2026 Ph-I", "changed": false, "note": "Source: Real P1 2026. (a) was the real question. Semantic barriers come from jargon, ambiguous words and poor translation."}, {"id": "NH125", "section": "Communication", "topic": "Communication - Barriers & Non-verbal", "type": "trap", "star": "hi", "front": "Name the non-verbal channel: (a) gestures and posture (b) standing too close (c) a pat on the back (d) arriving late (e) a sharp tone (f) avoiding eye contact (g) a formal suit", "back": "**(a) kinesics (b) proxemics (c) haptics (d) chronemics (e) paralanguage (f) oculesics (g) artifacts**", "pyq": "PFRDA 2026 Ph-I", "changed": false, "note": "Source: Real P1 2026. (a) was the real question. Hall's proxemic zones: intimate, personal, social, public."}, {"id": "NH126", "section": "Communication", "topic": "Communication - Barriers & Non-verbal", "type": "trap", "star": "hi", "front": "Paralanguage: what it covers, and tone vs pitch?", "back": "**Vocal cues beyond the words: tone, pitch, volume, rate, pauses, fillers ('um')\nPitch = how high or low the voice is (frequency); tone = the emotion or attitude it carries**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Rising pitch at the end ('uptalk') sounds unsure; monotone sounds bored; downward inflection sounds confident."}, {"id": "NH127", "section": "Communication", "topic": "Communication - Barriers & Non-verbal", "type": "trap", "star": "hi", "front": "Mehrabian's 7-38-55, and its limit?", "back": "**Words 7%, tone 38%, body language 55%**\nOnly applies to **feelings and attitudes when words and non-verbal cues disagree**, not to all communication", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH128", "section": "Communication", "topic": "Communication - Listening & Clarity", "type": "trap", "star": "hi", "front": "Active listening: who coined it, its techniques, and what it is NOT?", "back": "**Carl Rogers & Richard Farson (1957)\nFull attention, paraphrase, reflect feelings, ask open questions, clarify, summarise, withhold judgement**\nNot: interrupting, planning your reply, jumping to advice", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). HURIER model (Brownell): hearing, understanding, remembering, interpreting, evaluating, responding."}, {"id": "NH129", "section": "Communication", "topic": "Communication - Listening & Clarity", "type": "trap", "star": "md", "front": "Covey's five listening levels, lowest to highest?", "back": "**Ignoring → pretending → selective → attentive → empathic**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Pseudo-listening = pretending to listen."}, {"id": "NH130", "section": "Communication", "topic": "Communication - Listening & Clarity", "type": "fact", "star": "hi", "front": "The 7 Cs of communication?", "back": "**Clear, concise, concrete, correct, coherent, complete, courteous**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Some lists use 'consideration' instead of 'coherent'. Watch for 'creative' or 'confidential' as distractors."}, {"id": "NH131", "section": "Communication", "topic": "Communication - Listening & Clarity", "type": "trap", "star": "md", "front": "Clarity & conciseness: fix 'at this point in time', 'due to the fact that', 'in order to'. And what does the Gunning Fog index measure?", "back": "**now; because; to**\n**Fog index: years of schooling needed to read a text easily** (aim for about 12 or less)", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). KISS = keep it short and simple. Plain language: active voice, short sentences, everyday words."}, {"id": "NH132", "section": "Communication", "topic": "Communication - Writing & Feedback", "type": "trap", "star": "hi", "front": "Email etiquette: CC vs BCC, and four rules?", "back": "**CC: visible copy; BCC: hidden copy (mass mail, protects addresses)**\nClear subject line; careful Reply-All; **ALL CAPS = shouting**; proofread and check attachments", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Netiquette = online etiquette."}, {"id": "NH133", "section": "Communication", "topic": "Communication - Writing & Feedback", "type": "trap", "star": "hi", "front": "Direct vs indirect message structure: when is each used?", "back": "**Direct (deductive): main point first, for good or routine news\nIndirect (inductive): buffer → reasons → bad news → goodwill close, for refusals and bad news**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH134", "section": "Communication", "topic": "Communication - Writing & Feedback", "type": "trap", "star": "hi", "front": "Feedback models: SBI, sandwich, DESC, feedforward, 360°?", "back": "**SBI (Center for Creative Leadership): situation-behaviour-impact\nSandwich: praise-criticism-praise\nDESC: describe, express, specify, consequences\nFeedforward (Marshall Goldsmith): suggestions for the future\n360°: from superiors, peers, juniors and self**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Good feedback: specific, timely, about behaviour not the person, descriptive not evaluative."}, {"id": "NH135", "section": "Communication", "topic": "Communication - Writing & Feedback", "type": "trap", "star": "md", "front": "Constructive vs destructive feedback; descriptive vs evaluative?", "back": "**Constructive: specific, fixable, aimed at growth; destructive: vague, personal\nDescriptive: what happened ('the report was two days late'); evaluative: a judgement ('you're careless')**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH136", "section": "Communication", "topic": "Communication - Conflict & Assertiveness", "type": "trap", "star": "hi", "front": "Thomas-Kilmann: name the mode (a) splits a budget 50-50 (b) insists on own call in a crisis (c) lets a colleague win to keep peace (d) postpones a petty dispute (e) works out a solution meeting both sides' needs", "back": "**(a) compromising (b) competing (c) accommodating (d) avoiding (e) collaborating** (win-win)", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Axes: assertiveness (own needs) × cooperativeness (others' needs). The modes themselves are in your Management Part 2 deck."}, {"id": "NH137", "section": "Communication", "topic": "Communication - Conflict & Assertiveness", "type": "trap", "star": "hi", "front": "Negotiation vs mediation vs conciliation vs arbitration?", "back": "**Negotiation: the parties alone\nMediation: neutral helps them talk, decides nothing\nConciliation: neutral actively proposes terms\nArbitration: neutral gives a binding award**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH138", "section": "Communication", "topic": "Communication - Conflict & Assertiveness", "type": "trap", "star": "md", "front": "Four communication styles, and the assertive tool?", "back": "**Passive, aggressive, passive-aggressive, assertive**\nAssertive = honest and respectful; uses **'I' statements** ('I felt ignored when…') instead of 'you' blame", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH139", "section": "Communication", "topic": "Communication - EI & Public Speaking", "type": "trap", "star": "hi", "front": "Goleman's five EI components, and which one each shows: (a) calm after a rude client (b) senses a colleague's stress (c) knows own triggers (d) builds rapport across teams (e) driven by goals, not money", "back": "**Self-awareness, self-regulation, motivation, empathy, social skills\n(a) self-regulation (b) empathy (c) self-awareness (d) social skills (e) motivation**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Not components: IQ, technical skill. Goleman's later model has 4 domains: self-awareness, self-management, social awareness, relationship management."}, {"id": "NH140", "section": "Communication", "topic": "Communication - EI & Public Speaking", "type": "trap", "star": "md", "front": "Three EI models, and the 'amygdala hijack'?", "back": "**Ability model: Mayer & Salovey (coined EI, 1990)\nMixed model: Goleman (1995 book)\nTrait model: Petrides** (Bar-On's EQ-i is another mixed model)\n**Amygdala hijack: emotion overrides reason** (Goleman)", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH141", "section": "Communication", "topic": "Communication - EI & Public Speaking", "type": "trap", "star": "hi", "front": "Public speaking: fear of it, Aristotle's appeals, and Monroe's motivated sequence?", "back": "**Glossophobia\nEthos: credibility; pathos: emotion; logos: logic** (+ kairos: timing)\n**Monroe: attention → need → satisfaction → visualisation → action**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH142", "section": "Communication", "topic": "Communication - EI & Public Speaking", "type": "trap", "star": "md", "front": "Four delivery methods of a speech?", "back": "**Manuscript (read out), memorised, impromptu (no preparation), extemporaneous (prepared, spoken from brief notes)**", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook). Extemporaneous is the usual recommended method; impromptu is the lookalike."}, {"id": "NH143", "section": "Communication", "topic": "Communication - EI & Public Speaking", "type": "trap", "star": "md", "front": "Communication models: Shannon-Weaver, Berlo, Lasswell, Schramm?", "back": "**Shannon-Weaver (1949): linear, adds 'noise'\nBerlo: SMCR (source, message, channel, receiver)\nLasswell: who says what, in which channel, to whom, with what effect\nSchramm: interactive, overlapping 'fields of experience'**", "pyq": "", "changed": false, "note": "Source: Claude's knowledge (not web-checked)."}, {"id": "NH144", "section": "Communication", "topic": "Communication - Financial Literacy", "type": "trap", "star": "hi", "front": "NCFE and the National Strategy for Financial Education?", "back": "**NCFE: National Centre for Financial Education, Section 8 company promoted by RBI, SEBI, IRDAI and PFRDA (under FSDC)\nNSFE 2020-25 (released 20 Aug 2020): '5 C' approach: content, capacity, community, communication, collaboration\nNSFE 2026-31 ('NSFE 3.0') being drafted** (public comments closed 31 Mar 2026)", "pyq": "", "changed": false, "note": "Source: Web-checked 14 Nov 2026 + Claude's knowledge (not web-checked)."}, {"id": "NH145", "section": "Communication", "topic": "Communication - Financial Literacy", "type": "trap", "star": "hi", "front": "NSFI 2025-30 vs NSFE: who and what?", "back": "**NSFI 2025-30: RBI's National Strategy for Financial INCLUSION, released 1 Dec 2025, five 'Panch-Jyoti' objectives, 47 action points\nNSFE: NCFE's strategy for financial EDUCATION**", "pyq": "", "changed": false, "note": "Source: Web-checked 14 Nov 2026. Inclusion = access to services; education/literacy = knowledge to use them."}, {"id": "NH146", "section": "Communication", "topic": "Communication - Financial Literacy", "type": "fact", "star": "md", "front": "OECD/INFE definition of financial literacy, and its three parts?", "back": "**'A combination of awareness, knowledge, skill, attitude and behaviour necessary to make sound financial decisions and ultimately achieve individual financial wellbeing'**\nMeasured as **knowledge, behaviour, attitude**", "pyq": "", "changed": false, "note": "Source: Claude's knowledge (not web-checked)."}, {"id": "NH147", "section": "Communication", "topic": "Communication - Financial Literacy", "type": "trap", "star": "hi", "front": "Numerical: at 6% a year, how long to double, triple and quadruple money? And real return at 8% nominal with 5% inflation?", "back": "**Double: 72/6 = 12 years\nTriple: 114/6 = 19 years\nQuadruple: 144/6 = 24 years\nReal return ≈ 8 − 5 = 3%** (exact: 1.08/1.05 − 1 = 2.86%)", "pyq": "", "changed": false, "note": "Source: Syllabus term (textbook)."}, {"id": "NH148", "section": "Communication", "topic": "Communication - Financial Literacy", "type": "fact", "star": "md", "front": "Investor and financial-literacy events?", "back": "**RBI Financial Literacy Week: every February\nWorld Investor Week (IOSCO; SEBI joins): October\nRBI Centres for Financial Literacy (CFLs): block-level, through banks and NGOs**", "pyq": "", "changed": false, "note": "Source: Claude's knowledge (not web-checked)."}]</script>
+<script type="application/json" id="topics-data">["AI & ML - Learning Types & Models", "AI & ML - Data Preprocessing", "AI & ML - Model Evaluation", "AI & ML - Overfitting & Cross-Validation", "AI & ML - NLP & Sentiment", "AI & ML - LLMs & Agentic AI", "AI & ML - Responsible AI & Regulation", "Digital India - Schemes & Platforms", "Media - Audiences & Consumers", "Media - Technology & Platforms", "Media - Trends, Global Practice & Negotiation", "Marketing - Concepts, Research & Planning", "Marketing - Marketing Types", "Marketing - Product & Pricing", "Marketing - Distribution & Promotion", "Marketing - Brands & Customers", "Marketing - Digital & Advanced", "Communication - Barriers & Non-verbal", "Communication - Listening & Clarity", "Communication - Writing & Feedback", "Communication - Conflict & Assertiveness", "Communication - EI & Public Speaking", "Communication - Financial Literacy"]</script>
+<script id="deck-sync">
+/* DeckSync: cross-device sync of Known / Still learning marks through a private GitHub gist.
+   One token per device (localStorage 'pfrda_sync_token', shared by every deck on this site).
+   One secret gist holds one JSON file per deck. Local marks stay in the deck's own key, unchanged.
+   Merge: union of marks; where devices disagree, the most recent change wins. */
+(function(){
+'use strict';
+var TOKEN_KEY='pfrda_sync_token', GIST_KEY='pfrda_sync_gist', LAST_KEY='pfrda_sync_last';
+var DESC='PFRDA flashcard marks sync (do not delete)';
+var API='https://api.github.com';
+var has=function(o,k){return Object.prototype.hasOwnProperty.call(o,k);};
+function lsGet(k){try{return window.localStorage.getItem(k);}catch(e){return null;}}
+function lsSet(k,v){try{window.localStorage.setItem(k,v);return true;}catch(e){return false;}}
+function lsDel(k){try{window.localStorage.removeItem(k);}catch(e){}}
+function readJSON(k){var r=lsGet(k);if(!r)return null;try{var o=JSON.parse(r);return (o&&typeof o==='object')?o:null;}catch(e){return null;}}
+function clean(o){var p={};if(o)for(var k in o){if(has(o,k)&&(o[k]==='known'||o[k]==='learning'))p[k]=o[k];}return p;}
+function same(a,b){var k;for(k in a){if(has(a,k)&&a[k]!==b[k])return false;}for(k in b){if(has(b,k)&&a[k]!==b[k])return false;}return true;}
+
+var cfg=null, metaKey='', fileName='', meta=null, lastRemote={}, timer=null, busy=false, again=false, dirty=false, ui={};
+
+function token(){var t=lsGet(TOKEN_KEY);return t?t.trim():'';}
+function saveMeta(){lsSet(metaKey,JSON.stringify(meta));}
+function local(){return clean(readJSON(cfg.key));}
+function loadMeta(){
+  meta=readJSON(metaKey);
+  if(!meta||!meta.ts||!meta.snap){
+    /* First run: marks made before sync existed get time 1, so any later change on another device wins over them. */
+    var p=local();meta={ts:{},snap:{}};
+    for(var id in p){meta.ts[id]=1;meta.snap[id]=p[id];}
+    saveMeta();
+  }
+}
+/* Record a time for every card whose mark changed since the last look (mark, unmark, reset, restore). */
+function touch(){
+  if(!cfg)return;
+  var p=local(),now=Date.now(),ch=false,id,seen={};
+  for(id in p){if(has(p,id))seen[id]=1;}
+  for(id in meta.snap){if(has(meta.snap,id))seen[id]=1;}
+  for(id in seen){
+    if((p[id]||'')!==(meta.snap[id]||'')){
+      meta.ts[id]=Math.max(now,(meta.ts[id]||0)+1);
+      if(p[id])meta.snap[id]=p[id];else delete meta.snap[id];
+      ch=true;
+    }
+  }
+  if(ch){saveMeta();dirty=true;if(token())schedule(1500);renderUI();}
+}
+function pick(L,R){
+  if(L[1]>R[1])return L;
+  if(R[1]>L[1])return R;
+  if(L[0]===R[0])return L;
+  if(!L[0])return R;
+  if(!R[0])return L;
+  return ['learning',L[1]]; /* same time, different marks: keep the safer one */
+}
+function merge(rc){
+  touch();
+  var out={},id,seen={};
+  for(id in meta.ts){if(has(meta.ts,id))seen[id]=1;}
+  for(id in rc){if(has(rc,id))seen[id]=1;}
+  for(id in seen){
+    var L=[meta.snap[id]||'',+meta.ts[id]||0];
+    var r=rc[id],R=(r&&r.length===2)?[(r[0]==='known'||r[0]==='learning')?r[0]:'',+r[1]||0]:['',0];
+    var w=pick(L,R);
+    if(w[1]>0)out[id]=w;
+  }
+  var p={},ts={},push=false;
+  for(id in out){
+    ts[id]=out[id][1];if(out[id][0])p[id]=out[id][0];
+    var r2=rc[id];
+    if(!r2||r2[0]!==out[id][0]||+r2[1]!==out[id][1])push=true;
+  }
+  var before=local();
+  meta={ts:ts,snap:p};saveMeta();
+  if(!same(before,p)){lsSet(cfg.key,JSON.stringify(p));try{cfg.onRemote(clean(p));}catch(e){}}
+  return {cards:out,push:push};
+}
+function doc(cards){return JSON.stringify({v:1,deck:cfg.label||fileName,updated:new Date().toISOString(),cards:cards});}
+
+function api(method,path,body,keepalive){
+  var o={method:method,cache:'no-store',headers:{'Authorization':'Bearer '+token(),'Accept':'application/vnd.github+json'}};
+  if(body){o.body=JSON.stringify(body);o.headers['Content-Type']='application/json';}
+  if(keepalive)o.keepalive=true;
+  return fetch(API+path,o).then(function(r){
+    if(!r.ok){var e=new Error('HTTP '+r.status);e.status=r.status;throw e;}
+    return r.status===204?null:r.json();
+  });
+}
+function findOrCreate(){
+  return api('GET','/gists?per_page=100').then(function(list){
+    var m=(list||[]).filter(function(g){return g.description===DESC;});
+    m.sort(function(a,b){return a.created_at<b.created_at?-1:1;});
+    if(m.length)return api('GET','/gists/'+m[0].id);
+    var files={'README.md':{content:'Flashcard marks for the PFRDA decks. Written by the decks; please keep this gist.'}};
+    return api('POST','/gists',{description:DESC,public:false,files:files});
+  }).then(function(g){lsSet(GIST_KEY,g.id);return g;});
+}
+function getGist(){
+  var id=lsGet(GIST_KEY);
+  if(!id)return findOrCreate();
+  return api('GET','/gists/'+id).catch(function(e){if(e.status===404){lsDel(GIST_KEY);return findOrCreate();}throw e;});
+}
+function schedule(ms){clearTimeout(timer);timer=setTimeout(sync,ms);}
+function sync(){
+  clearTimeout(timer);
+  if(!cfg||!token())return;
+  if(busy){again=true;return;}
+  busy=true;setState('Syncing…','busy');
+  getGist().then(function(g){
+    var f=g.files&&g.files[fileName],rc={};
+    if(f&&f.content){try{var d=JSON.parse(f.content);if(d&&d.cards&&typeof d.cards==='object')rc=d.cards;}catch(e){}}
+    var res=merge(rc);
+    lastRemote=res.cards;
+    if(!res.push)return;
+    var files={};files[fileName]={content:doc(res.cards)};
+    return api('PATCH','/gists/'+g.id,{files:files});
+  }).then(function(){
+    dirty=false;lsSet(LAST_KEY,String(Date.now()));setState('','ok');
+  },function(e){
+    var s=e&&e.status;
+    setState(s===401?'Token rejected. Make a new one and connect again.':s===403||s===429?'GitHub is limiting requests. Will retry shortly.':s?'Sync failed ('+s+'). Will retry.':'Offline. Will sync when back online.','err');
+    if(s===401){lsDel(TOKEN_KEY);lsDel(GIST_KEY);setState('','');setNote('GitHub rejected that token. Check it was copied whole, or make a new one, then paste it again.');}
+    else schedule(60000);
+  }).then(function(){busy=false;if(again){again=false;schedule(300);}});
+}
+/* Leaving the page: push what we have without waiting for a read. */
+function flush(){
+  if(!dirty||!token()||busy)return;
+  var id=lsGet(GIST_KEY);if(!id)return;
+  touch();
+  var out={},k;
+  for(k in lastRemote){if(has(lastRemote,k))out[k]=lastRemote[k];}
+  for(k in meta.ts){if(has(meta.ts,k)){var L=[meta.snap[k]||'',+meta.ts[k]];out[k]=out[k]?pick(L,out[k]):L;}}
+  var files={};files[fileName]={content:doc(out)};
+  try{api('PATCH','/gists/'+id,{files:files},true).then(function(){dirty=false;},function(){});}catch(e){}
+}
+
+/* ---------- backup / restore (works with or without sync) ---------- */
+function backup(){
+  var data={deck:cfg.label||fileName,key:cfg.key,exported:new Date().toISOString(),marks:local()};
+  var blob=new Blob([JSON.stringify(data,null,1)],{type:'application/json'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=fileName.replace(/\.json$/,'')+'-marks-'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1500);
+  setNote('Backup saved: '+count(data.marks)+' marked cards.');
+}
+function restore(file){
+  var rd=new FileReader();
+  rd.onload=function(){
+    var d;try{d=JSON.parse(rd.result);}catch(e){setNote('That file is not a marks backup.');return;}
+    if(!d||!d.marks){setNote('That file is not a marks backup.');return;}
+    if(d.key&&d.key!==cfg.key&&!window.confirm('This backup is from another deck ('+(d.deck||d.key)+'). Restore it here anyway?'))return;
+    var p=clean(d.marks);
+    if(!window.confirm('Replace the marks in this deck with the '+count(p)+' marks in the backup?'))return;
+    lsSet(cfg.key,JSON.stringify(p));touch();
+    try{cfg.onRemote(p);}catch(e){}
+    setNote('Restored '+count(p)+' marks.');
+  };
+  rd.readAsText(file);
+}
+function count(p){var n=0;for(var k in p){if(has(p,k))n++;}return n;}
+
+/* ---------- UI ---------- */
+var CSS='.dsync{margin:14px 0 0;border:1px solid var(--line,#d5dbe5);border-radius:10px;background:var(--surface,var(--panel,#fff));color:var(--ink,#18233a);font-size:.875rem}'+
+'.dsync summary{cursor:pointer;padding:10px 12px;display:flex;gap:8px;align-items:center;list-style:none;min-height:44px}'+
+'.dsync summary::-webkit-details-marker{display:none}'+
+'.dsync summary b{font-weight:650}.dsync .dsst{margin-left:auto;color:var(--muted,#5b6578);font-size:.8rem;text-align:right}'+
+'.dsync .dsst.ok{color:var(--known,#2b8a3e)}.dsync .dsst.err{color:var(--changed,var(--learning,#a35f00))}'+
+'.dsync .dsb{padding:0 12px 12px;display:grid;gap:8px}.dsync p{margin:0;color:var(--muted,#5b6578)}'+
+'.dsync input[type=password]{font:inherit;font-size:16px;width:100%;padding:9px 10px;border:1px solid var(--line,#d5dbe5);border-radius:8px;background:var(--surface-2,var(--bg,#f5f7fa));color:inherit}'+
+'.dsync .dsr{display:flex;gap:8px;flex-wrap:wrap}.dsync .dsr button,.dsync .dsr label{flex:1 1 0;min-width:120px;min-height:40px;font:inherit;font-size:.82rem;font-weight:600;border:1px solid var(--line,#d5dbe5);border-radius:8px;background:var(--surface-2,var(--bg,#f5f7fa));color:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:6px 8px;text-align:center}'+
+'.dsync .dsr label input{display:none}.dsync hr{border:0;border-top:1px solid var(--line,#d5dbe5);margin:4px 0}.dsync .dsnote{color:var(--ink,#18233a)}.dsync [hidden]{display:none!important}';
+function el(tag,attrs,text){var e=document.createElement(tag);for(var k in attrs){if(has(attrs,k))e.setAttribute(k,attrs[k]);}if(text)e.textContent=text;return e;}
+function buildUI(anchor){
+  var st=el('style');st.textContent=CSS;document.head.appendChild(st);
+  var d=el('details',{'class':'dsync'});
+  var s=el('summary');s.appendChild(el('b',{},'Sync across devices'));ui.state=el('span',{'class':'dsst'});s.appendChild(ui.state);d.appendChild(s);
+  var b=el('div',{'class':'dsb'});d.appendChild(b);
+  ui.off=el('div',{'class':'dsb',style:'padding:0'});
+  ui.off.appendChild(el('p',{},'Paste your GitHub sync token. You do this once per device; every deck on this site then syncs.'));
+  ui.tok=el('input',{type:'password',autocomplete:'off',autocapitalize:'off',spellcheck:'false',placeholder:'ghp_…','aria-label':'GitHub sync token'});ui.off.appendChild(ui.tok);
+  var r1=el('div',{'class':'dsr'});var bc=el('button',{type:'button'},'Connect this device');r1.appendChild(bc);ui.off.appendChild(r1);
+  ui.on=el('div',{'class':'dsb',style:'padding:0'});
+  ui.msg=el('p');ui.on.appendChild(ui.msg);
+  var r2=el('div',{'class':'dsr'});var bs=el('button',{type:'button'},'Sync now');var bd=el('button',{type:'button'},'Disconnect this device');r2.appendChild(bs);r2.appendChild(bd);ui.on.appendChild(r2);
+  b.appendChild(ui.off);b.appendChild(ui.on);b.appendChild(el('hr'));
+  b.appendChild(el('p',{},'Safety copy of this deck’s marks as a file:'));
+  var r3=el('div',{'class':'dsr'});var bb=el('button',{type:'button'},'Back up marks');var lr=el('label',{},'Restore from backup');var fi=el('input',{type:'file',accept:'.json,application/json'});lr.appendChild(fi);r3.appendChild(bb);r3.appendChild(lr);b.appendChild(r3);
+  ui.note=el('p',{'class':'dsnote',role:'status'});b.appendChild(ui.note);
+  bc.addEventListener('click',function(){var t=ui.tok.value.trim();if(!t){ui.tok.focus();return;}lsSet(TOKEN_KEY,t);ui.tok.value='';renderUI();sync();});
+  bs.addEventListener('click',function(){sync();});
+  bd.addEventListener('click',function(){if(!window.confirm('Stop syncing on this device? Marks already here stay. Other decks on this device stop syncing too.'))return;lsDel(TOKEN_KEY);lsDel(GIST_KEY);setState('','');renderUI();});
+  bb.addEventListener('click',backup);
+  fi.addEventListener('change',function(){if(fi.files&&fi.files[0])restore(fi.files[0]);fi.value='';});
+  anchor.parentNode.insertBefore(d,anchor.nextSibling);
+  ui.root=d;
+}
+var stateText='',stateKind='';
+function setState(t,k){stateText=t;stateKind=k;renderUI();}
+function setNote(t){if(ui.note)ui.note.textContent=t;}
+function ago(ms){var m=Math.round(ms/60000);if(m<1)return 'just now';if(m<60)return m+' min ago';var h=Math.round(m/60);if(h<24)return h+' h ago';return Math.round(h/24)+' d ago';}
+function renderUI(){
+  if(!ui.root)return;
+  var on=!!token();
+  ui.off.hidden=on;ui.on.hidden=!on;
+  var last=+lsGet(LAST_KEY)||0;
+  var lbl=!on?'Off':stateKind==='busy'?'Syncing…':stateKind==='err'?'Not synced':dirty?'Changes waiting':last?'Synced '+ago(Date.now()-last):'On';
+  ui.state.textContent=lbl;
+  ui.state.className='dsst'+(on&&stateKind==='err'?' err':on&&stateKind==='ok'&&!dirty?' ok':'');
+  ui.msg.textContent=stateKind==='err'?stateText:(last?'Last synced '+ago(Date.now()-last)+'. Marks sync by themselves after each change and when you come back to this tab.':'Connected. First sync merges this device’s marks with the other device’s.');
+}
+
+window.DeckSync={
+  init:function(c){
+    try{
+      if(!c||!c.key||!window.localStorage)return;
+      cfg=c;metaKey=c.key+'_sync';fileName=c.key.replace(/_progress$/,'')+'.json';
+      loadMeta();touch();dirty=false;
+      if(c.anchor)buildUI(c.anchor);
+      renderUI();
+      if(token())sync();
+      document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'){if(token())schedule(300);}else flush();});
+      window.addEventListener('pagehide',flush);
+      window.addEventListener('online',function(){if(token())schedule(300);});
+      setInterval(renderUI,60000);
+    }catch(e){cfg=null;}
+  },
+  touch:function(){try{touch();}catch(e){}},
+  sync:sync
+};
+})();
+</script><!--/deck-sync-->
+<script>
+(function(){
+'use strict';
+var KEY='pfrda_newheads_nov2026_progress';
+var THEME_KEY='pfrda_newheads_nov2026_theme';
+var CARDS=JSON.parse(document.getElementById('cards-data').textContent);
+var TOPICS=JSON.parse(document.getElementById('topics-data').textContent);
+var $=function(id){return document.getElementById(id);};
+
+/* ---------- storage (never required) ---------- */
+var storageOk=true;
+function sGet(k){try{return window.localStorage.getItem(k);}catch(e){storageOk=false;return null;}}
+function sSet(k,v){try{window.localStorage.setItem(k,v);return true;}catch(e){storageOk=false;showBanner();return false;}}
+function sDel(k){try{window.localStorage.removeItem(k);}catch(e){storageOk=false;}}
+function showBanner(){ $('banner').hidden=false; }
+(function probe(){try{var t='__pfrda_probe__';window.localStorage.setItem(t,'1');window.localStorage.removeItem(t);}catch(e){storageOk=false;}})();
+
+var progress={};
+(function(){
+  var raw=sGet(KEY);
+  if(!raw) return;
+  try{
+    var o=JSON.parse(raw);
+    if(o && typeof o==='object'){
+      for(var k in o){ if(Object.prototype.hasOwnProperty.call(o,k) && (o[k]==='known'||o[k]==='learning')) progress[k]=o[k]; }
+    }
+  }catch(e){}
+})();
+function saveProgress(){ sSet(KEY,JSON.stringify(progress)); if(window.DeckSync)DeckSync.touch(); }
+
+/* ---------- theme ---------- */
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  $('bTheme').textContent = t==='dark' ? 'Light theme' : 'Dark theme';
+}
+var theme=sGet(THEME_KEY);
+if(theme!=='light' && theme!=='dark'){
+  theme=(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';
+}
+applyTheme(theme);
+
+/* ---------- state ---------- */
+var byId={};
+CARDS.forEach(function(c){byId[c.id]=c;});
+var baseOrder=CARDS.map(function(c){return c.id;});
+var order=baseOrder.slice();
+var filters={topics:[],type:'all',status:'all',hi:false,pyq:false};
+var view=[], pos=0, flipped=false;
+
+function statusOf(id){var s=progress[id];return (s==='known'||s==='learning')?s:'unseen';}
+function matches(c){
+  if(filters.topics.length && filters.topics.indexOf(c.topic)<0) return false;
+  if(filters.type!=='all' && c.type!==filters.type) return false;
+  if(filters.hi && c.star!=='hi') return false;
+  if(filters.pyq && !c.pyq) return false;
+  if(filters.status==='notknown'){ if(statusOf(c.id)==='known') return false; }
+  else if(filters.status!=='all' && statusOf(c.id)!==filters.status) return false;
+  return true;
+}
+function rebuild(keepId){
+  view=order.filter(function(id){return matches(byId[id]);});
+  var i=keepId?view.indexOf(keepId):-1;
+  pos=i>=0?i:0;
+  flipped=false;
+  render();
+}
+
+/* ---------- rendering ---------- */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmt(s){return esc(s).replace(/\*\*([\s\S]+?)\*\*/g,'<strong>$1</strong>');}
+var TYPE_LABEL={fact:'Fact',trap:'Trap',concept:'Concept'};
+var STATUS_LABEL={unseen:'Unseen',learning:'Still learning',known:'Known'};
+
+function renderStats(){
+  var n=view.length,k=0,l=0;
+  view.forEach(function(id){var s=statusOf(id); if(s==='known')k++; else if(s==='learning')l++;});
+  $('sTotal').textContent=n;
+  $('sUnseen').textContent=n-k-l;
+  $('sLearn').textContent=l;
+  $('sKnown').textContent=k;
+  $('sPct').textContent=(n?Math.round(k*100/n):0)+'%';
+}
+function renderCard(){
+  var el=$('card');
+  if(!view.length){
+    el.className='card empty';
+    el.removeAttribute('data-type');
+    el.setAttribute('aria-expanded','false');
+    el.setAttribute('aria-label','No cards match these filters');
+    el.innerHTML='<p class="q" style="margin:0">No cards match these filters.</p><p class="note" style="margin:0">Change or clear a filter above to widen the set.</p><button type="button" id="emptyClear">Clear filters</button>';
+    var b=$('emptyClear'); if(b) b.addEventListener('click',function(e){e.stopPropagation();clearFilters();});
+    return;
+  }
+  var c=byId[view[pos]], st=statusOf(c.id);
+  var h='<div class="meta">';
+  h+='<span class="badge b-type">'+TYPE_LABEL[c.type]+'</span>';
+  if(c.star==='hi') h+='<span class="badge b-star">★ High-yield</span>';
+  else if(c.star==='md') h+='<span class="badge b-star">☆ Medium</span>';
+  if(c.pyq) h+='<span class="badge b-pyq">'+esc(c.pyq)+'</span>';
+  h+='</div>';
+  h+='<div class="topic">'+esc(c.topic)+'</div>';
+  h+='<div class="q">'+fmt(c.front)+'</div>';
+  h+='<div class="hint">Tap the card or press Space to reveal the answer.</div>';
+  h+='<div class="a"><div class="ans">'+fmt(c.back)+'</div>';
+  if(c.note) h+='<div class="note">'+fmt(c.note)+'</div>';
+  h+='</div>';
+  h+='<div class="cfoot"><span>'+(pos+1)+' of '+view.length+(pos===view.length-1?' (end of set)':'')+'</span><span class="s-'+st+'">'+STATUS_LABEL[st]+'</span></div>';
+  el.className='card'+(flipped?' flipped':'');
+  el.setAttribute('data-type',c.type);
+  el.setAttribute('aria-expanded',flipped?'true':'false');
+  el.setAttribute('aria-label','Card '+(pos+1)+' of '+view.length+'. Press Space or Enter to '+(flipped?'hide':'show')+' the answer.');
+  el.innerHTML=h;
+}
+function renderControls(){
+  var has=view.length>0;
+  $('bPrev').disabled=!has||pos===0;
+  $('bNext').disabled=!has||pos>=view.length-1;
+  $('bFlip').disabled=!has;
+  $('bKnown').disabled=!has;
+  $('bLearn').disabled=!has;
+  $('bFlip').textContent=flipped?'Hide answer':'Show answer';
+}
+function render(){ renderCard(); renderControls(); renderStats(); renderFilterSummary(); }
+
+/* ---------- actions ---------- */
+function focusCard(){ try{$('card').focus({preventScroll:true});}catch(e){$('card').focus();} }
+function flip(){
+  if(!view.length) return;
+  flipped=!flipped;
+  var el=$('card');
+  el.classList.toggle('flipped',flipped);
+  el.setAttribute('aria-expanded',flipped?'true':'false');
+  $('bFlip').textContent=flipped?'Hide answer':'Show answer';
+}
+function go(d){
+  if(!view.length) return;
+  var p=pos+d;
+  if(p<0||p>=view.length) return;
+  pos=p; flipped=false; render();
+}
+function mark(val){
+  if(!view.length) return;
+  progress[view[pos]]=val;
+  saveProgress();
+  if(pos<view.length-1){pos++;flipped=false;}
+  render();
+}
+function shuffle(){
+  var keep=null;
+  for(var i=order.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=order[i];order[i]=order[j];order[j]=t;}
+  rebuild(keep);
+}
+function resetOrder(){ order=baseOrder.slice(); rebuild(null); }
+
+/* ---------- modal ---------- */
+var lastFocus=null;
+function openModal(){
+  lastFocus=document.activeElement;
+  $('mText').textContent='This clears every Known and Still learning mark for all '+CARDS.length+' cards saved in this browser.';
+  $('modal').hidden=false;
+  $('mCancel').focus();
+}
+function closeModal(){ $('modal').hidden=true; if(lastFocus&&lastFocus.focus) lastFocus.focus(); else focusCard(); }
+function doReset(){
+  progress={}; sDel(KEY); if(window.DeckSync)DeckSync.touch();
+  var cur=view.length?view[pos]:null;
+  $('modal').hidden=true;
+  rebuild(cur);
+  focusCard();
+}
+
+/* ---------- filters UI ---------- */
+/* Topic picker: one native select. Each area is an optgroup whose first option takes the whole area. */
+var PREF_KEY='pfrda_newheads_nov2026_filters';
+var topicCounts={}, groupOf={}, GROUPS=[], groupTopics={}, groupCounts={};
+CARDS.forEach(function(c){
+  topicCounts[c.topic]=(topicCounts[c.topic]||0)+1;
+  if(!groupOf[c.topic] || (groupOf[c.topic]==='Addendum' && c.section!=='Addendum')) groupOf[c.topic]=c.section;
+});
+TOPICS.forEach(function(t){
+  if(!topicCounts[t]) return;
+  var g=groupOf[t];
+  if(!groupTopics[g]){ GROUPS.push(g); groupTopics[g]=[]; groupCounts[g]=0; }
+  groupTopics[g].push(t); groupCounts[g]+=topicCounts[t];
+});
+function shortTopic(t,g){
+  var seps=[' — ',' - '];
+  for(var i=0;i<seps.length;i++){ if(t.indexOf(g+seps[i])===0) return t.slice((g+seps[i]).length); }
+  return t.replace(/^\d+\s+/,'');
+}
+(function buildTopics(){
+  var h='<option value="all">All topics ('+CARDS.length+')</option>';
+  GROUPS.forEach(function(g,gi){
+    h+='<optgroup label="'+esc(g)+'">';
+    h+='<option value="g:'+gi+'">All of '+esc(g)+' ('+groupCounts[g]+')</option>';
+    groupTopics[g].forEach(function(t){
+      h+='<option value="t:'+TOPICS.indexOf(t)+'">'+esc(shortTopic(t,g))+' ('+topicCounts[t]+')</option>';
+    });
+    h+='</optgroup>';
+  });
+  $('topicSel').innerHTML=h;
+})();
+var topicChoice='all';
+function topicsFor(v){
+  if(v.indexOf('g:')===0){ var g=GROUPS[+v.slice(2)]; return g?groupTopics[g].slice():[]; }
+  if(v.indexOf('t:')===0){ var t=TOPICS[+v.slice(2)]; return t?[t]:[]; }
+  return [];
+}
+function savePrefs(){
+  sSet(PREF_KEY,JSON.stringify({topic:topicChoice,type:filters.type,status:filters.status,hi:filters.hi,pyq:filters.pyq}));
+}
+function syncFilterUI(){
+  $('topicSel').value=topicChoice;
+  $('typeSel').value=filters.type;
+  $('statusSel').value=filters.status;
+  $('topicSel').classList.toggle('on',topicChoice!=='all');
+  $('typeSel').classList.toggle('on',filters.type!=='all');
+  $('statusSel').classList.toggle('on',filters.status!=='all');
+  $('fHi').setAttribute('aria-pressed',filters.hi?'true':'false');
+  $('fPyq').setAttribute('aria-pressed',filters.pyq?'true':'false');
+}
+(function loadPrefs(){
+  var raw=sGet(PREF_KEY); if(!raw) return;
+  try{
+    var o=JSON.parse(raw); if(!o||typeof o!=='object') return;
+    if(typeof o.topic==='string' && $('topicSel').querySelector('option[value="'+o.topic.replace(/"/g,'')+'"]')){ topicChoice=o.topic; filters.topics=topicsFor(o.topic); }
+    if(['all','fact','trap','concept'].indexOf(o.type)>=0) filters.type=o.type;
+    if(['all','unseen','learning','known','notknown'].indexOf(o.status)>=0) filters.status=o.status;
+    filters.hi=o.hi===true; filters.pyq=o.pyq===true;
+  }catch(e){}
+})();
+function onFilterChange(){
+  savePrefs();
+  syncFilterUI();
+  var cur=view.length?view[pos]:null;
+  rebuild(cur);
+}
+$('topicSel').addEventListener('change',function(){ topicChoice=this.value; filters.topics=topicsFor(topicChoice); onFilterChange(); });
+$('typeSel').addEventListener('change',function(){ filters.type=this.value; onFilterChange(); });
+$('statusSel').addEventListener('change',function(){ filters.status=this.value; onFilterChange(); });
+$('fHi').addEventListener('click',function(){ filters.hi=!filters.hi; onFilterChange(); });
+$('fPyq').addEventListener('click',function(){ filters.pyq=!filters.pyq; onFilterChange(); });
+function clearFilters(){
+  filters={topics:[],type:'all',status:'all',hi:false,pyq:false};
+  topicChoice='all';
+  onFilterChange();
+}
+$('fClear').addEventListener('click',clearFilters);
+function renderFilterSummary(){
+  var on=topicChoice!=='all'||filters.type!=='all'||filters.status!=='all'||filters.hi||filters.pyq;
+  $('fClear').hidden=!on;
+}
+syncFilterUI();
+
+/* ---------- wiring ---------- */
+$('card').addEventListener('click',function(e){
+  if(!view.length) return;
+  var sel=window.getSelection && String(window.getSelection());
+  if(sel && sel.length>0 && flipped) return;
+  flip();
+});
+function bind(id,fn){ $(id).addEventListener('click',function(){ fn(); if(id!=='bReset') focusCard(); }); }
+bind('bPrev',function(){go(-1);});
+bind('bNext',function(){go(1);});
+bind('bFlip',flip);
+bind('bKnown',function(){mark('known');});
+bind('bLearn',function(){mark('learning');});
+bind('bShuffle',shuffle);
+bind('bOrder',resetOrder);
+bind('bReset',openModal);
+bind('bTheme',function(){ theme=theme==='dark'?'light':'dark'; applyTheme(theme); sSet(THEME_KEY,theme); });
+$('mCancel').addEventListener('click',closeModal);
+$('mOk').addEventListener('click',doReset);
+$('modal').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
+
+document.addEventListener('keydown',function(e){
+  if(!$('modal').hidden){ if(e.key==='Escape'){e.preventDefault();closeModal();} return; }
+  if(e.ctrlKey||e.metaKey||e.altKey) return;
+  var t=e.target, tag=(t&&t.tagName||'').toLowerCase();
+  if(tag==='input'||tag==='select'||tag==='textarea'||tag==='summary'||(t&&t.isContentEditable)) return;
+  var k=e.key;
+  if(k===' '||k==='Spacebar'||k==='Enter'){
+    if(tag==='button') return;
+    e.preventDefault(); flip(); return;
+  }
+  if(k==='ArrowRight'){e.preventDefault();go(1);focusCard();return;}
+  if(k==='ArrowLeft'){e.preventDefault();go(-1);focusCard();return;}
+  if(k==='k'||k==='K'){e.preventDefault();mark('known');focusCard();return;}
+  if(k==='l'||k==='L'){e.preventDefault();mark('learning');focusCard();return;}
+});
+
+$('sub').textContent='PFRDA Grade A 2026 · Phase II Paper 2 · 2026 new heads: real Phase I questions + syllabus, source tag on every card. '+CARDS.length+' cards.';
+if(!storageOk) showBanner();
+rebuild(null);
+if(window.DeckSync)DeckSync.init({key:KEY,label:document.title,anchor:document.querySelector('.kbd')||$('modal'),onRemote:function(p){var cur=view.length?view[pos]:null,f=flipped;progress=p;rebuild(cur);if(f&&view[pos]===cur)flip();}});
+})();
+</script>
+</body>
+</html>

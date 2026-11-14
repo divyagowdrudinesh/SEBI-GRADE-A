@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PFRDA 2022 Phase II Paper 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+/* Layout: exam-hall CBT console. Sticky timer bar, one question per screen, fixed action bar, sheet for the question palette. */
+:root{
+  --bg:#f3f5f7; --panel:#ffffff; --ink:#18212b; --muted:#5b6672; --line:#d9dee4;
+  --accent:#1f5f8b; --accent-ink:#ffffff; --accent-soft:#e3eef6;
+  --ok:#1d7a4a; --ok-soft:#e1f2e8; --bad:#b4352c; --bad-soft:#f8e3e1;
+  --flag:#7a4cb0; --flag-soft:#eee6f8; --skip:#8a6a12; --skip-soft:#f6efd9;
+  --ui:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --read:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1419; --panel:#182029; --ink:#e4e9ee; --muted:#9aa6b2; --line:#2c3743;
+  --accent:#6fb3e0; --accent-ink:#0b1a26; --accent-soft:#1b3346;
+  --ok:#5cc58d; --ok-soft:#173326; --bad:#ef7f75; --bad-soft:#3a1d1b;
+  --flag:#b991ea; --flag-soft:#2c2140; --skip:#e0bd5a; --skip-soft:#352c14; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1419; --panel:#182029; --ink:#e4e9ee; --muted:#9aa6b2; --line:#2c3743;
+  --accent:#6fb3e0; --accent-ink:#0b1a26; --accent-soft:#1b3346;
+  --ok:#5cc58d; --ok-soft:#173326; --bad:#ef7f75; --bad-soft:#3a1d1b;
+  --flag:#b991ea; --flag-soft:#2c2140; --skip:#e0bd5a; --skip-soft:#352c14; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:16px;line-height:1.5;-webkit-text-size-adjust:100%}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:760px;margin:0 auto;padding-inline:16px;padding-block:16px 120px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+h1,h2,h3{text-wrap:balance;line-height:1.25;margin:0}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:10px 14px;font-weight:600;min-height:44px}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+/* start */
+.start{display:grid;gap:16px}
+.start .panel{padding:18px}
+.start h1{font-size:24px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:0}
+.facts div{border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.facts dt{font-size:12px;color:var(--muted)} .facts dd{margin:0;font-weight:600}
+.tbl{overflow-x:auto}
+table.sec{border-collapse:collapse;width:100%;font-size:14px}
+table.sec th,table.sec td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
+table.sec td.r,table.sec th.r{text-align:right}
+.note{font-size:14px;color:var(--muted)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+/* top bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--panel);border-bottom:1px solid var(--line)}
+.bar-in{max-width:760px;margin:0 auto;padding:8px 16px;display:flex;align-items:center;gap:10px}
+.bar .t{font-weight:600;font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.timer{font-family:var(--mono);font-size:18px;font-weight:600;padding:4px 10px;border-radius:6px;background:var(--accent-soft)}
+.timer.low{background:var(--bad-soft);color:var(--bad)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:8px 16px;max-width:760px;margin:0 auto;scrollbar-width:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+/* question */
+.qhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.qhead .marks{font-size:13px;color:var(--muted)}
+details.stem{margin-bottom:12px}
+details.stem summary{font-size:13px;font-weight:600;color:var(--accent);padding:8px 0;cursor:pointer}
+.stem-body{font-family:var(--read);font-size:16.5px;line-height:1.6;max-height:55vh;overflow:auto;padding:4px 14px;border-left:3px solid var(--line);min-width:0}
+.stem-body p{margin:0 0 10px}
+table.dt{border-collapse:collapse;font-family:var(--ui);font-size:15px;margin:6px 0 10px}
+table.dt th,table.dt td{border:1px solid var(--line);padding:6px 12px;text-align:center}
+.qtext{font-size:17px;margin:0 0 14px;min-width:0;overflow-wrap:anywhere}
+.opts{display:grid;gap:10px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;border:1.5px solid var(--line);background:var(--panel);border-radius:10px;padding:12px 14px;min-height:52px}
+.opt .k{flex:none;width:28px;height:28px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-weight:700;font-size:14px}
+.opt[aria-checked="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.opt[aria-checked="true"] .k{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.opt span:last-child{min-width:0;overflow-wrap:anywhere}
+/* bottom bar */
+.foot{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--panel);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px))}
+.foot-in{max-width:760px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.foot-in .btn{width:100%;font-size:14px;padding:8px 6px}
+@media (min-width:560px){.foot-in{grid-template-columns:repeat(4,1fr)}}
+/* sheet */
+.sheet{position:fixed;inset:0;z-index:10;background:rgba(10,15,20,.45);display:flex;align-items:flex-end;justify-content:center}
+.sheet-in{background:var(--panel);width:100%;max-width:760px;max-height:85%;overflow:auto;border-radius:14px 14px 0 0;padding:16px 16px calc(20px + env(safe-area-inset-bottom,0px))}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:12px;color:var(--muted);margin:8px 0 14px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px;border:1px solid var(--line)}
+.pal-sec{margin:12px 0 4px;font-size:13px;font-weight:600}
+.pal{display:grid;grid-template-columns:repeat(auto-fill,minmax(42px,1fr));gap:6px}
+.pal button{height:40px;border-radius:6px;border:1px solid var(--line);background:var(--panel);font-family:var(--mono);font-size:13px}
+.st-ans{background:var(--ok-soft)!important;border-color:var(--ok)!important;color:var(--ok)}
+.st-flag{background:var(--flag-soft)!important;border-color:var(--flag)!important;color:var(--flag)}
+.st-seen{background:var(--skip-soft)!important;border-color:var(--skip)!important;color:var(--skip)}
+.st-cur{outline:2px solid var(--ink);outline-offset:1px}
+.confirm{margin-top:16px;padding:14px;border:1px solid var(--line);border-radius:10px}
+/* results */
+.score{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.score .big{font-family:var(--mono);font-size:40px;font-weight:600}
+.pill{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px}
+.p-ok{background:var(--ok-soft);color:var(--ok)} .p-bad{background:var(--bad-soft);color:var(--bad)} .p-skip{background:var(--skip-soft);color:var(--skip)}
+.rev{display:grid;gap:12px;margin-top:12px}
+.rq{padding:14px}
+.rq .opt{cursor:default;min-height:0;padding:8px 12px}
+.rq .opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.rq .opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.exp{margin-top:10px;padding:10px 12px;border-radius:8px;background:var(--bg);font-size:15px;overflow-wrap:anywhere}
+.exp b{font-weight:600}
+@media (prefers-reduced-motion:no-preference){.opt{transition:border-color .12s,background .12s}}
+</style>
+
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+const DATA = {"id": "pfrda-p2-2022-real-v1", "title": "PFRDA 2022 Phase II · Paper 2", "short": "PFRDA 2022 Ph-II P2", "blurb": "The actual PFRDA Phase II Paper 2 from 2022 (General), all 50 questions as EduTap recollected them, in the same order and with EduTap's options. 2 marks each, 40 minutes, a quarter of the marks off per wrong answer. Treat it as exam day: no notes, no pausing.", "gaps": "<b>What this paper does not cover.<\/b> It is one year's paper, so it has none of the heads added in 2026 (AI & ML, Media, Marketing & Communication, PFRDA Act depth, Budget 2026-27 and Economic Survey) and only 3 current-affairs items, all from 2022. The 2025 paper and Paper 2 Mock 3 cover those. Some 2022 facts have since changed (PMVVY closed in 2023, 16th Finance Commission weights, gratuity under the Code on Social Security); the explanations flag each one, but answer as of 2022.", "resnote": "2025 UR cut-off for Paper 2 was 60.5 out of 100, and your Phase I Paper 2 estimate was about 75. Aim for 70 or more here. Explanations marked \"2026 note\" tell you where a 2022 fact has since changed.", "minutes": 40, "neg": 0.25, "sections": [{"name": "Commerce & Accountancy", "n": 7, "marks": 14}, {"name": "Finance", "n": 4, "marks": 8}, {"name": "Pension", "n": 7, "marks": 14}, {"name": "Costing", "n": 7, "marks": 14}, {"name": "Companies Act", "n": 7, "marks": 14}, {"name": "Financial Current Affairs", "n": 3, "marks": 6}, {"name": "Economics", "n": 7, "marks": 14}, {"name": "Management", "n": 8, "marks": 16}], "stems": {}, "qs": [{"s": "Commerce & Accountancy", "q": "XYZ Ltd took a loan of $2,00,000 on 1 December, when the dollar–rupee exchange rate was 74.43. On 31 March the forward exchange rate stands at 76.78. Calculate the company's profit or loss.", "o": ["1,70,000", "4,70,000", "5,78,000", "5,88,000", "6,88,000"], "a": 1, "e": "Loss on a foreign-currency loan = rise in the rupee rate × dollars owed = (76.78 − 74.43) × 2,00,000 = 2.35 × 2,00,000 = ₹4,70,000 loss (the liability grew because the dollar got dearer).", "st": null}, {"s": "Commerce & Accountancy", "q": "The ex-rights price is the price of the shares trading in the market post the issue of new rights share. In the same regard, calculate the ex-right price of the company, if the company opts for right issue at Rs. 120 and the current market prices of the company is Rs. 240. Its given that, company offered 1 right share for every 2 existing shares.", "o": ["100", "400", "300", "200", "500"], "a": 3, "e": "Ex-rights price (TERP) = (existing shares × market price + rights shares × issue price) ÷ total shares = (2 × 240 + 1 × 120) ÷ 3 = 600 ÷ 3 = ₹200.", "st": null}, {"s": "Commerce & Accountancy", "q": "There are multiple accounting concepts and principles which brings uniformity in various accounting procedure. In the same manner, which of the following accounting principle is followed and practiced while passing adjustment entries in the books of accounts and it further says that revenue and expenses incurred to earn these revenues must belong to the same accounting period ?", "o": ["Entity Concept", "Accrual Concept", "Going Concept", "Matching Concept", "Revenue Recognition Concept"], "a": 3, "e": "Matching concept: expenses are matched with the revenue of the same period, which is why adjustment entries (outstanding, prepaid, accrued) are passed. Accrual records items when they arise; matching pairs them by period.", "st": null}, {"s": "Finance", "q": "Currently a public company has issued 2,00,000 shares in the open market and on 31st march the company decided to further issue additional 2,00,000 shares. Assuming that company earned the profit of Rs. 4,00,000. You are required to calculate weighted average Earning Per Share (EPS).", "o": ["2.33 Per share", "1.14 Per share", "6.33 Per share", "7.33 Per share", "8.33 Per share"], "a": 1, "e": "Weighted shares: EduTap treats the year as Jan–Dec, so shares issued on 31 March count for 9 of 12 months: 2,00,000 + 2,00,000 × 9/12 = 3,50,000. EPS = 4,00,000 ÷ 3,50,000 = ₹1.14. (If the year ended on 31 March the new shares would carry almost no weight, so read the stem's timing carefully.)", "st": null}, {"s": "Commerce & Accountancy", "q": "The objective of IND-AS 16 Standard is to prescribe the accounting treatment for property, plant and equipment so that users of the financial statements can discern information about an entity's investment in its property, plant and equipment and the changes in such investment. In the same regard, which of the following component is not covered in IND-AS 16 ?", "o": ["Directly Attribute Cost", "Purchase Price", "Trade Discount", "Restoration Cost", "None of the above"], "a": 2, "e": "Ind AS 16 cost = purchase price (after deducting trade discounts and rebates) + directly attributable costs + initial estimate of dismantling/restoration. Trade discount is deducted, not added, so it is the item not included.", "st": null}, {"s": "Commerce & Accountancy", "q": "Indian Accounting Standard 113 (Ind-AS 113) helps companies with a unified procedure to define the fair value of assets while declaring their financing statements. As per Ind-AS – 113, which of the following are the features of Market participants operating in the principal or most advantageous market.", "o": ["All market participants are independent of one another", "All market participants are knowledgeable and have reasonable understanding about the asset/liability", "They are able/willing to enter into a transaction for the asset or liability", "All Market participants obtain all the information through usual and customary due diligence.", "All of the above"], "a": 4, "e": "Ind AS 113 market participants are independent, knowledgeable (using all available information, including usual due diligence), and able and willing to transact without compulsion. All four statements are features, so 'All of the above'.", "st": null}, {"s": "Commerce & Accountancy", "q": "Assuming that a company took one single asset on operating lease and the company paid an amount of Rs. 1,00,000 straightforwardly. The lease term is of 15 years, and later it was decided that company will transfer Rs. 4,50,000 for yearly lease payments. As per IND AS 17, what will be the accounting treatment for Rs. 1,00,000 which was paid straightforwardly.", "o": ["Write-off the amount of Rs. 1,00,000 in the first two year of lease period", "Amortized the amount of Rs. 1,00,000 over the first 2 years of lease period", "Write-off the amount of Rs. 1,00,000 in the very first year of lease period", "Amortized the amount of Rs. 1,00,000 over the lease period", "None of the above"], "a": 3, "e": "Under Ind AS 17 operating-lease payments, including an upfront lump sum, are recognised on a straight-line basis over the lease term, so the ₹1,00,000 is amortised over the 15-year lease.", "st": null}, {"s": "Commerce & Accountancy", "q": "Study the following financial data and thereafter calculate trade payables turnover ratio<br><br>• Cash purchases= 1,00,000<br>• Opening creditors= 25,000<br>• Closing bill payables= 25,000<br>• Purchase returns= 7,000<br>• Total purchases= 4,07,000<br>• Closing creditors= 50,000<br>• Opening bill payables= 20,000", "o": ["3", "5", "6", "7", "8"], "a": 1, "e": "Net credit purchases = (4,07,000 − 7,000) − 1,00,000 = 3,00,000. Average trade payables = (25,000 + 20,000 + 50,000 + 25,000) ÷ 2 = 60,000. Ratio = 3,00,000 ÷ 60,000 = 5 times.", "st": null}, {"s": "Pension", "q": "Pradhan Mantri Vaya Vandana Yojana (PMVVY) is an insurance policy-cum-pension scheme that provides security to senior citizens. In the same regard, what is the maximum amount of loan which can be availed by an applicant under PMVVY", "o": ["45% of the purchase price", "65% of the purchase price", "55% of the purchase price", "60% of the purchase price", "75% of the purchase price"], "a": 4, "e": "PMVVY allowed a loan of up to 75% of the purchase price after 3 policy years.<br><i>2026 note:<\/i> PMVVY closed to new subscribers on 31 March 2023. Two options read 65% in EduTap's recollection; option D was changed to 60% so there are no duplicates.", "st": null}, {"s": "Pension", "q": "Under Employee Pension Scheme (EPS), on the event of death of the subscriber. Pension is paid directly to the spouse of the person, additionally, the pension can also be received by the children of the subscribers, however the pension to children is payable only up-to the age of ______ years of children.", "o": ["10 Year", "25 Year", "15 Year", "20 Year", "18 Year"], "a": 1, "e": "Under EPS 1995, after the member's death the spouse gets widow(er) pension, and children's pension is paid for up to two children at a time until each turns 25 (for life for a disabled child).", "st": null}, {"s": "Pension", "q": "The EPS (Employee pension scheme) is a scheme run by the Employee’s Provident Fund Organization (EPFO), which aims at social security. In the same regard, under EPS contributions are payable on maximum wage celling of ____________.", "o": ["10,000", "25,000", "15,000", "35,000", "20,000"], "a": 2, "e": "EPS contributions (8.33% of the employer's 12%) are calculated on a wage ceiling of ₹15,000 a month (raised from ₹6,500 in 2014).", "st": null}, {"s": "Pension", "q": "Under Atal Pension Yojana, if a subscriber wants to change the tenure and mode of auto debit facility, then he or she can do so, how many times in a year ?", "o": ["Only once in a year in March", "Only once in a year in April", "Only once in a year in June", "Only once in a year in December", "Only once in a year in any month"], "a": 4, "e": "EduTap's key: the subscriber can change the mode (monthly / quarterly / half-yearly) of auto-debit once a year, in any month. Don't confuse it with the pension-amount upgrade/downgrade, which is allowed once a year in April.", "st": null}, {"s": "Pension", "q": "In the most general sense, the gratuity shall be payable to an employee only if an employee has rendered a continuous service for _________ years.", "o": ["6 Years", "5 Years", "3 Years", "4 Years", "2 Years"], "a": 1, "e": "Payment of Gratuity Act 1972: gratuity needs at least 5 years of continuous service (except on death or disablement).<br><i>2026 note:<\/i> the Code on Social Security, in force from 21 Nov 2025, keeps 5 years for regular employees but gives fixed-term employees pro-rata gratuity after 1 year.", "st": null}, {"s": "Pension", "q": "____________ is a biometric enabled Aadhaar-based Digital Life Certificate for pensioners. Pensioners of Central Government, State Government or any other Government organization can take benefit of this facility.", "o": ["Jeevan Suraksha", "Jeevan Pramaan", "Jeevan Raksha", "Jeevan Certificate", "None of the above"], "a": 1, "e": "Jeevan Pramaan is the Aadhaar-based biometric Digital Life Certificate for pensioners (launched Nov 2014), so they need not appear in person each November.", "st": null}, {"s": "Pension", "q": "Pradhan Mantri Vaya Vandana Yojana (PMVVY) was launched in the year 2017, PMVVY aims to protect elderly persons aged 60 years and above, against a future fall in their interest income due to the uncertain market conditions. In the same regard, what is the limit of maximum investment in PMVVY.", "o": ["10,00,000", "20,00,000", "15,00,000", "5,00,000", "25,00,000"], "a": 2, "e": "PMVVY's maximum investment was ₹15 lakh per senior citizen (raised from ₹7.5 lakh in 2018).<br><i>2026 note:<\/i> the scheme closed to new entrants on 31 March 2023.", "st": null}, {"s": "Costing", "q": "From the following information, calculate the value of projected sales.<br><br>• Sales = Rs. 3,00,000<br>• Fixed Cost = Rs. 90,000<br>• Profit for this year = Rs. 60,000<br>• Loss expected in the next or coming year = Rs. 30,000", "o": ["Rs. 5,00,000", "Rs. 1,10,000", "Rs. 1,00,000", "Rs. 5,60,000", "Rs. 1,20,000"], "a": 4, "e": "Contribution = profit + fixed cost = 60,000 + 90,000 = 1,50,000, so P/V ratio = 1,50,000 ÷ 3,00,000 = 50%. For a loss of 30,000, contribution = 90,000 − 30,000 = 60,000. Sales = 60,000 ÷ 50% = ₹1,20,000.", "st": null}, {"s": "Costing", "q": "Budgetary control is a system for monitoring an organization's process in monetary terms. In the same regard, which of the following statement is correct regarding budgetary control", "o": ["Budgetary Control System over looks the manufacturing operations", "Budgetary Control System decreases coordination between departments as the results and costs are interrelated.", "Budgetary Control System is not a Time-consuming and costly process", "Budgetary Control is used to compare actual results against the budget", "None of the above"], "a": 3, "e": "Budgetary control sets budgets and then compares actual results with them to find and correct variances. It improves coordination and is time-consuming and costly, so A, B and C are false.", "st": null}, {"s": "Costing", "q": "In an organisation, there are 4 employees receiving Rs. 20,000 each for a specific job. Moreover, the overall overheads were valued at Rs. 40,000 but only 25% of the total overheads were allocated to this concerned job and a total of 125 units of the production was produced and finalized. You are required to calculate the per unit cost.", "o": ["Rs. 350", "Rs. 125", "Rs. 720", "Rs. 600", "Rs. 650"], "a": 2, "e": "Labour = 4 × 20,000 = 80,000. Overheads charged = 25% × 40,000 = 10,000. Total = 90,000 ÷ 125 units = ₹720 per unit.", "st": null}, {"s": "Costing", "q": "From the following given information, calculate economic batch quantity<br><br>• Annual demand of the product = 5000 Products<br>• Carrying cost per unit = 10<br>• Initial installation cost or set-up cost = Rs 1000", "o": ["1054Units", "1000 Units", "1058 Units", "1060 Units", "None of the above"], "a": 1, "e": "EBQ = √(2 × annual demand × set-up cost ÷ carrying cost per unit) = √(2 × 5,000 × 1,000 ÷ 10) = √10,00,000 = 1,000 units.", "st": null}, {"s": "Costing", "q": "Total Productive Maintenance (TPM) started as a method of physical asset management focused on maintaining and improving manufacturing machinery, in order to reduce the operating cost to an organization. In the same regard, which of the following is the main objective of TPM?", "o": ["Safer Working Environment", "Zero defects, Zero Breakdowns, Zero Accidents", "Early Management of New Equipment", "Education & Training of employees", "None of the above"], "a": 1, "e": "TPM aims at 'three zeros': zero defects, zero breakdowns and zero accidents. Safety, early equipment management and training are among its pillars, not its main objective.", "st": null}, {"s": "Costing", "q": "In the field of costing, which of the following type of cost is/are categorized on behavioral basis.", "o": ["Manufacturing Cost", "Total Cost", "Marginal Cost", "Variable cost", "None of the above"], "a": 3, "e": "By behaviour (response to volume) costs are fixed, variable or semi-variable. Manufacturing cost is a functional classification; total and marginal cost are not behavioural classes.", "st": null}, {"s": "Costing", "q": "In an organisation, total units produced in an organisation is 16000 and 18000 units respectively, therefore the total cost incurred increased from Rs. 22,00,000 to Rs. 24,00,000. You are required to calculate per unit variable cost.", "o": ["Rs. 80", "Rs. 95", "Rs. 188", "Rs. 185", "Rs. 100"], "a": 4, "e": "Variable cost per unit = change in cost ÷ change in output = (24,00,000 − 22,00,000) ÷ (18,000 − 16,000) = 2,00,000 ÷ 2,000 = ₹100.", "st": null}, {"s": "Finance", "q": "The central government accepted the 15th Finance Commission’s recommendation to maintain the States’ share in the divisible pool of taxes to 41% for the five-year period starting 2021-22. In the same regard, for devolution of funds, _________% of the weightage has been assigned to Income Distance.", "o": ["41.5%", "40%", "43%", "35%", "45%"], "a": 4, "e": "15th FC horizontal devolution weights: income distance 45%, population (2011) 15%, area 15%, forest & ecology 10%, demographic performance 12.5%, tax effort 2.5%.<br><i>2026 note:<\/i> the 16th FC (2026-31) keeps 41% vertical devolution and uses income distance 42.5%, population 17.5%, area 10%, forest 10%, demographic performance 10%, contribution to GDP 10%.", "st": null}, {"s": "Companies Act", "q": "As per section 123 of the companies act, companies are required to deposit the amount of dividend, including the interim dividend, in the bank account of a schedule commercial bank, within how many days ?", "o": ["7 Days", "6 Days", "3 Days", "2 Days", "5 Days"], "a": 4, "e": "Section 123(4): dividend, including interim dividend, must be deposited in a separate account with a scheduled bank within 5 days of declaration. (Pay within 30 days of declaration, s.127.)", "st": null}, {"s": "Companies Act", "q": "As per section 39 of the companies Act, 2013 what is the minimum application money which a company should receive on the issue of security or securities ?", "o": ["10% of the nominal amount of security", "1% of the nominal amount of security", "15% of the nominal amount of security", "5% of the nominal amount of security", "25% of the nominal amount of security"], "a": 3, "e": "Section 39(2): application money must be at least 5% of the nominal value of the security, or a different amount SEBI specifies.", "st": null}, {"s": "Companies Act", "q": "As per companies act 2013 (Section 152), a person can be appointed as the director of the company until and unless he or she gives his or her consent to hold the office as director and the consent received has to be submitted to the Registrar of Companies (Roc) within how many days?", "o": ["18 Days", "30 Days", "45 Days", "50 Days", "12 Days"], "a": 1, "e": "Section 152(5): a director must give consent to act, and the consent must be filed with the Registrar within 30 days of appointment.", "st": null}, {"s": "Companies Act", "q": "The Central Government has constituted National Company Law Tribunal (NCLT) under section 408 of the Companies Act, 2013. In the same regard, the president of the NCLT can be a high court judge having an experience of how many years?", "o": ["2 Year", "3 Year", "5 Year", "1 Year", "None of the above"], "a": 2, "e": "Section 409: the NCLT President must be, or have been, a High Court judge for 5 years. (NCLAT Chairperson: a Supreme Court judge or High Court Chief Justice.)", "st": null}, {"s": "Companies Act", "q": "As per section 141, there are various entities who can be appointed as the auditors of the company, in the same way, Limited Liability Partnership (LLP) can also be appointed as an auditor of the company, however in the case of LLP, only those partners who are _____________ can sign for the LLP.", "o": ["Charted Accountants", "Company Secretaries", "Lawyers", "Major Partners", "Minor Partners"], "a": 0, "e": "Section 141(1): an LLP can be appointed auditor, but only its partners who are chartered accountants may act and sign on its behalf.", "st": null}, {"s": "Companies Act", "q": "As per Companies Act, 2013, when can any third person be termed as the beneficial owner of the company ?", "o": ["If he/she holds more than 5% of the voting rights", "If he/she holds more than 15% of the voting rights", "If he/she holds more than 10% of the voting rights", "If he/she holds more than 7% of the voting rights", "If he/she holds more than 17% of the voting rights"], "a": 2, "e": "Section 90 with the SBO Rules 2018: a significant beneficial owner holds, directly or indirectly, at least 10% of shares, voting rights or distributable dividend, or exercises significant influence or control.", "st": null}, {"s": "Companies Act", "q": "Capital in business refers to the sum of financial assets that are required to produce goods or services. In the same regard, which of the following are the types of share capital which can be issued by the companies, as per section 43 of the companies Act 2013.", "o": ["Bonds", "External Commercial Borrowings", "Equity Share Capital", "Preference Share Capital", "Both option C and D"], "a": 4, "e": "Section 43: a company limited by shares can issue only two kinds of share capital, equity (with voting rights or differential rights) and preference. Bonds and ECBs are debt, not share capital.", "st": null}, {"s": "Financial Current Affairs", "q": "Social Stock Exchange (SSE) is a bourse meant to serve the private and non-profit sectors and will help them in raising funds through the exchange. Recently, SEBI has released the guidelines on the framework to establish SSE. In the same regard, what is the minimum amount of spending on social cause required by the Non-Profit Organisation (NPO) to register as an SSE.", "o": ["10 Lakh", "20 Lakh", "50 Lakh", "65 Lakh", "None of the above"], "a": 2, "e": "SEBI's Social Stock Exchange framework (2022): an NPO must have spent at least ₹50 lakh in the previous financial year and received funding of at least ₹10 lakh, hold 80G registration and have been registered for at least 3 years.", "st": null}, {"s": "Financial Current Affairs", "q": "As per RBI directions, banks are required to disclose the divergence when the Gross Non Performing Assets (GNPA) as accessed by the RBI exceeds what percentage of the reported profits ?", "o": ["10%", "5%", "15%", "20%", "25%"], "a": 1, "e": "RBI's October 2022 rules: banks disclose divergence if RBI's additional NPA provisioning exceeds a set share of reported profit before provisions and contingencies, or its additional GNPAs exceed a set share of reported incremental GNPAs. Both tests were 10% for FY23 and 5% from FY24 onwards, so EduTap's key gives the standing rule, 5%. Expect 10% to be the trap option. (Urban co-op banks: 15% on the GNPA test.)", "st": null}, {"s": "Finance", "q": "For a company registered in India, book value of the share is more than the market value of the share and currently, the Price to Book Value (P/B Ratio) of the company is less than 1, then generally it is said that the shares of company are currently __________", "o": ["Over-valued", "Under-Valued", "Its in Equilibrium (Neither overvalued nor undervalued)", "Sightly over-valued", "None of the above"], "a": 1, "e": "P/B = market price ÷ book value per share. Below 1 means the market values the share at less than its book value, which is generally read as undervalued.", "st": null}, {"s": "Economics", "q": "In the most general language, as per supply law curve, what is the relationship between supply and prices of a particular commodity ?", "o": ["Negative", "Positive", "Supply and prices are not related", "Sightly Negative", "None of the above"], "a": 1, "e": "Law of supply: other things equal, quantity supplied rises as price rises, so the relationship is positive (upward-sloping supply curve).", "st": null}, {"s": "Finance", "q": "The Reserve Bank of India (RBI) uses headline inflation for Inflation Targeting Framework. In the same regard, headline inflation is based on which of the following type of inflation", "o": ["Whole-Sale Price Index (WPI)", "Consumer Price Index (CPI)", "Index of Industrial Production (IIP)", "Housing Price Index (HPI)", "None of the above"], "a": 1, "e": "India's flexible inflation targeting (4% ± 2%) uses headline CPI (Combined) inflation, adopted on the Urjit Patel Committee's advice in 2014.", "st": null}, {"s": "Economics", "q": "In the field of economics, what is the correct formula to calculate Net National Product ?", "o": ["Gross National Product - NFIA", "Gross National Product – Depreciation", "Gross National Product + Depreciation", "Gross National Product – Indirect Taxes + Subsidies", "Gross National Product + NFIA"], "a": 1, "e": "NNP = GNP − depreciation (gross to net means deducting depreciation). GNP − NFIA gives GDP; deducting indirect taxes and adding subsidies converts market prices to factor cost.", "st": null}, {"s": "Economics", "q": "Its generally said that, too much money chasing too few goods will the reason of increase in _________", "o": ["Capital Investment", "Budget Expenditure", "Inflation", "Foreign Portfolio Investment (FPI)", "Subsidies"], "a": 2, "e": "'Too much money chasing too few goods' describes demand-pull inflation, where aggregate demand exceeds aggregate supply.", "st": null}, {"s": "Economics", "q": "IS-LM curve can be derived from the Keynesian theory from its analysis of money market equilibrium. In the same regard, there will be a rightward shift in IS-LM in which of the following situations ?", "o": ["Decrease in Money Supply", "Increase in Demand for Money", "Decrease in Government Expenditure", "Decrease in Autonomous Consumption", "Increase in Money Supply"], "a": 4, "e": "An increase in money supply shifts the LM curve right (lower interest rate at each income). A fall in money supply or a rise in money demand shifts LM left; cuts in government spending or autonomous consumption shift IS left.", "st": null}, {"s": "Economics", "q": "In the most general language, what is the relationship between interest rates and investment ?", "o": ["Negative", "Positive", "Investment and Interest Rates are not related", "Sightly Positive", "None of the above"], "a": 0, "e": "Investment is inversely (negatively) related to the interest rate: a higher rate raises the cost of borrowing and the opportunity cost of funds.", "st": null}, {"s": "Economics", "q": "Assume that, currently there is a very high level of unemployment in the economy and there is an upward pressure on the prices of the commodities, then this situation will be termed as ___________", "o": ["Boom", "Stagflation", "Depression", "Recession", "None of the above"], "a": 1, "e": "High unemployment (stagnation) together with rising prices (inflation) is stagflation.", "st": null}, {"s": "Financial Current Affairs", "q": "As per the recent regulations released by RBI for regulation of NBFCs, Non-Deposit Taking NBFC (wherein the asset size is more than 1000 crore) will be categorized as which of the following layers of the NBFCs?", "o": ["Upper Layer", "Base Layer", "Middle Layer", "Top Layer", "None of the above"], "a": 2, "e": "RBI's Scale-Based Regulation (Oct 2021, effective 1 Oct 2022): non-deposit-taking NBFCs with assets of ₹1,000 crore and above, and all deposit-taking NBFCs, sit in the Middle Layer. Below ₹1,000 crore is the Base Layer; the Upper Layer is RBI-identified (top 10 by size always); the Top Layer is ideally empty.", "st": null}, {"s": "Economics", "q": "In which of the following market model, a person can assume that change in the pricing strategy of the rival/ competitor company will lead to no change in the prices of his/her company?", "o": ["Cournot Duopoly Model", "Chamberlin Duopoly Model", "Sweezy Duopoly Model", "Bertrand Duopoly Model", "None of the above"], "a": 3, "e": "Bertrand's model assumes each firm expects its rival to keep its price unchanged whatever it does. Cournot assumes the rival's output stays fixed; Sweezy is the kinked demand curve; Chamberlin recognises interdependence.", "st": null}, {"s": "Management", "q": "Leadership can be defined as the process to guide the employees towards the achievement of organisational goal. In the same regard, which of the following leadership style if followed under Laissez Faire leadership ?", "o": ["Autocratic Leadership style", "Democratic Leadership Style", "Delegative Leadership Style", "Paternalistic Leadership Style", "None of the above"], "a": 2, "e": "Laissez-faire leadership is also called delegative leadership: the leader gives little direction and leaves decisions to the group.", "st": null}, {"s": "Management", "q": "Although Motivation and Morale are closely related concepts, however there exist some different between morale and motivation. In the same regard, which of the following statement is correct.", "o": ["High morale essentially results in greatly motivated employees", "High Moral always leads to higher productivity", "High morale is a primary phenomenon", "Morale is concerned with overall attitude of the group towards the Organization and management", "None of the above"], "a": 3, "e": "Morale is the group's overall attitude towards the organisation and management. High morale does not always mean high motivation or productivity, and it is a secondary phenomenon, so A, B and C are false.", "st": null}, {"s": "Management", "q": "Which of the following function of Human Resource Management (HRM) explains that employees should be given enough freedom in their respective domains of working or expertise.", "o": ["Principle of Potential Maximization", "Principle of Development of Organization wide capabilities", "Principle of Autonomy", "Principle of Proper Delegation", "None of the above"], "a": 2, "e": "Among HRD principles, the principle of autonomy says employees should have enough freedom in their own domains of work.", "st": null}, {"s": "Management", "q": "Leadership is the art of motivating a group of people to act toward achieving a common goal. There are different leadership styles, in the same regard, identify the leadership style wherein a leader consults and invite the suggestions from the fellow team members.", "o": ["Democratic Leadership Style", "Servant Leadership Style", "Narcissism Leadership Style", "Autocratic Leadership", "None of the above"], "a": 0, "e": "In democratic (participative or consultative) leadership the leader consults the team and invites suggestions before deciding.", "st": null}, {"s": "Management", "q": "Which of the following role does a manager plays in Human Resource Development, when the manager helps the employee to handle the problems of the employee and this role also increases the productivity of the employees", "o": ["Career Anchors", "Career Orientation", "Career Path", "Career Counselling", "Career ladder"], "a": 3, "e": "Career counselling: the manager helps employees deal with their problems and plan their careers, which also raises productivity.", "st": null}, {"s": "Management", "q": "Which of the following theories of management talks about the integration of core concepts of the classical model with social/behavioral science theory of management ?", "o": ["Period Theory", "Social Theory", "Learning Theory", "Traditional Theory", "Modern Theory"], "a": 4, "e": "Modern management theory (systems and contingency approaches) integrates the classical model with behavioural and social science ideas.", "st": null}, {"s": "Management", "q": "Suppose in an organisation, employees have good communication skills, there is a high level of mutual trust and every employee respects the every other employee, such situation will lead to which of the following scenarios ?", "o": ["Effective Communication will leader to an argumentative situation", "Effective Communication will increase the time taken to complete the work", "There will be less inter-change of thoughts and partaking of ideas", "There will be an increase in the management efficiency", "None of the above"], "a": 3, "e": "Good communication skills plus mutual trust and respect make communication effective, which raises management efficiency. The other options describe the effects of poor communication.", "st": null}, {"s": "Management", "q": "Identify the role of the leader, wherein the leader established a two-way communication between Management and employees and the manager motivates the employee by making them believe that they can contribute towards betterment of the society. This role gives credibility towards the task", "o": ["Balancing Role", "Developmental Role", "Performance Management", "Link Building", "None of the above"], "a": 3, "e": "Link building: two-way communication between management and employees, motivating them to believe their work contributes to society, which gives the task credibility.", "st": null}]};
+const KEY = "pfrda-mock:" + DATA.id;
+const L = ["A","B","C","D","E"];
+const $ = (s, r=document) => r.querySelector(s);
+const app = $("#app");
+let S = null; // state
+let tick = null;
+
+function load(){ try{ const v = localStorage.getItem(KEY); return v ? JSON.parse(v) : null; }catch(e){ return null; } }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+function wipe(){ try{ localStorage.removeItem(KEY); }catch(e){} }
+
+function secOf(q){ return DATA.sections.find(s => s.name === q.s); }
+function markOf(q){ const s = secOf(q); return s.marks / s.n; }
+function fmt(n){ return (Math.round(n*100)/100).toFixed(2).replace(/\.00$/,""); }
+function fmtT(ms){ ms = Math.max(0, ms); const t = Math.floor(ms/1000); return String(Math.floor(t/60)).padStart(2,"0") + ":" + String(t%60).padStart(2,"0"); }
+function esc(t){ const d = document.createElement("div"); d.textContent = t; return d.innerHTML; }
+
+/* ---------- start screen ---------- */
+function startScreen(){
+  clearInterval(tick);
+  const prev = load();
+  const total = DATA.qs.length;
+  const rows = DATA.sections.map(s => `<tr><td>${s.name}</td><td class="r num">${s.n}</td><td class="r num">${s.marks}</td><td class="r num">${fmt(s.marks/s.n)}</td><td class="r num">−${fmt(s.marks/s.n*DATA.neg)}</td></tr>`).join("");
+  let resume = "";
+  if (prev && prev.phase === "test") resume = `<button class="btn primary" id="resume">Resume attempt (${fmtT(prev.deadline - Date.now())} left)</button>`;
+  if (prev && prev.phase === "done") resume = `<button class="btn primary" id="seeres">See last result</button>`;
+  app.innerHTML = `<div class="wrap start">
+    <div class="panel">
+      <div class="eyebrow">PFRDA Grade A · Phase II · Paper 2</div>
+      <h1 style="margin-top:6px">${DATA.title}</h1>
+      <p class="note" style="margin:8px 0 14px">${DATA.blurb}</p>
+      <dl class="facts">
+        <div><dt>Questions</dt><dd class="num">${total}</dd></div>
+        <div><dt>Marks</dt><dd class="num">${DATA.sections.reduce((a,s)=>a+s.marks,0)}</dd></div>
+        <div><dt>Time</dt><dd class="num">${DATA.minutes} min</dd></div>
+        <div><dt>Wrong answer</dt><dd>−¼ of its marks</dd></div>
+      </dl>
+    </div>
+    <div class="panel"><div class="eyebrow" style="margin-bottom:8px">Sections</div>
+      <div class="tbl"><table class="sec"><tr><th>Section</th><th class="r">Qs</th><th class="r">Marks</th><th class="r">Per Q</th><th class="r">Wrong</th></tr>${rows}</table></div>
+      <p class="note" style="margin:10px 0 0">One 40-minute timer for the whole paper, no sectional timing. Move between sections freely; the test submits itself when time runs out.</p><p class="note" style="margin:10px 0 0">${DATA.gaps}</p>
+    </div>
+    <div class="row">${resume}<button class="btn ${resume ? "" : "primary"}" id="go">${prev ? "Start a fresh attempt" : "Start test"}</button></div>
+  </div>`;
+  $("#go").onclick = () => { S = { phase:"test", deadline: Date.now() + DATA.minutes*60000, started: Date.now(), cur:0, ans:Array(total).fill(null), flag:Array(total).fill(false), seen:Array(total).fill(false) }; save(); testScreen(); };
+  if ($("#resume")) $("#resume").onclick = () => { S = prev; if (S.deadline <= Date.now()) { finish(); } else testScreen(); };
+  if ($("#seeres")) $("#seeres").onclick = () => { S = prev; resultScreen(); };
+}
+
+/* ---------- test screen ---------- */
+function testScreen(){
+  app.innerHTML = `<div class="bar"><div class="bar-in"><div class="t">${DATA.short}</div><div class="timer" id="timer">--:--</div><button class="btn" id="palbtn" style="min-height:36px;padding:6px 10px">Questions</button></div>
+    <div class="chips" id="chips"></div></div>
+    <div class="wrap"><div id="q"></div></div>
+    <div class="foot"><div class="foot-in">
+      <button class="btn" id="prev">← Previous</button>
+      <button class="btn primary" id="next">Save &amp; next →</button>
+      <button class="btn" id="flag">Mark for review</button>
+      <button class="btn ghost" id="clear">Clear answer</button>
+    </div></div>
+    <div id="sheet"></div>`;
+  $("#prev").onclick = () => go(S.cur - 1);
+  $("#next").onclick = () => go(S.cur + 1);
+  $("#flag").onclick = () => { S.flag[S.cur] = !S.flag[S.cur]; save(); if (S.flag[S.cur]) go(S.cur + 1); else renderQ(); };
+  $("#clear").onclick = () => { S.ans[S.cur] = null; save(); renderQ(); };
+  $("#palbtn").onclick = openPalette;
+  renderQ();
+  clearInterval(tick); tick = setInterval(tickFn, 500); tickFn();
+}
+function tickFn(){
+  const left = S.deadline - Date.now();
+  const t = $("#timer"); if (!t) return;
+  t.textContent = fmtT(left);
+  t.classList.toggle("low", left < 5*60000);
+  if (left <= 0) finish();
+}
+function go(i){ if (i < 0 || i >= DATA.qs.length) { if (i >= DATA.qs.length) openPalette(); return; } S.cur = i; save(); renderQ(); window.scrollTo(0,0); }
+function renderQ(){
+  const i = S.cur, q = DATA.qs[i];
+  S.seen[i] = true; save();
+  $("#chips").innerHTML = DATA.sections.map(s => `<button class="chip" data-s="${esc(s.name)}" aria-pressed="${s.name===q.s}">${s.name}</button>`).join("");
+  $("#chips").querySelectorAll(".chip").forEach(b => b.onclick = () => go(DATA.qs.findIndex(x => x.s === b.dataset.s)));
+  const act = $("#chips [aria-pressed=true]"); if (act) act.scrollIntoView({inline:"nearest", block:"nearest"});
+  const stem = q.st ? `<details class="stem" open><summary>Directions / passage</summary><div class="stem-body">${DATA.stems[q.st]}</div></details>` : "";
+  $("#q").innerHTML = `<div class="qhead"><div><span class="eyebrow">${q.s}</span><h2 class="num" style="font-size:18px;margin-top:2px">Question ${i+1} <span class="note">of ${DATA.qs.length}</span></h2></div>
+     <div class="marks num">+${fmt(markOf(q))} / −${fmt(markOf(q)*DATA.neg)}${S.flag[i] ? ' · <span class="pill" style="background:var(--flag-soft);color:var(--flag)">Marked</span>' : ""}</div></div>
+     ${stem}<p class="qtext">${q.q}</p>
+     <div class="opts" role="radiogroup">${q.o.map((o,k) => `<button class="opt" role="radio" aria-checked="${S.ans[i]===k}" data-k="${k}"><span class="k">${L[k]}</span><span>${o}</span></button>`).join("")}</div>`;
+  $("#q").querySelectorAll(".opt").forEach(b => b.onclick = () => { const k = +b.dataset.k; S.ans[i] = (S.ans[i] === k ? null : k); save(); renderQ(); });
+  $("#flag").textContent = S.flag[i] ? "Unmark" : "Mark for review";
+  $("#prev").disabled = i === 0;
+  $("#next").textContent = i === DATA.qs.length - 1 ? "Review & submit" : "Save & next →";
+}
+function openPalette(){
+  const answered = S.ans.filter(a => a !== null).length;
+  const flagged = S.flag.filter(Boolean).length;
+  const groups = DATA.sections.map(s => {
+    const btns = DATA.qs.map((q,i) => q.s === s.name ? i : -1).filter(i => i >= 0).map(i => {
+      const cls = S.flag[i] ? "st-flag" : S.ans[i] !== null ? "st-ans" : S.seen[i] ? "st-seen" : "";
+      return `<button class="${cls} ${i===S.cur?"st-cur":""}" data-i="${i}">${i+1}</button>`; }).join("");
+    return `<div class="pal-sec">${s.name}</div><div class="pal">${btns}</div>`; }).join("");
+  $("#sheet").innerHTML = `<div class="sheet" id="sh"><div class="sheet-in" role="dialog" aria-label="Question palette">
+     <div class="row" style="justify-content:space-between;align-items:center"><h3>Questions</h3><button class="btn" id="shx" style="min-height:36px">Close</button></div>
+     <div class="legend"><span><i class="st-ans"></i>Answered</span><span><i class="st-flag"></i>Marked for review</span><span><i class="st-seen"></i>Seen, not answered</span><span><i></i>Not visited</span></div>
+     ${groups}
+     <div class="confirm"><p style="margin:0 0 10px"><b class="num">${answered}</b> of ${DATA.qs.length} answered${flagged ? `, <b class="num">${flagged}</b> marked for review (marked answers still count)` : ""}. <span class="num">${fmtT(S.deadline-Date.now())}</span> left.</p>
+       <div class="row"><button class="btn danger" id="sub1">Submit test</button></div><div id="sub2"></div></div>
+  </div></div>`;
+  $("#shx").onclick = () => $("#sheet").innerHTML = "";
+  $("#sh").onclick = e => { if (e.target.id === "sh") $("#sheet").innerHTML = ""; };
+  $("#sheet").querySelectorAll(".pal button").forEach(b => b.onclick = () => { $("#sheet").innerHTML = ""; go(+b.dataset.i); });
+  $("#sub1").onclick = () => { $("#sub2").innerHTML = `<p class="note" style="margin:10px 0">You can't change answers after submitting. Submit now?</p><div class="row"><button class="btn danger" id="subyes">Yes, submit</button><button class="btn" id="subno">Keep going</button></div>`;
+    $("#subyes").onclick = finish; $("#subno").onclick = () => $("#sub2").innerHTML = ""; };
+}
+function finish(){
+  clearInterval(tick);
+  S.phase = "done"; S.ended = Math.min(Date.now(), S.deadline); save();
+  resultScreen();
+}
+
+/* ---------- results ---------- */
+function grade(){
+  const per = DATA.sections.map(s => ({ name:s.name, n:s.n, max:s.marks, c:0, w:0, u:0, score:0 }));
+  DATA.qs.forEach((q,i) => { const p = per.find(x => x.name === q.s), m = markOf(q), a = S.ans[i];
+    if (a === null) p.u++; else if (a === q.a) { p.c++; p.score += m; } else { p.w++; p.score -= m*DATA.neg; } });
+  return per;
+}
+let filter = "all";
+function resultScreen(){
+  clearInterval(tick);
+  const per = grade();
+  const tot = per.reduce((a,p) => a + p.score, 0), max = per.reduce((a,p) => a + p.max, 0);
+  const c = per.reduce((a,p) => a+p.c, 0), w = per.reduce((a,p) => a+p.w, 0), u = per.reduce((a,p) => a+p.u, 0);
+  const used = Math.round(((S.ended||Date.now()) - S.started)/60000);
+  const rows = per.map(p => `<tr><td>${p.name}</td><td class="r num">${p.c}</td><td class="r num">${p.w}</td><td class="r num">${p.u}</td><td class="r num"><b>${fmt(p.score)}</b>/${p.max}</td><td class="r num">${p.c+p.w ? Math.round(p.c/(p.c+p.w)*100)+"%" : "–"}</td></tr>`).join("");
+  app.innerHTML = `<div class="wrap start">
+    <div class="panel"><div class="eyebrow">${DATA.short} · Result</div>
+      <div class="score" style="margin-top:6px"><span class="big">${fmt(tot)}</span><span class="note num">/ ${max} marks</span></div>
+      <div class="row" style="margin-top:8px"><span class="pill p-ok num">${c} correct</span><span class="pill p-bad num">${w} wrong (−${fmt(per.reduce((a,p)=>a+p.w*(p.max/p.n)*DATA.neg,0))})</span><span class="pill p-skip num">${u} not attempted</span><span class="pill num" style="background:var(--accent-soft);color:var(--accent)">${used} of ${DATA.minutes} min used</span></div>
+      <p class="note" style="margin:10px 0 0">${DATA.resnote}</p>
+    </div>
+    <div class="panel"><div class="eyebrow" style="margin-bottom:8px">By section</div>
+      <div class="tbl"><table class="sec"><tr><th>Section</th><th class="r">✓</th><th class="r">✗</th><th class="r">–</th><th class="r">Score</th><th class="r">Accuracy</th></tr>${rows}</table></div></div>
+    <div class="panel" style="padding:14px"><div class="row" style="justify-content:space-between;align-items:center"><div class="eyebrow">Answers &amp; explanations</div>
+      <div class="row" id="filt">${["all","wrong","skipped","correct"].map(f => `<button class="chip" data-f="${f}" aria-pressed="${filter===f}">${{all:"All",wrong:"Wrong",skipped:"Not attempted",correct:"Correct"}[f]}</button>`).join("")}</div></div>
+      <div class="rev" id="rev"></div></div>
+    <div class="row"><button class="btn" id="again">Retake this mock</button></div>
+  </div>`;
+  $("#filt").querySelectorAll(".chip").forEach(b => b.onclick = () => { filter = b.dataset.f; resultScreen(); });
+  $("#again").onclick = () => { wipe(); S = null; filter = "all"; startScreen(); };
+  const list = DATA.qs.map((q,i) => ({q,i})).filter(({q,i}) => { const a = S.ans[i];
+    return filter==="all" || (filter==="wrong" && a!==null && a!==q.a) || (filter==="skipped" && a===null) || (filter==="correct" && a===q.a); });
+  $("#rev").innerHTML = list.length ? list.map(({q,i}) => { const a = S.ans[i];
+    const tag = a===null ? '<span class="pill p-skip">Not attempted</span>' : a===q.a ? '<span class="pill p-ok">Correct</span>' : '<span class="pill p-bad">Wrong</span>';
+    const stem = q.st ? `<details class="stem"><summary>Directions / passage</summary><div class="stem-body">${DATA.stems[q.st]}</div></details>` : "";
+    return `<div class="panel rq"><div class="qhead"><span class="eyebrow">Q${i+1} · ${q.s}</span>${tag}</div>${stem}<p class="qtext" style="font-size:16px">${q.q}</p>
+      <div class="opts">${q.o.map((o,k) => `<div class="opt ${k===q.a?"right":(k===a?"wrong":"")}"><span class="k">${L[k]}</span><span>${o}${k===q.a?" ✓":""}${k===a&&k!==q.a?" (your answer)":""}</span></div>`).join("")}</div>
+      <div class="exp"><b>Answer: ${L[q.a]}.</b> ${q.e}</div></div>`; }).join("") : '<p class="note">No questions in this filter.</p>';
+}
+
+/* boot */
+(function(){ const prev = load();
+  if (prev && prev.phase === "test" && prev.deadline > Date.now()) { S = prev; testScreen(); }
+  else if (prev && prev.phase === "test") { S = prev; finish(); }
+  else startScreen(); })();
+</script>
+
+</body>
+</html>
