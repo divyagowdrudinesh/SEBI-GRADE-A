@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PFRDA Paper 1 Mock</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+/* Layout: exam console. Sticky timer bar, three question tabs, passage above the answer box. */
+:root{
+  --bg:#f3f5f7; --panel:#ffffff; --ink:#18212b; --muted:#5b6876; --line:#d6dde4;
+  --accent:#1f5f8b; --accent-soft:#e3eef6; --warn:#a2560b; --warn-soft:#fbefe1; --ok:#2f6b3a; --bad:#a3302a;
+  --display:"Source Serif 4", Georgia, "Times New Roman", serif;
+  --body:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11161c; --panel:#19212a; --ink:#e3e9ef; --muted:#97a4b2; --line:#2c3743;
+  --accent:#7cb6e0; --accent-soft:#1d3346; --warn:#e7a35c; --warn-soft:#3a2a17; --ok:#82c68f; --bad:#ef8a83; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11161c; --panel:#19212a; --ink:#e3e9ef; --muted:#97a4b2; --line:#2c3743;
+  --accent:#7cb6e0; --accent-soft:#1d3346; --warn:#e7a35c; --warn-soft:#3a2a17; --ok:#82c68f; --bad:#ef8a83; color-scheme:dark}
+html{color-scheme:light}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--panel)}
+.wrap{max-width:860px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 60px;display:flex;flex-direction:column;gap:18px}
+h1,h2,h3{font-family:var(--display);font-weight:600;text-wrap:balance;margin:0}
+h1{font-size:1.7rem;line-height:1.2}
+h2{font-size:1.25rem}
+h3{font-size:1.05rem}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.meta{display:flex;flex-wrap:wrap;gap:8px 20px;color:var(--muted);font-size:.9rem}
+.meta b{color:var(--ink);font-weight:600}
+table.pat{border-collapse:collapse;width:100%;font-size:.92rem}
+.tablebox{overflow-x:auto}
+table.pat th,table.pat td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+table.pat th{font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+table.pat td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
+ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.note{background:var(--warn-soft);border-color:transparent}
+.note h3{color:var(--warn)}
+button{font:inherit;font-weight:600;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:var(--panel);padding:9px 16px;cursor:pointer}
+button.ghost{background:transparent;color:var(--accent)}
+button.danger{border-color:var(--bad);background:transparent;color:var(--bad)}
+button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+/* exam bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--panel);border-bottom:1px solid var(--line)}
+.bar-in{max-width:860px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.clock{font-family:var(--mono);font-size:1.5rem;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.clock.low{color:var(--warn)} .clock.out{color:var(--bad)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab{background:transparent;color:var(--ink);border:1px solid var(--line);font-weight:500;padding:7px 12px}
+.tab[aria-selected="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.tab small{font-family:var(--mono);color:var(--muted);margin-left:6px}
+.passage{font-family:var(--display);font-size:1.02rem;line-height:1.65;display:flex;flex-direction:column;gap:12px;max-width:68ch}
+.qhead{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;align-items:baseline}
+.marks{font-family:var(--mono);font-size:.85rem;color:var(--muted)}
+textarea,input[type=text]{width:100%;font:inherit;font-size:1rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px 12px}
+textarea{min-height:220px;resize:vertical;line-height:1.6}
+textarea.short{min-height:120px}
+textarea[readonly],input[readonly]{opacity:.75}
+.wc{font-family:var(--mono);font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.wc.ok{color:var(--ok)} .wc.over,.wc.under{color:var(--warn)}
+.topics{display:flex;flex-direction:column;gap:8px}
+.topics label{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:6px;cursor:pointer}
+.topics label:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.topics input{margin-top:4px}
+.rcq{display:flex;flex-direction:column;gap:6px}
+.confirm{border-color:var(--bad)}
+.out{font-family:var(--mono);font-size:.82rem;min-height:260px}
+.status{font-size:.9rem;color:var(--ok)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body style="margin:0">
+<div id="intro" class="wrap">
+  <div class="panel">
+    <span class="eyebrow">PFRDA Grade A 2026 · Phase II · Paper 1</span>
+    <h1>Descriptive English mock</h1>
+    <div class="meta"><span><b>60 min</b> total</span><span><b>100 marks</b></span><span><b>3 questions</b>, all compulsory</span><span>Typed, like the real paper</span></div>
+    <p>Take this on a laptop or desktop with a physical keyboard. Spellcheck is off, as in the exam console. The timer keeps running if you reload the page, and your answers are saved in this browser as you type.</p>
+  </div>
+
+  <div class="panel">
+    <h2>Instructions</h2>
+    <ul>
+      <li>All questions are compulsory. Figures to the right show the marks for each question.</li>
+      <li>Answers must be written only in English, in your own words.</li>
+      <li>Marks will be deducted if the word limit is not observed.</li>
+      <li>Your time split: <b>essay 20 min, précis 15, RC 25</b>. Move to the précis when the clock shows <b>40:00</b> and to the RC at <b>25:00</b>, finished or not. The page records the time on each question.</li>
+      <li>When you finish, press <b>Copy my answers</b> and paste the whole block into the thread.</li>
+    </ul>
+    <div class="tablebox"><table class="pat">
+      <thead><tr><th>Q</th><th>Task</th><th>Limit</th><th>Marks</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Essay on one of four topics</td><td class="n">250–270 words</td><td class="n">30</td></tr>
+        <tr><td>2</td><td>Précis of a passage, with a suitable title</td><td class="n">140–160 words</td><td class="n">30</td></tr>
+        <tr><td>3</td><td>Reading comprehension, 4 questions</td><td class="n">own words</td><td class="n">40</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="panel note">
+    <h3>What this mock covers and what it leaves out</h3>
+    <p>Built from the only three PFRDA Phase II descriptive papers (2021, 2022, 2025), with RBI and SEBI formats for the RC question types. All topics and passages are new to you: none comes from the Essay Desk, the model essays, the baseline or the Précis &amp; RC Desk.</p>
+    <ul>
+      <li><b>Covered:</b> the 2025 limits (essay 250–270, précis 140–160 with a title), which are the likeliest on Friday. The four essay topics follow the PYQ families: a quotation to discuss (2025), a two-sided money issue (2022), a sector's progress since a given year (2025 Railways since 2016) on a climate theme (2021), and a technology topic (2021, 2025). The précis is a concept-and-way-forward passage, like 2021 and 2022. The RC uses the 2021–22 shape of <b>4 questions at 10 marks</b> (your baseline had 5 at 8), with an explain-a-concept, a cause-and-effect, a two-part "is it sufficient?" and an inference question.</li>
+      <li><b>Not covered:</b> the flat 250-word essay limit (2021, 2022), the "in 120" and "within 120" précis limits (2021, 2022), the 5-question RC (2025), and the health, cultural heritage, rural and cooperatives, and internship or education essay families. Thursday's paper should take those. If Friday's paper states a different limit, follow the paper.</li>
+      <li><b>Never seen in these papers, so not included:</b> letter, report or email writing.</li>
+    </ul>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <button id="startBtn">Start the 60-minute paper</button>
+      <span id="resumeNote" class="status" hidden></span>
+    </div>
+  </div>
+</div>
+
+<div id="exam" hidden>
+  <div class="bar"><div class="bar-in">
+    <span class="row" style="gap:8px"><span id="clock" class="clock" aria-live="off">60:00</span><span class="wc">Précis at 40:00 · RC at 25:00</span></span>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" data-q="1" aria-selected="true">Q1 Essay<small id="tw1">0</small></button>
+      <button class="tab" role="tab" data-q="2" aria-selected="false">Q2 Précis<small id="tw2">0</small></button>
+      <button class="tab" role="tab" data-q="3" aria-selected="false">Q3 RC<small id="tw3">0</small></button>
+    </div>
+    <button id="finishBtn" class="ghost">Finish</button>
+  </div></div>
+
+  <div class="wrap">
+    <div id="confirmBox" class="panel confirm" hidden>
+      <p><b>Finish now?</b> You still have <span id="leftTxt"></span>. Your answers will be locked.</p>
+      <div class="row"><button id="confirmYes">Finish and lock</button><button id="confirmNo" class="ghost">Keep writing</button></div>
+    </div>
+
+    <!-- Q1 -->
+    <section id="q1" class="panel" role="tabpanel">
+      <div class="qhead"><h2>Q1. Essay</h2><span class="marks">30 marks</span></div>
+      <p>Write an essay of about 250–270 words on <b>any one</b> of the following topics.</p>
+      <div class="topics">
+        <label><input type="radio" name="topic" value="1" id="t1"><span>1. "It takes 20 years to build a reputation and five minutes to ruin it. If you think about that, you'll do things differently." (Warren Buffett) Discuss in the context of businesses and financial institutions.</span></label>
+        <label><input type="radio" name="topic" value="2" id="t2"><span>2. Rising household debt in India: a sign of aspiration or of distress?</span></label>
+        <label><input type="radio" name="topic" value="3" id="t3"><span>3. India's renewable energy journey since the Paris Agreement of 2015.</span></label>
+        <label><input type="radio" name="topic" value="4" id="t4"><span>4. India's space sector: from national prestige to economic opportunity.</span></label>
+      </div>
+      <textarea id="a1" spellcheck="false" autocorrect="off" autocapitalize="sentences" placeholder="Choose a topic above, then write your essay here."></textarea>
+      <span class="wc" id="wc1" data-min="250" data-max="270">0 words · target 250–270</span>
+    </section>
+
+    <!-- Q2 -->
+    <section id="q2" class="panel" role="tabpanel" hidden>
+      <div class="qhead"><h2>Q2. Précis</h2><span class="marks">30 marks</span></div>
+      <p>Make a précis of the following passage in <b>140–160 words</b> and give it a suitable title.</p>
+      <div class="passage">
+        <p>Every economy rests on work that rarely appears in its accounts. Cooking, cleaning, fetching water, looking after children, nursing the sick and caring for elderly parents keep households, and through them the workforce, running. Economists call this the care economy. Part of it is paid, as with nurses, domestic workers, anganwadi workers and crèche staff, but the larger part is unpaid and done at home, overwhelmingly by women. Because no money changes hands, this work is left out of GDP, and what is not counted is easily ignored in policy.</p>
+        <p>The imbalance in India is stark. The national Time Use Survey of 2019 found that women spent about five hours a day on unpaid domestic work, while men spent about an hour and a half. This burden is one of the main reasons why India's female labour force participation, though rising in recent years, remains well below that of many countries at a similar level of income. A woman who must care for a toddler and an ailing parent has little time left for a paid job, training or a business of her own, and when she does work, it is often in informal, part-time or home-based jobs with low pay and no social security.</p>
+        <p>The demand for care is also set to grow. India's population is ageing, families are becoming smaller, and more young people are moving to cities for work, leaving older parents behind. The old assumption that a daughter or daughter-in-law will provide care at no cost is wearing thin. Without new arrangements, the pressure will fall either on women, who will be pushed out of paid work, or on the elderly and children, who will go without adequate care.</p>
+        <p>Investing in care is not only a social obligation but sound economics. Several international studies suggest that public spending on childcare and long-term care creates more jobs for every rupee spent than spending on construction, and most of these jobs go to women. Affordable crèches free mothers to join the workforce; trained care workers improve child nutrition and early learning; and support for the elderly at home reduces the pressure on hospitals. In this sense, care is infrastructure, as essential to growth as roads and power lines.</p>
+        <p>The obstacles are real. Paid care workers, from domestic helpers to anganwadi staff, are often poorly paid and lack formal contracts. Public childcare is scarce, especially in cities, and the quality of private crèches varies widely. Social norms that treat care as "women's work" discourage men from sharing it at home.</p>
+        <p>The way forward lies in recognising, reducing and redistributing care work. Counting unpaid work through regular time-use surveys would make it visible. Expanding anganwadis into full-day crèches, and enforcing the legal duty of larger employers to provide crèche facilities, would lighten the load on mothers. Fair wages, training and social security would turn paid care into decent work. Finally, paternity leave and public campaigns can encourage men to share the work at home. An economy that values care will be both fairer and more productive.</p>
+      </div>
+      <label for="a2t"><b>Title</b></label>
+      <input type="text" id="a2t" spellcheck="false" autocorrect="off" placeholder="Your title">
+      <textarea id="a2" spellcheck="false" autocorrect="off" placeholder="Write your précis here."></textarea>
+      <span class="wc" id="wc2" data-min="140" data-max="160">0 words · target 140–160 (title not counted)</span>
+    </section>
+
+    <!-- Q3 -->
+    <section id="q3" class="panel" role="tabpanel" hidden>
+      <div class="qhead"><h2>Q3. Reading comprehension</h2><span class="marks">40 marks · 10 each</span></div>
+      <p>Read the passage below and answer the questions based on it <b>in your own words</b>.</p>
+      <div class="passage">
+        <p>Traditional economics assumed that people are rational: they weigh costs and benefits, look ahead and choose what is best for them. Real people behave differently. They put off decisions, stay with whatever option is already in place, copy what those around them do and value the present far more than the future. Behavioural economics, which grew out of the work of psychologists and economists from the 1970s onward, studies these patterns. Its best-known policy idea is the "nudge", made famous by Richard Thaler and Cass Sunstein in their 2008 book of that name. Thaler went on to receive the Nobel Prize in Economics in 2017.</p>
+        <p>A nudge is any feature of the way a choice is presented that changes behaviour in a predictable way without forbidding any option or significantly changing financial incentives. Placing fruit at eye level in a school canteen is a nudge; banning junk food is not. Whoever designs the setting in which people choose is a "choice architect", and the central insight is that there is no neutral design. Every form, menu or website steers people one way or another, so it may as well steer them towards choices they would themselves endorse.</p>
+        <p>The most powerful tool is the default, the option that applies if a person does nothing. When the United Kingdom began enrolling employees automatically in workplace pension schemes from 2012, while leaving them free to opt out, the share of eligible private-sector employees who saved for retirement rose from well under half to a large majority within a few years. Nothing about the financial rewards of saving had changed; only the starting point had. Because people tend to stay with the default, making the good choice the automatic one turns inertia from an enemy into an ally.</p>
+        <p>Governments have taken note. The United Kingdom set up a Behavioural Insights Team in 2010, and many countries followed. India's Economic Survey of 2018-19 devoted a chapter to the subject, citing campaigns such as Swachh Bharat, Beti Bachao Beti Padhao and the "Give It Up" appeal, under which crores of households voluntarily surrendered their LPG subsidy. Small changes, such as tax reminders that mention that most people in the town have already paid, or electricity bills that compare a household's use with that of its neighbours, have changed behaviour at a fraction of the cost of new laws.</p>
+        <p>Nudges have their critics, however. Some argue that they are manipulative, since they work by exploiting the very biases they claim to correct, often without people noticing. Others ask who decides what is "good" for citizens, and fear that the same techniques can be used by companies to push people into subscriptions, loans or purchases they do not need, the so-called "dark patterns" of online design. A third criticism is that nudges are too small for big problems: no amount of clever framing will close a pension gap if wages are too low to save, or cut carbon emissions without pricing and regulation.</p>
+        <p>The fair conclusion is that nudges are a complement to conventional policy, not a substitute for it. They work best when the goal is one that people already share, when the nudge is transparent and easy to refuse, and when it is tested carefully before being scaled up. Used in that spirit, they can make public policy cheaper, more humane and more effective. Used as a replacement for hard choices about taxes, spending and rules, they risk becoming an excuse for doing too little.</p>
+      </div>
+      <div class="rcq"><label for="r1"><b>1.</b> Explain the concept of a "nudge". Why does the author say that there is "no neutral design"? <span class="marks">10</span></label><textarea id="r1" class="short" spellcheck="false" autocorrect="off"></textarea><span class="wc" id="wr1" data-min="85" data-max="100">0 words</span></div>
+      <div class="rcq"><label for="r2"><b>2.</b> How did automatic enrolment change retirement saving in the United Kingdom, and why do defaults have such a strong effect on behaviour? <span class="marks">10</span></label><textarea id="r2" class="short" spellcheck="false" autocorrect="off"></textarea><span class="wc" id="wr2" data-min="85" data-max="100">0 words</span></div>
+      <div class="rcq"><label for="r3"><b>3.</b> What are the main criticisms of nudges? Does the author consider nudges sufficient to solve large policy problems? <span class="marks">10</span></label><textarea id="r3" class="short" spellcheck="false" autocorrect="off"></textarea><span class="wc" id="wr3" data-min="85" data-max="100">0 words</span></div>
+      <div class="rcq"><label for="r4"><b>4.</b> What can be inferred about the author's view of the proper place of nudges in public policy? Support your answer with reasons from the passage. <span class="marks">10</span></label><textarea id="r4" class="short" spellcheck="false" autocorrect="off"></textarea><span class="wc" id="wr4" data-min="85" data-max="100">0 words</span></div>
+    </section>
+
+    <section id="done" class="panel" hidden>
+      <h2 id="doneHead">Paper finished</h2>
+      <p>Press <b>Copy my answers</b> and paste the whole block into the thread. If copying doesn't work, the text below is already selected; copy it yourself.</p>
+      <div class="row"><button id="copyBtn">Copy my answers</button><span id="copyStatus" class="status" aria-live="polite"></span></div>
+      <textarea id="outBox" class="out" readonly></textarea>
+      <div class="row">
+        <button id="resetBtn" class="danger">Clear and start again</button>
+      </div>
+      <div id="resetBox" class="row" hidden>
+        <span>This deletes your answers from this browser.</span>
+        <button id="resetYes" class="danger">Delete answers</button><button id="resetNo" class="ghost">Cancel</button>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+(function(){
+  var KEY='pfrda-p1-mock-nov2026-v1', LIMIT=3600;
+  var ids=['a1','a2t','a2','r1','r2','r3','r4'];
+  var S={start:null,ended:null,cur:1,spent:{1:0,2:0,3:0},topic:null,ans:{}};
+  function load(){try{var raw=localStorage.getItem(KEY);if(raw){var o=JSON.parse(raw);if(o&&typeof o==='object')S=Object.assign(S,o);}}catch(e){}}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+  function $(id){return document.getElementById(id);}
+  function words(t){t=(t||'').trim();return t?t.split(/\s+/).length:0;}
+  function fmt(s){s=Math.max(0,Math.round(s));var m=Math.floor(s/60),x=s%60;return (m<10?'0':'')+m+':'+(x<10?'0':'')+x;}
+  function now(){return Date.now()/1000;}
+  function elapsed(){if(!S.start)return 0;var end=S.ended||now();return Math.min(LIMIT,end-S.start);}
+
+  function setWC(el,n){
+    var min=+el.dataset.min,max=+el.dataset.max,base=n+' words';
+    if(min){el.textContent=base+' · target '+min+'–'+max+(el.id==='wc2'?' (title not counted)':'');
+      el.className='wc '+(n===0?'':n<min?'under':n>max?'over':'ok');}
+    else el.textContent=base;
+  }
+  function counts(){
+    var e=words($('a1').value),p=words($('a2').value),r=0;
+    setWC($('wc1'),e);setWC($('wc2'),p);
+    for(var i=1;i<=4;i++){var n=words($('r'+i).value);r+=n;setWC($('wr'+i),n);}
+    $('tw1').textContent=e;$('tw2').textContent=p;$('tw3').textContent=r;
+    return {e:e,p:p,r:r};
+  }
+  function show(q){
+    S.cur=q;
+    [1,2,3].forEach(function(i){$('q'+i).hidden=(i!==q)||!!S.ended;});
+    document.querySelectorAll('.tab').forEach(function(b){b.setAttribute('aria-selected',String(+b.dataset.q===q));});
+    save();
+  }
+  var last=null;
+  function tick(){
+    var t=now();
+    if(S.start&&!S.ended){
+      if(last!==null){S.spent[S.cur]=(S.spent[S.cur]||0)+Math.min(5,t-last);}
+      last=t;
+      var left=LIMIT-elapsed(),c=$('clock');
+      c.textContent=fmt(left);
+      c.className='clock'+(left<=0?' out':left<=600?' low':'');
+      if(left<=0){finish(true);return;}
+      save();
+    }
+  }
+  function lock(){ids.forEach(function(id){$(id).readOnly=true;});document.querySelectorAll('input[name=topic]').forEach(function(r){r.disabled=true;});}
+  function summary(){
+    var c=counts(),topicTxt='(no topic chosen)';
+    if(S.topic){var lab=$('t'+S.topic).nextElementSibling;topicTxt=lab.textContent;}
+    var used=elapsed(),L=[];
+    L.push('PFRDA PHASE II PAPER 1 MOCK (NOV 2026) · my answers');
+    L.push('Time used: '+fmt(used)+' of 60:00'+(used>=LIMIT?' (time ran out)':''));
+    L.push('Time per question: Q1 '+fmt(S.spent[1]||0)+' · Q2 '+fmt(S.spent[2]||0)+' · Q3 '+fmt(S.spent[3]||0));
+    L.push('');
+    L.push('Q1 ESSAY · topic '+topicTxt+' · '+c.e+' words');
+    L.push($('a1').value.trim()||'(blank)');
+    L.push('');
+    L.push('Q2 PRÉCIS · '+c.p+' words');
+    L.push('Title: '+($('a2t').value.trim()||'(none)'));
+    L.push($('a2').value.trim()||'(blank)');
+    L.push('');
+    L.push('Q3 RC · '+c.r+' words in total');
+    for(var i=1;i<=4;i++){L.push(i+'. '+($('r'+i).value.trim()||'(blank)')+' ['+words($('r'+i).value)+' words]');}
+    return L.join('\n');
+  }
+  function finish(timeout){
+    if(!S.ended){S.ended=Math.min(now(),S.start+LIMIT);}
+    save();lock();
+    $('confirmBox').hidden=true;
+    [1,2,3].forEach(function(i){$('q'+i).hidden=true;});
+    $('done').hidden=false;
+    $('doneHead').textContent=timeout?'Time is up':'Paper finished';
+    $('clock').textContent=fmt(LIMIT-elapsed());
+    $('finishBtn').hidden=true;
+    document.querySelectorAll('.tab').forEach(function(b){b.disabled=true;});
+    var o=$('outBox');o.value=summary();
+    try{o.focus();o.select();}catch(e){}
+  }
+  function begin(){
+    if(!S.start){S.start=now();}
+    $('intro').hidden=true;$('exam').hidden=false;
+    ids.forEach(function(id){if(S.ans[id]!=null)$(id).value=S.ans[id];});
+    if(S.topic)$('t'+S.topic).checked=true;
+    counts();
+    if(S.ended||elapsed()>=LIMIT){finish(elapsed()>=LIMIT&&!S.ended);return;}
+    show(S.cur||1);last=null;tick();
+    setInterval(tick,1000);
+    save();
+  }
+
+  load();
+  if(S.start){$('startBtn').textContent=S.ended?'See my answers':'Resume the paper';
+    var rn=$('resumeNote');rn.hidden=false;rn.textContent=S.ended?'You have finished this paper.':'Paper in progress: '+fmt(LIMIT-elapsed())+' left.';}
+  $('startBtn').addEventListener('click',begin);
+  document.querySelectorAll('.tab').forEach(function(b){b.addEventListener('click',function(){show(+b.dataset.q);window.scrollTo(0,0);});});
+  ids.forEach(function(id){$(id).addEventListener('input',function(){S.ans[id]=$(id).value;counts();save();});});
+  document.querySelectorAll('input[name=topic]').forEach(function(r){r.addEventListener('change',function(){S.topic=r.value;save();});});
+  $('finishBtn').addEventListener('click',function(){$('leftTxt').textContent=fmt(LIMIT-elapsed())+' left';$('confirmBox').hidden=false;window.scrollTo(0,0);});
+  $('confirmNo').addEventListener('click',function(){$('confirmBox').hidden=true;});
+  $('confirmYes').addEventListener('click',function(){finish(false);});
+  $('copyBtn').addEventListener('click',function(){
+    var o=$('outBox'),st=$('copyStatus');
+    function fallback(){try{o.focus();o.select();}catch(e){}st.textContent='Text selected. Copy it with Ctrl+C or Cmd+C.';}
+    try{navigator.clipboard.writeText(o.value).then(function(){st.textContent='Copied. Paste it into the thread.';},fallback);}catch(e){fallback();}
+  });
+  $('resetBtn').addEventListener('click',function(){$('resetBox').hidden=false;});
+  $('resetNo').addEventListener('click',function(){$('resetBox').hidden=true;});
+  $('resetYes').addEventListener('click',function(){try{localStorage.removeItem(KEY);}catch(e){}location.reload();});
+})();
+</script>
+
+</body>
+</html>
