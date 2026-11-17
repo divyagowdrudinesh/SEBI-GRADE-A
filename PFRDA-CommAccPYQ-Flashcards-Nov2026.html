@@ -1,0 +1,722 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PFRDA Commerce & Accounts PYQ flashcards (Nov 2026)</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#EEF1F5; --surface:#FFFFFF; --surface-2:#F5F7FA; --ink:#18233A; --muted:#5B6578; --line:#D5DBE5;
+  --fact:#2F4B7C; --trap:#7A3E9D; --concept:#0F766E; --changed:#D9480F;
+  --known:#2B8A3E; --learning:#A35F00; --star:#8A6A00; --focus:#2F6FEB; --on-solid:#FFFFFF;
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0F1522; --surface:#182133; --surface-2:#1E293D; --ink:#E7EBF2; --muted:#A3ACBE; --line:#2C3852;
+  --fact:#9DB8EA; --trap:#D1A3EC; --concept:#5ED0C2; --changed:#FF8A4C;
+  --known:#6CC77D; --learning:#F0B44C; --star:#E8C547; --focus:#7AA7FF; --on-solid:#0F1522;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans","Helvetica Neue",Arial,sans-serif;
+  font-size:16px; line-height:1.5; -webkit-text-size-adjust:100%; overflow-x:hidden;
+}
+.wrap{max-width:640px;margin:0 auto;padding:16px 14px calc(28px + env(safe-area-inset-bottom,0px))}
+header h1{font-size:1.3rem;line-height:1.25;margin:0;font-weight:750;letter-spacing:-0.01em}
+header p{margin:4px 0 0;color:var(--muted);font-size:.875rem}
+.banner{margin:12px 0 0;padding:10px 12px;border:1px solid var(--learning);border-radius:10px;color:var(--ink);background:var(--surface);font-size:.875rem}
+.banner[hidden]{display:none}
+
+.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:14px 0}
+.stat{background:var(--surface);padding:8px 2px 6px;text-align:center;min-width:0}
+.stat b{display:block;font-size:1.05rem;font-variant-numeric:tabular-nums;line-height:1.3}
+.stat span{display:block;font-size:.7rem;color:var(--muted);line-height:1.25}
+.stat.k b{color:var(--known)} .stat.l b{color:var(--learning)}
+
+/* Filter bar: compact native selects + toggles (same layout as the Management deck), so the card sits right below. */
+.fbar{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-bottom:14px}
+.fbar select{
+  font:inherit;font-size:.9rem;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;
+  min-height:44px;padding:8px 10px;width:100%;min-width:0;cursor:pointer;
+}
+.fbar #topicSel{grid-column:1/-1}
+.fbar select.on{border-color:var(--fact);box-shadow:inset 0 0 0 1px var(--fact)}
+.ftog{grid-column:1/-1;display:flex;gap:8px}
+.ftog button{flex:1 1 auto;min-width:0;min-height:44px;font-size:.86rem;font-weight:600;padding:6px 8px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ftog button[aria-pressed="true"]{color:var(--surface);background:var(--ink);border-color:var(--ink)}
+.ftog button.fclear{flex:0 0 auto;padding:6px 12px;color:var(--changed);border-color:var(--changed)}
+.ftog button.fclear[hidden]{display:none}
+.fbar select:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+
+.card{
+  --accent:var(--fact);
+  background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--accent);border-radius:12px;
+  padding:14px 16px 14px;min-height:min(52vh,460px);display:flex;flex-direction:column;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;outline:none;user-select:text;
+}
+.card[data-type="trap"]{--accent:var(--trap)}
+.card[data-type="concept"]{--accent:var(--concept)}
+.card:focus-visible{box-shadow:0 0 0 3px var(--focus)}
+.card.empty{cursor:default;border-left-color:var(--line);justify-content:center;align-items:flex-start;gap:12px}
+.meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.badge{font-size:.74rem;font-weight:650;padding:2px 8px;border-radius:999px;border:1px solid currentColor;line-height:1.35;max-width:100%;overflow-wrap:anywhere}
+.b-type{color:var(--accent)}
+.b-star{color:var(--star)}
+.b-pyq{color:var(--muted);font-weight:550;border-radius:8px}
+.topic{font-size:.8rem;color:var(--muted);margin:8px 0 0;overflow-wrap:anywhere}
+.q{font-size:1.08rem;font-weight:600;line-height:1.5;margin:14px 0 0;overflow-wrap:anywhere;white-space:pre-line}
+.hint{margin-top:auto;padding-top:18px;color:var(--muted);font-size:.85rem}
+.a{display:none;margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.card.flipped .a{display:block}
+.card.flipped .hint{display:none}
+.ans{font-size:1.08rem;line-height:1.55;overflow-wrap:anywhere;white-space:pre-line}
+.ans strong{font-weight:800}
+.card[data-type="concept"] .ans{font-size:1.02rem;line-height:1.6}
+.note{margin-top:10px;font-size:.82rem;line-height:1.45;color:var(--muted);overflow-wrap:anywhere}
+.cfoot{display:flex;justify-content:space-between;gap:10px;margin-top:16px;font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.cfoot .s-known{color:var(--known);font-weight:650}
+.cfoot .s-learning{color:var(--learning);font-weight:650}
+@media (prefers-reduced-motion:no-preference){
+  .card.flipped .a{animation:reveal .16s ease-out}
+  @keyframes reveal{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+}
+
+.controls{display:grid;gap:8px;margin-top:12px}
+.row{display:grid;gap:8px}
+.row.nav{grid-template-columns:1fr 1.35fr 1fr}
+.row.mark{grid-template-columns:1fr 1fr}
+.row.tools{grid-template-columns:repeat(4,minmax(0,1fr))}
+button{
+  font:inherit;min-height:48px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  font-weight:650;padding:8px 10px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+}
+button:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+button:disabled{opacity:.45;cursor:default}
+.b-flip{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.b-known{background:var(--known);border-color:var(--known);color:var(--on-solid)}
+.b-learn{background:var(--surface);border:2px solid var(--learning);color:var(--learning)}
+.row.tools button{font-size:.82rem;font-weight:550;color:var(--muted);min-height:44px;padding:6px 4px}
+.kbd{display:none;margin:12px 0 0;font-size:.8rem;color:var(--muted)}
+@media (hover:hover) and (pointer:fine){.kbd{display:block}}
+@media (max-width:380px){
+  .row.tools{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .q{font-size:1.02rem}
+}
+.modal{position:fixed;inset:0;background:rgba(10,14,24,.55);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+.modal[hidden]{display:none}
+.mbox{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:18px;max-width:420px;width:100%}
+.mbox h2{font-size:1.1rem;margin:0 0 6px}
+.mbox p{margin:0 0 16px;color:var(--muted);font-size:.92rem}
+.b-danger{background:var(--changed);border-color:var(--changed);color:var(--on-solid)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Commerce & Accounts: all 80 PYQs</h1>
+    <p id="sub">PFRDA Grade A 2026 · Phase I Paper 2</p>
+    <p class="banner" id="banner" hidden>Progress can't be saved in this browser view, so your marks will reset when the page closes.</p>
+  </header>
+
+  <div class="stats" aria-live="polite">
+    <div class="stat"><b id="sTotal">0</b><span>In filter</span></div>
+    <div class="stat"><b id="sUnseen">0</b><span>Unseen</span></div>
+    <div class="stat l"><b id="sLearn">0</b><span>Still learning</span></div>
+    <div class="stat k"><b id="sKnown">0</b><span>Known</span></div>
+    <div class="stat"><b id="sPct">0%</b><span>Known</span></div>
+  </div>
+
+  <div class="fbar" id="filters">
+    <select id="topicSel" aria-label="Filter by topic"></select>
+    <select id="statusSel" aria-label="Filter by status">
+      <option value="all">All statuses</option>
+      <option value="unseen">Unseen</option>
+      <option value="learning">Still learning</option>
+      <option value="known">Known</option>
+      <option value="notknown">Not yet known</option>
+    </select>
+    <select id="typeSel" aria-label="Filter by card type">
+      <option value="all">All card types</option>
+      <option value="fact">Theory</option>
+      <option value="concept">Numerical</option>
+    </select>
+    <div class="ftog">
+    <button type="button" id="fHi" aria-pressed="false">★ High-yield</button>
+    <button type="button" id="fPyq" aria-pressed="false">PYQ</button>
+    <button type="button" class="fclear" id="fClear" hidden>Clear</button>
+    </div>
+  </div>
+
+  <main>
+    <div class="card" id="card" tabindex="0" role="button" aria-expanded="false"></div>
+  </main>
+
+  <div class="controls">
+    <div class="row nav">
+      <button type="button" id="bPrev">Prev</button>
+      <button type="button" class="b-flip" id="bFlip">Show answer</button>
+      <button type="button" id="bNext">Next</button>
+    </div>
+    <div class="row mark">
+      <button type="button" class="b-learn" id="bLearn">Still learning</button>
+      <button type="button" class="b-known" id="bKnown">Known</button>
+    </div>
+    <div class="row tools">
+      <button type="button" id="bShuffle">Shuffle</button>
+      <button type="button" id="bOrder">Reset order</button>
+      <button type="button" id="bReset">Reset progress</button>
+      <button type="button" id="bTheme">Dark theme</button>
+    </div>
+  </div>
+  <p class="kbd">Keyboard: left and right arrows to move, Space or Enter to flip, K for known, L for still learning.</p>
+</div>
+
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="mbox">
+    <h2 id="mTitle">Reset progress?</h2>
+    <p id="mText">This clears every Known and Still learning mark saved in this browser.</p>
+    <div class="row mark">
+      <button type="button" id="mCancel">Cancel</button>
+      <button type="button" class="b-danger" id="mOk">Reset progress</button>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" id="cards-data">[{"id": "CP001", "section": "AS 10 PPE & Depreciation", "topic": "AS 10 PPE & Depreciation", "type": "fact", "star": "hi", "front": "The depreciable amount of a depreciable asset should be allocated on a ____ basis to each accounting period during the useful life of the asset.\nA. Straight-line basis\nB. Written Down Value\nC. Systematic basis\nD. Zero basis\nE. None of the above", "back": "**Answer: C. Systematic basis**\n**Why:** AS 10 (Property, Plant and Equipment) says the depreciable amount is spread on a systematic basis that follows the way the asset's benefits are used up.\n**Depreciable amount = Cost - Residual value**\n**Don't confuse:** straight-line and WDV (written down value) are METHODS. The question asks for the BASIS.\n**Also know:** the methods are straight-line, diminishing balance (WDV) and units of production.", "pyq": "Asked: PFRDA 2021 Ph-II", "changed": false, "note": "Zero basis is not an accounting term."}, {"id": "CP002", "section": "AS 10 PPE & Depreciation", "topic": "AS 10 PPE & Depreciation", "type": "concept", "star": "hi", "front": "An asset is valued at ₹10,00,000, its scrap value is ₹4,00,000 and its useful life is 3 years. What is the yearly depreciation under the straight line method?\nA. 1,00,000\nB. 2,00,000\nC. 3,00,000\nD. 4,00,000\nE. 5,00,000", "back": "**Answer: B. ₹2,00,000**\n**Formula (SLM, straight line method):** Depreciation = (Cost - Residual value) / Useful life\n**Steps:** (10,00,000 - 4,00,000) / 3 = 6,00,000 / 3 = **2,00,000**\n**Don't confuse:** scrap value = residual value = salvage value. Subtract it BEFORE dividing.\n**Also know:** SLM is also called the original cost method or fixed instalment method. The charge is the same every year and the asset is fully written off.", "pyq": "Asked: PFRDA 2022 Ph-I", "changed": false, "note": "₹4,00,000 is just the scrap value. Without subtracting scrap you would get ₹3,33,333."}, {"id": "CP003", "section": "AS 10 PPE & Depreciation", "topic": "AS 10 PPE & Depreciation", "type": "fact", "star": "hi", "front": "Which of the following clearly defines an impairment loss?\nA. The amount by which the carrying amount of the asset exceeds its recoverable amount\nB. The amount by which the carrying amount of the asset exceeds its original amount\nC. The amount by which the original amount of the asset exceeds its recoverable amount\nD. The amount by which the scrap amount of the asset exceeds its recoverable amount\nE. None of the above", "back": "**Answer: A. Carrying amount exceeds recoverable amount**\n**Formula:** Impairment loss = Carrying amount - Recoverable amount (only when carrying amount is higher)\nCarrying amount = book value (cost - accumulated depreciation - past impairment). Recoverable amount = the most you can get back from the asset, by using it or selling it.\n**Example:** carried at ₹5 lakh, recoverable ₹3 lakh: impairment loss ₹2 lakh, charged to P&L (Profit and Loss).\n**Don't confuse:** the comparison is always with RECOVERABLE amount, never original cost, scrap value or market price.\n**Also know:** governed by AS 28; its Ind AS twin is Ind AS 36.", "pyq": "Asked: PFRDA 2022 Ph-I", "changed": false, "note": "B and C use 'original amount', D uses 'scrap amount': all wrong comparisons."}, {"id": "CP004", "section": "AS 10 PPE & Depreciation", "topic": "AS 10 PPE & Depreciation", "type": "fact", "star": "hi", "front": "Which of the following components is NOT part of the cost of property, plant and equipment under Ind AS 16?\nA. Directly attributable cost\nB. Purchase price\nC. Administration and other general overhead cost\nD. Restoration cost\nE. None of the above", "back": "**Answer: C. Administration and other general overheads**\n**Cost of PPE = 3 parts:**\n1. Purchase price (+ import duty, non-refundable taxes, - trade discount)\n2. Directly attributable costs (freight, site preparation, installation, testing, professional fees)\n3. Estimated cost of dismantling and restoring the site\n**NOT cost:** opening a new facility, advertising a new product, staff training for a new location, admin and general overheads, initial operating losses.\n**Don't confuse:** an asset USED for admin (a cash-counting machine) IS PPE. Admin OVERHEADS are never added to any asset's cost.\n**Also know:** Ind AS 16 is the Ind AS twin of AS 10, so the rules are the same.", "pyq": "Asked: PFRDA 2022 Ph-II", "changed": false, "note": "Restoration (dismantling) cost IS included: the initial estimate is added to cost."}, {"id": "CP005", "section": "AS 10 PPE & Depreciation", "topic": "AS 10 PPE & Depreciation", "type": "concept", "star": "hi", "front": "Calculate the total machine cost: machine ₹15 lakh, cartage ₹2,000, freight ₹25,000, installation ₹40,000, testing ₹18,000.\nA. ₹15.67 lakh\nB. ₹15.27 lakh\nC. ₹15.85 lakh\nD. ₹15.45 lakh\nE. None of the above", "back": "**Answer: C. ₹15.85 lakh**\n**Formula:** Cost = Purchase price + all directly attributable costs\n**Steps:** 15,00,000 + 2,000 + 25,000 + 40,000 + 18,000 = **15,85,000**\n**Why:** all four extras are needed to get the machine to its place and working, so all are part of cost.\n**Don't confuse:** inauguration, advertising, training and office overheads would NOT be added.\n**Also know:** a government grant REDUCES cost (₹15 lakh machine, 10% grant: record ₹13.5 lakh). A trade discount reduces cost; a cash discount does not.", "pyq": "Asked: SEBI 2020 Ph-II", "changed": false, "note": ""}, {"id": "CP006", "section": "AS 10 PPE & Depreciation", "topic": "AS 10 PPE & Depreciation", "type": "concept", "star": "hi", "front": "A machine costs ₹12,00,000, life 10 years, residual value nil. After 5 years its remaining life is increased by 3 years and its value increased by ₹1,20,000. Find depreciation for the 6th year on SLM.\nA. 90,000\nB. 1,00,000\nC. 1,20,000\nD. 50,000\nE. None of the above", "back": "**Answer: A. ₹90,000**\n**Formula:** New depreciation = (Book value now + any addition) / (Life left + any extension)\n**Steps:**\n1. Yearly SLM charge = 12,00,000 / 10 = 1,20,000\n2. Book value after 5 years = 12,00,000 - 5 x 1,20,000 = 6,00,000; life left 5\n3. Add increase: 6,00,000 + 1,20,000 = 7,20,000; life left 5 + 3 = 8\n4. Year 6 = 7,20,000 / 8 = **90,000**\n**Why:** a change in useful life is applied prospectively (from now on). Past years are not redone.\n**Don't confuse:** ₹1,20,000 is the OLD yearly charge. Book value here means written-down value, not the WDV method.", "pyq": "Asked: SEBI 2022 Ph-II", "changed": false, "note": "Useful life and residual value are reviewed at least at every year-end."}, {"id": "CP007", "section": "AS 10 PPE & Depreciation", "topic": "AS 10 PPE & Depreciation", "type": "fact", "star": "hi", "front": "As per Ind AS 36, what does 'impairment of assets' mean?\nA. An asset's market value is less than its historic price\nB. An asset is carried at more than its recoverable amount, i.e. its carrying amount exceeds the amount to be recovered through use or sale\nC. An asset's fair value exceeds both its carrying amount and market value\nD. An asset's carrying amount is less than the future cash flows it is expected to generate\nE. An asset's depreciation is aligned with its useful life", "back": "**Answer: B. Carried at more than its recoverable amount**\n**Rule:** an asset may not sit in the books above what you can get back from it, by using it or selling it.\n**Formula:** Impairment loss = Carrying amount - Recoverable amount\n**Don't confuse:** A compares market value with historic price (wrong pair). D is the reverse: carrying amount LESS than cash flows means no impairment.\n**Also know:** the same definition was asked by PFRDA in 2022. Ind AS 36 is the twin of AS 28.", "pyq": "Asked: SEBI 2024 Ph-I", "changed": false, "note": ""}, {"id": "CP008", "section": "AS 10 PPE & Depreciation", "topic": "AS 10 PPE & Depreciation", "type": "fact", "star": "hi", "front": "Depreciation begins when an asset is:\nA. Purchased\nB. Fully paid\nC. Available for use\nD. Insured\nE. Installed", "back": "**Answer: C. Available for use**\n**Rule:** depreciation starts when the asset is in the location and condition to work as intended, even if nobody uses it yet.\n**Example:** construction finished 1 Nov, first used 1 Mar: depreciate from **1 Nov**.\n**Don't confuse:** 'installed' sounds right, but an installed machine may still need testing. Purchase, payment and insurance never trigger it.\n**Also know:** depreciation STOPS when the asset is held for disposal or derecognised. It does NOT stop just because the asset is idle.", "pyq": "Asked: SEBI 2025 Ph-I", "changed": false, "note": ""}, {"id": "CP009", "section": "AS 10 PPE & Depreciation", "topic": "AS 10 PPE & Depreciation", "type": "concept", "star": "hi", "front": "Plant cost ₹10,00,000. At revaluation, accumulated depreciation is ₹5,50,000. Fair value is ₹6,50,000. What is the surplus on revaluation?\nA. ₹1,00,000\nB. ₹1,50,000\nC. ₹2,00,000\nD. ₹4,50,000\nE. ₹5,50,000", "back": "**Answer: C. ₹2,00,000**\n**Formula:**\nCarrying amount = Cost - Accumulated depreciation\nSurplus = Fair value - Carrying amount\n**Steps:** 10,00,000 - 5,50,000 = 4,50,000; 6,50,000 - 4,50,000 = **2,00,000**\n**Where it goes:** a first-time increase goes to Revaluation Reserve (OCI, Other Comprehensive Income), not profit. A first-time decrease goes to P&L.\n**Don't confuse:** ₹1,00,000 = fair value - accumulated depreciation (wrong). ₹4,50,000 is the carrying amount, not the surplus.", "pyq": "Asked: SEBI 2025 Ph-I", "changed": false, "note": "The question said 'AS 16'; it means the PPE standard (AS 10 / Ind AS 16)."}, {"id": "CP010", "section": "AS 10 PPE & Depreciation", "topic": "AS 10 PPE & Depreciation", "type": "fact", "star": "hi", "front": "As per AS 10, what is NOT covered?\n1. PPE used in the production of goods and services\n2. Bearer plants\n3. PPE used for agriculture\nA. 1 only\nB. 1 and 2 only\nC. 2 and 3 only\nD. 1, 2 and 3\nE. 3 only", "back": "**Answer: E. 3 only**\n**Rule:** AS 10 excludes biological assets of agriculture (other than bearer plants) and mineral, oil and gas extraction.\n**In:** a bearer plant, e.g. a mango tree that bears fruit for many years. **Out:** the produce, e.g. the mangoes.\n**Don't confuse:** a shed for animals or a warehouse for produce IS PPE (inside AS 10).\n**Also know:** an item is PPE only if it is held for use (production, rental, admin) AND used for more than 12 months.", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": ""}, {"id": "CP011", "section": "AS 10 PPE & Depreciation", "topic": "AS 10 PPE & Depreciation", "type": "fact", "star": "hi", "front": "Revaluation of property, plant and equipment happens:\nA. For an individual asset only\nB. For selected high value assets\nC. For the entire class of PPE\nD. Only when the asset is fully depreciated\nE. Only at the time of disposal", "back": "**Answer: C. For the entire class**\n**Rule:** revalue one machine and you must revalue all machinery. Picking and choosing is not allowed.\n**Class** = assets of similar nature and use: land, buildings, machinery, vehicles, furniture, office equipment.\n**Also know:** revalue yearly if values swing a lot, every 3 to 5 years if they don't. Two models after purchase: cost model, or revaluation model.", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": ""}, {"id": "CP012", "section": "AS 10 PPE & Depreciation", "topic": "AS 10 PPE & Depreciation", "type": "fact", "star": "hi", "front": "According to Ind AS 16, till when is depreciation charged on an asset that has been revalued?\nA. End of the financial year\nB. When the asset is fully depreciated\nC. Till the asset is sold\nD. Until the end of its useful life\nE. Until the end of its economic life", "back": "**Answer: D. Until the end of its useful life**\n**Rule:** after revaluation, depreciation continues on the new (revised) carrying amount over the remaining useful life.\n**Don't confuse:** E 'economic life' sounds the same, but the standard's term is USEFUL life.", "pyq": "Asked: IFSCA 2024", "changed": false, "note": ""}, {"id": "CP013", "section": "Final & Company Accounts", "topic": "Final & Company Accounts", "type": "fact", "star": "hi", "front": "Which of the following is NOT a current liability?\nA. Deferred Tax Liability\nB. Bank Overdraft\nC. Accounts Payable\nD. All of the above\nE. None of the above", "back": "**Answer: A. Deferred Tax Liability (DTL)**\n**Rule:** under Schedule III, DTL and DTA (Deferred Tax Asset) are ALWAYS non-current, each on its own line.\n**Why:** deferred tax is tax pushed to LATER years, so it isn't settled within 12 months.\n**Current liability test:** due within 12 months, or within the operating cycle. Bank overdraft and accounts payable qualify.\n**Also know:** DTL arises when tax law allows more deduction now than the books (e.g. higher tax depreciation), so more tax is paid later.", "pyq": "Asked: PFRDA 2021 Ph-II", "changed": false, "note": ""}, {"id": "CP014", "section": "Final & Company Accounts", "topic": "Final & Company Accounts", "type": "concept", "star": "hi", "front": "Find the debtors to be shown in the balance sheet: Debtors ₹3,00,000; provision for doubtful debts 5%; provision for discount 2%.\nA. ₹7,50,900\nB. ₹1,89,000\nC. ₹2,00,000\nD. ₹2,79,300\nE. ₹8,04,000", "back": "**Answer: D. ₹2,79,300**\n**Formula (in this order):**\n1. Doubtful debts provision = 5% x 3,00,000 = 15,000; good debtors = 2,85,000\n2. Discount provision = 2% x 2,85,000 = 5,700 (on GOOD debtors only)\n3. Net debtors = 2,85,000 - 5,700 = **2,79,300**\n**Why the order:** discount is offered only to debtors expected to pay, so doubtful ones are removed first.\n**Don't confuse:** 2% of 3,00,000 (6,000) gives 2,79,000, which is wrong.\n**Also know:** bad debt = an actual loss; provision = an estimate kept for next year's bad debts.", "pyq": "Asked: PFRDA 2022 Ph-I", "changed": false, "note": "EduTap's copy of the question is cut off; wording reconstructed from its data."}, {"id": "CP015", "section": "Final & Company Accounts", "topic": "Final & Company Accounts", "type": "fact", "star": "hi", "front": "Provision for tax comes under which sub-head in the balance sheet?\nA. Long-term provisions\nB. Short-term assets\nC. Long-term liabilities\nD. Short-term liabilities\nE. None of the above", "back": "**Answer: D. Short-term liabilities**\n**Rule:** tax for the year is paid within 12 months, so it sits under current liabilities, as 'short-term provisions' in Schedule III.\n**Also know:** other short-term provisions: the current part of employee benefits, warranties. Anything settled after 12 months is a long-term provision.\n**Don't confuse:** a tax PROVISION is current, but DEFERRED tax is always non-current.", "pyq": "Asked: SEBI 2020 Ph-I", "changed": false, "note": ""}, {"id": "CP016", "section": "Final & Company Accounts", "topic": "Final & Company Accounts", "type": "fact", "star": "hi", "front": "Long-term borrowings maturing in the current year are shown in the balance sheet under which head?\nA. Current Assets\nB. Fixed Assets\nC. Long-term liabilities\nD. Current Liabilities\nE. None of the above", "back": "**Answer: D. Current Liabilities**\n**Rule:** the part of a long-term loan due within the next 12 months moves to current liabilities ('current maturities of long-term debt'). The rest stays long-term.\n**Example:** ₹10 lakh loan, ₹2 lakh due this year: ₹2 lakh current, ₹8 lakh non-current.\n**Also know:** loans repayable on demand are always short-term.", "pyq": "Asked: SEBI 2020 Ph-II", "changed": false, "note": ""}, {"id": "CP017", "section": "Final & Company Accounts", "topic": "Final & Company Accounts", "type": "fact", "star": "hi", "front": "Which of the following is an example of a commitment item in the balance sheet?\nA. Arrears of dividend share\nB. Guarantee\nC. Undisclosed charges on company\nD. Dividend declared after balance sheet date and before AGM\nE. Uncalled liability on shares and other investments partly paid", "back": "**Answer: E. Uncalled liability on partly paid shares**\n**Commitment = 'I WILL pay'**: already agreed, certain, just not due yet. E.g. you hold shares with ₹40 still uncalled, or a signed building contract not yet billed (capital commitments).\n**Contingent liability = 'I MIGHT pay'**: only if an uncertain event happens. E.g. a guarantee, or a lawsuit you dispute.\nBoth are shown in the NOTES, not in the balance sheet figures.\n**Don't confuse:** B, the guarantee, is the classic contingent liability.\n**Also know:** proposed dividend is only in the notes until declared; dividend payable is a current liability; arrears of cumulative preference dividend are disclosed separately.", "pyq": "Asked: SEBI 2022 Ph-I", "changed": false, "note": ""}, {"id": "CP018", "section": "Final & Company Accounts", "topic": "Final & Company Accounts", "type": "fact", "star": "hi", "front": "Which of the following is a capital expenditure?\nA. Overhauling cost of second-hand machinery\nB. Inauguration cost of new unit\nC. Repainting of van\nD. Replacement cost of spare parts\nE. Revenue from insurance business", "back": "**Answer: A. Overhauling a second-hand machine**\n**Test:** benefit lasts beyond one year AND adds to earning capacity or life = capital. Benefit within the year, or just maintains = revenue.\n**Why A:** overhauling a newly bought used machine gets it working and extends its life.\n**Don't confuse:** an overhaul that only keeps an OLD machine running is revenue. Repainting and routine spare parts only maintain. An inauguration is never part of an asset's cost.\n**Also know:** capital goes to the balance sheet and is depreciated; revenue goes to P&L. Heavy advertising that benefits several years = deferred revenue expenditure.", "pyq": "Asked: SEBI 2022 Ph-I", "changed": false, "note": ""}, {"id": "CP019", "section": "Final & Company Accounts", "topic": "Final & Company Accounts", "type": "fact", "star": "hi", "front": "Which of the following is NOT an exceptional item in the P&L account?\nA. Profit or loss on disposal of fixed assets\nB. Abnormal losses on long-term contracts\nC. Amount received in settlement of insurance claim\nD. Write-off of expenses capitalised on intangible assets other than amortisation\nE. Sale of an investment in subsidiary and associated companies", "back": "**Answer: E. Sale of investment in subsidiary and associates**\n**Exceptional items** = from ordinary activities but unusually large, so shown separately: disposal of fixed assets, insurance claim settlement, abnormal contract losses, write-offs of intangibles, litigation settlements, write-down of inventory to NRV (net realisable value).\n**How to crack it:** A to D are straight from EduTap's list of exceptional items, so E is the odd one out.\n**Also know:** extraordinary = outside ordinary activities (e.g. a fire loss). Discontinued operation = a part of the business shut or sold.", "pyq": "Asked: SEBI 2022 Ph-I", "changed": false, "note": "EduTap's own AS 5 list also has 'disposal of long-term investments' as exceptional, so this key rests on elimination. Go with E."}, {"id": "CP020", "section": "Final & Company Accounts", "topic": "Final & Company Accounts", "type": "fact", "star": "hi", "front": "Which of the following is an intangible asset?\nA. Railway siding\nB. Mining rights\nC. Leasehold land\nD. Cash\nE. None of the above", "back": "**Answer: B. Mining rights**\n**Rule:** intangible = no physical form. A RIGHT to mine is a legal right, not a thing you can touch.\n**Schedule III intangibles:** goodwill, brands, software, mining rights, copyrights, patents, recipes, designs, licences, franchises.\n**Don't confuse:** leasehold LAND and a railway siding are physical, so they are tangible. Cash is tangible too.", "pyq": "Asked: SEBI 2022 Ph-I", "changed": false, "note": ""}, {"id": "CP021", "section": "Final & Company Accounts", "topic": "Final & Company Accounts", "type": "fact", "star": "hi", "front": "Which statement is INCORRECT regarding provisions?\nA. They appear on the balance sheet under current liabilities\nB. A provision should be recognised as an expense\nC. Provisions represent funds put aside to cover anticipated losses\nD. Provisions are contingent upon happening or non-happening of a future event\nE. None of the above", "back": "**Answer: D is incorrect**\n**Provision vs contingent liability:**\nProvision: a likely obligation that can be estimated; booked as an EXPENSE in P&L and shown IN the balance sheet.\nContingent liability: depends on an uncertain future event; NOT booked; only disclosed in the NOTES.\n**Why D is wrong:** 'contingent on a future event' describes a contingent liability, not a provision.", "pyq": "Asked: SEBI 2022 Ph-II", "changed": false, "note": "EduTap's image lists product warranties as contingent; the summary treats warranties as a provision. Go with provision."}, {"id": "CP022", "section": "Final & Company Accounts", "topic": "Final & Company Accounts", "type": "fact", "star": "hi", "front": "Which statement is INCORRECT regarding cash and cash equivalents?\nA. Cash equivalents include bank accounts and marketable debt securities with maturities under 90 days\nB. Items in this category are current assets\nC. Bank deposits with more than 12 months maturity shall not be disclosed separately\nD. Cash and cash equivalents are classified as balances with banks, cheques and drafts on hand, cash on hand, etc.\nE. None of the above", "back": "**Answer: C is incorrect**\n**Rule:** Schedule III requires bank deposits with MORE than 12 months maturity to be disclosed SEPARATELY.\n**Also know:** cash equivalents = very short-term, highly liquid investments (under 90 days, i.e. 3 months). Classes: balances with banks, cheques and drafts on hand, cash on hand. Earmarked balances and margin money are shown separately.", "pyq": "Asked: SEBI 2022 Ph-II", "changed": false, "note": ""}, {"id": "CP023", "section": "Final & Company Accounts", "topic": "Final & Company Accounts", "type": "concept", "star": "hi", "front": "Calculate the gross profit ratio: sales ₹1,00,000; purchases ₹75,000; carriage inward ₹2,000; wages ₹5,000; salary ₹15,000; decrease in inventory ₹10,000; purchase return ₹2,000.\nA. 5%\nB. 10%\nC. 15%\nD. 20%\nE. None of the above", "back": "**Answer: B. 10%**\n**Formula:**\nCOGS (Cost of Goods Sold) = Opening stock + (Purchases - Returns) + Direct expenses - Closing stock\nGP (Gross Profit) = Sales - COGS; GP ratio = GP / Sales x 100\n**Steps:**\n1. Net purchases = 75,000 - 2,000 = 73,000\n2. Add carriage inward 2,000 + wages 5,000 + stock decrease 10,000\n3. COGS = 90,000 (salary left out)\n4. GP = 1,00,000 - 90,000 = 10,000; ratio = **10%**\n**Don't confuse:** salary is an office (indirect) cost, so it goes to P&L, not COGS. Carriage INward is direct; carriage OUTward is a selling expense. A stock DECREASE is added; an INCREASE is subtracted.", "pyq": "Asked: SEBI 2022 Ph-II", "changed": false, "note": "Including salary gives COGS 1,05,000, a gross LOSS. In a costing cost sheet, office overheads ARE added before COGS; the Trading account does not add them."}, {"id": "CP024", "section": "Final & Company Accounts", "topic": "Final & Company Accounts", "type": "fact", "star": "hi", "front": "For which of the following is consolidation of financial statements necessary?\nA. Listed company\nB. Joint venture company\nC. Holding company\nD. Partnership firm\nE. Sole proprietorship", "back": "**Answer: C. Holding company**\n**Why:** a holding company controls subsidiaries, so its group's accounts are combined into one set (consolidated financial statements).\n**Also know:** Sec 129 requires consolidating all subsidiaries, associates and joint ventures, Indian or foreign. Minority interest is shown separately.\n**Don't confuse:** being LISTED doesn't trigger consolidation. Control over another company does.", "pyq": "Asked: SEBI 2024 Ph-I", "changed": false, "note": ""}, {"id": "CP025", "section": "Final & Company Accounts", "topic": "Final & Company Accounts", "type": "fact", "star": "hi", "front": "Two fundamental characteristics of financial statements are their:\nA. Truth and fairness\nB. Legibility and readability\nC. Sequence and presentation\nD. Legality and authenticity\nE. Comparability and transmission", "back": "**Answer: A. Truth and fairness**\n**Rule:** Sec 129 of the Companies Act 2013: financial statements must give a TRUE AND FAIR view.\n**Also know:** Sec 129 also requires following Schedule III, complying with AS notified under Sec 133, and consolidating subsidiaries. It doesn't apply to banking, insurance and electricity companies.", "pyq": "Asked: SEBI 2025 Ph-I", "changed": false, "note": ""}, {"id": "CP026", "section": "Final & Company Accounts", "topic": "Final & Company Accounts", "type": "fact", "star": "hi", "front": "Under Section 115JB of the Income Tax Act, 'book profit' is the net profit in the P&L prepared in accordance with:\nA. Schedule I of the Companies Act, 2013\nB. Schedule II of the Companies Act, 2013\nC. Schedule III of the Companies Act, 2013\nD. Schedule V of the Companies Act, 2013\nE. Schedule VII of the Companies Act, 2013", "back": "**Answer: C. Schedule III**\n**Why:** Schedule III prescribes the FORMAT of company financial statements, so book profit (used for MAT, Minimum Alternate Tax) starts from a Schedule III P&L.\n**Know the Schedules:** Schedule II = depreciation (useful lives, residual value up to 5%). Schedule III = format of financial statements.\n**Also know:** Part I = balance sheet, Part II = P&L. It applies from 1 April 2014 and replaced Schedule VI of the 1956 Act.", "pyq": "Asked: SEBI 2025 Ph-I", "changed": false, "note": "Schedules I, V and VII are not about accounts. (Schedule II's link to depreciation is on your Commerce & Accounts deck.)"}, {"id": "CP027", "section": "Final & Company Accounts", "topic": "Final & Company Accounts", "type": "fact", "star": "hi", "front": "The format of a company's financial statements is governed by:\nA. RBI Act\nB. SEBI guidelines\nC. Schedule III of the Companies Act, 2013\nD. Accounting standards only\nE. Income Tax Act", "back": "**Answer: C. Schedule III**\n**Schedule III = SHAPE** (headings, order, layout). **Accounting Standards = NUMBERS** (when to record and at what value).\n**Don't confuse:** D, 'Accounting standards only', is the tempting wrong option.\n**Also know:** vertical format; current vs non-current split; 'Trade receivables' and 'Trade payables' replace sundry debtors and creditors. Not for banks or insurers (they have their own formats). Sole proprietors and firms have no prescribed format.", "pyq": "Asked: SEBI 2025 Ph-I", "changed": false, "note": ""}, {"id": "CP028", "section": "Final & Company Accounts", "topic": "Final & Company Accounts", "type": "fact", "star": "hi", "front": "A subsidy provided by the government for working capital is a:\nA. Capital receipt\nB. Aid\nC. Tax\nD. Revenue receipt\nE. None of the above", "back": "**Answer: D. Revenue receipt**\n**Test:** capital receipt = creates a liability or reduces an asset (a loan, sale of land, a grant for a capital project). Revenue receipt = neither; it comes from normal running (sales, rent, interest).\n**Why D:** a working capital subsidy isn't repaid and isn't tied to an asset, so it's revenue.\n**Don't confuse:** a subsidy for a CAPITAL project would be a capital receipt.", "pyq": "Asked: IFSCA 2023", "changed": false, "note": ""}, {"id": "CP029", "section": "AS 2 Inventories", "topic": "AS 2 Inventories", "type": "concept", "star": "hi", "front": "A company bought 50,000 units at ₹2 each. Market price on 31.03.2021 is ₹0.90 per unit. What is the value of closing stock?\nA. ₹1,00,000\nB. ₹45,000\nC. ₹1,45,000\nD. ₹55,000\nE. ₹72,500", "back": "**Answer: B. ₹45,000**\n**Rule (AS 2):** inventory = LOWER of cost and NRV (Net Realisable Value)\n**Steps:** cost = 50,000 x 2 = 1,00,000; NRV = 50,000 x 0.90 = 45,000; lower = **45,000**\n**Why:** prudence: record the loss now, never an unrealised gain.\n**Don't confuse:** ₹55,000 is the LOSS (1,00,000 - 45,000), not the stock value. ₹1,45,000 adds the two.", "pyq": "Asked: PFRDA 2021 Ph-I", "changed": false, "note": "With no completion or selling cost given, NRV = market price."}, {"id": "CP030", "section": "AS 2 Inventories", "topic": "AS 2 Inventories", "type": "concept", "star": "hi", "front": "Inventory was bought for ₹35 lakh and 60% was sold. The rest is expected to sell for ₹16 lakh, with a 15% sales commission. At what value is the remaining inventory reported under AS 2?\nA. 16.0 lakh\nB. 15.0 lakh\nC. 14.4 lakh\nD. 13.6 lakh\nE. 12.0 lakh", "back": "**Answer: D. ₹13.6 lakh**\n**Formula:** NRV = Selling price - Costs to complete - Costs to sell; value = lower of cost and NRV\n**Steps:**\n1. Cost of the 40% left = 40% x 35 = 14 lakh\n2. Commission = 15% x 16 = 2.4 lakh\n3. NRV = 16 - 2.4 = 13.6 lakh\n4. Lower of 14 and 13.6 = **13.6 lakh**\n**Don't confuse:** 16 lakh ignores the commission. Commission is on the SELLING price, not on cost.", "pyq": "Asked: PFRDA 2025 Ph-II", "changed": false, "note": ""}, {"id": "CP031", "section": "AS 2 Inventories", "topic": "AS 2 Inventories", "type": "concept", "star": "hi", "front": "Partly finished goods cost ₹5,000. Completing them needs ₹1,000 more. They will sell for ₹6,042 with 4% brokerage on the selling price. Value of closing inventory under AS 2?\nA. ₹4,000\nB. ₹4,500\nC. ₹4,800\nD. ₹5,000\nE. ₹5,500", "back": "**Answer: C. ₹4,800**\n**Formula:** NRV = Selling price - Costs to complete - Costs to sell\n**Steps:**\n1. Brokerage = 4% x 6,042 = 241.68\n2. NRV = 6,042 - 1,000 - 241.68 = **4,800.32**\n3. Cost 5,000 vs NRV 4,800.32: lower = **₹4,800**\n**Don't confuse:** ₹5,000 is cost. Since NRV is lower, cost loses.", "pyq": "Asked: IFSCA 2025", "changed": false, "note": "EduTap's explanation writes NRV as ₹4,790.32, which is an arithmetic slip; ₹4,800.32 is correct. The answer is C either way."}, {"id": "CP032", "section": "AS 2 Inventories", "topic": "AS 2 Inventories", "type": "concept", "star": "hi", "front": "1,000 units bought at ₹1,200 each. Trade discount 5%. Cash discount 3% for payment in 45 days, which the company avails. Customs duty ₹50 per unit, delivery ₹6,000 in total. Value of inventory under AS 2?\nA. 12,00,000\nB. 11,96,000\nC. 10,90,000\nD. 12,25,000\nE. None of the above", "back": "**Answer: B. ₹11,96,000**\n**Formula:** Cost of purchase = (Price - Trade discount) + Duties + Freight and handling\n**Steps:**\n1. Price = 1,000 x 1,200 = 12,00,000\n2. Less trade discount 5% = 60,000, leaving 11,40,000\n3. Add duty 50 x 1,000 = 50,000\n4. Add delivery 6,000\n5. Total = **11,96,000**\n**Don't confuse:** the CASH discount is ignored, even when availed. It is a reward for paying early (finance income), not a cut in the goods' price. Deducting it too gives a wrong lower figure.\n**Also know:** cost of inventory = cost of purchase + cost of conversion + other costs to bring it to its present place and condition.", "pyq": "Asked: SEBI 2022 Ph-II", "changed": false, "note": ""}, {"id": "CP033", "section": "AS 2 Inventories", "topic": "AS 2 Inventories", "type": "fact", "star": "hi", "front": "As per AS 2, abnormal wastage loss in valuation of inventories is:\nA. Treated as an asset\nB. Treated as an expense\nC. Included in inventory cost\nD. Deferred\nE. Capitalised", "back": "**Answer: B. Treated as an expense**\n**Rule:** abnormal waste is kept OUT of inventory cost and charged to P&L in the year.\n**AS 2 also excludes from cost:** storage costs, admin overheads, selling costs, foreign exchange differences, interest (except for stock that takes long to get ready, e.g. wine).\n**Don't confuse:** excluded costs are not ignored. They become expenses.", "pyq": "Asked: SEBI 2025 Ph-I", "changed": false, "note": ""}, {"id": "CP034", "section": "AS 2 Inventories", "topic": "AS 2 Inventories", "type": "fact", "star": "hi", "front": "As per AS 2, inventories include which of the following?\n1. Held for sale in the ordinary course of business (finished goods)\n2. In the process of production for such sale (work in progress)\n3. Materials and supplies to be consumed in production (raw material)\n4. Work in progress arising under a construction contract\nA. 1, 2 and 3 only\nB. 1, 2 and 4 only\nC. 2, 3 and 4 only\nD. 1 and 3 only\nE. 1, 2, 3 and 4", "back": "**Answer: A. 1, 2 and 3 only**\n**Rule:** inventory = finished goods, WIP (work in progress) and raw materials.\n**Why 4 is out:** WIP under construction contracts falls under AS 7 (now Ind AS 115), not AS 2.\n**AS 2 also does NOT apply to:** WIP of service providers, financial instruments held as stock in trade (shares, bonds), and producers' stocks of livestock, crops, forest products, minerals.\n**Also know:** machinery spares are NOT inventory under AS 2 (they are for maintenance).", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": ""}, {"id": "CP035", "section": "Buy-back & ESOP", "topic": "Buy-back & ESOP", "type": "concept", "star": "hi", "front": "An ESOP is offered at ₹75 when the share's market value is ₹90. Market price on the exercise date is ₹84. What fair value of the option is recorded in the books?\nA. ₹75\nB. ₹9\nC. ₹15\nD. ₹6\nE. ₹84", "back": "**Answer: C. ₹15**\n**Formula:** Option value = Market price at GRANT date - Exercise price\n**Steps:** 90 - 75 = **15**\n**Why:** the option is valued on the grant date, when it is given. The later exercise-date price (₹84) is ignored.\n**Don't confuse:** ₹9 = 84 - 75 (uses the exercise-date price). ₹6 = 90 - 84 (mixes up the two market prices).\n**Also know:** ESOP = Employee Stock Option Plan, the right for staff to buy shares later at a fixed (exercise) price.", "pyq": "Asked: PFRDA 2021 Ph-I", "changed": false, "note": ""}, {"id": "CP036", "section": "Buy-back & ESOP", "topic": "Buy-back & ESOP", "type": "fact", "star": "hi", "front": "What is the minimum vesting period for an Employee Stock Option Plan (ESOP)?\nA. 4 years\nB. 3 years\nC. 2 years\nD. 1 year\nE. None of the above", "back": "**Answer: D. 1 year**\n**Rule:** SEBI (Share Based Employee Benefits) Regulations, 2014: minimum vesting period 1 year.\n**Vesting** = the waiting period before the employee can use (exercise) the option.\n**Also know:** ESOS (Employee Stock Option Scheme) is the same thing as ESOP.", "pyq": "Asked: PFRDA 2022 Ph-I", "changed": false, "note": ""}, {"id": "CP037", "section": "Buy-back & ESOP", "topic": "Buy-back & ESOP", "type": "fact", "star": "hi", "front": "In ESOPs, which is a pre-requisite for an employee to exercise the right to buy shares?\nA. Lock-in period\nB. Grant date\nC. Vesting\nD. Exercise price\nE. None of the above", "back": "**Answer: C. Vesting**\n**The ESOP timeline, in order:**\n1. Grant date: options are given\n2. Vesting period: the employee waits (at least 1 year)\n3. Exercise: the employee pays the exercise price and gets shares\n4. Lock-in: shares can't be sold for a while AFTER exercise\n**Don't confuse:** lock-in comes AFTER exercise, so it can't be a pre-requisite. Exercise price is just the price paid.", "pyq": "Asked: PFRDA 2025 Ph-I", "changed": false, "note": ""}, {"id": "CP038", "section": "Buy-back & ESOP", "topic": "Buy-back & ESOP", "type": "fact", "star": "hi", "front": "Which method is recommended for valuing shares under an ESOP?\nA. Market value\nB. Revalue\nC. Book price\nD. Average price\nE. Intrinsic value", "back": "**Answer: E. Intrinsic value** (EduTap key)\n**Formula:** Intrinsic value = Market price of the share - Exercise price\n**Why:** it measures the real gain the employee gets from the option.\n**Watch out:** the PFRDA 2021 question in the same file measures FAIR value at grant date. If 'fair value' is among the options, pick fair value; if not, pick intrinsic value.", "pyq": "Asked: IFSCA 2025", "changed": false, "note": "Market value, book price and average price don't value the option itself."}, {"id": "CP039", "section": "Buy-back & ESOP", "topic": "Buy-back & ESOP", "type": "fact", "star": "hi", "front": "Which of the following is correct about buy-back rules?\nA. No need to file a declaration of solvency\nB. No board approval required even for a buy-back up to 10% of paid-up equity capital and free reserves\nC. Can be done by issuing the same kind of shares\nD. No authorisation in articles needed\nE. Secured + unsecured debt after buy-back shall not exceed twice the paid-up capital and free reserves", "back": "**Answer: E. Debt after buy-back ≤ 2 x (paid-up capital + free reserves)**\n**Why each other option is wrong:**\nA: a declaration of solvency IS filed (Form SH-9)\nB: up to 10% needs a BOARD resolution; above 10% (up to 25%) needs a special resolution\nC: you can't fund a buy-back from an earlier issue of the SAME kind of shares\nD: the articles MUST authorise it\n**Also know:** maximum buy-back = 25% of (paid-up capital + free reserves). Can be funded from free reserves, securities premium, or proceeds of a DIFFERENT kind of share.", "pyq": "Asked: SEBI 2022 Ph-I", "changed": false, "note": ""}, {"id": "CP040", "section": "Buy-back & ESOP", "topic": "Buy-back & ESOP", "type": "fact", "star": "hi", "front": "Which section of the Companies Act, 2013 deals with buy-back?\nA. Section 62\nB. Section 66\nC. Section 68\nD. Section 73\nE. Section 80", "back": "**Answer: C. Section 68**\n**Neighbours worth knowing:**\nSec 68: buy-back (limits, funding, 2:1 debt-equity)\nSec 69: transfer the face value of shares bought back to the Capital Redemption Reserve\nSec 70: when buy-back is barred (through subsidiaries, or after a default)\n**Don't confuse:** Sec 62 = further issue of shares; Sec 66 = reduction of capital; Sec 73 = deposits.", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": ""}, {"id": "CP041", "section": "AS 11 Foreign Exchange", "topic": "AS 11 Foreign Exchange", "type": "concept", "star": "hi", "front": "Goods worth USD 1 lakh bought on 23.03.2012 at ₹46.60 per dollar. Rate on 31.03.2012 = ₹47. Paid in May 2012 at ₹47.50. Calculate the exchange profit or loss for 2011-12 and 2012-13 under AS 11.\nA. ₹40,000\nB. ₹50,000\nC. ₹90,000\nD. ₹10,000\nE. None of the above", "back": "**Answer: C. ₹90,000 loss in total** (₹40,000 in 2011-12 + ₹50,000 in 2012-13)\n**Formula:** Exchange difference = Foreign amount x (New rate - Old rate)\n**Steps:**\n1. Year-end 31 March: restate the creditor at the closing rate. 1,00,000 x (47 - 46.60) = 40,000 loss in 2011-12\n2. Payment in May: 1,00,000 x (47.50 - 47) = 50,000 loss in 2012-13\n3. Total = **90,000**\n**Why a loss:** she owes dollars, and each dollar now costs more rupees.\n**Rule:** monetary items (creditors, debtors, loans) are restated at the CLOSING rate each year-end, and the difference goes to that year's P&L.\n**Don't confuse:** 40,000 and 50,000 are each only one year.", "pyq": "Asked: SEBI 2020 Ph-II", "changed": false, "note": ""}, {"id": "CP042", "section": "AS 11 Foreign Exchange", "topic": "AS 11 Foreign Exchange", "type": "concept", "star": "hi", "front": "ABC Ltd took a $10 million loan for 3 months on 1.1.2021 at $1 = ₹70. It was repaid on 31.3.2021 at $1 = ₹72.5. Find the P&L effect for 2020-21.\nA. Profit of ₹2.5 crore\nB. Loss of ₹2.5 crore\nC. Loss of ₹5 crore\nD. Profit of ₹3 crore\nE. None of the above", "back": "**Answer: B. Loss of ₹2.5 crore**\n**Formula:** Exchange difference = Foreign amount x (New rate - Old rate)\n**Steps:** $10 million = $1 crore. 1 crore x (72.5 - 70) = **₹2.5 crore**\n**Profit or loss?** It's a dollar LOAN (a liability), and the dollar rose, so repaying costs more rupees: LOSS.\n**Rule of thumb:** rupee weakens = loss on what you owe, gain on what you're owed.\n**Units:** 10 million = 1 crore.", "pyq": "Asked: SEBI 2022 Ph-II", "changed": false, "note": ""}, {"id": "CP043", "section": "AS 11 Foreign Exchange", "topic": "AS 11 Foreign Exchange", "type": "concept", "star": "hi", "front": "XYZ Ltd took a loan of $2,00,000 on 1 December when $1 = ₹74.43. On 31 March the rate is ₹76.78. Calculate the profit or loss.\nA. 1,70,000\nB. 4,70,000\nC. 5,78,000\nD. 5,88,000\nE. 6,88,000", "back": "**Answer: B. ₹4,70,000 loss**\n**Formula:** Exchange difference = Foreign amount x (New rate - Old rate)\n**Steps:** 2,00,000 x (76.78 - 74.43) = 2,00,000 x 2.35 = **4,70,000**\n**Why a loss:** it's a dollar loan, and the dollar costs more on 31 March.\n**Rule:** a loan is a monetary item, so on 31 March it is restated at the closing rate and the difference goes to P&L.", "pyq": "Asked: PFRDA 2022 Ph-II", "changed": false, "note": "EduTap's explanation calls 74.43 '1 rupee = 74.43 dollars'; it means $1 = ₹74.43. The question calls 76.78 the 'forward' rate; just use it as the 31 March rate."}, {"id": "CP044", "section": "AS 11 Foreign Exchange", "topic": "AS 11 Foreign Exchange", "type": "fact", "star": "hi", "front": "Which statement about non-integral foreign operations is INCORRECT under AS 11?\nA. Contingent liabilities at the closing date are translated at the closing rate\nB. Income and expenses are translated at the exchange rates on the transaction dates\nC. Assets and liabilities are translated at the date of transaction\nD. Exchange differences on investments in non-integral foreign operations are recognised in the books\nE. Monetary and non-monetary items are translated at the closing rate", "back": "**Answer: C is incorrect.** Assets and liabilities go at the CLOSING rate, not the transaction rate.\n**Non-integral foreign operation** (an independent foreign subsidiary, run on its own):\nAll assets and liabilities: closing rate\nIncome and expenses: transaction-date rate (average allowed)\nExchange difference: FCTR (Foreign Currency Translation Reserve) until the operation is sold\n**Integral foreign operation** (a branch, an extended hand of the Indian company): translated as if they were its own transactions, so monetary items at closing rate and non-monetary items at the transaction rate.\n**Don't confuse:** E looks odd but is correct for non-integral: everything goes at closing rate, with no monetary/non-monetary split.", "pyq": "Asked: PFRDA 2025 Ph-II", "changed": false, "note": ""}, {"id": "CP045", "section": "AS 11 Foreign Exchange", "topic": "AS 11 Foreign Exchange", "type": "fact", "star": "hi", "front": "As per Ind AS 21, non-monetary items measured at historical cost in a foreign currency are translated using the exchange rate:\nA. At the end of the reporting period\nB. At the date of settlement\nC. At the date of transaction\nD. At the average rate for the period\nE. At the balance sheet date rate", "back": "**Answer: C. At the date of transaction**\n**The three rates:**\nMonetary items (cash, debtors, creditors, loans): closing rate\nNon-monetary items at historical cost (machine, land, inventory): transaction-date rate\nNon-monetary items at fair value: rate on the date fair value was set\n**Why:** a machine bought for $100 at ₹70 stays at ₹7,000. Its rupee cost doesn't change when the rate moves.\n**Don't confuse:** A and E are the same thing (closing rate), which is for MONETARY items.", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": ""}, {"id": "CP046", "section": "AS 11 Foreign Exchange", "topic": "AS 11 Foreign Exchange", "type": "fact", "star": "hi", "front": "Under Ind AS 21, at what rate are foreign currency transactions recognised initially?\nA. At transaction cost\nB. At the exchange rate\nC. At the weekly exchange rate for the period\nD. At the closing exchange rate\nE. None of the above", "back": "**Answer: B. At the exchange rate** (the spot rate on the transaction date)\n**Rule:** record a foreign transaction on day one at that day's rate. An average rate is allowed when rates don't swing much.\n**Don't confuse:** the closing rate is used LATER, at year-end, to restate monetary items. It is not for initial recording.\n**Also know:** Ind AS 21 is the twin of AS 11. The initial and later recognition steps are the same in both.", "pyq": "Asked: NPS Trust 2025 Ph-II", "changed": false, "note": ""}, {"id": "CP047", "section": "AS 11 Foreign Exchange", "topic": "AS 11 Foreign Exchange", "type": "fact", "star": "hi", "front": "As per AS 11, the balance in the Foreign Currency Monetary Item Translation Difference Account (FCMITDA) is transferred to:\nA. Profit and Loss Account\nB. Other Current Liabilities\nC. Share Capital\nD. Deferred Tax Account\nE. Reserves and Surplus", "back": "**Answer: E. Reserves and Surplus** (as a separate line)\n**What it is:** an exchange difference on a LONG-TERM (over 12 months) foreign currency monetary item, e.g. a 5-year dollar loan, may be parked in FCMITDA and spread over the loan's remaining life.\n**Example:** ₹2 lakh loss on a 5-year loan: ₹40,000 to P&L each year; the unspread balance sits in FCMITDA.\n**Don't confuse:** if the loan is for a DEPRECIABLE asset, the difference is added to the asset's cost instead, not to FCMITDA. Only the yearly share reaches P&L, never the whole balance.", "pyq": "Asked: IFSCA 2025", "changed": false, "note": ""}, {"id": "CP048", "section": "Fund Flow & FS Analysis", "topic": "Fund Flow & FS Analysis", "type": "fact", "star": "hi", "front": "Classify each as a source of funds (A) or an application of funds (B):\n1. Redemption of debentures at a premium\n2. Funds lost in operations\n3. Issue of shares\n4. Creditors paid off\n5. Money received from receivers\n6. Purchase of fixed assets\nA. 1-B, 2-B, 3-A, 4-B, 5-A, 6-B\nB. 1-A, 2-B, 3-B, 4-A, 5-B, 6-A\nC. 1-B, 2-A, 3-B, 4-A, 5-A, 6-A\nD. 1-A, 2-A, 3-A, 4-A, 5-A, 6-B\nE. 1-B, 2-A, 3-A, 4-B, 5-A, 6-B", "back": "**Answer: A. 1-B, 2-B, 3-A, 4-B, 5-A, 6-B**\n**Rule:** SOURCE = long-term money comes IN: issue of shares or debentures, long-term loans, sale of fixed assets, funds from operations.\n**APPLICATION = long-term money goes OUT:** redeeming debentures, repaying loans, buying fixed assets, operating LOSS, dividends, tax.\n**Funds from operations** = net profit + depreciation (depreciation uses no cash).\n**Don't confuse:** 'funds lost in operations' is a LOSS, so it's an application, not a source.", "pyq": "Asked: PFRDA 2025 Ph-II", "changed": false, "note": "The summary keeps current items (like creditors) out of a fund flow statement, but the key calls 'creditors paid' an application. Go with the key."}, {"id": "CP049", "section": "Fund Flow & FS Analysis", "topic": "Fund Flow & FS Analysis", "type": "fact", "star": "hi", "front": "Which of the following is an application of funds in a fund flow statement?\nA. Decrease in working capital\nB. Increase in working capital\nC. Issue of shares\nD. Sale of fixed assets\nE. Long-term borrowings", "back": "**Answer: B. Increase in working capital**\n**Working capital = Current assets - Current liabilities**\n**Why:** when working capital rises, more money is tied up in stock and debtors, so funds have been USED.\n**Don't confuse:** a DECREASE in working capital releases money, so it's a SOURCE. C, D and E are all sources.", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": ""}, {"id": "CP050", "section": "Fund Flow & FS Analysis", "topic": "Fund Flow & FS Analysis", "type": "fact", "star": "hi", "front": "Which of the following is a limitation of the fund flow statement?\nA. It gives overly detailed cash information\nB. It cannot reveal the exact cash position at any given time\nC. It focuses on non-monetary transactions\nD. It exaggerates financial strength through creative accounting\nE. All of the above", "back": "**Answer: B. It cannot show the exact cash position**\n**Why:** it tracks changes in WORKING CAPITAL, not cash. For cash you need the cash flow statement (AS 3 / Ind AS 7).\n**Fund flow vs cash flow:** fund flow = working capital changes; cash flow = cash and cash equivalents.", "pyq": "Asked: SEBI 2024 Ph-I", "changed": false, "note": ""}, {"id": "CP051", "section": "Fund Flow & FS Analysis", "topic": "Fund Flow & FS Analysis", "type": "fact", "star": "hi", "front": "What changes does the fund flow statement show?\nA. Changes in cash position\nB. Changes in net income\nC. Changes in the position of working capital\nD. Changes in shareholders' equity\nE. Changes in liabilities", "back": "**Answer: C. Changes in working capital position**\n**Also called:** Statement of Sources and Application of Funds.\n**Don't confuse:** cash position = cash flow statement; net income = income statement; equity changes = statement of changes in equity.", "pyq": "Asked: IFSCA 2024", "changed": false, "note": ""}, {"id": "CP052", "section": "Fund Flow & FS Analysis", "topic": "Fund Flow & FS Analysis", "type": "fact", "star": "hi", "front": "What is the main purpose of a fund flow statement?\nA. To identify cash flow position\nB. To identify incoming and outgoing cash and cash equivalents\nC. To analyse the working capital position of the company\nD. To measure profitability\nE. To prepare annual budgets", "back": "**Answer: C. To analyse the working capital position**\n**Same idea as IFSCA 2024:** fund flow = working capital.\n**Don't confuse:** A and B describe the CASH flow statement.", "pyq": "Asked: IFSCA 2025", "changed": false, "note": ""}, {"id": "CP053", "section": "Fund Flow & FS Analysis", "topic": "Fund Flow & FS Analysis", "type": "fact", "star": "hi", "front": "Which accounting information is particularly relevant to creditors?\nA. Employee output\nB. Location of head office\nC. Selling and distribution expenses\nD. Quality of product\nE. Liquidity position", "back": "**Answer: E. Liquidity position**\n**Why:** creditors want to know if they'll be paid soon, i.e. whether there are enough current assets to cover short-term debts.\n**Who looks for what:**\nCreditors: liquidity (short-term)\nLenders: long-term solvency, interest and repayment\nInvestors: earnings and future profitability\nLabour unions: capacity to raise pay\nManagement: operational efficiency", "pyq": "Asked: SEBI 2025 Ph-I", "changed": false, "note": ""}, {"id": "CP054", "section": "Fund Flow & FS Analysis", "topic": "Fund Flow & FS Analysis", "type": "fact", "star": "hi", "front": "Vertical analysis expresses each line item as a percentage of:\nA. Cash balance\nB. Total revenue or total assets\nC. Net profit\nD. Working capital\nE. Capital employed", "back": "**Answer: B. Total revenue (P&L) or total assets (balance sheet)**\n**Vertical = common size statement:** every item as a % of one total in the SAME year. Example: sales ₹10 lakh, COGS ₹6 lakh, so COGS = 60%.\n**Horizontal = comparative statement:** the same item across YEARS (change in ₹ and %).\n**Also know:** common size statements allow comparing firms of different sizes. Trend analysis is based on comparative analysis.", "pyq": "Asked: SEBI 2025 Ph-I", "changed": false, "note": ""}, {"id": "CP055", "section": "Accounting Basics & AIS", "topic": "Accounting Basics & AIS", "type": "fact", "star": "hi", "front": "In the accounting process, which is the final step?\nA. Identification of transactions\nB. Summary and analysis of financial data\nC. Communication of financial information\nD. Recording of transactions\nE. None of the above", "back": "**Answer: C. Communication**\n**Order:** 1. Identification (which events to record), 2. Recording (journal, ledger), 3. Summary and analysis (trial balance, statements), 4. Communication (giving the statements to users)\n**Don't confuse:** summary and analysis is the third step, not the last.", "pyq": "Asked: PFRDA 2025 Ph-I", "changed": false, "note": ""}, {"id": "CP056", "section": "Accounting Basics & AIS", "topic": "Accounting Basics & AIS", "type": "fact", "star": "hi", "front": "Which of the following is NOT a qualitative characteristic of accounting information?\nA. Accountability\nB. Consistency\nC. Verifiability\nD. Relevance\nE. Comparability", "back": "**Answer: A. Accountability**\n**The six qualitative characteristics:** Reliability, Relevance, Understandability, Comparability, Consistency, Verifiability\n**HOOK:** 'R R U C C V': two R's, a U, two C's, a V.\n**Why A:** accountability is about taking responsibility for actions, a management idea, not a feature of information.\n**Also know:** SEBI 2024 asked the same question with 'Conformity' as the answer.", "pyq": "Asked: SEBI 2022 Ph-I", "changed": false, "note": ""}, {"id": "CP057", "section": "Accounting Basics & AIS", "topic": "Accounting Basics & AIS", "type": "fact", "star": "hi", "front": "Which of the following is NOT a qualitative characteristic of accounting information?\nA. Reliability\nB. Conformity\nC. Relevance\nD. Understandability\nE. Consistency", "back": "**Answer: B. Conformity**\n**The six:** Reliability, Relevance, Understandability, Comparability, Consistency, Verifiability\n**Don't confuse:** CONSISTENCY (same methods every year) is in the list; CONFORMITY is not. They look alike on purpose.\n**Also know:** comparability = common period, unit and format, so firms and years can be compared.", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": ""}, {"id": "CP058", "section": "Accounting Basics & AIS", "topic": "Accounting Basics & AIS", "type": "fact", "star": "hi", "front": "Identified and measured economic events should be recorded in monetary terms and in a/an ____ order.\nA. Chronological\nB. Identifiable\nC. Effective\nD. Dynamic\nE. Random", "back": "**Answer: A. Chronological** (date-wise, in the order they happen)\n**Example:** a 1 Jan sale is entered before a 21 Jan sale.\n**Also know:** the journal is the date-wise book (book of first entry). The ledger is account-wise.", "pyq": "Asked: SEBI 2025 Ph-I", "changed": false, "note": ""}, {"id": "CP059", "section": "Accounting Basics & AIS", "topic": "Accounting Basics & AIS", "type": "fact", "star": "hi", "front": "Match the functions of accounting with their meaning:\n1. Identification  2. Analysis  3. Interpreting  4. Summary\nA. Presenting key results briefly\nB. Recognising and selecting relevant data\nC. Breaking information into parts to see patterns\nD. Explaining meaning and drawing inferences\nA. 1-B, 2-C, 3-D, 4-A\nB. 1-C, 2-B, 3-A, 4-D\nC. 1-B, 2-D, 3-C, 4-A\nD. 1-D, 2-C, 3-B, 4-A\nE. 1-A, 2-B, 3-C, 4-D", "back": "**Answer: A. 1-B, 2-C, 3-D, 4-A**\n**Read the words:**\nIdentification = selecting relevant data\nAnalysis = breaking into parts\nInterpreting = explaining meaning\nSummary = presenting briefly\n**Don't confuse:** analysis (break it down) comes before interpreting (explain what it means).", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": ""}, {"id": "CP060", "section": "Accounting Basics & AIS", "topic": "Accounting Basics & AIS", "type": "fact", "star": "hi", "front": "Due to which of the following will financial statements NOT remain reliable?\nA. Personal bias\nB. Historical cost principle\nC. Consistency principle\nD. Accrual concept\nE. Prudence concept", "back": "**Answer: A. Personal bias**\n**Reliability** = users can depend on it: free from error and bias, faithfully shown.\n**Don't confuse:** historical cost, consistency, accrual and prudence all make statements MORE reliable.", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": ""}, {"id": "CP061", "section": "Accounting Basics & AIS", "topic": "Accounting Basics & AIS", "type": "fact", "star": "hi", "front": "Which of the following is an example of a current asset?\nA. Accounts receivable\nB. Patents\nC. Buildings\nD. Land\nE. Machinery", "back": "**Answer: A. Accounts receivable** (debtors)\n**Test:** current = cash, or turns into cash within 1 year (debtors, stock, cash). Non-current = used for more than 1 year (land, building, machinery, patents).\n**Also know:** debtors owe US (asset); creditors are owed BY us (liability).", "pyq": "Asked: IFSCA 2024", "changed": false, "note": ""}, {"id": "CP062", "section": "Accounting Basics & AIS", "topic": "Accounting Basics & AIS", "type": "fact", "star": "hi", "front": "Tally software is used for:\nA. Price determination\nB. Accounting\nC. Customer acquisition\nD. Understanding market penetration\nE. None of the above", "back": "**Answer: B. Accounting**\n**Why:** Tally (Tally ERP 9) is an accounting software package used to record a business's day-to-day transactions. It's an example of an AIS (Accounting Information System).", "pyq": "Asked: SEBI 2020 Ph-I", "changed": false, "note": ""}, {"id": "CP063", "section": "Accounting Basics & AIS", "topic": "Accounting Basics & AIS", "type": "fact", "star": "hi", "front": "The term 'XBRL' stands for:\nA. eXtended Business Reporting Ledger\nB. eXtensible Business Reporting Language\nC. eXternal Business Review Logic\nD. eXtended Banking Reporting Link\nE. eXchange Based Reporting Layout", "back": "**Answer: B. eXtensible Business Reporting Language**\n**What it is:** a standard digital language for filing and analysing financial data electronically.\n**HOOK:** it's a LANGUAGE (like HTML), and it is eXtensible, not extended.", "pyq": "Asked: SEBI 2025 Ph-I", "changed": false, "note": ""}, {"id": "CP064", "section": "Concepts & Conventions", "topic": "Concepts & Conventions", "type": "fact", "star": "hi", "front": "Which accounting principle is followed while passing adjustment entries and says that revenue and the expenses incurred to earn it must belong to the same accounting period?\nA. Entity concept\nB. Accrual concept\nC. Going concern concept\nD. Matching concept\nE. Revenue recognition concept", "back": "**Answer: D. Matching concept**\n**Rule:** set the expenses that EARNED a period's revenue against that revenue, in the same period.\n**Example:** buy 10,000 pieces, sell 8,000. Match only the cost of the 8,000 sold against this year's sales.\n**Don't confuse:** ACCRUAL = record when earned or incurred, not when cash moves. MATCHING = pair revenue with its own costs. Matching works only together with accrual and periodicity.", "pyq": "Asked: PFRDA 2022 Ph-II", "changed": false, "note": ""}, {"id": "CP065", "section": "Concepts & Conventions", "topic": "Concepts & Conventions", "type": "fact", "star": "hi", "front": "Which accounting concept guides that a firm shows expenses and income of the same accounting period at the same time?\nA. Going concern\nB. Consistency\nC. Matching\nD. Accrual\nE. Materiality", "back": "**Answer: C. Matching**\n**Same idea as PFRDA 2022:** 'same period' + 'income and expenses together' = MATCHING.\n**Don't confuse:** accrual is about WHEN to record (earned, not cash). Consistency = same methods each year. Materiality = significance.", "pyq": "Asked: IFSCA 2024", "changed": false, "note": ""}, {"id": "CP066", "section": "Concepts & Conventions", "topic": "Concepts & Conventions", "type": "fact", "star": "hi", "front": "Which statement correctly defines the 'going concern' concept?\nA. The organisation has no significant liabilities at the period end\nB. The organisation will continue to operate for the foreseeable future\nC. The organisation will cease operations right after the balance sheet date\nD. Assets must be recorded at liquidation value\nE. Statements assume no future business activity", "back": "**Answer: B. It will continue to operate for the foreseeable future**\n**Why it matters:** because the business is assumed to go on, assets are kept at cost and depreciated over their life, not shown at a 'closing-down' sale value.\n**Example:** a ₹50,000 computer used for 5 years is charged ₹10,000 a year.\n**Don't confuse:** D (liquidation value) is the opposite of going concern.\n**Also know:** going concern, consistency and accrual are the 3 fundamental accounting assumptions.", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": ""}, {"id": "CP067", "section": "Concepts & Conventions", "topic": "Concepts & Conventions", "type": "fact", "star": "hi", "front": "If an organisation is conservative while preparing its P&L, which concept is it following?\nA. Prudence concept\nB. Matching concept\nC. Accrual concept\nD. Consistency concept\nE. Going concern concept", "back": "**Answer: A. Prudence (conservatism)**\n**Rule:** anticipate all losses; record no gain until it is realised. Play safe so profit isn't overstated.\n**Example:** stock costing ₹120 now worth ₹50: show ₹50. Now worth ₹150: still show ₹120.\n**Don't confuse:** consistency = same methods every year, not playing safe.", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": ""}, {"id": "CP068", "section": "Concepts & Conventions", "topic": "Concepts & Conventions", "type": "fact", "star": "hi", "front": "Under which concept should an asset be valued 'at lower of net realisable value or fair value'?\nA. Prudence concept\nB. Entity concept\nC. Matching concept\nD. Accrual concept\nE. None of the above", "back": "**Answer: A. Prudence**\n**Rule:** take the LOWER value, so assets and profit aren't overstated. The standard wording is 'lower of COST or NRV' (net realisable value).\n**Link:** this is why AS 2 values inventory at the lower of cost and NRV.\n**HOOK:** any question with 'LOWER of' points to PRUDENCE.", "pyq": "Asked: IFSCA 2023", "changed": false, "note": "The PYQ is worded 'NRV or fair value'; EduTap's explanation and the summary say 'cost or NRV'. The answer is prudence either way."}, {"id": "CP069", "section": "Recording & Trial Balance", "topic": "Recording & Trial Balance", "type": "fact", "star": "hi", "front": "Debit what comes in, credit what goes ____.\nA. Up\nB. Down\nC. Out\nD. Diagonal\nE. None of the above", "back": "**Answer: C. Out**\n**The three golden rules:**\nPersonal account (people, firms, banks, Capital A/c): debit the receiver, credit the giver\nReal account (cash, machine, land): debit what comes in, credit what goes out\nNominal account (expenses, incomes): debit all expenses and losses, credit all incomes and gains\n**Modern rule:** an increase in an asset or expense is a debit; an increase in a liability, capital or income is a credit.", "pyq": "Asked: SEBI 2020 Ph-I", "changed": false, "note": ""}, {"id": "CP070", "section": "Recording & Trial Balance", "topic": "Recording & Trial Balance", "type": "fact", "star": "hi", "front": "What system is mainly used in accounting to ensure accuracy and completeness of records?\nA. Single entry system\nB. Triple entry system\nC. Double entry system\nD. Manual entry system\nE. Computerised entry system", "back": "**Answer: C. Double entry system**\n**Rule:** every transaction affects at least TWO accounts, and total debits = total credits.\n**Accounting equation:** Assets = Liabilities + Capital. It always balances because of double entry (the dual aspect concept).", "pyq": "Asked: SEBI 2024 Ph-I", "changed": false, "note": ""}, {"id": "CP071", "section": "Recording & Trial Balance", "topic": "Recording & Trial Balance", "type": "fact", "star": "hi", "front": "Rent was charged in the books for 11 months but not for the 12th month. Which type of error is this?\nA. Error of commission\nB. Error of omission\nC. Error of principle\nD. No error\nE. None of the above", "back": "**Answer: B. Error of omission**\n**The three error types:**\nOmission: something is LEFT OUT (fully or partly), e.g. one month's rent never recorded\nCommission: a clerical slip, e.g. a wrong amount, wrong posting or wrong total (₹25,000 posted as ₹2,500)\nPrinciple: an accounting rule is broken, e.g. a building extension debited to repairs (capital treated as revenue)\n**Also know:** errors of principle and complete omission do not affect the trial balance; partial omission does.", "pyq": "Asked: SEBI 2020 Ph-I", "changed": false, "note": ""}, {"id": "CP072", "section": "Recording & Trial Balance", "topic": "Recording & Trial Balance", "type": "fact", "star": "hi", "front": "Which type of journal entry is commonly used to correct errors in ledger accounts?\nA. Closing entry\nB. Adjustment entry\nC. Rectification entry\nD. Contra entry\nE. Opening entry", "back": "**Answer: C. Rectification entry**\n**The other entries:**\nClosing entry: transfers incomes and expenses to P&L at year-end\nAdjustment entry: accruals, prepayments, provisions\nContra entry: between cash and bank (e.g. cash deposited in bank)\nOpening entry: brings forward last year's balances\n**Also know:** a one-sided error that upsets the trial balance is parked in a Suspense A/c until it is rectified.", "pyq": "Asked: NPS Trust 2025 Ph-I", "changed": false, "note": ""}, {"id": "CP073", "section": "AS 13 Investments", "topic": "AS 13 Investments", "type": "fact", "star": "hi", "front": "If an investment is realisable within 1 year, it is known as a ____ investment.\nA. Marketable securities\nB. Current investment\nC. Liquid investment\nD. Long-term investment\nE. None of the above", "back": "**Answer: B. Current investment**\n**Rule (AS 13):** a current investment is readily realisable AND intended to be held for not more than 1 year. Everything else is long-term.\n**How each is valued:**\nCurrent: lower of cost and fair value (a fall goes to P&L)\nLong-term: at cost, written down only for a decline that is NOT temporary\n**Don't confuse:** 'marketable' and 'liquid' are general words. AS 13 has only two classes: current and long-term.", "pyq": "Asked: PFRDA 2021 Ph-II", "changed": false, "note": ""}, {"id": "CP074", "section": "AS 13 Investments", "topic": "AS 13 Investments", "type": "fact", "star": "hi", "front": "Which of the following is NOT an investment?\nA. Stock in trade\nB. Interest paying security\nC. Securities kept for capital appreciation\nD. Fixed deposits\nE. Mutual funds", "back": "**Answer: A. Stock in trade**\n**Why:** stock in trade is held to SELL in the normal course of business, so it is inventory (AS 2), not an investment.\n**Investment (AS 13)** = an asset held to earn interest, dividends or rent, for capital appreciation, or for other benefits.", "pyq": "Asked: NPS Trust 2025 Ph-II", "changed": false, "note": ""}, {"id": "CP075", "section": "Bills of Exchange", "topic": "Bills of Exchange", "type": "fact", "star": "hi", "front": "A bill of exchange drawn in parts is known as:\nA. Bill in sets\nB. Bill in quarters\nC. Bill in bricks\nD. Bill in parts\nE. Bill in cases", "back": "**Answer: A. Bill in sets**\n**What it is:** used for foreign trade. The bill is drawn in 2 or 3 copies (parts) that travel separately in case one is lost. All the parts together make one set, which is still only ONE bill.\n**Also know:** the drawer signs all the parts, but acceptance is written on only one.\n**Don't confuse:** 'bill in parts' just repeats the question's words. The term is 'bill in SETS'.", "pyq": "Asked: SEBI 2020 Ph-I", "changed": false, "note": ""}, {"id": "CP076", "section": "Bills of Exchange", "topic": "Bills of Exchange", "type": "fact", "star": "hi", "front": "If a bill's due date is after the date the account is closed, the interest from the closing date is written in the 'account current' as:\nA. Red ink interest\nB. Green ink interest\nC. Black ink interest\nD. Blue ink interest\nE. Yellow ink interest", "back": "**Answer: A. Red ink interest**\n**Why:** the bill isn't due yet, so no interest is really charged. The interest from the closing date to the due date is written in RED and treated as NEGATIVE interest.\n**HOOK:** red ink = minus, as in 'in the red'.", "pyq": "Asked: SEBI 2022 Ph-I", "changed": false, "note": ""}, {"id": "CP077", "section": "Accounting Standards Framework", "topic": "Accounting Standards Framework", "type": "fact", "star": "hi", "front": "Ind AS 105 relates to:\nA. Revenue recognition\nB. Consolidated financial statements\nC. Non-current assets held for sale and discontinued operations\nD. Leases\nE. Fair value measurement", "back": "**Answer: C. Non-current assets held for sale and discontinued operations** (replaces AS 24)\n**The other options' numbers:**\nRevenue: Ind AS 115\nConsolidated FS: Ind AS 110\nLeases: Ind AS 116\nFair value: Ind AS 113\n**Also know (101 to 106):** 101 first-time adoption, 102 share-based payment, 103 business combinations, 104 insurance contracts, 105 held for sale, 106 mineral resources.", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": ""}, {"id": "CP078", "section": "Accounting Standards Framework", "topic": "Accounting Standards Framework", "type": "fact", "star": "hi", "front": "Which Ind AS deals with the cash flow statement?\nA. Ind AS 1\nB. Ind AS 107\nC. Ind AS 2\nD. Ind AS 7\nE. Ind AS 21", "back": "**Answer: D. Ind AS 7** (replaces AS 3)\n**The other options:**\nInd AS 1: presentation of financial statements\nInd AS 2: inventories\nInd AS 21: foreign exchange\nInd AS 107: financial instruments disclosures\n**HOOK:** cash flow is AS 3, which became Ind AS 7. Other common pairs: PPE AS 10 = Ind AS 16; impairment AS 28 = Ind AS 36; provisions AS 29 = Ind AS 37.", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": ""}, {"id": "CP079", "section": "AS 9 Revenue Recognition", "topic": "AS 9 Revenue Recognition", "type": "fact", "star": "hi", "front": "Ind AS 18 on revenue recognition deals with:\nA. Hire purchase\nB. Revenue arising from leases\nC. Contract\nD. Revenue arising from interest, royalty, dividend\nE. None of the above", "back": "**Answer: D. Revenue from interest, royalties and dividends**\n**Ind AS 18 covered:** sale of goods, rendering of services, and interest, royalties and dividends. Construction contracts were Ind AS 11.\n**Now:** both were withdrawn from 1 April 2018 and replaced by **Ind AS 115** (Revenue from Contracts with Customers).\n**Don't confuse:** leases are Ind AS 116 (earlier Ind AS 17). Contracts are Ind AS 115.", "pyq": "Asked: SEBI 2022 Ph-I", "changed": false, "note": ""}, {"id": "CP080", "section": "AS 9 Revenue Recognition", "topic": "AS 9 Revenue Recognition", "type": "fact", "star": "hi", "front": "As per AS 9, interest is recognised:\nA. On receipt basis\nB. On cash basis\nC. Proportionately on time basis\nD. Only at the end of the accounting year\nE. When approved by management", "back": "**Answer: C. On a time proportion basis**\n**Example:** ₹1,200 interest for 12 months from 1 January; the year ends 31 March, so 3 months belong to it: 1,200 x 3/12 = **₹300**\n**The three under AS 9:**\nInterest: time proportion\nRoyalties: accrual, as per the agreement\nDividends: when the right to receive payment is established\n**Don't confuse:** receipt or cash basis breaks the accrual concept.", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": ""}]</script>
+<script type="application/json" id="topics-data">["AS 10 PPE & Depreciation", "Final & Company Accounts", "AS 2 Inventories", "Buy-back & ESOP", "AS 11 Foreign Exchange", "Fund Flow & FS Analysis", "Accounting Basics & AIS", "Concepts & Conventions", "Recording & Trial Balance", "AS 13 Investments", "Bills of Exchange", "Accounting Standards Framework", "AS 9 Revenue Recognition"]</script>
+<script id="deck-sync">
+/* DeckSync: cross-device sync of Known / Still learning marks through a private GitHub gist.
+   One token per device (localStorage 'pfrda_sync_token', shared by every deck on this site).
+   One secret gist holds one JSON file per deck. Local marks stay in the deck's own key, unchanged.
+   Merge: union of marks; where devices disagree, the most recent change wins. */
+(function(){
+'use strict';
+var TOKEN_KEY='pfrda_sync_token', GIST_KEY='pfrda_sync_gist', LAST_KEY='pfrda_sync_last';
+var DESC='PFRDA flashcard marks sync (do not delete)';
+var API='https://api.github.com';
+var has=function(o,k){return Object.prototype.hasOwnProperty.call(o,k);};
+function lsGet(k){try{return window.localStorage.getItem(k);}catch(e){return null;}}
+function lsSet(k,v){try{window.localStorage.setItem(k,v);return true;}catch(e){return false;}}
+function lsDel(k){try{window.localStorage.removeItem(k);}catch(e){}}
+function readJSON(k){var r=lsGet(k);if(!r)return null;try{var o=JSON.parse(r);return (o&&typeof o==='object')?o:null;}catch(e){return null;}}
+function clean(o){var p={};if(o)for(var k in o){if(has(o,k)&&(o[k]==='known'||o[k]==='learning'))p[k]=o[k];}return p;}
+function same(a,b){var k;for(k in a){if(has(a,k)&&a[k]!==b[k])return false;}for(k in b){if(has(b,k)&&a[k]!==b[k])return false;}return true;}
+
+var cfg=null, metaKey='', fileName='', meta=null, lastRemote={}, timer=null, busy=false, again=false, dirty=false, ui={};
+
+function token(){var t=lsGet(TOKEN_KEY);return t?t.trim():'';}
+function saveMeta(){lsSet(metaKey,JSON.stringify(meta));}
+function local(){return clean(readJSON(cfg.key));}
+function loadMeta(){
+  meta=readJSON(metaKey);
+  if(!meta||!meta.ts||!meta.snap){
+    /* First run: marks made before sync existed get time 1, so any later change on another device wins over them. */
+    var p=local();meta={ts:{},snap:{}};
+    for(var id in p){meta.ts[id]=1;meta.snap[id]=p[id];}
+    saveMeta();
+  }
+}
+/* Record a time for every card whose mark changed since the last look (mark, unmark, reset, restore). */
+function touch(){
+  if(!cfg)return;
+  var p=local(),now=Date.now(),ch=false,id,seen={};
+  for(id in p){if(has(p,id))seen[id]=1;}
+  for(id in meta.snap){if(has(meta.snap,id))seen[id]=1;}
+  for(id in seen){
+    if((p[id]||'')!==(meta.snap[id]||'')){
+      meta.ts[id]=Math.max(now,(meta.ts[id]||0)+1);
+      if(p[id])meta.snap[id]=p[id];else delete meta.snap[id];
+      ch=true;
+    }
+  }
+  if(ch){saveMeta();dirty=true;if(token())schedule(1500);renderUI();}
+}
+function pick(L,R){
+  if(L[1]>R[1])return L;
+  if(R[1]>L[1])return R;
+  if(L[0]===R[0])return L;
+  if(!L[0])return R;
+  if(!R[0])return L;
+  return ['learning',L[1]]; /* same time, different marks: keep the safer one */
+}
+function merge(rc){
+  touch();
+  var out={},id,seen={};
+  for(id in meta.ts){if(has(meta.ts,id))seen[id]=1;}
+  for(id in rc){if(has(rc,id))seen[id]=1;}
+  for(id in seen){
+    var L=[meta.snap[id]||'',+meta.ts[id]||0];
+    var r=rc[id],R=(r&&r.length===2)?[(r[0]==='known'||r[0]==='learning')?r[0]:'',+r[1]||0]:['',0];
+    var w=pick(L,R);
+    if(w[1]>0)out[id]=w;
+  }
+  var p={},ts={},push=false;
+  for(id in out){
+    ts[id]=out[id][1];if(out[id][0])p[id]=out[id][0];
+    var r2=rc[id];
+    if(!r2||r2[0]!==out[id][0]||+r2[1]!==out[id][1])push=true;
+  }
+  var before=local();
+  meta={ts:ts,snap:p};saveMeta();
+  if(!same(before,p)){lsSet(cfg.key,JSON.stringify(p));try{cfg.onRemote(clean(p));}catch(e){}}
+  return {cards:out,push:push};
+}
+function doc(cards){return JSON.stringify({v:1,deck:cfg.label||fileName,updated:new Date().toISOString(),cards:cards});}
+
+function api(method,path,body,keepalive){
+  var o={method:method,cache:'no-store',headers:{'Authorization':'Bearer '+token(),'Accept':'application/vnd.github+json'}};
+  if(body){o.body=JSON.stringify(body);o.headers['Content-Type']='application/json';}
+  if(keepalive)o.keepalive=true;
+  return fetch(API+path,o).then(function(r){
+    if(!r.ok){var e=new Error('HTTP '+r.status);e.status=r.status;throw e;}
+    return r.status===204?null:r.json();
+  });
+}
+function findOrCreate(){
+  return api('GET','/gists?per_page=100').then(function(list){
+    var m=(list||[]).filter(function(g){return g.description===DESC;});
+    m.sort(function(a,b){return a.created_at<b.created_at?-1:1;});
+    if(m.length)return api('GET','/gists/'+m[0].id);
+    var files={'README.md':{content:'Flashcard marks for the PFRDA decks. Written by the decks; please keep this gist.'}};
+    return api('POST','/gists',{description:DESC,public:false,files:files});
+  }).then(function(g){lsSet(GIST_KEY,g.id);return g;});
+}
+function getGist(){
+  var id=lsGet(GIST_KEY);
+  if(!id)return findOrCreate();
+  return api('GET','/gists/'+id).catch(function(e){if(e.status===404){lsDel(GIST_KEY);return findOrCreate();}throw e;});
+}
+function schedule(ms){clearTimeout(timer);timer=setTimeout(sync,ms);}
+function sync(){
+  clearTimeout(timer);
+  if(!cfg||!token())return;
+  if(busy){again=true;return;}
+  busy=true;setState('Syncing…','busy');
+  getGist().then(function(g){
+    var f=g.files&&g.files[fileName],rc={};
+    if(f&&f.content){try{var d=JSON.parse(f.content);if(d&&d.cards&&typeof d.cards==='object')rc=d.cards;}catch(e){}}
+    var res=merge(rc);
+    lastRemote=res.cards;
+    if(!res.push)return;
+    var files={};files[fileName]={content:doc(res.cards)};
+    return api('PATCH','/gists/'+g.id,{files:files});
+  }).then(function(){
+    dirty=false;lsSet(LAST_KEY,String(Date.now()));setState('','ok');
+  },function(e){
+    var s=e&&e.status;
+    setState(s===401?'Token rejected. Make a new one and connect again.':s===403||s===429?'GitHub is limiting requests. Will retry shortly.':s?'Sync failed ('+s+'). Will retry.':'Offline. Will sync when back online.','err');
+    if(s===401){lsDel(TOKEN_KEY);lsDel(GIST_KEY);setState('','');setNote('GitHub rejected that token. Check it was copied whole, or make a new one, then paste it again.');}
+    else schedule(60000);
+  }).then(function(){busy=false;if(again){again=false;schedule(300);}});
+}
+/* Leaving the page: push what we have without waiting for a read. */
+function flush(){
+  if(!dirty||!token()||busy)return;
+  var id=lsGet(GIST_KEY);if(!id)return;
+  touch();
+  var out={},k;
+  for(k in lastRemote){if(has(lastRemote,k))out[k]=lastRemote[k];}
+  for(k in meta.ts){if(has(meta.ts,k)){var L=[meta.snap[k]||'',+meta.ts[k]];out[k]=out[k]?pick(L,out[k]):L;}}
+  var files={};files[fileName]={content:doc(out)};
+  try{api('PATCH','/gists/'+id,{files:files},true).then(function(){dirty=false;},function(){});}catch(e){}
+}
+
+/* ---------- backup / restore (works with or without sync) ---------- */
+function backup(){
+  var data={deck:cfg.label||fileName,key:cfg.key,exported:new Date().toISOString(),marks:local()};
+  var blob=new Blob([JSON.stringify(data,null,1)],{type:'application/json'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=fileName.replace(/\.json$/,'')+'-marks-'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1500);
+  setNote('Backup saved: '+count(data.marks)+' marked cards.');
+}
+function restore(file){
+  var rd=new FileReader();
+  rd.onload=function(){
+    var d;try{d=JSON.parse(rd.result);}catch(e){setNote('That file is not a marks backup.');return;}
+    if(!d||!d.marks){setNote('That file is not a marks backup.');return;}
+    if(d.key&&d.key!==cfg.key&&!window.confirm('This backup is from another deck ('+(d.deck||d.key)+'). Restore it here anyway?'))return;
+    var p=clean(d.marks);
+    if(!window.confirm('Replace the marks in this deck with the '+count(p)+' marks in the backup?'))return;
+    lsSet(cfg.key,JSON.stringify(p));touch();
+    try{cfg.onRemote(p);}catch(e){}
+    setNote('Restored '+count(p)+' marks.');
+  };
+  rd.readAsText(file);
+}
+function count(p){var n=0;for(var k in p){if(has(p,k))n++;}return n;}
+
+/* ---------- UI ---------- */
+var CSS='.dsync{margin:14px 0 0;border:1px solid var(--line,#d5dbe5);border-radius:10px;background:var(--surface,var(--panel,#fff));color:var(--ink,#18233a);font-size:.875rem}'+
+'.dsync summary{cursor:pointer;padding:10px 12px;display:flex;gap:8px;align-items:center;list-style:none;min-height:44px}'+
+'.dsync summary::-webkit-details-marker{display:none}'+
+'.dsync summary b{font-weight:650}.dsync .dsst{margin-left:auto;color:var(--muted,#5b6578);font-size:.8rem;text-align:right}'+
+'.dsync .dsst.ok{color:var(--known,#2b8a3e)}.dsync .dsst.err{color:var(--changed,var(--learning,#a35f00))}'+
+'.dsync .dsb{padding:0 12px 12px;display:grid;gap:8px}.dsync p{margin:0;color:var(--muted,#5b6578)}'+
+'.dsync input[type=password]{font:inherit;font-size:16px;width:100%;padding:9px 10px;border:1px solid var(--line,#d5dbe5);border-radius:8px;background:var(--surface-2,var(--bg,#f5f7fa));color:inherit}'+
+'.dsync .dsr{display:flex;gap:8px;flex-wrap:wrap}.dsync .dsr button,.dsync .dsr label{flex:1 1 0;min-width:120px;min-height:40px;font:inherit;font-size:.82rem;font-weight:600;border:1px solid var(--line,#d5dbe5);border-radius:8px;background:var(--surface-2,var(--bg,#f5f7fa));color:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:6px 8px;text-align:center}'+
+'.dsync .dsr label input{display:none}.dsync hr{border:0;border-top:1px solid var(--line,#d5dbe5);margin:4px 0}.dsync .dsnote{color:var(--ink,#18233a)}.dsync [hidden]{display:none!important}';
+function el(tag,attrs,text){var e=document.createElement(tag);for(var k in attrs){if(has(attrs,k))e.setAttribute(k,attrs[k]);}if(text)e.textContent=text;return e;}
+function buildUI(anchor){
+  var st=el('style');st.textContent=CSS;document.head.appendChild(st);
+  var d=el('details',{'class':'dsync'});
+  var s=el('summary');s.appendChild(el('b',{},'Sync across devices'));ui.state=el('span',{'class':'dsst'});s.appendChild(ui.state);d.appendChild(s);
+  var b=el('div',{'class':'dsb'});d.appendChild(b);
+  ui.off=el('div',{'class':'dsb',style:'padding:0'});
+  ui.off.appendChild(el('p',{},'Paste your GitHub sync token. You do this once per device; every deck on this site then syncs.'));
+  ui.tok=el('input',{type:'password',autocomplete:'off',autocapitalize:'off',spellcheck:'false',placeholder:'ghp_…','aria-label':'GitHub sync token'});ui.off.appendChild(ui.tok);
+  var r1=el('div',{'class':'dsr'});var bc=el('button',{type:'button'},'Connect this device');r1.appendChild(bc);ui.off.appendChild(r1);
+  ui.on=el('div',{'class':'dsb',style:'padding:0'});
+  ui.msg=el('p');ui.on.appendChild(ui.msg);
+  var r2=el('div',{'class':'dsr'});var bs=el('button',{type:'button'},'Sync now');var bd=el('button',{type:'button'},'Disconnect this device');r2.appendChild(bs);r2.appendChild(bd);ui.on.appendChild(r2);
+  b.appendChild(ui.off);b.appendChild(ui.on);b.appendChild(el('hr'));
+  b.appendChild(el('p',{},'Safety copy of this deck’s marks as a file:'));
+  var r3=el('div',{'class':'dsr'});var bb=el('button',{type:'button'},'Back up marks');var lr=el('label',{},'Restore from backup');var fi=el('input',{type:'file',accept:'.json,application/json'});lr.appendChild(fi);r3.appendChild(bb);r3.appendChild(lr);b.appendChild(r3);
+  ui.note=el('p',{'class':'dsnote',role:'status'});b.appendChild(ui.note);
+  bc.addEventListener('click',function(){var t=ui.tok.value.trim();if(!t){ui.tok.focus();return;}lsSet(TOKEN_KEY,t);ui.tok.value='';renderUI();sync();});
+  bs.addEventListener('click',function(){sync();});
+  bd.addEventListener('click',function(){if(!window.confirm('Stop syncing on this device? Marks already here stay. Other decks on this device stop syncing too.'))return;lsDel(TOKEN_KEY);lsDel(GIST_KEY);setState('','');renderUI();});
+  bb.addEventListener('click',backup);
+  fi.addEventListener('change',function(){if(fi.files&&fi.files[0])restore(fi.files[0]);fi.value='';});
+  anchor.parentNode.insertBefore(d,anchor.nextSibling);
+  ui.root=d;
+}
+var stateText='',stateKind='';
+function setState(t,k){stateText=t;stateKind=k;renderUI();}
+function setNote(t){if(ui.note)ui.note.textContent=t;}
+function ago(ms){var m=Math.round(ms/60000);if(m<1)return 'just now';if(m<60)return m+' min ago';var h=Math.round(m/60);if(h<24)return h+' h ago';return Math.round(h/24)+' d ago';}
+function renderUI(){
+  if(!ui.root)return;
+  var on=!!token();
+  ui.off.hidden=on;ui.on.hidden=!on;
+  var last=+lsGet(LAST_KEY)||0;
+  var lbl=!on?'Off':stateKind==='busy'?'Syncing…':stateKind==='err'?'Not synced':dirty?'Changes waiting':last?'Synced '+ago(Date.now()-last):'On';
+  ui.state.textContent=lbl;
+  ui.state.className='dsst'+(on&&stateKind==='err'?' err':on&&stateKind==='ok'&&!dirty?' ok':'');
+  ui.msg.textContent=stateKind==='err'?stateText:(last?'Last synced '+ago(Date.now()-last)+'. Marks sync by themselves after each change and when you come back to this tab.':'Connected. First sync merges this device’s marks with the other device’s.');
+}
+
+window.DeckSync={
+  init:function(c){
+    try{
+      if(!c||!c.key||!window.localStorage)return;
+      cfg=c;metaKey=c.key+'_sync';fileName=c.key.replace(/_progress$/,'')+'.json';
+      loadMeta();touch();dirty=false;
+      if(c.anchor)buildUI(c.anchor);
+      renderUI();
+      if(token())sync();
+      document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'){if(token())schedule(300);}else flush();});
+      window.addEventListener('pagehide',flush);
+      window.addEventListener('online',function(){if(token())schedule(300);});
+      setInterval(renderUI,60000);
+    }catch(e){cfg=null;}
+  },
+  touch:function(){try{touch();}catch(e){}},
+  sync:sync
+};
+})();
+</script><!--/deck-sync-->
+<script>
+(function(){
+'use strict';
+var KEY='pfrda_commaccpyq_nov2026_progress';
+var THEME_KEY='pfrda_commaccpyq_nov2026_theme';
+var CARDS=JSON.parse(document.getElementById('cards-data').textContent);
+var TOPICS=JSON.parse(document.getElementById('topics-data').textContent);
+var $=function(id){return document.getElementById(id);};
+
+/* ---------- storage (never required) ---------- */
+var storageOk=true;
+function sGet(k){try{return window.localStorage.getItem(k);}catch(e){storageOk=false;return null;}}
+function sSet(k,v){try{window.localStorage.setItem(k,v);return true;}catch(e){storageOk=false;showBanner();return false;}}
+function sDel(k){try{window.localStorage.removeItem(k);}catch(e){storageOk=false;}}
+function showBanner(){ $('banner').hidden=false; }
+(function probe(){try{var t='__pfrda_probe__';window.localStorage.setItem(t,'1');window.localStorage.removeItem(t);}catch(e){storageOk=false;}})();
+
+var progress={};
+(function(){
+  var raw=sGet(KEY);
+  if(!raw) return;
+  try{
+    var o=JSON.parse(raw);
+    if(o && typeof o==='object'){
+      for(var k in o){ if(Object.prototype.hasOwnProperty.call(o,k) && (o[k]==='known'||o[k]==='learning')) progress[k]=o[k]; }
+    }
+  }catch(e){}
+})();
+function saveProgress(){ sSet(KEY,JSON.stringify(progress)); if(window.DeckSync)DeckSync.touch(); }
+
+/* ---------- theme ---------- */
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  $('bTheme').textContent = t==='dark' ? 'Light theme' : 'Dark theme';
+}
+var theme=sGet(THEME_KEY);
+if(theme!=='light' && theme!=='dark'){
+  theme=(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';
+}
+applyTheme(theme);
+
+/* ---------- state ---------- */
+var byId={};
+CARDS.forEach(function(c){byId[c.id]=c;});
+var baseOrder=CARDS.map(function(c){return c.id;});
+var order=baseOrder.slice();
+var filters={topics:[],type:'all',status:'all',hi:false,pyq:false};
+var view=[], pos=0, flipped=false;
+
+function statusOf(id){var s=progress[id];return (s==='known'||s==='learning')?s:'unseen';}
+function matches(c){
+  if(filters.topics.length && filters.topics.indexOf(c.topic)<0) return false;
+  if(filters.type!=='all' && c.type!==filters.type) return false;
+  if(filters.hi && c.star!=='hi') return false;
+  if(filters.pyq && !c.pyq) return false;
+  if(filters.status==='notknown'){ if(statusOf(c.id)==='known') return false; }
+  else if(filters.status!=='all' && statusOf(c.id)!==filters.status) return false;
+  return true;
+}
+function rebuild(keepId){
+  view=order.filter(function(id){return matches(byId[id]);});
+  var i=keepId?view.indexOf(keepId):-1;
+  pos=i>=0?i:0;
+  flipped=false;
+  render();
+}
+
+/* ---------- rendering ---------- */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmt(s){return esc(s).replace(/\*\*([\s\S]+?)\*\*/g,'<strong>$1</strong>');}
+var TYPE_LABEL={fact:'Theory',trap:'Theory',concept:'Numerical'};
+var STATUS_LABEL={unseen:'Unseen',learning:'Still learning',known:'Known'};
+
+function renderStats(){
+  var n=view.length,k=0,l=0;
+  view.forEach(function(id){var s=statusOf(id); if(s==='known')k++; else if(s==='learning')l++;});
+  $('sTotal').textContent=n;
+  $('sUnseen').textContent=n-k-l;
+  $('sLearn').textContent=l;
+  $('sKnown').textContent=k;
+  $('sPct').textContent=(n?Math.round(k*100/n):0)+'%';
+}
+function renderCard(){
+  var el=$('card');
+  if(!view.length){
+    el.className='card empty';
+    el.removeAttribute('data-type');
+    el.setAttribute('aria-expanded','false');
+    el.setAttribute('aria-label','No cards match these filters');
+    el.innerHTML='<p class="q" style="margin:0">No cards match these filters.</p><p class="note" style="margin:0">Change or clear a filter above to widen the set.</p><button type="button" id="emptyClear">Clear filters</button>';
+    var b=$('emptyClear'); if(b) b.addEventListener('click',function(e){e.stopPropagation();clearFilters();});
+    return;
+  }
+  var c=byId[view[pos]], st=statusOf(c.id);
+  var h='<div class="meta">';
+  h+='<span class="badge b-type">'+TYPE_LABEL[c.type]+'</span>';
+  if(c.star==='hi') h+='<span class="badge b-star">★ High-yield</span>';
+  else if(c.star==='md') h+='<span class="badge b-star">☆ Medium</span>';
+  if(c.pyq) h+='<span class="badge b-pyq">'+esc(c.pyq)+'</span>';
+  h+='</div>';
+  h+='<div class="topic">'+esc(c.topic)+'</div>';
+  h+='<div class="q">'+fmt(c.front)+'</div>';
+  h+='<div class="hint">Tap the card or press Space to reveal the answer.</div>';
+  h+='<div class="a"><div class="ans">'+fmt(c.back)+'</div>';
+  if(c.note) h+='<div class="note">'+fmt(c.note)+'</div>';
+  h+='</div>';
+  h+='<div class="cfoot"><span>'+(pos+1)+' of '+view.length+(pos===view.length-1?' (end of set)':'')+'</span><span class="s-'+st+'">'+STATUS_LABEL[st]+'</span></div>';
+  el.className='card'+(flipped?' flipped':'');
+  el.setAttribute('data-type',c.type);
+  el.setAttribute('aria-expanded',flipped?'true':'false');
+  el.setAttribute('aria-label','Card '+(pos+1)+' of '+view.length+'. Press Space or Enter to '+(flipped?'hide':'show')+' the answer.');
+  el.innerHTML=h;
+}
+function renderControls(){
+  var has=view.length>0;
+  $('bPrev').disabled=!has||pos===0;
+  $('bNext').disabled=!has||pos>=view.length-1;
+  $('bFlip').disabled=!has;
+  $('bKnown').disabled=!has;
+  $('bLearn').disabled=!has;
+  $('bFlip').textContent=flipped?'Hide answer':'Show answer';
+}
+function render(){ renderCard(); renderControls(); renderStats(); renderFilterSummary(); }
+
+/* ---------- actions ---------- */
+function focusCard(){ try{$('card').focus({preventScroll:true});}catch(e){$('card').focus();} }
+function flip(){
+  if(!view.length) return;
+  flipped=!flipped;
+  var el=$('card');
+  el.classList.toggle('flipped',flipped);
+  el.setAttribute('aria-expanded',flipped?'true':'false');
+  $('bFlip').textContent=flipped?'Hide answer':'Show answer';
+}
+function go(d){
+  if(!view.length) return;
+  var p=pos+d;
+  if(p<0||p>=view.length) return;
+  pos=p; flipped=false; render();
+}
+function mark(val){
+  if(!view.length) return;
+  progress[view[pos]]=val;
+  saveProgress();
+  if(pos<view.length-1){pos++;flipped=false;}
+  render();
+}
+function shuffle(){
+  var keep=null;
+  for(var i=order.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=order[i];order[i]=order[j];order[j]=t;}
+  rebuild(keep);
+}
+function resetOrder(){ order=baseOrder.slice(); rebuild(null); }
+
+/* ---------- modal ---------- */
+var lastFocus=null;
+function openModal(){
+  lastFocus=document.activeElement;
+  $('mText').textContent='This clears every Known and Still learning mark for all '+CARDS.length+' cards saved in this browser.';
+  $('modal').hidden=false;
+  $('mCancel').focus();
+}
+function closeModal(){ $('modal').hidden=true; if(lastFocus&&lastFocus.focus) lastFocus.focus(); else focusCard(); }
+function doReset(){
+  progress={}; sDel(KEY); if(window.DeckSync)DeckSync.touch();
+  var cur=view.length?view[pos]:null;
+  $('modal').hidden=true;
+  rebuild(cur);
+  focusCard();
+}
+
+/* ---------- filters UI ---------- */
+/* Topic picker: one native select. Each area is an optgroup whose first option takes the whole area. */
+var PREF_KEY='pfrda_commaccpyq_nov2026_filters';
+var topicCounts={}, groupOf={}, GROUPS=[], groupTopics={}, groupCounts={};
+CARDS.forEach(function(c){
+  topicCounts[c.topic]=(topicCounts[c.topic]||0)+1;
+  if(!groupOf[c.topic] || (groupOf[c.topic]==='Addendum' && c.section!=='Addendum')) groupOf[c.topic]=c.section;
+});
+TOPICS.forEach(function(t){
+  if(!topicCounts[t]) return;
+  var g=groupOf[t];
+  if(!groupTopics[g]){ GROUPS.push(g); groupTopics[g]=[]; groupCounts[g]=0; }
+  groupTopics[g].push(t); groupCounts[g]+=topicCounts[t];
+});
+function shortTopic(t,g){
+  var seps=[' — ',' - '];
+  for(var i=0;i<seps.length;i++){ if(t.indexOf(g+seps[i])===0) return t.slice((g+seps[i]).length); }
+  return t.replace(/^\d+\s+/,'');
+}
+(function buildTopics(){
+  var h='<option value="all">All topics ('+CARDS.length+')</option>';
+  GROUPS.forEach(function(g,gi){
+    h+='<optgroup label="'+esc(g)+'">';
+    h+='<option value="g:'+gi+'">All of '+esc(g)+' ('+groupCounts[g]+')</option>';
+    groupTopics[g].forEach(function(t){
+      h+='<option value="t:'+TOPICS.indexOf(t)+'">'+esc(shortTopic(t,g))+' ('+topicCounts[t]+')</option>';
+    });
+    h+='</optgroup>';
+  });
+  $('topicSel').innerHTML=h;
+})();
+var topicChoice='all';
+function topicsFor(v){
+  if(v.indexOf('g:')===0){ var g=GROUPS[+v.slice(2)]; return g?groupTopics[g].slice():[]; }
+  if(v.indexOf('t:')===0){ var t=TOPICS[+v.slice(2)]; return t?[t]:[]; }
+  return [];
+}
+function savePrefs(){
+  sSet(PREF_KEY,JSON.stringify({topic:topicChoice,type:filters.type,status:filters.status,hi:filters.hi,pyq:filters.pyq}));
+}
+function syncFilterUI(){
+  $('topicSel').value=topicChoice;
+  $('typeSel').value=filters.type;
+  $('statusSel').value=filters.status;
+  $('topicSel').classList.toggle('on',topicChoice!=='all');
+  $('typeSel').classList.toggle('on',filters.type!=='all');
+  $('statusSel').classList.toggle('on',filters.status!=='all');
+  $('fHi').setAttribute('aria-pressed',filters.hi?'true':'false');
+  $('fPyq').setAttribute('aria-pressed',filters.pyq?'true':'false');
+}
+(function loadPrefs(){
+  var raw=sGet(PREF_KEY); if(!raw) return;
+  try{
+    var o=JSON.parse(raw); if(!o||typeof o!=='object') return;
+    if(typeof o.topic==='string' && $('topicSel').querySelector('option[value="'+o.topic.replace(/"/g,'')+'"]')){ topicChoice=o.topic; filters.topics=topicsFor(o.topic); }
+    if(['all','fact','trap','concept'].indexOf(o.type)>=0) filters.type=o.type;
+    if(['all','unseen','learning','known','notknown'].indexOf(o.status)>=0) filters.status=o.status;
+    filters.hi=o.hi===true; filters.pyq=o.pyq===true;
+  }catch(e){}
+})();
+function onFilterChange(){
+  savePrefs();
+  syncFilterUI();
+  var cur=view.length?view[pos]:null;
+  rebuild(cur);
+}
+$('topicSel').addEventListener('change',function(){ topicChoice=this.value; filters.topics=topicsFor(topicChoice); onFilterChange(); });
+$('typeSel').addEventListener('change',function(){ filters.type=this.value; onFilterChange(); });
+$('statusSel').addEventListener('change',function(){ filters.status=this.value; onFilterChange(); });
+$('fHi').addEventListener('click',function(){ filters.hi=!filters.hi; onFilterChange(); });
+$('fPyq').addEventListener('click',function(){ filters.pyq=!filters.pyq; onFilterChange(); });
+function clearFilters(){
+  filters={topics:[],type:'all',status:'all',hi:false,pyq:false};
+  topicChoice='all';
+  onFilterChange();
+}
+$('fClear').addEventListener('click',clearFilters);
+function renderFilterSummary(){
+  var on=topicChoice!=='all'||filters.type!=='all'||filters.status!=='all'||filters.hi||filters.pyq;
+  $('fClear').hidden=!on;
+}
+syncFilterUI();
+
+/* ---------- wiring ---------- */
+$('card').addEventListener('click',function(e){
+  if(!view.length) return;
+  var sel=window.getSelection && String(window.getSelection());
+  if(sel && sel.length>0 && flipped) return;
+  flip();
+});
+function bind(id,fn){ $(id).addEventListener('click',function(){ fn(); if(id!=='bReset') focusCard(); }); }
+bind('bPrev',function(){go(-1);});
+bind('bNext',function(){go(1);});
+bind('bFlip',flip);
+bind('bKnown',function(){mark('known');});
+bind('bLearn',function(){mark('learning');});
+bind('bShuffle',shuffle);
+bind('bOrder',resetOrder);
+bind('bReset',openModal);
+bind('bTheme',function(){ theme=theme==='dark'?'light':'dark'; applyTheme(theme); sSet(THEME_KEY,theme); });
+$('mCancel').addEventListener('click',closeModal);
+$('mOk').addEventListener('click',doReset);
+$('modal').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
+
+document.addEventListener('keydown',function(e){
+  if(!$('modal').hidden){ if(e.key==='Escape'){e.preventDefault();closeModal();} return; }
+  if(e.ctrlKey||e.metaKey||e.altKey) return;
+  var t=e.target, tag=(t&&t.tagName||'').toLowerCase();
+  if(tag==='input'||tag==='select'||tag==='textarea'||tag==='summary'||(t&&t.isContentEditable)) return;
+  var k=e.key;
+  if(k===' '||k==='Spacebar'||k==='Enter'){
+    if(tag==='button') return;
+    e.preventDefault(); flip(); return;
+  }
+  if(k==='ArrowRight'){e.preventDefault();go(1);focusCard();return;}
+  if(k==='ArrowLeft'){e.preventDefault();go(-1);focusCard();return;}
+  if(k==='k'||k==='K'){e.preventDefault();mark('known');focusCard();return;}
+  if(k==='l'||k==='L'){e.preventDefault();mark('learning');focusCard();return;}
+});
+
+$('sub').textContent='PFRDA Grade A 2026 · Phase II Paper 2 · Every Commerce & Accounts PYQ (PFRDA, SEBI, NPS Trust, IFSCA) with the answer, why, formula and the close calls. '+CARDS.length+' cards.';
+if(!storageOk) showBanner();
+rebuild(null);
+if(window.DeckSync)DeckSync.init({key:KEY,label:document.title,anchor:document.querySelector('.kbd')||$('modal'),onRemote:function(p){var cur=view.length?view[pos]:null,f=flipped;progress=p;rebuild(cur);if(f&&view[pos]===cur)flip();}});
+})();
+</script>
+</body>
+</html>
