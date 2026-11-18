@@ -83,7 +83,7 @@ td.n,th{padding-left:4px;padding-right:4px}
   </header>
 
   <nav class="modes" aria-label="Practice mode">
-    <button type="button" data-mode="set" aria-pressed="true">Timed set · 25 min</button>
+    <button type="button" data-mode="set" aria-pressed="true">Timed set · 60→35</button>
     <button type="button" data-mode="one" aria-pressed="false">One answer · 5 min</button>
     <button type="button" data-mode="map" aria-pressed="false">Map only · 6 min</button>
   </nav>
@@ -123,7 +123,7 @@ td.n,th{padding-left:4px;padding-right:4px}
 
     <aside class="side panel" aria-label="Live counts">
       <div>
-        <span class="lbl">Time left</span>
+        <span class="lbl" id="clockLbl">Time left</span>
         <div class="clock" id="clock">25:00</div>
       </div>
       <div>
@@ -166,7 +166,7 @@ var FRAMES=[
 ];
 var FN={};FRAMES.forEach(function(f){FN[f[0]]=f[1]});
 var MODES={
- set:{min:25,split:"0–1 read the questions · 1–6 read the passage and map it · 6–23 answer, about 3.5 min each, looking away · 23–25 proofread."},
+ set:{min:25,from:60,stop:35,split:"Exam clock, RC first. 60–59 read the questions · 59–54 read the passage and map it · 54–37 answer, looking away (about 3.5 min each for 5, 4 for 4) · 37–35 proofread. Stop at 35:00."},
  one:{min:5,split:"Reread the paragraph, look away, write 70–85 words (85–100 for 10 marks), proofread."},
  map:{min:6,split:"For every question: its type and the paragraph that answers it. No answers yet."}
 };
@@ -230,7 +230,10 @@ function counts(){
 }
 function elapsed(){var d=D();return d.used+(d.run&&d.start?(Date.now()-d.start)/1000:0)}
 function fmt(s){var neg=s<0;s=Math.abs(Math.round(s));return (neg?"−":"")+Math.floor(s/60)+":"+("0"+s%60).slice(-2)}
-function tick(){var left=MODES[S.mode].min*60-elapsed(),c=$("clock");c.textContent=fmt(left);c.className="clock"+(left<0?" over":left<120?" low":"");var m=$("mini");m.textContent=c.textContent+(D().run||!D().used?"":" paused");m.className="mini"+c.className.slice(5)}
+function tick(){var M=MODES[S.mode],c=$("clock"),e=elapsed(),left,cls;
+  if(M.from){left=M.from*60-e;var toStop=left-M.stop*60;cls=toStop<0?" over":toStop<120?" low":"";$("clockLbl").textContent="Exam clock · stop at "+M.stop+":00"}
+  else{left=M.min*60-e;cls=left<0?" over":(left<120&&M.min>2)||left<30?" low":"";$("clockLbl").textContent="Time left"}
+  c.textContent=fmt(left);c.className="clock"+cls;var m=$("mini");m.textContent=c.textContent+(D().run||!D().used?"":" paused");m.className="mini"+cls}
 setInterval(function(){if(D().run)tick()},500);
 function pause(){var d=D();if(d.run){d.used=elapsed();d.run=false;d.start=null}}
 
