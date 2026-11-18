@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>PFRDA Précis Desk</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>:root{
+  --bg:#f3f5f4; --panel:#ffffff; --ink:#1d2624; --muted:#5d6b68; --line:#d5ddda;
+  --accent:#1f6f66; --accent-ink:#ffffff; --warn:#a3520f; --bad:#b3261e; --ok:#2e7d32; --soft:#e6efed;
+  --f-ui:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-text:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121816; --panel:#1a2220; --ink:#e3ebe8; --muted:#9aaba6; --line:#2e3a37;
+  --accent:#5fb8ac; --accent-ink:#0d1413; --warn:#e0a060; --bad:#f08a80; --ok:#7fc787; --soft:#1f2b28; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121816; --panel:#1a2220; --ink:#e3ebe8; --muted:#9aaba6; --line:#2e3a37;
+  --accent:#5fb8ac; --accent-ink:#0d1413; --warn:#e0a060; --bad:#f08a80; --ok:#7fc787; --soft:#1f2b28; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:15px;line-height:1.5}
+.wrap{max-width:1040px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:16px}
+.wrap>*,.grid>*{min-width:0}
+h1{font-family:var(--f-text);font-weight:600;font-size:1.6rem;margin:0;text-wrap:balance}
+.sub{color:var(--muted);margin:2px 0 0;font-size:.92rem}
+.modes{display:flex;flex-wrap:wrap;gap:8px}
+.modes button{font:inherit;font-weight:500;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:8px 12px;border-radius:6px;cursor:pointer}
+.modes button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+button:focus-visible,select:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:grid;gap:10px;min-width:0}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+label.lbl,.lbl{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+select{font:inherit;padding:7px 8px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink);width:100%;min-width:0;flex:1 1 220px}
+.btn{font:inherit;font-weight:500;padding:7px 12px;border-radius:6px;border:1px solid var(--line);background:var(--soft);color:var(--ink);cursor:pointer}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.topic{font-family:var(--f-text);font-size:1.12rem;line-height:1.45;margin:0}
+.meta{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:.75rem;font-weight:600;letter-spacing:.04em;padding:2px 8px;border-radius:999px;background:var(--soft);color:var(--muted);border:1px solid var(--line)}
+.chip.sk{color:var(--accent)}
+.task{color:var(--muted);font-size:.92rem;margin:0}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:16px;align-items:start}
+@media (max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.side{position:static!important}}
+textarea,input[type=text]{width:100%;font-family:var(--f-text);font-size:1.02rem;line-height:1.6;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px 12px}
+textarea{resize:vertical}
+.mono{font-family:var(--f-mono)!important;font-size:.88rem!important}
+.side{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);display:grid;gap:12px}
+.clock{font-family:var(--f-mono);font-size:2.2rem;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.clock.low{color:var(--warn)} .clock.over{color:var(--bad)}
+.stat{display:flex;justify-content:space-between;gap:8px;font-variant-numeric:tabular-nums;font-size:.92rem;border-bottom:1px dashed var(--line);padding-block:3px}
+.stat b{font-family:var(--f-mono);font-weight:500}
+.good{color:var(--ok)} .warn{color:var(--warn)} .bad{color:var(--bad)}
+.paras{display:grid;gap:4px;font-size:.88rem}
+.passage{font-family:var(--f-text);font-size:1.02rem;line-height:1.6;background:var(--soft);border-radius:6px;padding:10px 12px;margin:0;display:grid;gap:10px}
+.passage p{margin:0}
+.passage .pn{font-family:var(--f-mono);font-size:.75rem;color:var(--muted);margin-right:6px}
+.hiddenNote{font-size:.9rem;color:var(--muted);background:var(--soft);border-radius:6px;padding:10px 12px;margin:0}
+.q{display:grid;gap:6px;border-top:1px solid var(--line);padding-top:10px}
+.q h3{font-family:var(--f-text);font-size:1.02rem;font-weight:600;margin:0;line-height:1.45}
+.q .qm{display:flex;flex-wrap:wrap;gap:8px;font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.q textarea{min-height:150px}
+.key{display:grid;gap:6px;background:var(--soft);border-radius:6px;padding:10px 12px;font-size:.92rem}
+.key ol{margin:0;padding-left:20px;display:grid;gap:3px}
+.key .model{font-family:var(--f-text);font-size:.98rem;line-height:1.55;margin:0;white-space:pre-wrap}
+.note{font-size:.82rem;color:var(--muted);margin:0}
+.copied{font-size:.85rem;color:var(--ok)}
+#copyBox{font-family:var(--f-mono);font-size:.8rem;min-height:120px}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{text-align:left;padding:5px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+td.n{font-family:var(--f-mono);text-align:right;white-space:nowrap}
+.tbl{overflow-x:auto}
+.ref{display:grid;gap:6px;font-size:.9rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+[hidden]{display:none!important}
+.mini{display:none}
+@media (max-width:760px){.mini{display:block;position:fixed;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 12px);z-index:5;font-family:var(--f-mono);font-size:1rem;font-variant-numeric:tabular-nums;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 12px;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.mini.low{color:var(--warn)}.mini.over{color:var(--bad)}}
+td.n,th{padding-left:4px;padding-right:4px}
+</style></head><body>
+<div class="wrap">
+  <header>
+    <h1>PFRDA Précis Desk</h1>
+    <p class="sub">Phase 2 précis practice, typed with spellcheck off. Six fresh passages, one for each way PFRDA and SEBI have worded the limit and each passage shape. The word count turns green inside the safe band, and the copy meter counts words in runs of 5 also found in the passage. Your work stays on this device only.</p>
+  </header>
+
+  <nav class="modes" aria-label="Practice mode">
+    <button type="button" data-mode="full" aria-pressed="true">Timed précis · 15 min</button>
+    <button type="button" data-mode="gist" aria-pressed="false">Gist + budget · 6 min</button>
+    <button type="button" data-mode="title" aria-pressed="false">Title sprint · 2 min</button>
+  </nav>
+
+  <section class="panel">
+    <div class="row">
+      <label class="lbl" for="setSel">Set</label>
+      <select id="setSel"></select>
+      <button type="button" class="btn" id="randBtn">Random set</button>
+    </div>
+    <p class="topic" id="instr"></p>
+    <div class="meta" id="setMeta"></div>
+    <p class="task" id="taskText"></p>
+  </section>
+
+  <div class="grid">
+    <div class="panel" style="gap:12px">
+      <div class="row" style="justify-content:space-between">
+        <span class="lbl">Passage (paragraph words in brackets)</span>
+        <button type="button" class="btn" id="hideBtn">Hide passage and write from notes</button>
+      </div>
+      <div class="passage" id="passage"></div>
+      <p class="hiddenNote" id="hiddenNote" hidden>Passage hidden. Write from your gist notes, not from the passage.</p>
+      <div id="gistWrap">
+        <label class="lbl" for="gist">Gist notes: one line per paragraph, 5 to 8 words, with a word budget at the end</label>
+        <textarea id="gist" class="mono" spellcheck="false" autocomplete="off" autocapitalize="off" style="min-height:130px" placeholder="P1 what it is, why it matters / 30&#10;P2 ..."></textarea>
+        <label class="lbl" for="theme" style="display:block;margin-top:8px">Central theme in one sentence</label>
+        <input type="text" id="theme" spellcheck="false" autocomplete="off">
+      </div>
+      <div id="titleWrap">
+        <label class="lbl" for="ttl" id="ttlLbl">Title: 3 to 8 words that state the gist</label>
+        <input type="text" id="ttl" spellcheck="false" autocomplete="off">
+      </div>
+      <div id="precisWrap">
+        <label class="lbl" for="precis">Précis: one paragraph</label>
+        <textarea id="precis" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off" style="min-height:260px"></textarea>
+      </div>
+      <div class="key" id="keyBox" hidden></div>
+      <div class="row">
+        <button type="button" class="btn primary" id="startBtn">Start timer</button>
+        <button type="button" class="btn" id="resetBtn">Clear and reset</button>
+        <button type="button" class="btn" id="keyBtn">Show the key</button>
+        <button type="button" class="btn" id="copyBtn">Copy my answer for marking</button>
+        <span class="copied" id="copied" hidden>Copied. Paste it in the thread.</span>
+      </div>
+      <textarea id="copyBox" readonly hidden aria-label="Answer to copy"></textarea>
+    </div>
+
+    <aside class="side panel" aria-label="Live counts">
+      <div>
+        <span class="lbl">Time left</span>
+        <div class="clock" id="clock">15:00</div>
+      </div>
+      <div>
+        <div class="stat"><span>Words</span><b id="wc">0</b></div>
+        <div class="stat"><span>Aim</span><b id="aim">110–118</b></div>
+        <div class="stat"><span>Hard limit</span><b id="lim">120</b></div>
+        <div class="stat"><span>Paragraphs</span><b id="pc">0</b></div>
+        <div class="stat"><span>Copied share</span><b id="cp">0%</b></div>
+        <div class="stat"><span>Title words</span><b id="tw">0</b></div>
+      </div>
+      <p class="note" id="splitNote"></p>
+    </aside>
+  </div>
+
+  <section class="panel">
+    <span class="lbl">The four passage shapes and your précis order</span>
+    <div class="ref">
+      <div><b>Problem and response</b> (PFRDA 2025): the problem and its cause, then each response in one or two sentences, then the verdict.</div>
+      <div><b>Concept and way forward</b> (PFRDA 2021, 2022): what it is, why it matters, where it is used (grouped), the obstacles, the way forward.</div>
+      <div><b>Two views</b> (SEBI 2020, 2025): the issue in one line, view 1, view 2, then the verdict or what it means for India.</div>
+      <div><b>Evolution</b> (SEBI 2024, RBI 2022): where it started, the 2 or 3 turning points, where it is now and where it is heading.</div>
+    </div>
+    <span class="lbl">Six ways to compress</span>
+    <div class="ref">
+      <div>1. A list becomes one category word. 2. Drop examples and quotes. 3. A clause becomes a phrase. 4. Keep only the number that carries the point. 5. Direct speech becomes a reported claim. 6. Merge two sentences with although, because, so or while.</div>
+    </div>
+    <p class="note">Routine: 0–5 read and write gist notes, name the shape · 5–6 central theme and word budgets · 6–13 write from the notes · 13–15 title, count, proofread. Budgets follow the passage: a paragraph with a fifth of the words gets about a fifth of yours. Rubric: content 12, own words 4, structure 4, title 2, language 8; over the limit −1 (up to 10% over) or −3.</p>
+  </section>
+
+  <section class="panel">
+    <span class="lbl">What the six sets cover, and what they leave out</span>
+    <div class="tbl"><table><thead><tr><th>Set</th><th>Limit</th><th>Shape</th><th>Built on</th></tr></thead><tbody id="covBody"></tbody></table></div>
+    <p class="note"><b>Left out.</b> Passages over 600 words, as in SEBI 2018 (about 750), SEBI 2024 (about 640) and RBI papers (up to 1,000). RBI's 170 to 200-word limits, and wordings such as "one-third of the passage". The real PFRDA 2021, 2022 and 2025 passages are not repeated here: they are in your Précis &amp; RC Desk. Topics already used in your mocks and baseline (household savings, care economy, libraries, Japan's ageing) are avoided.</p>
+  </section>
+</div>
+<div class="mini" id="mini" aria-hidden="true"></div>
+<script>
+var SETS=[{"id": "P1", "title": "The blue economy", "ltxt": "Write a précis in 120 words and give it a suitable title.", "band": [108, 120], "aim": [110, 118], "needTitle": true, "shape": "Concept and way forward", "pyq": "PFRDA 2021: 'in 120', light cut of a ~320-word passage, concept and way forward (circular economy)", "paras": ["The oceans cover more than seventy per cent of the planet, yet for most countries they have been little more than a highway for ships and a source of fish. The idea of the blue economy asks for a broader view: the sustainable use of ocean resources for growth, jobs and better livelihoods, while keeping marine ecosystems healthy. It covers traditional activities such as fishing, shipping and coastal tourism, and newer ones such as offshore wind, seabed minerals and marine biotechnology.", "India has strong reasons to pursue it. Its coastline, remeasured in 2024 at more than eleven thousand kilometres, is dotted with ports and fishing towns, and its exclusive economic zone stretches over two million square kilometres of sea. Millions of families depend on fisheries, and most of the country's trade by volume moves by sea. Through the Deep Ocean Mission, India is also exploring the deep seabed and developing a crewed submersible.", "But the oceans are under strain. Overfishing has depleted many stocks, plastic and industrial waste pollute coastal waters, and warming seas are bleaching coral reefs and pushing fish to new waters. Coastal communities, among the poorest in many states, are the first to suffer.", "A genuine blue economy must therefore balance use with care. That means scientific limits on fishing, cleaner ports and ships, protection of mangroves and reefs, and a share of the gains for coastal communities. Growth from the sea will last only if the sea itself survives."], "gist": [["What the blue economy is: sustainable ocean use for growth and jobs, old and new sectors", 32], ["Why India should pursue it: long coast, large EEZ, fisheries, trade, deep-sea mission", 33], ["Threats: overfishing, pollution, warming; coastal poor hit first", 23], ["Way forward: balance use with care; limits, clean ports, mangroves, share for communities", 27]], "must": [["Definition: sustainable use of ocean resources for growth and livelihoods while protecting ecosystems", 3], ["Scope: traditional (fishing, shipping, tourism) and new (energy, minerals, biotech) sectors, grouped", 2], ["India's potential: coast, EEZ, fisheries, sea trade, deep-sea exploration", 3], ["Threats and who suffers first", 2], ["Way forward: balance, with benefits shared by coastal communities; growth lasts only if the sea survives", 2]], "titles": ["The Blue Economy: Growth That Protects the Sea", "Prospering from the Sea, Sustainably"], "model": "Prospering from the Sea, Sustainably\n\nThe blue economy means using ocean resources for growth and jobs without harming marine life, across established sectors such as fishing and shipping and emerging ones such as offshore energy. India is well placed to benefit, given its long coastline, vast exclusive economic zone, millions of fishing families, heavy dependence on sea trade and its deep-sea exploration mission. However, overfishing, pollution and warming waters are damaging the oceans, and poor coastal communities suffer first. A true blue economy must therefore combine use with conservation through scientific fishing limits, cleaner shipping, safeguarding mangroves and reefs, and fair benefits for coastal people, because ocean-based growth will endure only if the ocean stays healthy.", "lshort": "in 120"}, {"id": "P2", "title": "Putting a price on carbon", "ltxt": "Write a précis of the passage within 120 words and suggest a suitable title.", "band": [108, 120], "aim": [110, 118], "needTitle": true, "shape": "Concept and way forward", "pyq": "PFRDA 2022: 'within 120', heavy cut (about 4x) of a ~500-word passage, concept, uses, India, policy (big data)", "paras": ["Every tonne of carbon dioxide released into the atmosphere imposes a cost on someone: a farmer whose crops fail in a heatwave, a coastal city that must build sea walls, a family whose home is flooded. Yet the factory or power plant that emits the gas pays nothing for this damage. Economists call such a cost an externality, and for decades they have argued that the simplest way to reduce emissions is to put a price on them. If polluting costs money, firms will look for cheaper ways to avoid it.", "There are two main ways to set this price. A carbon tax fixes the price per tonne and lets the market decide how much emissions fall. A carbon market works the other way round. The government caps the total emissions allowed in a sector and issues permits, or credits, up to that limit. Firms that cut emissions below their target can sell their spare credits to firms that exceed theirs. In this way the reduction happens wherever it is cheapest, and companies that innovate are rewarded.", "Carbon markets are no longer an experiment. The European Union's emissions trading system, launched in 2005, now covers power plants, factories and airlines, and it has helped bring down emissions from the sectors it covers while the economy has continued to grow. China opened a national market for its power sector in 2021, now the largest in the world by emissions covered. Voluntary markets have also grown, in which companies buy credits from projects such as forest protection or clean cookstoves to offset their own emissions.", "India has begun to build its own system. An amendment to the Energy Conservation Act in 2022 gave the government power to create a carbon market, and the Carbon Credit Trading Scheme of 2023 set out how it will work. Energy-intensive industries such as cement, steel, aluminium and refining will receive emission-intensity targets, and those that beat them will earn tradable credits. The Bureau of Energy Efficiency will administer the scheme, and the grid regulator will oversee trading. India already ran a smaller version, the Perform, Achieve and Trade scheme, which set energy-efficiency targets for large plants.", "Carbon markets have weaknesses, however. If too many credits are issued, the price collapses and firms have no reason to change, as happened in Europe in its early years. Voluntary credits have been criticised for counting forests that were never at risk, so the cuts they claim are not real. Strong measurement, reporting and verification are therefore essential. For India, the challenge is also to protect small firms and consumers from sudden cost increases.", "Designed well, a carbon market can help India meet its climate goals at the lowest cost to the economy. It turns pollution from a free act into an expense, and clean technology from a cost into a source of income."], "gist": [["Problem: emitters do not pay the damage (externality); pricing carbon is the simplest fix", 19], ["Two tools: tax fixes price; market caps total and trades credits so cuts happen where cheapest", 22], ["Proof abroad: EU since 2005, China 2021, voluntary markets", 16], ["India: 2022 Act, CCTS 2023, intensity targets for heavy industry, BEE runs it, PAT before", 26], ["Weaknesses: too many credits, fake offsets; need strong verification; protect small firms", 21], ["Verdict: low-cost way to climate goals; pollution becomes a cost, clean tech a gain", 11]], "must": [["Concept: emissions are an unpaid cost (externality); pricing them makes firms cut", 2], ["How a carbon market works (cap, credits, trade), contrasted with a tax in a phrase", 3], ["Already working abroad (EU, China), grouped", 1], ["India's scheme: legal basis, intensity targets for heavy industry, credits for beating them", 3], ["Weaknesses and need for verification; protect small firms", 2], ["Verdict: low-cost route to climate goals", 1]], "titles": ["Making Pollution Pay", "Carbon Markets: Pricing the Cost of Emissions"], "model": "Making Pollution Pay\n\nEmitters do not pay for the damage their carbon causes, so economists propose pricing emissions to make cutting them worthwhile. Unlike a carbon tax, which fixes the price, a carbon market caps total emissions and lets firms trade credits, so cuts occur where they cost least. Such markets already operate in Europe and China. India legislated for one in 2022, and its 2023 trading scheme sets emission-intensity targets for heavy industries, rewarding those that beat them with tradable credits. However, excess credits and unreal offsets can undermine these markets, so strict verification is vital, as is protecting small firms. Well designed, a carbon market can help India meet climate goals cheaply, making pollution costly and clean technology profitable.", "lshort": "within 120"}, {"id": "P3", "title": "India's road-safety crisis", "ltxt": "Write a précis of the following passage in 140 to 160 words. Give it a suitable title.", "band": [140, 160], "aim": [145, 155], "needTitle": true, "shape": "Problem and response", "pyq": "PFRDA 2025: '140 to 160', ~480-word passage, a problem followed by several policy responses (Japan's ageing)", "paras": ["India has about one per cent of the world's vehicles but accounts for more than a tenth of its road deaths. In 2022 alone, according to the Ministry of Road Transport and Highways, more than 1.68 lakh people were killed in road accidents, which is about nineteen deaths every hour. Most of the dead are young men in their working years, and nearly half of them were riding two-wheelers. For a family, the loss of an earning member is often a financial as well as an emotional catastrophe, and the World Bank has estimated that road crashes cost India several per cent of its GDP each year.", "The causes are well known. Over-speeding accounts for the largest share of deaths. Many riders do not wear helmets, and seat belts in rear seats are widely ignored. Drunk driving, mobile phone use and driving on the wrong side add to the toll. Roads themselves are often badly designed, with sharp curves, missing signs, poor lighting and no separate space for pedestrians or cyclists. Trucks are frequently overloaded, and enforcement of traffic rules is weak and inconsistent.", "The government has responded on several fronts. The Motor Vehicles (Amendment) Act of 2019 sharply raised fines for traffic offences, made vehicle makers liable to recall defective models and allowed electronic monitoring of highways. Accident black spots, stretches where crashes repeatedly occur, are being identified and corrected through better engineering. A national database now records every accident so that patterns can be studied and fixed.", "A second set of measures focuses on what happens after a crash. Many victims die because they do not reach a hospital within the first hour. Good Samaritan rules now protect bystanders who help the injured from police harassment and legal trouble. In 2025 the government notified a scheme for cashless treatment of road-accident victims, covering up to 1.5 lakh rupees for the first seven days. Ambulance networks on highways are also being expanded.", "A third approach is to change behaviour. Road-safety education is being added to school curricula, campaigns promote helmet and seat-belt use, and some states use cameras to issue automatic penalties for speeding.", "Experts caution that no single measure will be enough. Higher fines mean little if they are rarely collected. Better roads attract higher speeds unless they are designed to slow traffic near villages and towns. Sweden's Vision Zero approach, which treats every road death as preventable and designs the whole system around human error, offers a model. India will reduce deaths only when engineering, enforcement, emergency care and education work together."], "gist": [["Scale: 1% of vehicles, over 10% of deaths; 1.68 lakh in 2022; young men, two-wheelers; cost to families and GDP", 30], ["Causes: speeding, no helmets or belts, drunk and phone driving, bad road design, weak enforcement", 25], ["Response 1, law and engineering: 2019 Act fines and recalls, black spots, accident database", 25], ["Response 2, care after a crash: golden hour, Good Samaritans, cashless treatment, ambulances", 27], ["Response 3, behaviour: school education, campaigns, camera penalties", 15], ["Verdict: no single measure; Vision Zero; engineering, enforcement, care and education together", 28]], "must": [["Scale of the problem with one number, and who dies", 2], ["Causes grouped: driver behaviour, road design, weak enforcement", 2], ["Law and engineering response", 2], ["Post-crash care response", 2], ["Behaviour change response", 1], ["Verdict: integrated, system-wide approach (Vision Zero); fines and roads alone fail", 3]], "titles": ["Making Indian Roads Safe: A Many-Sided Task", "Road Deaths Need an All-Round Response"], "model": "Road Deaths Need an All-Round Response\n\nWith just one per cent of global vehicles, India suffers over a tenth of global road deaths: more than 1.68 lakh in 2022. Most victims are young working men, many on two-wheelers, so each death devastates a family and the toll costs the economy dearly. The causes lie in reckless behaviour, such as speeding, drunk driving and ignoring helmets and seat belts, as well as in poorly designed roads and weak enforcement. The government has responded in three ways. It has raised fines, made manufacturers recall faulty vehicles and begun fixing accident-prone stretches using a national crash database. It has also improved emergency care by protecting helpful bystanders, offering cashless treatment and expanding ambulances. Finally, it is promoting safer behaviour through schools, campaigns and camera-based penalties. Yet no single step suffices: fines must be collected and roads designed to slow traffic. Like Sweden's Vision Zero, India must combine engineering, enforcement, emergency care and education.", "lshort": "140–160"}, {"id": "P4", "title": "The four-day work week", "ltxt": "Write a précis of the passage in 140 to 160 words and give it an appropriate title.", "band": [140, 160], "aim": [145, 155], "needTitle": true, "shape": "Two views", "pyq": "SEBI 2025: '140 to 160', news trigger, two opposing views, then what it means for India (US-China tariff truce)", "paras": ["When the results of the world's largest trial of a four-day work week were published in 2023, they surprised even its supporters. Sixty-one British companies, employing about 2,900 people, had cut working time by a fifth for six months without cutting pay. At the end, fifty-six of them chose to continue, and most made the change permanent. Revenue held steady, staff were less likely to quit, and employees reported less stress and better sleep. Similar trials in Iceland, Spain and Japan, and a law in Belgium allowing workers to compress a full week into four days, have pushed the idea into the mainstream.", "Supporters argue that the five-day week is a historical accident, set a century ago for factories, and that knowledge work is measured by output, not hours. Tired workers make more mistakes, they say, and much of the modern working day is lost to unnecessary meetings and distraction. Given a shorter week, teams cut wasteful tasks and focus on what matters. A shorter week could also help women, who still carry most of the unpaid care work at home, to stay in paid jobs, and could reduce commuting, traffic and pollution.", "Critics are not convinced. They point out that the companies in the trials volunteered and were mostly small firms in services such as marketing, software and finance, where work is flexible. Hospitals, factories, shops and schools cannot simply close for a day; they would need to hire more staff, which raises costs. Some workers who compressed their hours into four longer days reported more fatigue, not less. Critics also fear that in a competitive global economy, a country that works fewer hours may lose investment to one that works more.", "In India, the debate takes an unusual form. The new labour codes allow states to permit a four-day week, provided total hours stay at forty-eight, which would mean twelve-hour days. At the same time, some business leaders have urged young Indians to work seventy hours a week to help the country catch up with richer economies, a suggestion that drew a fierce backlash. Indian employees already work some of the longest hours in the world, while productivity per hour remains low.", "The more useful question may not be how many days people work but how well that time is used. Flexible schedules, fewer pointless meetings, better tools and clear goals can raise output without stretching hours. A four-day week may suit some firms and not others. What the trials show is that long hours and high productivity are not the same thing."], "gist": [["Trigger: UK trial 2023, 61 firms, 56 continued; revenue steady, less stress; other countries", 28], ["View 1: output not hours; less waste; helps women carers; less commuting", 29], ["View 2: volunteer service firms only; hospitals and factories need more staff; long days tire; competitiveness", 32], ["India: labour codes allow four 12-hour days; 70-hour call and backlash; long hours, low productivity", 30], ["Verdict: quality of time over quantity; suits some firms; long hours are not productivity", 26]], "must": [["The trigger: a large trial found output held with a shorter week, and most firms kept it", 2], ["Supporters' case: output over hours, less waste, gains for carers and the environment", 3], ["Critics' case: trials unrepresentative, essential services face costs, long days tire, competitiveness", 3], ["India's twist: four 12-hour days allowed; calls for longer hours; long hours but low productivity", 2], ["Verdict: use time better; long hours are not productivity", 2]], "titles": ["Working Smarter, Not Longer", "The Four-Day Week: Hours Versus Output"], "model": "Working Smarter, Not Longer\n\nA large British trial in 2023 found that reducing hours by twenty per cent, without cutting pay, kept revenue steady, reduced stress and lowered staff turnover, and most participating firms kept the change. Supporters call the five-day week an outdated industrial habit, since modern work should be judged by output, and a shorter week removes waste, helps women balance care work and reduces commuting. Critics reply that the trials involved volunteer service firms, while hospitals, factories and schools would need extra staff. They add that compressed long days can increase fatigue, and that working fewer hours might cost a country investment. In India, labour codes permit a four-day week only through twelve-hour days, while some business leaders have even called for seventy-hour weeks, although Indians already work long hours with low productivity. The real issue, therefore, is how well time is used, because long hours do not guarantee high productivity.", "lshort": "140–160"}, {"id": "P5", "title": "From trading ring to T+1", "ltxt": "Make a précis of the passage within 150 words. Give a suitable title.", "band": [135, 150], "aim": [140, 148], "needTitle": true, "shape": "Evolution", "pyq": "SEBI 2022 'within 150'; SEBI 2024 evolution with numbers (gaming industry); 2022 essay on trading and investing", "paras": ["In the 1870s, a group of brokers met under a banyan tree in Bombay to trade shares. Out of these gatherings grew the Bombay Stock Exchange, founded in 1875 and the oldest in Asia. For more than a century, trading followed the open-outcry system: brokers crowded into a trading ring and shouted bids and offers, and deals were recorded on paper. Prices were known only to those on the floor, and settling a trade could take weeks.", "The system worked for a small club but was slow, opaque and open to manipulation. Physical share certificates could be forged, stolen or lost in the post, and transfers often took months. The securities scam of 1992, in which a broker diverted funds from the banking system into the stock market, exposed these weaknesses and pushed the government to act. The same year, the Securities and Exchange Board of India was given statutory powers to regulate the market.", "The next decade transformed Indian markets. The National Stock Exchange began screen-based trading in 1994, letting investors anywhere in the country trade on a single electronic system and see prices in real time. The Depositories Act of 1996 allowed shares to be held in electronic form, and the first depository began operating that year, ending the era of paper certificates. Rolling settlement replaced the old practice of settling trades once a fortnight.", "Since then, the trend has been towards ever faster and cheaper trading. Settlement times fell to two days in 2003, and India completed a move to next-day settlement, known as T+1, in 2023, ahead of most major markets. In 2024 an optional same-day settlement was introduced for a small set of shares. Mobile apps and low-cost brokers have brought millions of young investors into the market, and the number of demat accounts has risen to more than eighteen crore.", "The journey is not complete. The surge in retail trading, especially in risky derivatives, has led SEBI to warn that most individual traders lose money, and to tighten rules. Cyber risks grow as more trading moves online. But from a banyan tree to a phone screen, Indian markets have become faster, safer and more open than their founders could have imagined."], "gist": [["Origin: brokers under a tree; BSE 1875; open outcry, paper, slow settlement", 30], ["Weaknesses: opaque, forged or lost certificates; 1992 scam; SEBI gets statutory powers", 30], ["Transformation: NSE screens 1994, demat 1996, rolling settlement", 30], ["Speed and reach: T+2 2003, T+1 2023, T+0 option, apps, over 18 crore demat accounts", 32], ["Unfinished: derivatives losses, cyber risk; verdict: faster, safer, more open", 22]], "must": [["Starting point: informal, open-outcry, paper-based market (BSE 1875)", 2], ["Turning point 1: weaknesses and the 1992 scam lead to a statutory regulator", 2], ["Turning point 2: electronic trading and dematerialisation in the 1990s", 3], ["Turning point 3: ever shorter settlement (T+1) and mass retail access", 3], ["Where it is heading: risks of derivatives and cyber threats; verdict", 2]], "titles": ["From Banyan Tree to Phone Screen", "The Modernisation of Indian Stock Markets"], "model": "From Banyan Tree to Phone Screen\n\nIndia's stock market began with brokers trading under a banyan tree, and the Bombay Stock Exchange, founded in 1875, long relied on brokers shouting deals in a trading ring and recording them on paper. This system was slow, opaque and prone to fraud, as paper certificates could be forged or lost. The 1992 securities scam exposed these flaws, and SEBI was soon given statutory powers to regulate the market. The 1990s then transformed the market: electronic trading on the National Stock Exchange made prices visible nationwide, and electronic shareholding replaced paper certificates. Settlement has since become ever faster, reaching next-day settlement in 2023, while mobile apps and cheap brokers have drawn crores of young investors. However, heavy losses in risky derivatives and growing cyber threats show that reform must continue. Even so, Indian markets are now far faster, safer and more open than before.", "lshort": "within 150"}, {"id": "P6", "title": "Universal basic income", "ltxt": "Write a précis of the following passage within 170 words.", "band": [150, 170], "aim": [160, 168], "needTitle": false, "shape": "Two views", "pyq": "SEBI 2020: 'within 170', no title asked, two views (behavioural finance against efficient markets)", "paras": ["Few ideas in economics unite people from opposite ends of the political spectrum, but universal basic income comes close. The proposal is simple: the state pays every citizen a fixed sum of money at regular intervals, with no conditions attached and no test of income. Supporters range from free-market thinkers, who see it as a way to replace a tangle of welfare schemes, to campaigners on the left, who see it as a right that frees people from poverty. In India the idea gained attention when the Economic Survey of 2016-17 devoted a full chapter to it.", "The case for a basic income rests on several arguments. India runs hundreds of welfare schemes, many of them poorly targeted, so that large sums leak to middlemen or reach people who are not poor, while many of the poor are left out. A single cash transfer, paid directly into bank accounts, would be simpler and harder to steal. It would also respect people's choices: a family knows better than an official whether it needs seeds, school fees or medicines. Pilots in Madhya Pradesh in the early 2010s found that unconditional transfers improved nutrition, school attendance and small business activity, and did not make people stop working. Supporters add that as automation threatens jobs, a guaranteed income could provide security in an uncertain future.", "Critics raise serious objections. A meaningful income for every citizen would cost a large share of GDP, far more than India could raise without cutting essential spending on health, education or infrastructure. Paying the rich as well as the poor seems wasteful, and attempts to exclude the better-off bring back the targeting problems the idea was meant to solve. Some fear that cash would be spent on alcohol or other goods that do little for a family's welfare, although most studies find little evidence of this. Others argue that cash cannot replace public services: money is of little use if there is no school or clinic nearby. Politically, once a universal payment exists, it may be very hard to reduce.", "A middle path has emerged in practice. Instead of a payment to all, several states and the central government now pay targeted cash to specific groups, such as farmers or women, while keeping public services. These schemes test some of the benefits of basic income at a lower cost. Whether India ever adopts a full basic income may depend less on economics than on whether the state can build systems that reach every citizen fairly."], "gist": [["What UBI is: unconditional regular cash for all; supported across politics; Economic Survey 2016-17", 30], ["For: leaky schemes replaced, direct and simple, respects choice, MP pilots positive, automation safety net", 50], ["Against: huge cost, paying the rich, misuse fears, cash cannot replace services, hard to reverse", 50], ["Middle path: targeted cash to farmers and women plus services; depends on state capacity", 33]], "must": [["Definition and unusual cross-party support", 2], ["For: replaces leaky, badly targeted schemes with a direct transfer", 2], ["For: respects choice; pilot evidence; security against automation", 2], ["Against: fiscal cost; waste on the rich; cash is not a substitute for services; politically sticky", 3], ["Middle path: targeted transfers with services; outcome depends on state capacity", 3]], "titles": [], "model": "Universal basic income, a regular unconditional cash payment to every citizen, attracts support across the political spectrum, and India's Economic Survey of 2016-17 examined it closely. Supporters argue that a single direct transfer would replace India's many leaky and poorly targeted welfare schemes, cut out middlemen and let families decide what they need most. Pilots in Madhya Pradesh showed better nutrition, schooling and enterprise without reducing work, and a guaranteed income could protect people as automation threatens jobs. Critics warn that a meaningful payment to all would cost so much that health, education and infrastructure spending would suffer. Paying the rich seems wasteful, yet excluding them revives the targeting problems. Fears of misused cash have little evidence behind them, but money cannot substitute for missing schools and clinics, and a universal payment would be politically hard to withdraw. In practice, governments now give targeted cash to groups such as farmers and women alongside public services. India's choice may depend on its capacity to reach every citizen fairly.", "lshort": "within 170"}];
+var MODES={
+ full:{min:15,split:"0–5 read + gist notes · 5–6 theme + budgets · 6–13 write from notes · 13–15 title, count, proofread."},
+ gist:{min:6,split:"Read once, one gist line per paragraph with a word budget, then the central theme. Compare with the proportion table."},
+ title:{min:2,split:"Skim the passage and write the title only. Then compare with the key's titles."}
+};
+var KEY="pfrda_precis_desk_v1";
+var S={mode:"full",set:SETS[0].id,hide:false,drafts:{}};
+function load(){try{var j=JSON.parse(localStorage.getItem(KEY)||"null");if(j)for(var k in j)S[k]=j[k];}catch(e){}if(!setById(S.set))S.set=SETS[0].id}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+function $(id){return document.getElementById(id)}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+function words(t){var m=t.trim().match(/\S+/g);return m?m.length:0}
+function paras(t){return t.split(/\n\s*\n/).map(function(x){return x.trim()}).filter(Boolean)}
+function setById(id){for(var i=0;i<SETS.length;i++)if(SETS[i].id===id)return SETS[i];return null}
+function cur(){return setById(S.set)}
+function D(){var k=S.set+"|"+S.mode;if(!S.drafts[k])S.drafts[k]={gist:"",theme:"",ttl:"",precis:"",used:0,start:null,run:false};return S.drafts[k]}
+function norm(t){return (t.toLowerCase().replace(/[’']/g,"").match(/[a-z0-9]+/g))||[]}
+var GRAMS={};
+function grams(set){if(GRAMS[set.id])return GRAMS[set.id];var w=norm(set.paras.join(" ")),g={};for(var i=0;i+5<=w.length;i++)g[w.slice(i,i+5).join(" ")]=1;GRAMS[set.id]=g;return g}
+function copied(t,set){var w=norm(t),g=grams(set),hit=new Array(w.length).fill(false);for(var i=0;i+5<=w.length;i++)if(g[w.slice(i,i+5).join(" ")])for(var j=i;j<i+5;j++)hit[j]=true;return {c:hit.filter(Boolean).length,n:w.length}}
+function hardMax(s){return s.band[1]}
+
+function fillSets(){$("setSel").innerHTML=SETS.map(function(s){return '<option value="'+s.id+'">'+s.id+' · '+esc(s.title)+' ('+esc(s.lshort)+')</option>'}).join("");$("setSel").value=S.set}
+
+function render(){
+  document.querySelectorAll(".modes button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.mode===S.mode?"true":"false")});
+  var s=cur(),d=D(),M=MODES[S.mode],pw=s.paras.map(words),tot=pw.reduce(function(a,b){return a+b},0);
+  $("instr").textContent=s.ltxt;
+  $("setMeta").innerHTML='<span class="chip">'+s.id+'</span><span class="chip sk">Shape: '+esc(s.shape)+'</span><span class="chip">'+tot+'-word passage</span><span class="chip">'+esc(s.lshort)+'</span><span class="chip">'+(s.needTitle?"Title asked":"No title asked")+'</span>';
+  $("taskText").textContent=(S.mode==="full"?"Full précis in 15 minutes. ":S.mode==="gist"?"Gist notes and word budgets only, in 6 minutes. ":"Title only, in 2 minutes. ")+"Built on: "+s.pyq+".";
+  $("passage").innerHTML=s.paras.map(function(p,i){return '<p><span class="pn">'+(i+1)+' ('+pw[i]+')</span>'+esc(p)+'</p>'}).join("");
+  $("passage").hidden=S.hide;$("hiddenNote").hidden=!S.hide;
+  $("hideBtn").textContent=S.hide?"Show passage":"Hide passage and write from notes";
+  $("gistWrap").hidden=S.mode==="title";
+  $("titleWrap").hidden=S.mode==="gist"||(S.mode==="full"&&!s.needTitle);
+  $("ttlLbl").textContent=s.needTitle||S.mode!=="title"?"Title: 3 to 8 words that state the gist":"Title (not asked in this set's paper, practice only)";
+  $("precisWrap").hidden=S.mode!=="full";
+  $("gist").value=d.gist;$("theme").value=d.theme;$("ttl").value=d.ttl;$("precis").value=d.precis;
+  $("aim").textContent=s.aim[0]+"–"+s.aim[1];$("lim").textContent=s.lshort;
+  $("splitNote").textContent=M.split;
+  $("keyBox").hidden=true;
+  $("startBtn").textContent=d.run?"Pause":(d.used>0?"Resume":"Start timer");
+  counts();tick();
+}
+function counts(){
+  var s=cur(),d=D(),t=d.precis,w=words(t),c=copied(t,s),pc=c.n?Math.round(100*c.c/c.n):0;
+  $("wc").textContent=w;
+  $("wc").className=w===0?"":w>hardMax(s)?"bad":(w>=s.aim[0]&&w<=s.aim[1])?"good":"warn";
+  var np=paras(t).length;$("pc").textContent=np;$("pc").className=np>1?"warn":"";
+  $("cp").textContent=pc+"%";$("cp").className=w?(pc>25?"bad":pc>10?"warn":"good"):"";
+  var tw=words(d.ttl);$("tw").textContent=tw;$("tw").className=tw===0?"":(tw>=3&&tw<=8)?"good":"warn";
+}
+function elapsed(){var d=D();return d.used+(d.run&&d.start?(Date.now()-d.start)/1000:0)}
+function fmt(s){var neg=s<0;s=Math.abs(Math.round(s));return (neg?"−":"")+Math.floor(s/60)+":"+("0"+s%60).slice(-2)}
+function tick(){var left=MODES[S.mode].min*60-elapsed(),c=$("clock");c.textContent=fmt(left);c.className="clock"+(left<0?" over":left<120&&MODES[S.mode].min>2?" low":left<30?" low":"");var m=$("mini");m.textContent=c.textContent+(D().run||!D().used?"":" paused");m.className="mini"+c.className.slice(5)}
+setInterval(function(){if(D().run)tick()},500);
+function pause(){var d=D();if(d.run){d.used=elapsed();d.run=false;d.start=null}}
+
+function showKey(){
+  var s=cur(),pw=s.paras.map(words),tot=pw.reduce(function(a,b){return a+b},0);pause();save();
+  var h='<span class="lbl">Proportion table: words per idea for a précis of about '+s.gist.reduce(function(a,g){return a+g[1]},0)+'</span><div class="tbl"><table><thead><tr><th>#</th><th>Idea</th><th>Words</th><th>%</th><th>Aim</th></tr></thead><tbody>';
+  s.gist.forEach(function(g,i){h+='<tr><td class="n">'+(i+1)+'</td><td>'+esc(g[0])+'</td><td class="n">'+pw[i]+'</td><td class="n">'+Math.round(100*pw[i]/tot)+'%</td><td class="n">'+g[1]+'</td></tr>'});
+  h+='</tbody></table></div><span class="lbl">Must-have points (content, 12 marks)</span><ol>'+s.must.map(function(m){return '<li>'+esc(m[0])+' <b>('+m[1]+')</b></li>'}).join("")+'</ol>';
+  if(s.titles.length)h+='<span class="lbl">Title ideas</span><ol>'+s.titles.map(function(t){return '<li>'+esc(t)+'</li>'}).join("")+'</ol>';
+  else h+='<span class="lbl">Title</span><p class="note">Not asked in this format (SEBI 2020). Do not add one in the exam unless the question asks.</p>';
+  var body=s.model.split("\n\n");h+='<span class="lbl">Model précis · '+words(body[body.length-1])+' words</span><p class="model">'+esc(s.model)+'</p>';
+  $("keyBox").innerHTML=h;$("keyBox").hidden=false;
+  $("startBtn").textContent=D().used>0?"Resume":"Start timer";tick();
+}
+
+document.querySelectorAll(".modes button").forEach(function(b){b.addEventListener("click",function(){if(b.dataset.mode===S.mode)return;pause();S.mode=b.dataset.mode;$("copyBox").hidden=true;save();render()})});
+$("setSel").addEventListener("change",function(){pause();S.set=this.value;S.hide=false;$("copyBox").hidden=true;save();render()});
+$("randBtn").addEventListener("click",function(){pause();var o=SETS.filter(function(x){return x.id!==S.set});S.set=o[Math.floor(Math.random()*o.length)].id;$("setSel").value=S.set;S.hide=false;save();render()});
+$("hideBtn").addEventListener("click",function(){S.hide=!S.hide;save();$("passage").hidden=S.hide;$("hiddenNote").hidden=!S.hide;this.textContent=S.hide?"Show passage":"Hide passage and write from notes"});
+["gist","theme","ttl","precis"].forEach(function(id){$(id).addEventListener("input",function(){D()[id]=this.value;save();counts()})});
+$("startBtn").addEventListener("click",function(){var d=D();if(d.run)pause();else{d.run=true;d.start=Date.now()}save();this.textContent=d.run?"Pause":(d.used>0?"Resume":"Start timer");tick()});
+var armed=0;$("resetBtn").addEventListener("click",function(){var b=this;if(Date.now()-armed>=4000){armed=Date.now();b.textContent="Press again to clear";setTimeout(function(){b.textContent="Clear and reset"},4000);return}armed=0;b.textContent="Clear and reset";delete S.drafts[S.set+"|"+S.mode];S.hide=false;$("copyBox").hidden=true;save();render()});
+$("keyBtn").addEventListener("click",showKey);
+$("copyBtn").addEventListener("click",function(){
+  var s=cur(),d=D(),M=S.mode,c=copied(d.precis,s),pc=c.n?Math.round(100*c.c/c.n):0;
+  var out="PFRDA PRÉCIS DESK · "+{full:"Timed précis",gist:"Gist + budget",title:"Title sprint"}[M]+"\nSet "+s.id+" ("+s.title+"; "+s.lshort+"; shape: "+s.shape+")\nTime used: "+fmt(elapsed())+" of "+MODES[M].min+":00\n";
+  if(M!=="title")out+="\nGIST NOTES\n"+(d.gist||"(blank)")+"\nCENTRAL THEME: "+(d.theme||"(blank)")+"\n";
+  if(M!=="gist")out+="\nTITLE: "+(d.ttl||"(none)")+"\n";
+  if(M==="full")out+="\nPRÉCIS · "+words(d.precis)+" words · copied "+pc+"%\n"+(d.precis||"(blank)")+"\n";
+  var box=$("copyBox");box.value=out;
+  var done=function(){$("copied").hidden=false;setTimeout(function(){$("copied").hidden=true},3000)};
+  try{navigator.clipboard.writeText(out).then(done,function(){box.hidden=false;box.focus();box.select()})}catch(e){box.hidden=false;box.focus();box.select()}
+});
+$("covBody").innerHTML=SETS.map(function(s){return '<tr><td>'+s.id+' · '+esc(s.title)+'</td><td>'+esc(s.lshort)+'</td><td>'+esc(s.shape)+'</td><td>'+esc(s.pyq)+'</td></tr>'}).join("");
+load();fillSets();render();
+</script>
+</body></html>
