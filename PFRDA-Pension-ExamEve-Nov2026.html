@@ -1,0 +1,755 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pension Exam-Eve Deck</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#EEF1F5; --surface:#FFFFFF; --surface-2:#F5F7FA; --ink:#18233A; --muted:#5B6578; --line:#D5DBE5;
+  --fact:#2F4B7C; --trap:#7A3E9D; --concept:#0F766E; --changed:#D9480F;
+  --known:#2B8A3E; --learning:#A35F00; --star:#8A6A00; --focus:#2F6FEB; --on-solid:#FFFFFF;
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0F1522; --surface:#182133; --surface-2:#1E293D; --ink:#E7EBF2; --muted:#A3ACBE; --line:#2C3852;
+  --fact:#9DB8EA; --trap:#D1A3EC; --concept:#5ED0C2; --changed:#FF8A4C;
+  --known:#6CC77D; --learning:#F0B44C; --star:#E8C547; --focus:#7AA7FF; --on-solid:#0F1522;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans","Helvetica Neue",Arial,sans-serif;
+  font-size:16px; line-height:1.5; -webkit-text-size-adjust:100%; overflow-x:hidden;
+}
+.wrap{max-width:640px;margin:0 auto;padding:16px 14px calc(28px + env(safe-area-inset-bottom,0px))}
+header h1{font-size:1.3rem;line-height:1.25;margin:0;font-weight:750;letter-spacing:-0.01em}
+header p{margin:4px 0 0;color:var(--muted);font-size:.875rem}
+.banner{margin:12px 0 0;padding:10px 12px;border:1px solid var(--learning);border-radius:10px;color:var(--ink);background:var(--surface);font-size:.875rem}
+.banner[hidden]{display:none}
+
+.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:14px 0}
+.stat{background:var(--surface);padding:8px 2px 6px;text-align:center;min-width:0}
+.stat b{display:block;font-size:1.05rem;font-variant-numeric:tabular-nums;line-height:1.3}
+.stat span{display:block;font-size:.7rem;color:var(--muted);line-height:1.25}
+.stat.k b{color:var(--known)} .stat.l b{color:var(--learning)}
+
+/* Filter bar: compact native selects + toggles (same layout as the Management deck), so the card sits right below. */
+.fbar{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-bottom:14px}
+.fbar select{
+  font:inherit;font-size:.9rem;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;
+  min-height:44px;padding:8px 10px;width:100%;min-width:0;cursor:pointer;
+}
+.fbar #topicSel{grid-column:1/-1}
+.fbar select.on{border-color:var(--fact);box-shadow:inset 0 0 0 1px var(--fact)}
+.ftog{grid-column:1/-1;display:flex;gap:8px}
+.ftog button{flex:1 1 auto;min-width:0;min-height:44px;font-size:.86rem;font-weight:600;padding:6px 8px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ftog button[aria-pressed="true"]{color:var(--surface);background:var(--ink);border-color:var(--ink)}
+.ftog button.fclear{flex:0 0 auto;padding:6px 12px;color:var(--changed);border-color:var(--changed)}
+.ftog button.fclear[hidden]{display:none}
+.fbar select:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+
+.card{
+  --accent:var(--fact);
+  background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--accent);border-radius:12px;
+  padding:14px 16px 14px;min-height:min(52vh,460px);display:flex;flex-direction:column;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;outline:none;user-select:text;
+}
+.card[data-type="trap"]{--accent:var(--trap)}
+.card[data-type="concept"]{--accent:var(--concept)}
+.card:focus-visible{box-shadow:0 0 0 3px var(--focus)}
+.card.empty{cursor:default;border-left-color:var(--line);justify-content:center;align-items:flex-start;gap:12px}
+.meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.badge{font-size:.74rem;font-weight:650;padding:2px 8px;border-radius:999px;border:1px solid currentColor;line-height:1.35;max-width:100%;overflow-wrap:anywhere}
+.b-type{color:var(--accent)}
+.b-star{color:var(--star)}
+.b-pyq{color:var(--muted);font-weight:550;border-radius:8px}
+.b-changed{color:var(--changed);border:2px solid var(--changed);border-radius:4px;font-weight:800;letter-spacing:.06em;transform:rotate(-2.5deg);padding:1px 7px}
+.topic{font-size:.8rem;color:var(--muted);margin:8px 0 0;overflow-wrap:anywhere}
+.q{font-size:1.2rem;font-weight:650;line-height:1.42;margin:14px 0 0;overflow-wrap:anywhere}
+.hint{margin-top:auto;padding-top:18px;color:var(--muted);font-size:.85rem}
+.a{display:none;margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.card.flipped .a{display:block}
+.card.flipped .hint{display:none}
+.ans{font-size:1.14rem;line-height:1.5;overflow-wrap:anywhere}
+.ans strong{font-weight:800}
+.card[data-type="concept"] .ans{font-size:1.02rem;line-height:1.6}
+.note{margin-top:10px;font-size:.82rem;line-height:1.45;color:var(--muted);overflow-wrap:anywhere}
+.cfoot{display:flex;justify-content:space-between;gap:10px;margin-top:16px;font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.cfoot .s-known{color:var(--known);font-weight:650}
+.cfoot .s-learning{color:var(--learning);font-weight:650}
+@media (prefers-reduced-motion:no-preference){
+  .card.flipped .a{animation:reveal .16s ease-out}
+  @keyframes reveal{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+}
+
+.controls{display:grid;gap:8px;margin-top:12px}
+.row{display:grid;gap:8px}
+.row.nav{grid-template-columns:1fr 1.35fr 1fr}
+.row.mark{grid-template-columns:1fr 1fr}
+.row.tools{grid-template-columns:repeat(4,minmax(0,1fr))}
+button{
+  font:inherit;min-height:48px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  font-weight:650;padding:8px 10px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+}
+button:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+button:disabled{opacity:.45;cursor:default}
+.b-flip{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.b-known{background:var(--known);border-color:var(--known);color:var(--on-solid)}
+.b-learn{background:var(--surface);border:2px solid var(--learning);color:var(--learning)}
+.row.tools button{font-size:.82rem;font-weight:550;color:var(--muted);min-height:44px;padding:6px 4px}
+.kbd{display:none;margin:12px 0 0;font-size:.8rem;color:var(--muted)}
+@media (hover:hover) and (pointer:fine){.kbd{display:block}}
+@media (max-width:380px){
+  .row.tools{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .q{font-size:1.12rem}
+}
+.modal{position:fixed;inset:0;background:rgba(10,14,24,.55);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+.modal[hidden]{display:none}
+.mbox{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:18px;max-width:420px;width:100%}
+.mbox h2{font-size:1.1rem;margin:0 0 6px}
+.mbox p{margin:0 0 16px;color:var(--muted);font-size:.92rem}
+.b-danger{background:var(--changed);border-color:var(--changed);color:var(--on-solid)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Pension: exam-eve pass (224 cards)</h1>
+    <p id="sub">PFRDA Grade A 2026 flashcards, current as of Sep 2026</p>
+    <p class="banner" id="banner" hidden>Progress can't be saved in this browser view, so your marks will reset when the page closes.</p>
+  </header>
+
+  <div class="stats" aria-live="polite">
+    <div class="stat"><b id="sTotal">0</b><span>In filter</span></div>
+    <div class="stat"><b id="sUnseen">0</b><span>Unseen</span></div>
+    <div class="stat l"><b id="sLearn">0</b><span>Still learning</span></div>
+    <div class="stat k"><b id="sKnown">0</b><span>Known</span></div>
+    <div class="stat"><b id="sPct">0%</b><span>Known</span></div>
+  </div>
+
+  <div class="fbar" id="filters">
+    <select id="topicSel" aria-label="Filter by topic"></select>
+    <select id="statusSel" aria-label="Filter by status">
+      <option value="all">All statuses</option>
+      <option value="unseen">Unseen</option>
+      <option value="learning">Still learning</option>
+      <option value="known">Known</option>
+      <option value="notknown">Not yet known</option>
+    </select>
+    <select id="typeSel" aria-label="Filter by card type">
+      <option value="all">All card types</option>
+      <option value="fact">Fact</option>
+      <option value="trap">Trap</option>
+      <option value="concept">Concept</option>
+    </select>
+    <div class="ftog">
+    <button type="button" id="fHi" aria-pressed="false">★ High-yield</button>
+    <button type="button" id="fPyq" aria-pressed="false">PYQ</button>
+    <button type="button" id="fChanged" aria-pressed="false">CHANGED</button>
+    <button type="button" class="fclear" id="fClear" hidden>Clear</button>
+    </div>
+  </div>
+
+  <main>
+    <div class="card" id="card" tabindex="0" role="button" aria-expanded="false"></div>
+  </main>
+
+  <div class="controls">
+    <div class="row nav">
+      <button type="button" id="bPrev">Prev</button>
+      <button type="button" class="b-flip" id="bFlip">Show answer</button>
+      <button type="button" id="bNext">Next</button>
+    </div>
+    <div class="row mark">
+      <button type="button" class="b-learn" id="bLearn">Still learning</button>
+      <button type="button" class="b-known" id="bKnown">Known</button>
+    </div>
+    <div class="row tools">
+      <button type="button" id="bShuffle">Shuffle</button>
+      <button type="button" id="bOrder">Reset order</button>
+      <button type="button" id="bReset">Reset progress</button>
+      <button type="button" id="bTheme">Dark theme</button>
+    </div>
+  </div>
+  <p class="kbd">Keyboard: left and right arrows to move, Space or Enter to flip, K for known, L for still learning.</p>
+</div>
+
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="mbox">
+    <h2 id="mTitle">Reset progress?</h2>
+    <p id="mText">This clears every Known and Still learning mark saved in this browser.</p>
+    <div class="row mark">
+      <button type="button" id="mCancel">Cancel</button>
+      <button type="button" class="b-danger" id="mOk">Reset progress</button>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" id="cards-data">[{"id": "s1-014", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Authority (ss.3–11)", "type": "fact", "star": "md", "front": "Where must PFRDA's head office be?", "back": "**National Capital Region (NCR)**", "pyq": "", "changed": false, "note": ""}, {"id": "s1-015", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Authority (ss.3–11)", "type": "fact", "star": "md", "front": "What is PFRDA's composition?", "back": "**1 Chairperson + 3 whole-time + 3 part-time members = 7**", "pyq": "", "changed": false, "note": ""}, {"id": "s1-016", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Authority (ss.3–11)", "type": "fact", "star": "md", "front": "Who appoints PFRDA's Chairperson and members?", "back": "**Central Government**", "pyq": "", "changed": false, "note": ""}, {"id": "s1-017", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Authority (ss.3–11)", "type": "fact", "star": "md", "front": "PFRDA members must have knowledge of which disciplines?", "back": "**Economics, finance or law**", "pyq": "", "changed": false, "note": ""}, {"id": "s1-019", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Authority (ss.3–11)", "type": "fact", "star": "md", "front": "Term of office of PFRDA's Chairperson and whole-time members?", "back": "**5 years** (eligible for reappointment)", "pyq": "", "changed": false, "note": ""}, {"id": "s1-020", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Authority (ss.3–11)", "type": "fact", "star": "md", "front": "Upper age limit for PFRDA's Chairperson?", "back": "**65 years**", "pyq": "", "changed": false, "note": ""}, {"id": "s1-021", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Authority (ss.3–11)", "type": "fact", "star": "md", "front": "Upper age limit for a PFRDA whole-time member?", "back": "**62 years**", "pyq": "", "changed": false, "note": ""}, {"id": "s1-022", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Authority (ss.3–11)", "type": "fact", "star": "md", "front": "Term of a PFRDA part-time member?", "back": "**Not exceeding 5 years**", "pyq": "", "changed": false, "note": ""}, {"id": "s1-024", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Authority (ss.3–11)", "type": "fact", "star": "md", "front": "After leaving office, for how long may PFRDA's Chairperson and whole-time members not take government employment or a post in a regulated pension entity without Central Government approval?", "back": "**2 years**", "pyq": "", "changed": false, "note": ""}, {"id": "s1-025", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Authority (ss.3–11)", "type": "fact", "star": "md", "front": "Who is PFRDA's Chairperson (as of Sep 2026)?", "back": "**Sivasubramanian Ramann** (S. Ramann)", "pyq": "", "changed": false, "note": ""}, {"id": "s1-027", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Scope, Powers & NPS (ss.12–27)", "type": "fact", "star": "md", "front": "Besides the NPS, which pension schemes does the PFRDA Act cover (s.12)?", "back": "**Any other pension scheme not regulated by any other enactment**", "pyq": "", "changed": false, "note": ""}, {"id": "s1-028", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Scope, Powers & NPS (ss.12–27)", "type": "fact", "star": "md", "front": "Schemes under which 1952 Act are excluded from the PFRDA Act?", "back": "**EPF & Miscellaneous Provisions Act 1952**", "pyq": "", "changed": false, "note": ""}, {"id": "s1-029", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Scope, Powers & NPS (ss.12–27)", "type": "fact", "star": "md", "front": "Which contracts does s.12 exclude from the PFRDA Act?", "back": "**Insurance contracts** (s.2(11) of the Insurance Act)", "pyq": "", "changed": false, "note": ""}, {"id": "s1-030", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Scope, Powers & NPS (ss.12–27)", "type": "fact", "star": "md", "front": "Which provision keeps EPF and EPS outside PFRDA's jurisdiction?", "back": "**Section 12(3)**", "pyq": "", "changed": false, "note": ""}, {"id": "s1-032", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Scope, Powers & NPS (ss.12–27)", "type": "fact", "star": "md", "front": "What is PFRDA's duty under s.14(1)?", "back": "**Regulate, promote and ensure orderly growth** of the NPS and covered pension schemes, and protect subscribers", "pyq": "", "changed": false, "note": ""}, {"id": "s1-033", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Scope, Powers & NPS (ss.12–27)", "type": "fact", "star": "md", "front": "Which provision requires PFRDA to set up a grievance-redressal mechanism by regulations?", "back": "**Section 14(2)(f)**", "pyq": "", "changed": false, "note": ""}, {"id": "s1-034", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Scope, Powers & NPS (ss.12–27)", "type": "fact", "star": "md", "front": "Adjudicating disputes between intermediaries, and between intermediaries and subscribers, is a PFRDA function under which provision?", "back": "**Section 14(2)(h)**", "pyq": "", "changed": false, "note": ""}, {"id": "s1-035", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Scope, Powers & NPS (ss.12–27)", "type": "fact", "star": "md", "front": "Which provision requires PFRDA to keep NPS costs economical and reasonable?", "back": "**Section 14(2)(e)(ii)**", "pyq": "", "changed": false, "note": ""}, {"id": "s1-042", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Scope, Powers & NPS (ss.12–27)", "type": "fact", "star": "md", "front": "Which section gives the NPS statutory status?", "back": "**Section 20**", "pyq": "", "changed": false, "note": ""}, {"id": "s1-046", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Scope, Powers & NPS (ss.12–27)", "type": "fact", "star": "hi", "front": "Which provision caps NPS withdrawals at 25% of the contribution made by the subscriber?", "back": "**Section 20(2)**", "pyq": "Asked: partial withdrawal 25%, PFRDA 2025 Ph-I P2", "changed": false, "note": ""}, {"id": "s1-048", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Scope, Powers & NPS (ss.12–27)", "type": "fact", "star": "md", "front": "Under s.20(2), how much of the corpus may a subscriber invest in Government securities?", "back": "**Up to 100%**", "pyq": "", "changed": false, "note": ""}, {"id": "s1-050", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Scope, Powers & NPS (ss.12–27)", "type": "fact", "star": "md", "front": "Does the NPS carry any implicit or explicit assurance of benefits (s.20(2))?", "back": "**No**, except a market-based guarantee the subscriber buys", "pyq": "", "changed": false, "note": ""}, {"id": "s1-052", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Scope, Powers & NPS (ss.12–27)", "type": "fact", "star": "md", "front": "Which provision is the legal root of the NPS Tier II account?", "back": "**Section 20(3)**", "pyq": "", "changed": false, "note": ""}, {"id": "s1-053", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Scope, Powers & NPS (ss.12–27)", "type": "fact", "star": "md", "front": "Which section of the PFRDA Act provides for appointing the CRA?", "back": "**Section 21**", "pyq": "", "changed": false, "note": ""}, {"id": "s1-054", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Scope, Powers & NPS (ss.12–27)", "type": "fact", "star": "md", "front": "Which section of the PFRDA Act deals with Points of Presence?", "back": "**Section 22**", "pyq": "", "changed": false, "note": ""}, {"id": "s1-055", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Scope, Powers & NPS (ss.12–27)", "type": "fact", "star": "md", "front": "Under s.23, at least one pension fund must be what?", "back": "**A Government company**", "pyq": "", "changed": false, "note": ""}, {"id": "s1-056", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Scope, Powers & NPS (ss.12–27)", "type": "fact", "star": "md", "front": "Which section caps foreign holding in pension funds?", "back": "**Section 24**", "pyq": "", "changed": false, "note": ""}, {"id": "s1-057", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Scope, Powers & NPS (ss.12–27)", "type": "fact", "star": "md", "front": "What is the foreign-holding cap formula in s.24?", "back": "**26% of paid-up capital, or the % approved for Indian insurance companies, whichever is higher**", "pyq": "", "changed": false, "note": ""}, {"id": "s1-058", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Scope, Powers & NPS (ss.12–27)", "type": "fact", "star": "md", "front": "Which section bars pension funds from investing subscribers' money outside India, directly or indirectly?", "back": "**Section 25**", "pyq": "", "changed": false, "note": ""}, {"id": "s1-060", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Scope, Powers & NPS (ss.12–27)", "type": "fact", "star": "md", "front": "Which section bars any intermediary from starting pension business without a certificate of registration?", "back": "**Section 27**", "pyq": "", "changed": false, "note": ""}, {"id": "s1-061", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Penalties & Appeals (ss.28–38)", "type": "fact", "star": "md", "front": "Penalty under s.28 for operating without registration, or breaching its conditions?", "back": "**₹1 lakh per day of failure or ₹1 crore, whichever is LESS**", "pyq": "", "changed": false, "note": ""}, {"id": "s1-062", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Penalties & Appeals (ss.28–38)", "type": "fact", "star": "md", "front": "Penalty under s.28 for failing to furnish information, redress grievances or segregate client money (and the residual clause)?", "back": "**Up to ₹1 crore or 5× the profit made / loss avoided, whichever is HIGHER**", "pyq": "", "changed": false, "note": ""}, {"id": "s1-063", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Penalties & Appeals (ss.28–38)", "type": "fact", "star": "md", "front": "Penalty under s.28 for failing to maintain books or sign a required client agreement?", "back": "**₹1 lakh per day or 5× the profit / loss avoided, whichever is higher**", "pyq": "", "changed": false, "note": ""}, {"id": "s1-064", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Penalties & Appeals (ss.28–38)", "type": "fact", "star": "md", "front": "Under s.29, penalties collected under the PFRDA Act are credited to?", "back": "**Subscriber Education and Protection Fund**", "pyq": "", "changed": false, "note": ""}, {"id": "s1-067", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Penalties & Appeals (ss.28–38)", "type": "fact", "star": "md", "front": "Maximum imprisonment for contravening the PFRDA Act, rules or regulations (s.32)?", "back": "**Up to 10 years**", "pyq": "", "changed": false, "note": ""}, {"id": "s1-068", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Penalties & Appeals (ss.28–38)", "type": "fact", "star": "md", "front": "Maximum fine for contravening the PFRDA Act, rules or regulations (s.32)?", "back": "**Up to ₹25 crore**", "pyq": "", "changed": false, "note": ""}, {"id": "s1-070", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Penalties & Appeals (ss.28–38)", "type": "fact", "star": "md", "front": "Which section of the PFRDA Act defines criminal offences?", "back": "**Section 32**", "pyq": "", "changed": false, "note": ""}, {"id": "s1-074", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Penalties & Appeals (ss.28–38)", "type": "fact", "star": "md", "front": "An appeal against an order of PFRDA or its adjudicating officer lies to?", "back": "**Securities Appellate Tribunal (SAT)**, s.36", "pyq": "", "changed": false, "note": ""}, {"id": "s1-075", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Penalties & Appeals (ss.28–38)", "type": "fact", "star": "md", "front": "Time limit to appeal to SAT against a PFRDA order?", "back": "**45 days** from receipt of the order", "pyq": "", "changed": false, "note": ""}, {"id": "s1-078", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Penalties & Appeals (ss.28–38)", "type": "fact", "star": "md", "front": "An appeal from SAT in a PFRDA matter lies to?", "back": "**Supreme Court**, s.38", "pyq": "", "changed": false, "note": ""}, {"id": "s1-079", "section": "1 PFRDA Act", "topic": "1 PFRDA Act — Penalties & Appeals (ss.28–38)", "type": "fact", "star": "md", "front": "Time limit to appeal from SAT to the Supreme Court (PFRDA matters)?", "back": "**60 days**", "pyq": "", "changed": false, "note": ""}, {"id": "s2-030", "section": "2 Status & Schemes", "topic": "2 Other Retirement Schemes (EPF/EPS, Gratuity, PPF, SCSS, PMVVY, PM-SYM, Swavalamban, others)", "type": "fact", "star": "hi", "front": "Who administers EPF and EPS?", "back": "**EPFO**", "pyq": "Asked: EPS provided by EPFO, PFRDA 2021 Ph-I P2", "changed": false, "note": ""}, {"id": "s2-035", "section": "2 Status & Schemes", "topic": "2 Other Retirement Schemes (EPF/EPS, Gratuity, PPF, SCSS, PMVVY, PM-SYM, Swavalamban, others)", "type": "fact", "star": "hi", "front": "EPS pension formula?", "back": "**Pensionable salary × pensionable service ÷ 70**", "pyq": "Reported: EPS, PFRDA 2025 Ph-II P2", "changed": false, "note": ""}, {"id": "s2-036", "section": "2 Status & Schemes", "topic": "2 Other Retirement Schemes (EPF/EPS, Gratuity, PPF, SCSS, PMVVY, PM-SYM, Swavalamban, others)", "type": "fact", "star": "hi", "front": "EPS pensionable salary is the average of the last how many months' salary?", "back": "**60 months**", "pyq": "Asked: 60-month average, PFRDA 2021 Ph-I P2", "changed": false, "note": ""}, {"id": "s2-057", "section": "2 Status & Schemes", "topic": "2 Other Retirement Schemes (EPF/EPS, Gratuity, PPF, SCSS, PMVVY, PM-SYM, Swavalamban, others)", "type": "fact", "star": "hi", "front": "SCSS maturity period?", "back": "**5 years**", "pyq": "Asked: 5 years + 3 years, PFRDA 2021 Ph-I P2", "changed": false, "note": ""}, {"id": "s2-058", "section": "2 Status & Schemes", "topic": "2 Other Retirement Schemes (EPF/EPS, Gratuity, PPF, SCSS, PMVVY, PM-SYM, Swavalamban, others)", "type": "fact", "star": "hi", "front": "SCSS extension period?", "back": "**3 years**", "pyq": "Asked: 5 years + 3 years, PFRDA 2021 Ph-I P2", "changed": false, "note": ""}, {"id": "s2-062", "section": "2 Status & Schemes", "topic": "2 Other Retirement Schemes (EPF/EPS, Gratuity, PPF, SCSS, PMVVY, PM-SYM, Swavalamban, others)", "type": "fact", "star": "hi", "front": "PMVVY maximum entry age?", "back": "**None**", "pyq": "Asked: no maximum entry age, PFRDA 2022 Ph-I P2", "changed": false, "note": ""}, {"id": "s2-064", "section": "2 Status & Schemes", "topic": "2 Other Retirement Schemes (EPF/EPS, Gratuity, PPF, SCSS, PMVVY, PM-SYM, Swavalamban, others)", "type": "fact", "star": "hi", "front": "PMVVY loan limit?", "back": "**Up to 75% of the purchase price**", "pyq": "Asked: 75% loan, PFRDA 2021 Ph-I P2", "changed": false, "note": ""}, {"id": "s2-066", "section": "2 Status & Schemes", "topic": "2 Other Retirement Schemes (EPF/EPS, Gratuity, PPF, SCSS, PMVVY, PM-SYM, Swavalamban, others)", "type": "fact", "star": "hi", "front": "Which scheme gives unorganised workers old-age protection with an assured ₹3,000 a month?", "back": "**PM Shram Yogi Maan-dhan (PM-SYM)**", "pyq": "Asked: scheme for old-age protection of unorganised workers, PFRDA 2021 Ph-I P2", "changed": false, "note": ""}, {"id": "s2-083", "section": "2 Status & Schemes", "topic": "2 Regulator Map", "type": "fact", "star": "hi", "front": "Pension sector → which regulator?", "back": "**PFRDA**", "pyq": "Asked: regulator matching, PFRDA 2025 Ph-I P2", "changed": false, "note": ""}, {"id": "s2-084", "section": "2 Status & Schemes", "topic": "2 Regulator Map", "type": "fact", "star": "hi", "front": "In the 2025 PFRDA regulator-matching question, RRBs were paired with?", "back": "**NABARD**", "pyq": "Asked: regulator matching, PFRDA 2025 Ph-I P2", "changed": false, "note": ""}, {"id": "s2-085", "section": "2 Status & Schemes", "topic": "2 Regulator Map", "type": "fact", "star": "hi", "front": "Mutual funds → which regulator?", "back": "**SEBI**", "pyq": "Asked: regulator matching, PFRDA 2025 Ph-I P2", "changed": false, "note": ""}, {"id": "s2-086", "section": "2 Status & Schemes", "topic": "2 Regulator Map", "type": "fact", "star": "md", "front": "Who runs PPF?", "back": "**Finance Ministry** (small savings)", "pyq": "", "changed": false, "note": ""}, {"id": "s2-087", "section": "2 Status & Schemes", "topic": "2 Regulator Map", "type": "fact", "star": "md", "front": "Who runs SCSS?", "back": "**Finance Ministry** (small savings)", "pyq": "", "changed": false, "note": ""}, {"id": "s2-088", "section": "2 Status & Schemes", "topic": "2 Regulator Map", "type": "fact", "star": "md", "front": "Who regulates insurers' annuity and pension plans?", "back": "**IRDAI**", "pyq": "", "changed": false, "note": ""}, {"id": "s2-089", "section": "2 Status & Schemes", "topic": "2 Regulator Map", "type": "fact", "star": "md", "front": "Who regulates NPS-Lite?", "back": "**PFRDA**", "pyq": "", "changed": false, "note": ""}, {"id": "s2-090", "section": "2 Status & Schemes", "topic": "2 Regulator Map", "type": "fact", "star": "md", "front": "Who regulates NPS Vatsalya?", "back": "**PFRDA**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-001", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Eligibility, Accounts & Contributions", "type": "fact", "star": "md", "front": "Is NPS a defined-benefit or a defined-contribution scheme?", "back": "**Defined-contribution**, market-linked", "pyq": "", "changed": false, "note": ""}, {"id": "s3-002", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Eligibility, Accounts & Contributions", "type": "fact", "star": "md", "front": "Expand PRAN.", "back": "**Permanent Retirement Account Number**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-003", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Eligibility, Accounts & Contributions", "type": "fact", "star": "hi", "front": "Who issues the PRAN?", "back": "**Central Recordkeeping Agency (CRA)**", "pyq": "Reported: CRA and PRAN, PFRDA 2025 Ph-I P2", "changed": false, "note": ""}, {"id": "s3-004", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Eligibility, Accounts & Contributions", "type": "fact", "star": "md", "front": "Which NPS model serves the unorganised sector through aggregators?", "back": "**NPS-Lite**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-005", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Eligibility, Accounts & Contributions", "type": "fact", "star": "md", "front": "Which NPS model is employer-facilitated for private employees?", "back": "**Corporate model**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-006", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Eligibility, Accounts & Contributions", "type": "fact", "star": "md", "front": "Which NPS model is for individuals joining on their own?", "back": "**All Citizen model**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-007", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Eligibility, Accounts & Contributions", "type": "fact", "star": "md", "front": "Which employers fall under the NPS Government sector?", "back": "**Central Government, State Governments and their autonomous bodies**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-008", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Eligibility, Accounts & Contributions", "type": "fact", "star": "hi", "front": "Can NPS pension funds invest in ULIPs?", "back": "**No**", "pyq": "Asked: pension funds cannot invest in ULIP, PFRDA 2022 Ph-I P2", "changed": false, "note": ""}, {"id": "s3-009", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Eligibility, Accounts & Contributions", "type": "fact", "star": "md", "front": "Which Indian citizens can join NPS?", "back": "**Resident and non-resident**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-010", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Eligibility, Accounts & Contributions", "type": "fact", "star": "md", "front": "Can an Overseas Citizen of India (OCI) join NPS?", "back": "**Yes**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-011", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Eligibility, Accounts & Contributions", "type": "fact", "star": "hi", "front": "Can a Person of Indian Origin (PIO) join NPS?", "back": "**No**", "pyq": "Asked: PIO not eligible, PFRDA 2022 Ph-I P2", "changed": false, "note": ""}, {"id": "s3-013", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Eligibility, Accounts & Contributions", "type": "fact", "star": "hi", "front": "NPS entry age band (as of Sep 2026)?", "back": "**18–85**", "pyq": "Asked: 18–70, PFRDA 2021 Ph-I P2", "changed": true, "note": "**Changed:** max entry age 70 → 85, Exit Regulations amendment Dec 2025 (PIB 19 Dec). Old PYQ key 18–70; PFRDA's older FAQ page still shows it.", "rev": 2, "ac": false}, {"id": "s3-014", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Eligibility, Accounts & Contributions", "type": "fact", "star": "md", "front": "NPS Tier I minimum per contribution?", "back": "**₹500**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-015", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Eligibility, Accounts & Contributions", "type": "fact", "star": "hi", "front": "NPS Tier I minimum per financial year?", "back": "**₹1,000**", "pyq": "Asked: Tier I minimum ₹1,000 a year, PFRDA 2025 Ph-I P2 · Reported: minimum contributions, 2025 Ph-II P2", "changed": false, "note": "EduTap's 2025 explanation says ₹2,000 a year: PYQ-book error."}, {"id": "ad-104", "section": "Addendum", "topic": "3 NPS — Eligibility, Accounts & Contributions", "type": "fact", "star": "md", "front": "NPS Tier II minimum per contribution?", "back": "**₹250**", "pyq": "", "changed": false, "note": "**Added:** PFRDA's All Citizen page and CRA FAQ; ₹1,000 to open, no minimum balance."}, {"id": "s3-016", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Eligibility, Accounts & Contributions", "type": "fact", "star": "md", "front": "When can money be withdrawn from an NPS Tier II account?", "back": "**Any time**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-018", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Eligibility, Accounts & Contributions", "type": "fact", "star": "md", "front": "What must a subscriber hold before opening an NPS Tier II account?", "back": "**An active Tier I account**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-019", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Eligibility, Accounts & Contributions", "type": "fact", "star": "md", "front": "Central Government employee's own NPS contribution?", "back": "**10% of basic pay + DA**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-020", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Investment Choices", "type": "fact", "star": "md", "front": "Who manages the Government-sector default NPS scheme?", "back": "**SBI, LIC and UTI pension funds**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-021", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Investment Choices", "type": "fact", "star": "md", "front": "Government-sector default scheme: cap on Government securities?", "back": "**Up to 65%**", "pyq": "", "changed": false, "note": "Older circulars showed 50% and 55%. **Unverified:** only the 25% equity cap was checked against the circular text.", "rev": 2, "ac": false}, {"id": "s3-022", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Investment Choices", "type": "fact", "star": "md", "front": "Government-sector default scheme: cap on debt instruments?", "back": "**Up to 45%**", "pyq": "", "changed": false, "note": "**Unverified:** only the 25% equity cap was checked against the circular text.", "rev": 2, "ac": false}, {"id": "s3-023", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Investment Choices", "type": "fact", "star": "hi", "front": "Government-sector default scheme: cap on equity (as of Sep 2026)?", "back": "**Up to 25%** (from 1 April 2025)", "pyq": "", "changed": true, "note": "**Changed:** 15% → 25% from 1 Apr 2025, PFRDA Circular PFRDA/2025/21/Reg-PF/03 of 1 Dec 2025. Some pages still show 15%.", "rev": 2, "ac": false}, {"id": "s3-024", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Investment Choices", "type": "fact", "star": "md", "front": "Government-sector default scheme: cap on short-term / money-market instruments?", "back": "**Up to 10%**", "pyq": "", "changed": false, "note": "**Unverified:** only the 25% equity cap was checked against the circular text.", "rev": 2, "ac": false}, {"id": "s3-025", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Investment Choices", "type": "fact", "star": "md", "front": "Government-sector default scheme: cap on asset-backed and miscellaneous investments?", "back": "**Up to 5%**", "pyq": "", "changed": false, "note": "**Unverified:** only the 25% equity cap was checked against the circular text.", "rev": 2, "ac": false}, {"id": "s3-026", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Investment Choices", "type": "fact", "star": "hi", "front": "In the Government-sector default pattern, which asset class has the highest permissible exposure?", "back": "**Government securities**", "pyq": "Asked: highest permissible exposure — G-Secs, PFRDA 2025 Ph-I P2 · Reported: exposure limits, 2025 Ph-I P2", "changed": false, "note": ""}, {"id": "s3-030", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Investment Choices", "type": "fact", "star": "md", "front": "Under which NPS choice does the subscriber split money across asset classes?", "back": "**Active Choice**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-031", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Investment Choices", "type": "fact", "star": "md", "front": "Under which NPS choice does a life-cycle fund shift from equity to debt with age?", "back": "**Auto Choice**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-032", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Investment Choices", "type": "fact", "star": "md", "front": "Active Choice: maximum in equity (asset class E)?", "back": "**75%**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-033", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Investment Choices", "type": "fact", "star": "md", "front": "Active Choice: maximum in corporate debt (asset class C)?", "back": "**100%**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-034", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Investment Choices", "type": "fact", "star": "md", "front": "Active Choice: maximum in government securities (asset class G)?", "back": "**100%**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-035", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Investment Choices", "type": "fact", "star": "md", "front": "Active Choice: maximum in alternatives (asset class A)?", "back": "**5%**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-036", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Investment Choices", "type": "fact", "star": "md", "front": "Default life-cycle fund for a non-government subscriber who makes no choice?", "back": "**LC50 (moderate)**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-038", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Investment Choices", "type": "fact", "star": "hi", "front": "When did the Multiple Scheme Framework (MSF) start?", "back": "**1 October 2025**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-044", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Withdrawal & Exit", "type": "fact", "star": "hi", "front": "NPS partial withdrawal is allowed after how many years in NPS?", "back": "**3 years**", "pyq": "Asked: 25% after 3 years, PFRDA 2025 Ph-I P2", "changed": false, "note": ""}, {"id": "s3-045", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Withdrawal & Exit", "type": "fact", "star": "hi", "front": "NPS partial withdrawal limit?", "back": "**25% of the subscriber's own contributions** (excluding employer money and returns)", "pyq": "Asked: 25% after 3 years, PFRDA 2025 Ph-I P2 · Reported: withdrawal mechanism, 2025 Ph-II P2", "changed": false, "note": "EduTap's 2025 explanation took 25% of the account balance: wrong basis."}, {"id": "s3-046", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Withdrawal & Exit", "type": "fact", "star": "hi", "front": "How many NPS partial withdrawals are allowed before 60 (or superannuation, if later)?", "back": "**Up to 4**", "pyq": "", "changed": true, "note": "**Changed:** 3 times in the account's life → 4 times before 60, Exit Regulations amendment Dec 2025.", "rev": 2, "ac": false}, {"id": "s3-047", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Withdrawal & Exit", "type": "fact", "star": "hi", "front": "Minimum gap between NPS partial withdrawals before 60?", "back": "**4 years**", "pyq": "", "changed": true, "note": "**Changed:** no gap was stipulated → 4-year gap, Dec 2025 amendment.", "rev": 2, "ac": false}, {"id": "s3-048", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Withdrawal & Exit", "type": "fact", "star": "hi", "front": "After 60, how often can an NPS partial withdrawal be made?", "back": "**At least 3 years apart; no cap on the number**", "pyq": "", "changed": true, "note": "**Changed:** after 60 the rule is a 3-year interval with no cap on the number (official table: frequency NA), Dec 2025 amendment.", "rev": 2, "ac": true}, {"id": "s3-056", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Withdrawal & Exit", "type": "fact", "star": "hi", "front": "When is normal exit in the All Citizen model?", "back": "**On 15 years of subscription or age 60, whichever is earlier**", "pyq": "Reported: NPS vesting age, PFRDA 2025 Ph-I P2", "changed": true, "note": "**Changed:** vesting 'till 60' → 15 years of subscription or 60, whichever is earlier, Dec 2025 amendment.", "rev": 2, "ac": false}, {"id": "s3-061", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Withdrawal & Exit", "type": "fact", "star": "hi", "front": "Lock-in period for the All Citizen model now?", "back": "**None: removed** (Dec 2025)", "pyq": "", "changed": true, "note": "**Changed:** 5-year lock-in removed, Dec 2025 amendment.", "rev": 2, "ac": false}, {"id": "s3-062", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Withdrawal & Exit", "type": "fact", "star": "hi", "front": "Normal-exit split for non-government subscribers (All Citizen and Corporate)?", "back": "**Up to 80% lump sum, at least 20% annuity**", "pyq": "", "changed": true, "note": "**Changed:** 60:40 → 80:20 for non-government, Dec 2025 amendment.", "rev": 2, "ac": false}, {"id": "s3-063", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Withdrawal & Exit", "type": "fact", "star": "hi", "front": "Non-government normal exit: full withdrawal is allowed if the corpus is at most?", "back": "**₹8 lakh**", "pyq": "", "changed": true, "note": "**Changed:** ₹5 lakh → ₹8 lakh, Dec 2025 amendment.", "rev": 2, "ac": false}, {"id": "s3-064", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Withdrawal & Exit", "type": "fact", "star": "hi", "front": "Non-government normal exit, corpus between ₹8 and ₹12 lakh: maximum lump sum?", "back": "**₹6 lakh**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-065", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Withdrawal & Exit", "type": "fact", "star": "hi", "front": "Non-government normal exit, corpus between ₹8 and ₹12 lakh: how is the rest paid?", "back": "**As SUR over at least 6 years, or as annuity**", "pyq": "", "changed": false, "note": "**Added:** SUR = Systematic Unit Withdrawal (PIB's wording); SLW = Systematic Lump-sum Withdrawal.", "rev": 2, "ac": false}, {"id": "s3-066", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Withdrawal & Exit", "type": "fact", "star": "hi", "front": "Above what corpus does the 80:20 rule apply at non-government normal exit?", "back": "**₹12 lakh**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-069", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Withdrawal & Exit", "type": "fact", "star": "hi", "front": "Premature exit: full withdrawal is allowed if the corpus is at most?", "back": "**₹5 lakh**", "pyq": "", "changed": true, "note": "**Changed:** ₹2.5 lakh → ₹5 lakh (all sectors), Dec 2025 amendment.", "rev": 2, "ac": false}, {"id": "s3-072", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Withdrawal & Exit", "type": "fact", "star": "hi", "front": "Vesting requirement for those who join NPS after 60?", "back": "**None: 3-year vesting removed**", "pyq": "", "changed": true, "note": "**Changed:** 3-year vesting for post-60 joiners removed, Dec 2025 amendment.", "rev": 2, "ac": false}, {"id": "s3-073", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Withdrawal & Exit", "type": "fact", "star": "hi", "front": "Exit split for those who joined NPS after 60?", "back": "**80:20** (lump sum : annuity)", "pyq": "", "changed": false, "note": ""}, {"id": "s3-074", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Withdrawal & Exit", "type": "fact", "star": "hi", "front": "Joined after 60: full withdrawal is allowed if the corpus is at most?", "back": "**₹12 lakh**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-076", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Withdrawal & Exit", "type": "fact", "star": "hi", "front": "Up to what age can an NPS account be continued?", "back": "**85**", "pyq": "", "changed": true, "note": "**Changed:** exit by 75 → continue to 85; 15-day notice dropped, Dec 2025 amendment.", "rev": 2, "ac": false}, {"id": "s3-081", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS Vatsalya", "type": "fact", "star": "hi", "front": "When was NPS Vatsalya launched?", "back": "**18 September 2024**", "pyq": "Asked: statements on Vatsalya, PFRDA 2025 Ph-I P2 & Ph-I P1 GA", "changed": false, "note": ""}, {"id": "s3-087", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS Vatsalya", "type": "fact", "star": "hi", "front": "NPS Vatsalya minimum initial and annual contribution (as of Sep 2026)?", "back": "**₹250**", "pyq": "Asked: statements on Vatsalya, PFRDA 2025 Ph-I P2 & Ph-I P1 GA", "changed": true, "note": "**Changed:** ₹1,000 a year (launch) → ₹250, Vatsalya Guidelines 2025 (PIB 13 Jan 2026). Old PYQ key ₹1,000 a month is wrong.", "rev": 2, "ac": false}, {"id": "s3-097", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS Vatsalya", "type": "fact", "star": "hi", "front": "NPS Vatsalya exit at 18: split?", "back": "**Up to 80% lump sum, at least 20% annuity**", "pyq": "Asked: exit at 18, PFRDA 2025 Ph-I P1 GA", "changed": true, "note": "**Changed:** launch rule 80% annuity / 20% lump sum → up to 80% lump sum, Vatsalya Guidelines 2025.", "rev": 2, "ac": false}, {"id": "s3-098", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS Vatsalya", "type": "fact", "star": "hi", "front": "NPS Vatsalya exit at 18: full withdrawal is allowed if the corpus is at most?", "back": "**₹8 lakh**", "pyq": "Asked: exit at 18 with ₹2.5 lakh threshold, PFRDA 2025 Ph-I P1 GA", "changed": true, "note": "**Changed:** ₹2.5 lakh → ₹8 lakh, Vatsalya Guidelines 2025.", "rev": 2, "ac": false}, {"id": "s3-101", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 UPS", "type": "fact", "star": "hi", "front": "When did the Union Cabinet approve the Unified Pension Scheme?", "back": "**24 August 2024**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-102", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 UPS", "type": "fact", "star": "hi", "front": "When did UPS take effect?", "back": "**1 April 2025**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-108", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 UPS", "type": "fact", "star": "hi", "front": "UPS assured payout?", "back": "**50% of average basic pay of the last 12 months**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-109", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 UPS", "type": "fact", "star": "hi", "front": "Qualifying service for the full UPS payout?", "back": "**25 years**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-111", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 UPS", "type": "fact", "star": "hi", "front": "UPS minimum payout?", "back": "**₹10,000 a month**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-112", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 UPS", "type": "fact", "star": "hi", "front": "Minimum service for the UPS minimum payout?", "back": "**10 years**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-113", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 UPS", "type": "fact", "star": "hi", "front": "UPS family payout?", "back": "**60% of the pension**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-114", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 UPS", "type": "fact", "star": "hi", "front": "UPS inflation indexation is through dearness relief based on which index?", "back": "**AICPI-IW**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-115", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 UPS", "type": "fact", "star": "hi", "front": "UPS lump sum at superannuation?", "back": "**1/10th of monthly emoluments (pay + DA) for every completed 6 months of service**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-117", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 UPS", "type": "fact", "star": "hi", "front": "Employee contribution under UPS?", "back": "**10% of basic + DA**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-118", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 UPS", "type": "fact", "star": "hi", "front": "Government contribution under UPS?", "back": "**18.5%**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-119", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 UPS", "type": "fact", "star": "hi", "front": "How is the Government's 18.5% UPS contribution split?", "back": "**10% to the individual corpus + 8.5% to a pool corpus**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-120", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 UPS", "type": "fact", "star": "hi", "front": "Nature of the switch from UPS to NPS?", "back": "**One-time, one-way**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-124", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 APY", "type": "fact", "star": "md", "front": "When was Atal Pension Yojana launched?", "back": "**9 May 2015**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-126", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 APY", "type": "fact", "star": "md", "front": "APY's target group?", "back": "**Unorganised sector**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-127", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 APY", "type": "fact", "star": "md", "front": "Who administers APY?", "back": "**PFRDA**, through the NPS architecture", "pyq": "", "changed": false, "note": ""}, {"id": "s3-129", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 APY", "type": "fact", "star": "md", "front": "Till when did the Cabinet (January 2026) extend APY?", "back": "**FY 2030-31**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-130", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 APY", "type": "fact", "star": "hi", "front": "APY entry age band?", "back": "**18–40**", "pyq": "Asked: 18–40, PFRDA 2025 Ph-I P1 GA · max age 40, 2025 Ph-I P2", "changed": false, "note": ""}, {"id": "s3-131", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 APY", "type": "fact", "star": "md", "front": "Which account must an APY subscriber hold?", "back": "**Savings bank or post office savings account**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-132", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 APY", "type": "fact", "star": "md", "front": "From when are income-tax payers barred from joining APY?", "back": "**1 October 2022**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-133", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 APY", "type": "fact", "star": "md", "front": "Which income-tax payers are barred from APY?", "back": "**Anyone who is or has been an income-tax payer**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-135", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 APY", "type": "fact", "star": "md", "front": "How many APY accounts can one person hold?", "back": "**One**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-137", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 APY", "type": "fact", "star": "md", "front": "Is nomination mandatory in APY?", "back": "**Yes**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-138", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 APY", "type": "fact", "star": "md", "front": "Default APY nominee for a married subscriber?", "back": "**Spouse**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-139", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 APY", "type": "fact", "star": "hi", "front": "Whom may an unmarried APY subscriber nominate?", "back": "**Any person**", "pyq": "Asked: unmarried nominee 'any of the above', PFRDA 2022 Ph-I P2", "changed": false, "note": ""}, {"id": "s3-140", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 APY", "type": "fact", "star": "md", "front": "APY guaranteed pension slabs?", "back": "**₹1,000 / ₹2,000 / ₹3,000 / ₹4,000 / ₹5,000 a month**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-141", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 APY", "type": "fact", "star": "md", "front": "APY pension starts at what age?", "back": "**60**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-142", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 APY", "type": "fact", "star": "md", "front": "APY contribution frequencies?", "back": "**Monthly, quarterly or half-yearly**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-144", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 APY", "type": "fact", "star": "hi", "front": "Minimum APY contribution period?", "back": "**20 years**", "pyq": "Asked: minimum 20 years, PFRDA 2021 Ph-I P2", "changed": false, "note": ""}, {"id": "s3-146", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 APY", "type": "fact", "star": "md", "front": "If APY's actual returns fall short of the assumed returns, who funds the shortfall?", "back": "**Government**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-147", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 APY", "type": "fact", "star": "md", "front": "Which pension funds manage APY money?", "back": "**SBI, LIC and UTI**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-148", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 APY", "type": "fact", "star": "md", "front": "APY subscriber dies after 60: what does the spouse get?", "back": "**The same pension, for life**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-149", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 APY", "type": "fact", "star": "md", "front": "After both the APY subscriber and spouse die, what does the nominee get?", "back": "**The corpus accumulated till the subscriber's age 60**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-150", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 APY", "type": "fact", "star": "md", "front": "APY corpus returned to the nominee for the ₹1,000 slab?", "back": "**₹1.7 lakh**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-151", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 APY", "type": "fact", "star": "md", "front": "APY corpus returned to the nominee for the ₹5,000 slab?", "back": "**₹8.5 lakh**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-152", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 APY", "type": "fact", "star": "md", "front": "APY subscriber dies before 60: what are the spouse's options?", "back": "**Continue contributing (new PRAN) till the date the subscriber would have turned 60, then draw the same pension — or take the accumulated corpus**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-153", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 APY", "type": "fact", "star": "md", "front": "How often can the APY pension slab be changed?", "back": "**Once a year** (accumulation phase)", "pyq": "", "changed": false, "note": ""}, {"id": "s3-154", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 APY", "type": "fact", "star": "hi", "front": "Interest on the differential contribution when upgrading an APY slab?", "back": "**8% a year, compounded monthly**", "pyq": "Asked: 8% monthly compounding, PFRDA 2022 Ph-I P2", "changed": false, "note": ""}, {"id": "s3-159", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 APY", "type": "fact", "star": "hi", "front": "Can an APY subscriber exit voluntarily before 60?", "back": "**Yes**: refund of own contributions + net accrued income, less charges (Government co-contribution forfeited)", "pyq": "", "changed": false, "note": "**Corrected:** not a dated change. PIB's May 2025 factsheet lists both death/terminal-illness exit and voluntary exit; the FAQ allows voluntary exit.", "rev": 2, "ac": false}, {"id": "s3-162", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 APY", "type": "fact", "star": "md", "front": "APY government co-contribution formula?", "back": "**50% of the subscriber's contribution or ₹1,000 a year, whichever was lower**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-163", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 APY", "type": "fact", "star": "md", "front": "For how long was the APY government co-contribution paid?", "back": "**5 years: FY 2015-16 to 2019-20**", "pyq": "", "changed": false, "note": ""}, {"id": "s3-164", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 APY", "type": "fact", "star": "md", "front": "Joining window to qualify for the APY co-contribution?", "back": "**1 June 2015 to 31 March 2016**", "pyq": "", "changed": false, "note": "Some secondary sites say 31 Dec 2015; the DFS FAQ says 31 Mar 2016 (window extended)."}, {"id": "s3-177", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Withdrawal & Exit", "type": "trap", "star": "hi", "front": "An NPS account can be continued only till 75. Correct?", "back": "**Wrong: now up to 85** (Dec 2025; was exit by 75). 60 = All Citizen normal exit unless 15 years come first.", "pyq": "", "changed": true, "note": "**Changed:** exit by 75 → continue to 85, Dec 2025 amendment.", "rev": 2, "ac": false}, {"id": "s3-185", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 UPS", "type": "trap", "star": "hi", "front": "Under UPS, the Government contributes 14%. Correct?", "back": "**Wrong: 18.5%** (10% individual + 8.5% pool). 14% = NPS; an extra 4% is credited on a UPS → NPS switch.", "pyq": "", "changed": false, "note": ""}, {"id": "s3-187", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 UPS", "type": "trap", "star": "hi", "front": "The ₹10,000 UPS minimum payout needs 25 years of service. Correct?", "back": "**Wrong: 10 years.** 25 years = full 50% payout.", "pyq": "", "changed": false, "note": ""}, {"id": "s3-191", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 UPS", "type": "trap", "star": "hi", "front": "UPS took effect on 24 August 2024. Correct?", "back": "**Wrong: 1 April 2025.** 24 Aug 2024 = Cabinet approval; 18 Sep 2024 = Vatsalya launch; 1 Oct 2025 = MSF.", "pyq": "", "changed": false, "note": ""}, {"id": "s3-192", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Eligibility, Accounts & Contributions", "type": "trap", "star": "hi", "front": "The NPS maximum entry age is 70. Correct?", "back": "**Wrong: now 85** (entry band 18–85; changed by the Dec 2025 exit amendment).", "pyq": "Asked: 18–70, PFRDA 2021 Ph-I P2", "changed": true, "note": "**Changed:** max entry age 70 → 85, Dec 2025 amendment. Old PYQ key 18–70.", "rev": 2, "ac": false}, {"id": "s3-193", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Withdrawal & Exit", "type": "trap", "star": "hi", "front": "NPS partial withdrawal is allowed only 3 times in the life of the account. Correct?", "back": "**Wrong: now up to 4 times before 60, 4 years apart** (changed Dec 2025).", "pyq": "", "changed": true, "note": "**Changed:** 3 lifetime withdrawals → 4 before 60, 4 years apart, Dec 2025.", "rev": 2, "ac": false}, {"id": "s3-194", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Withdrawal & Exit", "type": "trap", "star": "hi", "front": "The NPS All Citizen model has a 5-year lock-in. Correct?", "back": "**Wrong: now no lock-in** (removed; changed Dec 2025).", "pyq": "", "changed": true, "note": "**Changed:** 5-year lock-in removed, Dec 2025.", "rev": 2, "ac": false}, {"id": "s3-195", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Withdrawal & Exit", "type": "trap", "star": "hi", "front": "In the All Citizen model, normal exit is only at 60. Correct?", "back": "**Wrong: now 15 years of subscription or 60, whichever is earlier** (changed Dec 2025).", "pyq": "", "changed": true, "note": "**Changed:** normal exit 'till 60' → 15 years or 60, whichever is earlier, Dec 2025.", "rev": 2, "ac": false}, {"id": "s3-196", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Withdrawal & Exit", "type": "trap", "star": "hi", "front": "Non-government normal exit: full withdrawal only if the corpus is ₹5 lakh or less. Correct?", "back": "**Wrong: now ₹8 lakh** (changed Dec 2025).", "pyq": "", "changed": true, "note": "**Changed:** ₹5 lakh → ₹8 lakh, Dec 2025.", "rev": 2, "ac": false}, {"id": "s3-197", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS Vatsalya", "type": "trap", "star": "hi", "front": "The NPS Vatsalya minimum contribution is ₹1,000 a year. Correct?", "back": "**Wrong: now ₹250** (changed by the NPS Vatsalya Scheme Guidelines 2025; PIB release 13 Jan 2026).", "pyq": "", "changed": true, "note": "**Changed:** ₹1,000 a year → ₹250, Vatsalya Guidelines 2025 (PIB 13 Jan 2026).", "rev": 2, "ac": false}, {"id": "s3-198", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS Vatsalya", "type": "trap", "star": "hi", "front": "NPS Vatsalya exit at 18 requires at least 80% annuity. Correct?", "back": "**Wrong: now up to 80% lump sum, at least 20% annuity** (the launch rule was 80% annuity).", "pyq": "", "changed": true, "note": "**Changed:** launch rule 80% annuity → up to 80% lump sum, Vatsalya Guidelines 2025.", "rev": 2, "ac": false}, {"id": "s3-199", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS Vatsalya", "type": "trap", "star": "hi", "front": "NPS Vatsalya exit at 18: full withdrawal only if the corpus is ₹2.5 lakh or less. Correct?", "back": "**Wrong: now ₹8 lakh** (the launch rule was ₹2.5 lakh).", "pyq": "", "changed": true, "note": "**Changed:** ₹2.5 lakh → ₹8 lakh, Vatsalya Guidelines 2025.", "rev": 2, "ac": false}, {"id": "s3-200", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 APY", "type": "trap", "star": "hi", "front": "An APY subscriber can exit before 60 only on death or terminal disease. Correct?", "back": "**Wrong as stated:** voluntary exit before 60 is allowed (own contributions + net accrued income, less charges).", "pyq": "", "changed": false, "note": "**Corrected:** not a dated change. PIB's May 2025 factsheet still lists death/terminal-illness exit alongside voluntary exit.", "rev": 2, "ac": false}, {"id": "s3-201", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Investment Choices", "type": "trap", "star": "hi", "front": "The Government-sector default equity cap is 15%. Correct?", "back": "**Wrong: now 25%** (changed from 1 April 2025).", "pyq": "", "changed": true, "note": "**Changed:** 15% → 25% from 1 Apr 2025, PFRDA circular of 1 Dec 2025.", "rev": 2, "ac": false}, {"id": "s3-202", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Withdrawal & Exit", "type": "trap", "star": "hi", "front": "Premature exit: full withdrawal only if the corpus is ₹2.5 lakh or less. Correct?", "back": "**Wrong: now ₹5 lakh** (changed Dec 2025).", "pyq": "", "changed": true, "note": "**Changed:** ₹2.5 lakh → ₹5 lakh, Dec 2025.", "rev": 2, "ac": false}, {"id": "s3-203", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Withdrawal & Exit", "type": "trap", "star": "hi", "front": "NPS-Lite: full withdrawal only if the corpus is ₹1 lakh or less. Correct?", "back": "**Wrong: now ₹2 lakh** (changed Dec 2025).", "pyq": "", "changed": true, "note": "**Changed:** NPS-Lite ₹1 lakh → ₹2 lakh, Dec 2025.", "rev": 2, "ac": false}, {"id": "s3-204", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Withdrawal & Exit", "type": "trap", "star": "hi", "front": "NPS partial withdrawal is allowed for skill development or starting a business. Correct?", "back": "**Wrong: now neither is a permitted purpose** (both removed; changed Dec 2025).", "pyq": "", "changed": true, "note": "**Changed:** skill-development and start-up purposes removed, Dec 2025.", "rev": 2, "ac": false}, {"id": "s3-205", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Withdrawal & Exit", "type": "trap", "star": "hi", "front": "A subscriber must give 15 days' prior intimation to continue NPS beyond 60. Correct?", "back": "**Wrong: now automatic up to 85**; the 15-day intimation was abolished (changed Dec 2025).", "pyq": "", "changed": true, "note": "**Changed:** 15-day intimation abolished, Dec 2025.", "rev": 2, "ac": false}, {"id": "s3-206", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Withdrawal & Exit", "type": "trap", "star": "hi", "front": "Those who join NPS after 60 must complete 3 years before normal exit. Correct?", "back": "**Wrong: now no vesting period**; the 3-year rule was removed (changed Dec 2025).", "pyq": "", "changed": true, "note": "**Changed:** 3-year vesting removed, Dec 2025.", "rev": 2, "ac": false}, {"id": "s3-207", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 NPS — Withdrawal & Exit", "type": "trap", "star": "hi", "front": "NPS benefits cannot be pledged to raise a loan. Correct?", "back": "**Wrong: a regulated lender can now mark a lien of up to 25% of own contributions** (changed Dec 2025).", "pyq": "", "changed": true, "note": "**Changed:** pledge was void → lender may mark a lien up to 25% of own contributions, Dec 2025.", "rev": 2, "ac": false}, {"id": "s3-208", "section": "3 NPS, APY, Annuity & Investment", "topic": "3 APY", "type": "trap", "star": "hi", "front": "An APY account is frozen after 6 months of default, deactivated after 12 and closed after 24. Correct (current rule)?", "back": "**Wrong: that was the older rule.** Charges are now deducted until the balance reaches zero (DFS FAQ, Jan 2026).", "pyq": "", "changed": true, "note": "**Changed:** old 6/12/24-month freeze-and-closure ladder → charges deducted until the balance is nil (FAQ). Partly verified: the FAQ text was cut off in my check.", "rev": 2, "ac": false}, {"id": "s4-012", "section": "4 Other Areas", "topic": "4 Architecture, Intermediaries & Fund Flow", "type": "fact", "star": "hi", "front": "How many Central Recordkeeping Agencies does NPS have (as of Sep 2026)?", "back": "**Three**", "pyq": "Reported: CRA and PRAN, PFRDA 2025 Ph-I P2", "changed": false, "note": ""}, {"id": "s4-030", "section": "4 Other Areas", "topic": "4 Architecture, Intermediaries & Fund Flow", "type": "fact", "star": "hi", "front": "What did PFRDA approve in principle on 1 January 2026?", "back": "**Scheduled commercial banks may sponsor pension funds independently**", "pyq": "", "changed": false, "note": ""}, {"id": "s4-035", "section": "4 Other Areas", "topic": "4 Grievance & Ombudsman", "type": "fact", "star": "hi", "front": "Online portal for NPS grievances?", "back": "**Central Grievance Management System (CGMS)**", "pyq": "Asked: CGMS, PFRDA 2022 Ph-I P2 · Reported: grievance redressal, 2025 Ph-II P2", "changed": false, "note": ""}, {"id": "s4-036", "section": "4 Other Areas", "topic": "4 Grievance & Ombudsman", "type": "fact", "star": "md", "front": "Time for an intermediary to resolve an NPS grievance (Level 1)?", "back": "**30 days**", "pyq": "", "changed": false, "note": ""}, {"id": "s4-037", "section": "4 Other Areas", "topic": "4 Grievance & Ombudsman", "type": "fact", "star": "md", "front": "Where does an unresolved NPS grievance go at Level 2?", "back": "**NPS Trust**", "pyq": "", "changed": false, "note": ""}, {"id": "s4-038", "section": "4 Other Areas", "topic": "4 Grievance & Ombudsman", "type": "fact", "star": "md", "front": "Time for the NPS Trust to resolve an escalated grievance (Level 2)?", "back": "**21 days**", "pyq": "", "changed": true, "note": "**Changed:** NPS Trust stage 30 → 21 days, Grievance (Second Amendment) Regulations notified 21 Feb 2024.", "rev": 2, "ac": false}, {"id": "s4-039", "section": "4 Other Areas", "topic": "4 Grievance & Ombudsman", "type": "fact", "star": "md", "front": "Level 3 of the NPS grievance ladder is an appeal to?", "back": "**Ombudsman**", "pyq": "", "changed": false, "note": ""}, {"id": "s4-040", "section": "4 Other Areas", "topic": "4 Grievance & Ombudsman", "type": "fact", "star": "md", "front": "Time limit to appeal to the Ombudsman?", "back": "**45 days** (from the NPS Trust's reply, or from the lapse of its 21 days)", "pyq": "", "changed": false, "note": ""}, {"id": "s4-045", "section": "4 Other Areas", "topic": "4 Grievance & Ombudsman", "type": "fact", "star": "md", "front": "An Ombudsman award is due within?", "back": "**90 days of filing**", "pyq": "", "changed": false, "note": ""}, {"id": "s4-048", "section": "4 Other Areas", "topic": "4 Grievance & Ombudsman", "type": "fact", "star": "md", "front": "Maximum Ombudsman award, including compensation and interest?", "back": "**₹10 lakh**", "pyq": "", "changed": false, "note": ""}, {"id": "s4-049", "section": "4 Other Areas", "topic": "4 Grievance & Ombudsman", "type": "fact", "star": "md", "front": "Where do claims above the Ombudsman's limit go?", "back": "**PFRDA's Designated Member**", "pyq": "", "changed": false, "note": ""}, {"id": "s4-051", "section": "4 Other Areas", "topic": "4 Grievance & Ombudsman", "type": "fact", "star": "md", "front": "Who hears a revision against an Ombudsman award?", "back": "**Designated Member of PFRDA**", "pyq": "", "changed": false, "note": ""}, {"id": "s4-056", "section": "4 Other Areas", "topic": "4 Grievance & Ombudsman", "type": "fact", "star": "md", "front": "An appeal against the Designated Member's order lies to?", "back": "**SAT** (s.36)", "pyq": "", "changed": false, "note": ""}, {"id": "s4-059", "section": "4 Other Areas", "topic": "4 Grievance & Ombudsman", "type": "fact", "star": "md", "front": "Term of the NPS Ombudsman?", "back": "**3 years**", "pyq": "", "changed": false, "note": ""}, {"id": "s4-060", "section": "4 Other Areas", "topic": "4 Grievance & Ombudsman", "type": "fact", "star": "md", "front": "Current NPS grievance ladder in law (as of Sep 2026)?", "back": "**Intermediary 30 days → NPS Trust 21 days → Ombudsman award within 90 days**", "pyq": "", "changed": false, "note": "PFRDA's draft of 21 May 2026 proposes 14 / 7 / 30 / 15 days. Not in force; check before 15 Oct."}, {"id": "s4-067", "section": "4 Other Areas", "topic": "4 Institutional/GA (incl. Jeevan Pramaan)", "type": "fact", "star": "hi", "front": "Who chairs the Financial Stability and Development Council?", "back": "**Finance Minister**", "pyq": "Asked: FSDC headed by FM, PFRDA 2021 Ph-I P2 GA", "changed": false, "note": ""}, {"id": "s4-070", "section": "4 Other Areas", "topic": "4 Grievance & Ombudsman", "type": "trap", "star": "md", "front": "The NPS Trust has 30 days to resolve an escalated grievance. Correct?", "back": "**Wrong: now 21 days.** 30 days = intermediary (Level 1); 45 days = appeal to Ombudsman; 90 days = award.", "pyq": "", "changed": true, "note": "**Changed:** NPS Trust stage 30 → 21 days, Grievance (Second Amendment) Regulations notified 21 Feb 2024.", "rev": 2, "ac": false}, {"id": "ad-001", "section": "Addendum", "topic": "3 APY", "type": "fact", "star": "hi", "front": "APY, joining at 18: monthly contribution for ₹1,000 pension?", "back": "**₹42**", "pyq": "Asked: PFRDA 2025 Ph-II P2 Q47 · ₹42 at 18, 2025 Ph-I P2", "changed": false, "note": ""}, {"id": "ad-005", "section": "Addendum", "topic": "3 APY", "type": "fact", "star": "hi", "front": "APY, joining at 18: monthly contribution for ₹5,000 pension?", "back": "**₹210**", "pyq": "Asked: PFRDA 2025 Ph-II P2 Q47", "changed": false, "note": ""}, {"id": "ad-006", "section": "Addendum", "topic": "3 APY", "type": "fact", "star": "hi", "front": "APY, joining at 40: monthly contribution for ₹1,000 pension?", "back": "**₹291**", "pyq": "Asked: PFRDA 2025 Ph-II P2 Q47", "changed": false, "note": ""}, {"id": "ad-010", "section": "Addendum", "topic": "3 APY", "type": "fact", "star": "hi", "front": "APY, joining at 40: monthly contribution for ₹5,000 pension?", "back": "**₹1,454**", "pyq": "Asked: PFRDA 2025 Ph-II P2 Q47", "changed": false, "note": "₹1,318, quoted by one 2026 site, is the age-39 figure."}, {"id": "ad-015", "section": "Addendum", "topic": "4 Architecture, Intermediaries & Fund Flow", "type": "fact", "star": "hi", "front": "Current cut-off for same-day (T+0) NPS investment?", "back": "**1:30 PM** on business settlement days", "pyq": "", "changed": true, "note": "**Changed:** cut-off 11:00 AM → 1:30 PM, PFRDA Circular PFRDA/2026/42/REG-PF/08 of 4 Aug 2026.", "rev": 2, "ac": false}, {"id": "ad-020", "section": "Addendum", "topic": "4 Architecture, Intermediaries & Fund Flow", "type": "trap", "star": "hi", "front": "NPS contributions reflect in T+2 working days. Correct?", "back": "**Wrong: now T+0** if the Trustee Bank receives them by 1:30 PM (cut-off since 4 Aug 2026; same-day investment since 1 Jul 2024).", "pyq": "Asked: PFRDA 2025 Ph-II P2 Q49", "changed": true, "note": "**Changed:** old PYQ key T+2 → T+0 if received by 1:30 PM. Cut-off per the 4 Aug 2026 circular; 'since 1 Jul 2024' is unverified.", "rev": 2, "ac": false}, {"id": "ad-021", "section": "Addendum", "topic": "4 Architecture, Intermediaries & Fund Flow", "type": "trap", "star": "hi", "front": "NPS contributions are invested on a T+1 basis. Correct?", "back": "**Wrong: now T+0** (since 1 Jul 2024) if received by the 1:30 PM cut-off.", "pyq": "Asked: T+1, PFRDA 2022 Ph-I P2", "changed": true, "note": "**Changed:** old PYQ key T+1 → T+0 if received by 1:30 PM. 'Since 1 Jul 2024' is unverified; the 4 Aug 2026 circular confirms same-day investment.", "rev": 2, "ac": false}, {"id": "ad-022", "section": "Addendum", "topic": "4 Architecture, Intermediaries & Fund Flow", "type": "trap", "star": "hi", "front": "The cut-off for same-day NPS investment is 11:00 AM. Correct?", "back": "**Wrong: now 1:30 PM** (changed by the PFRDA circular of 4 Aug 2026).", "pyq": "", "changed": true, "note": "**Changed:** 11:00 AM → 1:30 PM, circular of 4 Aug 2026.", "rev": 2, "ac": false}, {"id": "ad-026", "section": "Addendum", "topic": "2 Other Retirement Schemes (EPF/EPS, Gratuity, PPF, SCSS, PMVVY, PM-SYM, Swavalamban, others)", "type": "fact", "star": "hi", "front": "EPS member pension age?", "back": "**58**", "pyq": "Asked: pension age 58, earlier PFRDA Ph-II", "changed": false, "note": ""}, {"id": "ad-036", "section": "Addendum", "topic": "2 Other Retirement Schemes (EPF/EPS, Gratuity, PPF, SCSS, PMVVY, PM-SYM, Swavalamban, others)", "type": "fact", "star": "hi", "front": "EPS children's pension is paid up to what age?", "back": "**25**", "pyq": "Asked: children till 25, PFRDA 2022 Ph-II P2", "changed": false, "note": ""}, {"id": "ad-048", "section": "Addendum", "topic": "2 Other Retirement Schemes (EPF/EPS, Gratuity, PPF, SCSS, PMVVY, PM-SYM, Swavalamban, others)", "type": "fact", "star": "hi", "front": "In which Budget was NPS-Lite / Swavalamban announced?", "back": "**Union Budget 2010-11**", "pyq": "Asked: PFRDA 2025 Ph-II P2 Q43", "changed": false, "note": ""}, {"id": "ad-049", "section": "Addendum", "topic": "2 Other Retirement Schemes (EPF/EPS, Gratuity, PPF, SCSS, PMVVY, PM-SYM, Swavalamban, others)", "type": "fact", "star": "hi", "front": "When was Swavalamban launched?", "back": "**26 September 2010**", "pyq": "Asked: PFRDA 2025 Ph-II P2 Q43", "changed": false, "note": ""}, {"id": "ad-050", "section": "Addendum", "topic": "2 Other Retirement Schemes (EPF/EPS, Gratuity, PPF, SCSS, PMVVY, PM-SYM, Swavalamban, others)", "type": "fact", "star": "hi", "front": "Swavalamban was meant for?", "back": "**Unorganised-sector workers not in any statutory pension or PF scheme**", "pyq": "Asked: PFRDA 2025 Ph-II P2 Q43", "changed": false, "note": ""}, {"id": "ad-052", "section": "Addendum", "topic": "2 Other Retirement Schemes (EPF/EPS, Gratuity, PPF, SCSS, PMVVY, PM-SYM, Swavalamban, others)", "type": "fact", "star": "hi", "front": "Swavalamban government co-contribution?", "back": "**₹1,000 a year** per eligible account", "pyq": "Asked: PFRDA 2025 Ph-II P2 Q43", "changed": false, "note": ""}, {"id": "ad-053", "section": "Addendum", "topic": "2 Other Retirement Schemes (EPF/EPS, Gratuity, PPF, SCSS, PMVVY, PM-SYM, Swavalamban, others)", "type": "fact", "star": "hi", "front": "Subscriber's own contribution needed in a financial year to get the Swavalamban co-contribution?", "back": "**₹1,000–₹12,000**", "pyq": "Asked: PFRDA 2025 Ph-II P2 Q43", "changed": false, "note": ""}, {"id": "ad-054", "section": "Addendum", "topic": "2 Other Retirement Schemes (EPF/EPS, Gratuity, PPF, SCSS, PMVVY, PM-SYM, Swavalamban, others)", "type": "fact", "star": "hi", "front": "The Swavalamban co-contribution was available till?", "back": "**2016-17**", "pyq": "Asked: PFRDA 2025 Ph-II P2 Q43", "changed": false, "note": ""}, {"id": "ad-056", "section": "Addendum", "topic": "2 Other Retirement Schemes (EPF/EPS, Gratuity, PPF, SCSS, PMVVY, PM-SYM, Swavalamban, others)", "type": "fact", "star": "hi", "front": "Swavalamban was replaced by?", "back": "**Atal Pension Yojana**", "pyq": "Asked: PFRDA 2025 Ph-II P2 Q43", "changed": false, "note": ""}, {"id": "ad-057", "section": "Addendum", "topic": "2 Other Retirement Schemes (EPF/EPS, Gratuity, PPF, SCSS, PMVVY, PM-SYM, Swavalamban, others)", "type": "fact", "star": "hi", "front": "Which Swavalamban subscribers could migrate to APY?", "back": "**Those aged 18–40**", "pyq": "Asked: PFRDA 2025 Ph-II P2 Q43", "changed": false, "note": ""}, {"id": "ad-061", "section": "Addendum", "topic": "3 NPS — Eligibility, Accounts & Contributions", "type": "fact", "star": "hi", "front": "Central Government's NPS contribution for its employees?", "back": "**14%** of basic + DA", "pyq": "Asked: earlier PFRDA Ph-II paper", "changed": true, "note": "**Changed:** 10% → 14% from 1 Apr 2019, DFS Gazette of 31 Jan 2019.", "rev": 2, "ac": false}, {"id": "ad-062", "section": "Addendum", "topic": "3 NPS — Eligibility, Accounts & Contributions", "type": "fact", "star": "hi", "front": "From when has the Central Government contributed 14% to NPS?", "back": "**1 April 2019**", "pyq": "Asked: earlier PFRDA Ph-II paper", "changed": false, "note": ""}, {"id": "ad-064", "section": "Addendum", "topic": "3 NPS — Eligibility, Accounts & Contributions", "type": "fact", "star": "hi", "front": "Government NPS contribution rate for employees of Central Autonomous Bodies?", "back": "**14%**", "pyq": "Asked: earlier PFRDA Ph-II paper", "changed": false, "note": ""}, {"id": "ad-066", "section": "Addendum", "topic": "3 NPS — Eligibility, Accounts & Contributions", "type": "trap", "star": "hi", "front": "The Central Government contributes 10% to its employees' NPS accounts. Correct?", "back": "**Wrong: now 14%** (changed from 1 Apr 2019, DFS notification of 31 Jan 2019). 10% = the employee's own share.", "pyq": "Asked: earlier PFRDA Ph-II paper", "changed": true, "note": "**Changed:** 10% → 14% from 1 Apr 2019, DFS Gazette of 31 Jan 2019.", "rev": 2, "ac": false}, {"id": "ad-067", "section": "Addendum", "topic": "4 Institutional/GA (incl. Jeevan Pramaan)", "type": "fact", "star": "hi", "front": "What is Jeevan Pramaan?", "back": "**An Aadhaar-based, biometric Digital Life Certificate** for pensioners", "pyq": "Asked: PFRDA 2022 Ph-II P2", "changed": false, "note": ""}, {"id": "ad-068", "section": "Addendum", "topic": "4 Institutional/GA (incl. Jeevan Pramaan)", "type": "fact", "star": "hi", "front": "When was Jeevan Pramaan launched?", "back": "**November 2014**", "pyq": "Asked: PFRDA 2022 Ph-II P2", "changed": false, "note": ""}, {"id": "ad-069", "section": "Addendum", "topic": "4 Institutional/GA (incl. Jeevan Pramaan)", "type": "fact", "star": "hi", "front": "Which Prime Minister launched Jeevan Pramaan?", "back": "**Narendra Modi**", "pyq": "Asked: PFRDA 2022 Ph-II P2", "changed": false, "note": ""}, {"id": "ad-070", "section": "Addendum", "topic": "4 Institutional/GA (incl. Jeevan Pramaan)", "type": "fact", "star": "hi", "front": "MCQ: the Jeevan Pramaan portal/service was 'launched by' which ministry?", "back": "**MeitY** (Ministry of Electronics and IT), which developed and manages the portal and app", "pyq": "Asked: launched by MeitY, earlier PFRDA Ph-II", "changed": false, "note": ""}, {"id": "ad-072", "section": "Addendum", "topic": "4 Institutional/GA (incl. Jeevan Pramaan)", "type": "fact", "star": "hi", "front": "What does Jeevan Pramaan save a pensioner from?", "back": "**Appearing in person before the pension-disbursing agency**", "pyq": "Asked: PFRDA 2022 Ph-II P2", "changed": false, "note": ""}, {"id": "ad-074", "section": "Addendum", "topic": "4 Institutional/GA (incl. Jeevan Pramaan)", "type": "fact", "star": "hi", "front": "When was face authentication added to Jeevan Pramaan?", "back": "**2021**", "pyq": "Asked: PFRDA 2022 Ph-II P2", "changed": false, "note": ""}, {"id": "ad-075", "section": "Addendum", "topic": "4 Institutional/GA (incl. Jeevan Pramaan)", "type": "fact", "star": "hi", "front": "Who brought in face authentication for life certificates?", "back": "**DoPPW, with UIDAI and MeitY**", "pyq": "Asked: PFRDA 2022 Ph-II P2", "changed": false, "note": ""}, {"id": "ad-088", "section": "Addendum", "topic": "3 NPS — Withdrawal & Exit", "type": "fact", "star": "hi", "front": "Government-sector normal exit, corpus ₹24,50,000: lump-sum and annuity limits?", "back": "**Lump sum up to ₹14,70,000; annuity at least ₹9,80,000** (60:40)", "pyq": "Asked: PFRDA 2025 Ph-II P2 Q48", "changed": false, "note": ""}, {"id": "ad-089", "section": "Addendum", "topic": "3 NPS — Withdrawal & Exit", "type": "fact", "star": "hi", "front": "Non-government normal exit, corpus ₹24,50,000: lump-sum and annuity limits?", "back": "**Lump sum up to ₹19,60,000; annuity at least ₹4,90,000** (80:20)", "pyq": "Asked: PFRDA 2025 Ph-II P2 Q48", "changed": true, "note": "**Changed:** the PYQ's 60:40 → 80:20 for non-government, Dec 2025.", "rev": 2, "ac": false}, {"id": "ad-090", "section": "Addendum", "topic": "3 NPS — Withdrawal & Exit", "type": "trap", "star": "hi", "front": "A non-government subscriber must annuitise at least 40% at normal exit. Correct?", "back": "**Wrong: now at least 20%** (80% lump sum allowed; changed Dec 2025). 60:40 still applies to the Government sector.", "pyq": "Asked: PFRDA 2025 Ph-II P2 Q48", "changed": true, "note": "**Changed:** at least 40% annuity → at least 20%, Dec 2025. 60:40 still applies to Government.", "rev": 2, "ac": false}, {"id": "ad-092", "section": "Addendum", "topic": "3 NPS — Withdrawal & Exit", "type": "concept", "star": "hi", "front": "How do you work out an NPS exit split in a numerical?", "back": "Apply the sector's split to the corpus: Government sector up to 60% lump sum (at least 40% annuity); non-government up to 80% (at least 20% annuity) once the corpus exceeds ₹12 lakh. So ₹24,50,000 gives ₹14,70,000 / ₹9,80,000 (Government) or ₹19,60,000 / ₹4,90,000 (non-government). An annuity rate quoted in the question (e.g. 6%) is a distractor: it does not change the split.", "pyq": "Asked: PFRDA 2025 Ph-II P2 Q48", "changed": false, "note": ""}]</script>
+<script type="application/json" id="topics-data">["1 PFRDA Act — History & Definitions", "1 PFRDA Act — Authority (ss.3–11)", "1 PFRDA Act — Scope, Powers & NPS (ss.12–27)", "1 PFRDA Act — Penalties & Appeals (ss.28–38)", "1 PFRDA Act — Finance, Misc & Amendments", "2 Sector Status & History", "2 Other Retirement Schemes (EPF/EPS, Gratuity, PPF, SCSS, PMVVY, PM-SYM, Swavalamban, others)", "2 Regulator Map", "3 NPS — Eligibility, Accounts & Contributions", "3 NPS — Investment Choices", "3 NPS — Withdrawal & Exit", "3 NPS Vatsalya", "3 UPS", "3 APY", "3 Annuity & Investment Basics", "4 Architecture, Intermediaries & Fund Flow", "4 Grievance & Ombudsman", "4 Disputes, Regulations & Reforms", "4 Institutional/GA (incl. Jeevan Pramaan)"]</script>
+<script id="deck-sync">
+/* DeckSync: cross-device sync of Known / Still learning marks through a private GitHub gist.
+   One token per device (localStorage 'pfrda_sync_token', shared by every deck on this site).
+   One secret gist holds one JSON file per deck. Local marks stay in the deck's own key, unchanged.
+   Merge: union of marks; where devices disagree, the most recent change wins. */
+(function(){
+'use strict';
+var TOKEN_KEY='pfrda_sync_token', GIST_KEY='pfrda_sync_gist', LAST_KEY='pfrda_sync_last';
+var DESC='PFRDA flashcard marks sync (do not delete)';
+var API='https://api.github.com';
+var has=function(o,k){return Object.prototype.hasOwnProperty.call(o,k);};
+function lsGet(k){try{return window.localStorage.getItem(k);}catch(e){return null;}}
+function lsSet(k,v){try{window.localStorage.setItem(k,v);return true;}catch(e){return false;}}
+function lsDel(k){try{window.localStorage.removeItem(k);}catch(e){}}
+function readJSON(k){var r=lsGet(k);if(!r)return null;try{var o=JSON.parse(r);return (o&&typeof o==='object')?o:null;}catch(e){return null;}}
+function clean(o){var p={};if(o)for(var k in o){if(has(o,k)&&(o[k]==='known'||o[k]==='learning'))p[k]=o[k];}return p;}
+function same(a,b){var k;for(k in a){if(has(a,k)&&a[k]!==b[k])return false;}for(k in b){if(has(b,k)&&a[k]!==b[k])return false;}return true;}
+
+var cfg=null, metaKey='', fileName='', meta=null, lastRemote={}, timer=null, busy=false, again=false, dirty=false, ui={};
+
+function token(){var t=lsGet(TOKEN_KEY);return t?t.trim():'';}
+function saveMeta(){lsSet(metaKey,JSON.stringify(meta));}
+/* A deck may supply read()/write() to sync a richer state as a flat {item: string} map (the PYQ Book does). */
+function local(){return cfg.read?cfg.read():clean(readJSON(cfg.key));}
+function writeLocal(p){if(cfg.write)cfg.write(p);else lsSet(cfg.key,JSON.stringify(p));}
+function valid(v){return cfg.read?typeof v==='string':(v==='known'||v==='learning');}
+function loadMeta(){
+  meta=readJSON(metaKey);
+  if(!meta||!meta.ts||!meta.snap){
+    /* First run: marks made before sync existed get time 1, so any later change on another device wins over them. */
+    var p=local();meta={ts:{},snap:{}};
+    for(var id in p){meta.ts[id]=1;meta.snap[id]=p[id];}
+    saveMeta();
+  }
+}
+/* Record a time for every card whose mark changed since the last look (mark, unmark, reset, restore). */
+function touch(){
+  if(!cfg)return;
+  var p=local(),now=Date.now(),ch=false,id,seen={};
+  for(id in p){if(has(p,id))seen[id]=1;}
+  for(id in meta.snap){if(has(meta.snap,id))seen[id]=1;}
+  for(id in seen){
+    if((p[id]||'')!==(meta.snap[id]||'')){
+      meta.ts[id]=Math.max(now,(meta.ts[id]||0)+1);
+      if(p[id])meta.snap[id]=p[id];else delete meta.snap[id];
+      ch=true;
+    }
+  }
+  if(ch){saveMeta();dirty=true;if(token())schedule(1500);renderUI();}
+}
+function pick(L,R){
+  if(L[1]>R[1])return L;
+  if(R[1]>L[1])return R;
+  if(L[0]===R[0])return L;
+  if(!L[0])return R;
+  if(!R[0])return L;
+  return [L[0]>R[0]?L[0]:R[0],L[1]]; /* same time, different values: pick the same one on every device ('learning' beats 'known') */
+}
+function merge(rc){
+  touch();
+  var out={},id,seen={};
+  for(id in meta.ts){if(has(meta.ts,id))seen[id]=1;}
+  for(id in rc){if(has(rc,id))seen[id]=1;}
+  for(id in seen){
+    var L=[meta.snap[id]||'',+meta.ts[id]||0];
+    var r=rc[id],R=(r&&r.length===2)?[valid(r[0])?r[0]:'',+r[1]||0]:['',0];
+    var w=pick(L,R);
+    if(w[1]>0)out[id]=w;
+  }
+  var p={},ts={},push=false;
+  for(id in out){
+    ts[id]=out[id][1];if(out[id][0])p[id]=out[id][0];
+    var r2=rc[id];
+    if(!r2||r2[0]!==out[id][0]||+r2[1]!==out[id][1])push=true;
+  }
+  var before=local();
+  meta={ts:ts,snap:p};saveMeta();
+  if(!same(before,p)){writeLocal(p);try{cfg.onRemote(cfg.read?p:clean(p));}catch(e){}}
+  return {cards:out,push:push};
+}
+function doc(cards){return JSON.stringify({v:1,deck:cfg.label||fileName,updated:new Date().toISOString(),cards:cards});}
+
+function api(method,path,body,keepalive){
+  var o={method:method,cache:'no-store',headers:{'Authorization':'Bearer '+token(),'Accept':'application/vnd.github+json'}};
+  if(body){o.body=JSON.stringify(body);o.headers['Content-Type']='application/json';}
+  if(keepalive)o.keepalive=true;
+  return fetch(API+path,o).then(function(r){
+    if(!r.ok){var e=new Error('HTTP '+r.status);e.status=r.status;throw e;}
+    return r.status===204?null:r.json();
+  });
+}
+function findOrCreate(){
+  return api('GET','/gists?per_page=100').then(function(list){
+    var m=(list||[]).filter(function(g){return g.description===DESC;});
+    m.sort(function(a,b){return a.created_at<b.created_at?-1:1;});
+    if(m.length)return api('GET','/gists/'+m[0].id);
+    var files={'README.md':{content:'Flashcard marks for the PFRDA decks. Written by the decks; please keep this gist.'}};
+    return api('POST','/gists',{description:DESC,public:false,files:files});
+  }).then(function(g){lsSet(GIST_KEY,g.id);return g;});
+}
+function getGist(){
+  var id=lsGet(GIST_KEY);
+  if(!id)return findOrCreate();
+  return api('GET','/gists/'+id).catch(function(e){if(e.status===404){lsDel(GIST_KEY);return findOrCreate();}throw e;});
+}
+function schedule(ms){clearTimeout(timer);timer=setTimeout(sync,ms);}
+function sync(){
+  clearTimeout(timer);
+  if(!cfg||!token())return;
+  if(busy){again=true;return;}
+  busy=true;setState('Syncing…','busy');
+  getGist().then(function(g){
+    var f=g.files&&g.files[fileName],rc={};
+    if(f&&f.content){try{var d=JSON.parse(f.content);if(d&&d.cards&&typeof d.cards==='object')rc=d.cards;}catch(e){}}
+    var res=merge(rc);
+    lastRemote=res.cards;
+    if(!res.push)return;
+    var files={};files[fileName]={content:doc(res.cards)};
+    return api('PATCH','/gists/'+g.id,{files:files});
+  }).then(function(){
+    dirty=false;lsSet(LAST_KEY,String(Date.now()));setState('','ok');
+  },function(e){
+    var s=e&&e.status;
+    setState(s===401?'Token rejected. Make a new one and connect again.':s===403||s===429?'GitHub is limiting requests. Will retry shortly.':s?'Sync failed ('+s+'). Will retry.':'Offline. Will sync when back online.','err');
+    if(s===401){lsDel(TOKEN_KEY);lsDel(GIST_KEY);setState('','');setNote('GitHub rejected that token. Check it was copied whole, or make a new one, then paste it again.');}
+    else schedule(60000);
+  }).then(function(){busy=false;if(again){again=false;schedule(300);}});
+}
+/* Leaving the page: push what we have without waiting for a read. */
+function flush(){
+  if(!dirty||!token()||busy)return;
+  var id=lsGet(GIST_KEY);if(!id)return;
+  touch();
+  var out={},k;
+  for(k in lastRemote){if(has(lastRemote,k))out[k]=lastRemote[k];}
+  for(k in meta.ts){if(has(meta.ts,k)){var L=[meta.snap[k]||'',+meta.ts[k]];out[k]=out[k]?pick(L,out[k]):L;}}
+  var files={};files[fileName]={content:doc(out)};
+  try{api('PATCH','/gists/'+id,{files:files},true).then(function(){dirty=false;},function(){});}catch(e){}
+}
+
+/* ---------- backup / restore (works with or without sync) ---------- */
+function backup(){
+  var data={deck:cfg.label||fileName,key:cfg.key,exported:new Date().toISOString(),marks:local()};
+  var blob=new Blob([JSON.stringify(data,null,1)],{type:'application/json'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=fileName.replace(/\.json$/,'')+'-marks-'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1500);
+  setNote('Backup saved: '+count(data.marks)+' marked cards.');
+}
+function restore(file){
+  var rd=new FileReader();
+  rd.onload=function(){
+    var d;try{d=JSON.parse(rd.result);}catch(e){setNote('That file is not a marks backup.');return;}
+    if(!d||!d.marks){setNote('That file is not a marks backup.');return;}
+    if(d.key&&d.key!==cfg.key&&!window.confirm('This backup is from another deck ('+(d.deck||d.key)+'). Restore it here anyway?'))return;
+    var p=cfg.read?d.marks:clean(d.marks);
+    if(!window.confirm('Replace the marks in this deck with the '+count(p)+' marks in the backup?'))return;
+    writeLocal(p);touch();
+    try{cfg.onRemote(p);}catch(e){}
+    setNote('Restored '+count(p)+' marks.');
+  };
+  rd.readAsText(file);
+}
+function count(p){var n=0;for(var k in p){if(has(p,k))n++;}return n;}
+
+/* ---------- UI ---------- */
+var CSS='.dsync{margin:14px 0 0;border:1px solid var(--line,#d5dbe5);border-radius:10px;background:var(--surface,var(--panel,#fff));color:var(--ink,#18233a);font-size:.875rem}'+
+'.dsync summary{cursor:pointer;padding:10px 12px;display:flex;gap:8px;align-items:center;list-style:none;min-height:44px}'+
+'.dsync summary::-webkit-details-marker{display:none}'+
+'.dsync summary b{font-weight:650}.dsync .dsst{margin-left:auto;color:var(--muted,#5b6578);font-size:.8rem;text-align:right}'+
+'.dsync .dsst.ok{color:var(--known,#2b8a3e)}.dsync .dsst.err{color:var(--changed,var(--learning,#a35f00))}'+
+'.dsync .dsb{padding:0 12px 12px;display:grid;gap:8px}.dsync p{margin:0;color:var(--muted,#5b6578)}'+
+'.dsync input[type=password]{font:inherit;font-size:16px;width:100%;padding:9px 10px;border:1px solid var(--line,#d5dbe5);border-radius:8px;background:var(--surface-2,var(--bg,#f5f7fa));color:inherit}'+
+'.dsync .dsr{display:flex;gap:8px;flex-wrap:wrap}.dsync .dsr button,.dsync .dsr label{flex:1 1 0;min-width:120px;min-height:40px;font:inherit;font-size:.82rem;font-weight:600;border:1px solid var(--line,#d5dbe5);border-radius:8px;background:var(--surface-2,var(--bg,#f5f7fa));color:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:6px 8px;text-align:center}'+
+'.dsync .dsr label input{display:none}.dsync hr{border:0;border-top:1px solid var(--line,#d5dbe5);margin:4px 0}.dsync .dsnote{color:var(--ink,#18233a)}.dsync [hidden]{display:none!important}';
+function el(tag,attrs,text){var e=document.createElement(tag);for(var k in attrs){if(has(attrs,k))e.setAttribute(k,attrs[k]);}if(text)e.textContent=text;return e;}
+function buildUI(anchor){
+  var st=el('style');st.textContent=CSS;document.head.appendChild(st);
+  var d=el('details',{'class':'dsync'});
+  var s=el('summary');s.appendChild(el('b',{},'Sync across devices'));ui.state=el('span',{'class':'dsst'});s.appendChild(ui.state);d.appendChild(s);
+  var b=el('div',{'class':'dsb'});d.appendChild(b);
+  ui.off=el('div',{'class':'dsb',style:'padding:0'});
+  ui.off.appendChild(el('p',{},'Paste your GitHub sync token. You do this once per device; every deck on this site then syncs.'));
+  ui.tok=el('input',{type:'password',autocomplete:'off',autocapitalize:'off',spellcheck:'false',placeholder:'ghp_…','aria-label':'GitHub sync token'});ui.off.appendChild(ui.tok);
+  var r1=el('div',{'class':'dsr'});var bc=el('button',{type:'button'},'Connect this device');r1.appendChild(bc);ui.off.appendChild(r1);
+  ui.on=el('div',{'class':'dsb',style:'padding:0'});
+  ui.msg=el('p');ui.on.appendChild(ui.msg);
+  var r2=el('div',{'class':'dsr'});var bs=el('button',{type:'button'},'Sync now');var bd=el('button',{type:'button'},'Disconnect this device');r2.appendChild(bs);r2.appendChild(bd);ui.on.appendChild(r2);
+  b.appendChild(ui.off);b.appendChild(ui.on);
+  if(cfg.noBackup){ui.note=el('p',{'class':'dsnote',role:'status'});b.appendChild(ui.note);bindUI(bc,bs,bd);anchor.parentNode.insertBefore(d,anchor.nextSibling);ui.root=d;return;}
+  b.appendChild(el('hr'));
+  b.appendChild(el('p',{},'Safety copy of this deck’s marks as a file:'));
+  var r3=el('div',{'class':'dsr'});var bb=el('button',{type:'button'},'Back up marks');var lr=el('label',{},'Restore from backup');var fi=el('input',{type:'file',accept:'.json,application/json'});lr.appendChild(fi);r3.appendChild(bb);r3.appendChild(lr);b.appendChild(r3);
+  ui.note=el('p',{'class':'dsnote',role:'status'});b.appendChild(ui.note);
+  bindUI(bc,bs,bd);
+  bb.addEventListener('click',backup);
+  fi.addEventListener('change',function(){if(fi.files&&fi.files[0])restore(fi.files[0]);fi.value='';});
+  anchor.parentNode.insertBefore(d,anchor.nextSibling);
+  ui.root=d;
+}
+function bindUI(bc,bs,bd){
+  bc.addEventListener('click',function(){var t=ui.tok.value.trim();if(!t){ui.tok.focus();return;}lsSet(TOKEN_KEY,t);ui.tok.value='';renderUI();sync();});
+  bs.addEventListener('click',function(){sync();});
+  bd.addEventListener('click',function(){if(!window.confirm('Stop syncing on this device? Marks already here stay. Other decks on this device stop syncing too.'))return;lsDel(TOKEN_KEY);lsDel(GIST_KEY);setState('','');renderUI();});
+}
+var stateText='',stateKind='';
+function setState(t,k){stateText=t;stateKind=k;renderUI();}
+function setNote(t){if(ui.note)ui.note.textContent=t;}
+function ago(ms){var m=Math.round(ms/60000);if(m<1)return 'just now';if(m<60)return m+' min ago';var h=Math.round(m/60);if(h<24)return h+' h ago';return Math.round(h/24)+' d ago';}
+function renderUI(){
+  if(!ui.root)return;
+  var on=!!token();
+  ui.off.hidden=on;ui.on.hidden=!on;
+  var last=+lsGet(LAST_KEY)||0;
+  var lbl=!on?'Off':stateKind==='busy'?'Syncing…':stateKind==='err'?'Not synced':dirty?'Changes waiting':last?'Synced '+ago(Date.now()-last):'On';
+  ui.state.textContent=lbl;
+  ui.state.className='dsst'+(on&&stateKind==='err'?' err':on&&stateKind==='ok'&&!dirty?' ok':'');
+  ui.msg.textContent=stateKind==='err'?stateText:(last?'Last synced '+ago(Date.now()-last)+'. Marks sync by themselves after each change and when you come back to this tab.':'Connected. First sync merges this device’s marks with the other device’s.');
+}
+
+window.DeckSync={
+  init:function(c){
+    try{
+      if(!c||!c.key||!window.localStorage)return;
+      cfg=c;metaKey=c.key+'_sync';fileName=c.key.replace(/_progress$/,'')+'.json';
+      loadMeta();touch();dirty=false;
+      if(c.anchor)buildUI(c.anchor);
+      renderUI();
+      if(token())sync();
+      document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'){if(token())schedule(300);}else flush();});
+      window.addEventListener('pagehide',flush);
+      window.addEventListener('online',function(){if(token())schedule(300);});
+      setInterval(renderUI,60000);
+    }catch(e){cfg=null;}
+  },
+  touch:function(){try{touch();}catch(e){}},
+  sync:sync
+};
+})();
+</script><!--/deck-sync-->
+<script>
+(function(){
+'use strict';
+var KEY='pfrda_pension_eve_nov2026_progress';
+var THEME_KEY='pfrda_pension_eve_nov2026_theme';
+var CARDS=JSON.parse(document.getElementById('cards-data').textContent);
+var TOPICS=JSON.parse(document.getElementById('topics-data').textContent);
+var $=function(id){return document.getElementById(id);};
+
+/* ---------- storage (never required) ---------- */
+var storageOk=true;
+function sGet(k){try{return window.localStorage.getItem(k);}catch(e){storageOk=false;return null;}}
+function sSet(k,v){try{window.localStorage.setItem(k,v);return true;}catch(e){storageOk=false;showBanner();return false;}}
+function sDel(k){try{window.localStorage.removeItem(k);}catch(e){storageOk=false;}}
+function showBanner(){ $('banner').hidden=false; }
+(function probe(){try{var t='__pfrda_probe__';window.localStorage.setItem(t,'1');window.localStorage.removeItem(t);}catch(e){storageOk=false;}})();
+
+var progress={};
+(function(){
+  var raw=sGet(KEY);
+  if(!raw) return;
+  try{
+    var o=JSON.parse(raw);
+    if(o && typeof o==='object'){
+      for(var k in o){ if(Object.prototype.hasOwnProperty.call(o,k) && (o[k]==='known'||o[k]==='learning')) progress[k]=o[k]; }
+    }
+  }catch(e){}
+})();
+function saveProgress(){ sSet(KEY,JSON.stringify(progress)); if(window.DeckSync)DeckSync.touch(); }
+
+/* ---------- card revisions: reset only cards whose ANSWER changed ---------- */
+var REV_KEY='pfrda_pension_eve_nov2026_rev';
+var revs={};
+(function(){
+  var raw=sGet(REV_KEY);
+  if(raw){ try{ var o=JSON.parse(raw); if(o && typeof o==='object'){ for(var k in o){ if(Object.prototype.hasOwnProperty.call(o,k) && typeof o[k]==='number') revs[k]=o[k]; } } }catch(e){} }
+  var dirtyP=false, dirtyR=false;
+  CARDS.forEach(function(c){
+    var r=c.rev||1, saved=revs[c.id]||1;
+    if(r>saved){
+      if(c.ac && progress[c.id]==='known'){ progress[c.id]='learning'; dirtyP=true; }
+      revs[c.id]=r; dirtyR=true;
+    }
+  });
+  if(dirtyP) saveProgress();
+  if(dirtyR) sSet(REV_KEY,JSON.stringify(revs));
+})();
+
+/* ---------- theme ---------- */
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  $('bTheme').textContent = t==='dark' ? 'Light theme' : 'Dark theme';
+}
+var theme=sGet(THEME_KEY);
+if(theme!=='light' && theme!=='dark'){
+  theme=(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';
+}
+applyTheme(theme);
+
+/* ---------- state ---------- */
+var byId={};
+CARDS.forEach(function(c){byId[c.id]=c;});
+var baseOrder=CARDS.map(function(c){return c.id;});
+var order=baseOrder.slice();
+var filters={topics:[],type:'all',status:'all',hi:false,pyq:false,changed:false};
+var view=[], pos=0, flipped=false;
+
+function statusOf(id){var s=progress[id];return (s==='known'||s==='learning')?s:'unseen';}
+function matches(c){
+  if(filters.topics.length && filters.topics.indexOf(c.topic)<0) return false;
+  if(filters.type!=='all' && c.type!==filters.type) return false;
+  if(filters.hi && c.star!=='hi') return false;
+  if(filters.pyq && !c.pyq) return false;
+  if(filters.changed && !c.changed) return false;
+  if(filters.status==='notknown'){ if(statusOf(c.id)==='known') return false; }
+  else if(filters.status!=='all' && statusOf(c.id)!==filters.status) return false;
+  return true;
+}
+function rebuild(keepId){
+  view=order.filter(function(id){return matches(byId[id]);});
+  var i=keepId?view.indexOf(keepId):-1;
+  pos=i>=0?i:0;
+  flipped=false;
+  render();
+}
+
+/* ---------- rendering ---------- */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmt(s){return esc(s).replace(/\*\*([\s\S]+?)\*\*/g,'<strong>$1</strong>');}
+var TYPE_LABEL={fact:'Fact',trap:'Trap',concept:'Concept'};
+var STATUS_LABEL={unseen:'Unseen',learning:'Still learning',known:'Known'};
+
+function renderStats(){
+  var n=view.length,k=0,l=0;
+  view.forEach(function(id){var s=statusOf(id); if(s==='known')k++; else if(s==='learning')l++;});
+  $('sTotal').textContent=n;
+  $('sUnseen').textContent=n-k-l;
+  $('sLearn').textContent=l;
+  $('sKnown').textContent=k;
+  $('sPct').textContent=(n?Math.round(k*100/n):0)+'%';
+}
+function renderCard(){
+  var el=$('card');
+  if(!view.length){
+    el.className='card empty';
+    el.removeAttribute('data-type');
+    el.setAttribute('aria-expanded','false');
+    el.setAttribute('aria-label','No cards match these filters');
+    el.innerHTML='<p class="q" style="margin:0">No cards match these filters.</p><p class="note" style="margin:0">Change or clear a filter above to widen the set.</p><button type="button" id="emptyClear">Clear filters</button>';
+    var b=$('emptyClear'); if(b) b.addEventListener('click',function(e){e.stopPropagation();clearFilters();});
+    return;
+  }
+  var c=byId[view[pos]], st=statusOf(c.id);
+  var h='<div class="meta">';
+  h+='<span class="badge b-type">'+TYPE_LABEL[c.type]+'</span>';
+  if(c.star==='hi') h+='<span class="badge b-star">★ High-yield</span>';
+  else if(c.star==='md') h+='<span class="badge b-star">☆ Medium</span>';
+  if(c.changed) h+='<span class="badge b-changed">CHANGED</span>';
+  if(c.pyq) h+='<span class="badge b-pyq">'+esc(c.pyq)+'</span>';
+  h+='</div>';
+  h+='<div class="topic">'+esc(c.topic)+'</div>';
+  h+='<div class="q">'+fmt(c.front)+'</div>';
+  h+='<div class="hint">Tap the card or press Space to reveal the answer.</div>';
+  h+='<div class="a"><div class="ans">'+fmt(c.back)+'</div>';
+  if(c.note) h+='<div class="note">'+fmt(c.note)+'</div>';
+  h+='</div>';
+  h+='<div class="cfoot"><span>'+(pos+1)+' of '+view.length+(pos===view.length-1?' (end of set)':'')+'</span><span class="s-'+st+'">'+STATUS_LABEL[st]+'</span></div>';
+  el.className='card'+(flipped?' flipped':'');
+  el.setAttribute('data-type',c.type);
+  el.setAttribute('aria-expanded',flipped?'true':'false');
+  el.setAttribute('aria-label','Card '+(pos+1)+' of '+view.length+'. Press Space or Enter to '+(flipped?'hide':'show')+' the answer.');
+  el.innerHTML=h;
+}
+function renderControls(){
+  var has=view.length>0;
+  $('bPrev').disabled=!has||pos===0;
+  $('bNext').disabled=!has||pos>=view.length-1;
+  $('bFlip').disabled=!has;
+  $('bKnown').disabled=!has;
+  $('bLearn').disabled=!has;
+  $('bFlip').textContent=flipped?'Hide answer':'Show answer';
+}
+function render(){ renderCard(); renderControls(); renderStats(); renderFilterSummary(); }
+
+/* ---------- actions ---------- */
+function focusCard(){ try{$('card').focus({preventScroll:true});}catch(e){$('card').focus();} }
+function flip(){
+  if(!view.length) return;
+  flipped=!flipped;
+  var el=$('card');
+  el.classList.toggle('flipped',flipped);
+  el.setAttribute('aria-expanded',flipped?'true':'false');
+  $('bFlip').textContent=flipped?'Hide answer':'Show answer';
+}
+function go(d){
+  if(!view.length) return;
+  var p=pos+d;
+  if(p<0||p>=view.length) return;
+  pos=p; flipped=false; render();
+}
+function mark(val){
+  if(!view.length) return;
+  progress[view[pos]]=val;
+  saveProgress();
+  if(pos<view.length-1){pos++;flipped=false;}
+  render();
+}
+function shuffle(){
+  var keep=null;
+  for(var i=order.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=order[i];order[i]=order[j];order[j]=t;}
+  rebuild(keep);
+}
+function resetOrder(){ order=baseOrder.slice(); rebuild(null); }
+
+/* ---------- modal ---------- */
+var lastFocus=null;
+function openModal(){
+  lastFocus=document.activeElement;
+  $('mText').textContent='This clears every Known and Still learning mark for all '+CARDS.length+' cards saved in this browser.';
+  $('modal').hidden=false;
+  $('mCancel').focus();
+}
+function closeModal(){ $('modal').hidden=true; if(lastFocus&&lastFocus.focus) lastFocus.focus(); else focusCard(); }
+function doReset(){
+  progress={}; sDel(KEY); if(window.DeckSync)DeckSync.touch();
+  var cur=view.length?view[pos]:null;
+  $('modal').hidden=true;
+  rebuild(cur);
+  focusCard();
+}
+
+/* ---------- filters UI ---------- */
+/* Topic picker: one native select. Each area is an optgroup whose first option takes the whole area. */
+var PREF_KEY='pfrda_pension_eve_nov2026_filters';
+var topicCounts={}, groupOf={}, GROUPS=[], groupTopics={}, groupCounts={};
+CARDS.forEach(function(c){
+  topicCounts[c.topic]=(topicCounts[c.topic]||0)+1;
+  if(!groupOf[c.topic] || (groupOf[c.topic]==='Addendum' && c.section!=='Addendum')) groupOf[c.topic]=c.section;
+});
+TOPICS.forEach(function(t){
+  if(!topicCounts[t]) return;
+  var g=groupOf[t];
+  if(!groupTopics[g]){ GROUPS.push(g); groupTopics[g]=[]; groupCounts[g]=0; }
+  groupTopics[g].push(t); groupCounts[g]+=topicCounts[t];
+});
+function shortTopic(t,g){
+  var seps=[' — ',' - '];
+  for(var i=0;i<seps.length;i++){ if(t.indexOf(g+seps[i])===0) return t.slice((g+seps[i]).length); }
+  return t.replace(/^\d+\s+/,'');
+}
+(function buildTopics(){
+  var h='<option value="all">All topics ('+CARDS.length+')</option>';
+  GROUPS.forEach(function(g,gi){
+    h+='<optgroup label="'+esc(g)+'">';
+    h+='<option value="g:'+gi+'">All of '+esc(g)+' ('+groupCounts[g]+')</option>';
+    groupTopics[g].forEach(function(t){
+      h+='<option value="t:'+TOPICS.indexOf(t)+'">'+esc(shortTopic(t,g))+' ('+topicCounts[t]+')</option>';
+    });
+    h+='</optgroup>';
+  });
+  $('topicSel').innerHTML=h;
+})();
+var topicChoice='all';
+function topicsFor(v){
+  if(v.indexOf('g:')===0){ var g=GROUPS[+v.slice(2)]; return g?groupTopics[g].slice():[]; }
+  if(v.indexOf('t:')===0){ var t=TOPICS[+v.slice(2)]; return t?[t]:[]; }
+  return [];
+}
+function savePrefs(){
+  sSet(PREF_KEY,JSON.stringify({topic:topicChoice,type:filters.type,status:filters.status,hi:filters.hi,pyq:filters.pyq,changed:filters.changed}));
+}
+function syncFilterUI(){
+  $('topicSel').value=topicChoice;
+  $('typeSel').value=filters.type;
+  $('statusSel').value=filters.status;
+  $('topicSel').classList.toggle('on',topicChoice!=='all');
+  $('typeSel').classList.toggle('on',filters.type!=='all');
+  $('statusSel').classList.toggle('on',filters.status!=='all');
+  $('fHi').setAttribute('aria-pressed',filters.hi?'true':'false');
+  $('fPyq').setAttribute('aria-pressed',filters.pyq?'true':'false');
+  $('fChanged').setAttribute('aria-pressed',filters.changed?'true':'false');
+}
+(function loadPrefs(){
+  var raw=sGet(PREF_KEY); if(!raw) return;
+  try{
+    var o=JSON.parse(raw); if(!o||typeof o!=='object') return;
+    if(typeof o.topic==='string' && $('topicSel').querySelector('option[value="'+o.topic.replace(/"/g,'')+'"]')){ topicChoice=o.topic; filters.topics=topicsFor(o.topic); }
+    if(['all','fact','trap','concept'].indexOf(o.type)>=0) filters.type=o.type;
+    if(['all','unseen','learning','known','notknown'].indexOf(o.status)>=0) filters.status=o.status;
+    filters.hi=o.hi===true; filters.pyq=o.pyq===true; filters.changed=o.changed===true;
+  }catch(e){}
+})();
+function onFilterChange(){
+  savePrefs();
+  syncFilterUI();
+  var cur=view.length?view[pos]:null;
+  rebuild(cur);
+}
+$('topicSel').addEventListener('change',function(){ topicChoice=this.value; filters.topics=topicsFor(topicChoice); onFilterChange(); });
+$('typeSel').addEventListener('change',function(){ filters.type=this.value; onFilterChange(); });
+$('statusSel').addEventListener('change',function(){ filters.status=this.value; onFilterChange(); });
+$('fHi').addEventListener('click',function(){ filters.hi=!filters.hi; onFilterChange(); });
+$('fPyq').addEventListener('click',function(){ filters.pyq=!filters.pyq; onFilterChange(); });
+$('fChanged').addEventListener('click',function(){ filters.changed=!filters.changed; onFilterChange(); });
+function clearFilters(){
+  filters={topics:[],type:'all',status:'all',hi:false,pyq:false,changed:false};
+  topicChoice='all';
+  onFilterChange();
+}
+$('fClear').addEventListener('click',clearFilters);
+function renderFilterSummary(){
+  var on=topicChoice!=='all'||filters.type!=='all'||filters.status!=='all'||filters.hi||filters.pyq||filters.changed;
+  $('fClear').hidden=!on;
+}
+syncFilterUI();
+
+/* ---------- wiring ---------- */
+$('card').addEventListener('click',function(e){
+  if(!view.length) return;
+  var sel=window.getSelection && String(window.getSelection());
+  if(sel && sel.length>0 && flipped) return;
+  flip();
+});
+function bind(id,fn){ $(id).addEventListener('click',function(){ fn(); if(id!=='bReset') focusCard(); }); }
+bind('bPrev',function(){go(-1);});
+bind('bNext',function(){go(1);});
+bind('bFlip',flip);
+bind('bKnown',function(){mark('known');});
+bind('bLearn',function(){mark('learning');});
+bind('bShuffle',shuffle);
+bind('bOrder',resetOrder);
+bind('bReset',openModal);
+bind('bTheme',function(){ theme=theme==='dark'?'light':'dark'; applyTheme(theme); sSet(THEME_KEY,theme); });
+$('mCancel').addEventListener('click',closeModal);
+$('mOk').addEventListener('click',doReset);
+$('modal').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
+
+document.addEventListener('keydown',function(e){
+  if(!$('modal').hidden){ if(e.key==='Escape'){e.preventDefault();closeModal();} return; }
+  if(e.ctrlKey||e.metaKey||e.altKey) return;
+  var t=e.target, tag=(t&&t.tagName||'').toLowerCase();
+  if(tag==='input'||tag==='select'||tag==='textarea'||tag==='summary'||(t&&t.isContentEditable)) return;
+  var k=e.key;
+  if(k===' '||k==='Spacebar'||k==='Enter'){
+    if(tag==='button') return;
+    e.preventDefault(); flip(); return;
+  }
+  if(k==='ArrowRight'){e.preventDefault();go(1);focusCard();return;}
+  if(k==='ArrowLeft'){e.preventDefault();go(-1);focusCard();return;}
+  if(k==='k'||k==='K'){e.preventDefault();mark('known');focusCard();return;}
+  if(k==='l'||k==='L'){e.preventDefault();mark('learning');focusCard();return;}
+});
+
+$('sub').textContent='PFRDA Grade A 2026 flashcards, current as of Sep 2026. '+CARDS.length+' cards.';
+if(!storageOk) showBanner();
+rebuild(null);
+if(window.DeckSync)DeckSync.init({key:KEY,label:document.title,anchor:document.querySelector('.kbd')||$('modal'),onRemote:function(p){var cur=view.length?view[pos]:null,f=flipped;progress=p;rebuild(cur);if(f&&view[pos]===cur)flip();}});
+})();
+</script>
+</body>
+</html>
