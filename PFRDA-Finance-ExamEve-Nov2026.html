@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Finance Exam-Eve</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#EEF1F5; --surface:#FFFFFF; --surface-2:#F5F7FA; --ink:#18233A; --muted:#5B6578; --line:#D5DBE5;
+  --fact:#2F4B7C; --trap:#7A3E9D; --concept:#0F766E; --changed:#D9480F;
+  --known:#2B8A3E; --learning:#A35F00; --star:#8A6A00; --focus:#2F6FEB; --on-solid:#FFFFFF;
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0F1522; --surface:#182133; --surface-2:#1E293D; --ink:#E7EBF2; --muted:#A3ACBE; --line:#2C3852;
+  --fact:#9DB8EA; --trap:#D1A3EC; --concept:#5ED0C2; --changed:#FF8A4C;
+  --known:#6CC77D; --learning:#F0B44C; --star:#E8C547; --focus:#7AA7FF; --on-solid:#0F1522;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans","Helvetica Neue",Arial,sans-serif;
+  font-size:16px; line-height:1.5; -webkit-text-size-adjust:100%; overflow-x:hidden;
+}
+.wrap{max-width:640px;margin:0 auto;padding:16px 14px calc(28px + env(safe-area-inset-bottom,0px))}
+header h1{font-size:1.3rem;line-height:1.25;margin:0;font-weight:750;letter-spacing:-0.01em}
+header p{margin:4px 0 0;color:var(--muted);font-size:.875rem}
+.banner{margin:12px 0 0;padding:10px 12px;border:1px solid var(--learning);border-radius:10px;color:var(--ink);background:var(--surface);font-size:.875rem}
+.banner[hidden]{display:none}
+
+.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:14px 0}
+.stat{background:var(--surface);padding:8px 2px 6px;text-align:center;min-width:0}
+.stat b{display:block;font-size:1.05rem;font-variant-numeric:tabular-nums;line-height:1.3}
+.stat span{display:block;font-size:.7rem;color:var(--muted);line-height:1.25}
+.stat.k b{color:var(--known)} .stat.l b{color:var(--learning)}
+
+/* Filter bar: compact native selects + toggles (same layout as the Management deck), so the card sits right below. */
+.fbar{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-bottom:14px}
+.fbar select{
+  font:inherit;font-size:.9rem;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;
+  min-height:44px;padding:8px 10px;width:100%;min-width:0;cursor:pointer;
+}
+.fbar #topicSel{grid-column:1/-1}
+.fbar select.on{border-color:var(--fact);box-shadow:inset 0 0 0 1px var(--fact)}
+.ftog{grid-column:1/-1;display:flex;gap:8px}
+.ftog button{flex:1 1 auto;min-width:0;min-height:44px;font-size:.86rem;font-weight:600;padding:6px 8px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ftog button[aria-pressed="true"]{color:var(--surface);background:var(--ink);border-color:var(--ink)}
+.ftog button.fclear{flex:0 0 auto;padding:6px 12px;color:var(--changed);border-color:var(--changed)}
+.ftog button.fclear[hidden]{display:none}
+.fbar select:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+
+.card{
+  --accent:var(--fact);
+  background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--accent);border-radius:12px;
+  padding:14px 16px 14px;min-height:min(52vh,460px);display:flex;flex-direction:column;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;outline:none;user-select:text;
+}
+.card[data-type="trap"]{--accent:var(--trap)}
+.card[data-type="concept"]{--accent:var(--concept)}
+.card:focus-visible{box-shadow:0 0 0 3px var(--focus)}
+.card.empty{cursor:default;border-left-color:var(--line);justify-content:center;align-items:flex-start;gap:12px}
+.meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.badge{font-size:.74rem;font-weight:650;padding:2px 8px;border-radius:999px;border:1px solid currentColor;line-height:1.35;max-width:100%;overflow-wrap:anywhere}
+.b-type{color:var(--accent)}
+.b-star{color:var(--star)}
+.b-pyq{color:var(--muted);font-weight:550;border-radius:8px}
+.topic{font-size:.8rem;color:var(--muted);margin:8px 0 0;overflow-wrap:anywhere}
+.q{font-size:1.2rem;font-weight:650;line-height:1.42;margin:14px 0 0;overflow-wrap:anywhere}
+.hint{margin-top:auto;padding-top:18px;color:var(--muted);font-size:.85rem}
+.a{display:none;margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.card.flipped .a{display:block}
+.card.flipped .hint{display:none}
+.ans{font-size:1.14rem;line-height:1.5;overflow-wrap:anywhere}
+.ans strong{font-weight:800}
+.card[data-type="concept"] .ans{font-size:1.02rem;line-height:1.6}
+.note{margin-top:10px;font-size:.82rem;line-height:1.45;color:var(--muted);overflow-wrap:anywhere}
+.cfoot{display:flex;justify-content:space-between;gap:10px;margin-top:16px;font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.cfoot .s-known{color:var(--known);font-weight:650}
+.cfoot .s-learning{color:var(--learning);font-weight:650}
+@media (prefers-reduced-motion:no-preference){
+  .card.flipped .a{animation:reveal .16s ease-out}
+  @keyframes reveal{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+}
+
+.controls{display:grid;gap:8px;margin-top:12px}
+.row{display:grid;gap:8px}
+.row.nav{grid-template-columns:1fr 1.35fr 1fr}
+.row.mark{grid-template-columns:1fr 1fr}
+.row.tools{grid-template-columns:repeat(4,minmax(0,1fr))}
+button{
+  font:inherit;min-height:48px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  font-weight:650;padding:8px 10px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+}
+button:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+button:disabled{opacity:.45;cursor:default}
+.b-flip{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.b-known{background:var(--known);border-color:var(--known);color:var(--on-solid)}
+.b-learn{background:var(--surface);border:2px solid var(--learning);color:var(--learning)}
+.row.tools button{font-size:.82rem;font-weight:550;color:var(--muted);min-height:44px;padding:6px 4px}
+.kbd{display:none;margin:12px 0 0;font-size:.8rem;color:var(--muted)}
+@media (hover:hover) and (pointer:fine){.kbd{display:block}}
+@media (max-width:380px){
+  .row.tools{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .q{font-size:1.12rem}
+}
+.modal{position:fixed;inset:0;background:rgba(10,14,24,.55);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+.modal[hidden]{display:none}
+.mbox{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:18px;max-width:420px;width:100%}
+.mbox h2{font-size:1.1rem;margin:0 0 6px}
+.mbox p{margin:0 0 16px;color:var(--muted);font-size:.92rem}
+.b-danger{background:var(--changed);border-color:var(--changed);color:var(--on-solid)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Finance Exam-Eve (85 cards)</h1>
+    <p id="sub">PFRDA Grade A 2026 · Phase I Paper 2</p>
+    <p class="banner" id="banner" hidden>Progress can't be saved in this browser view, so your marks will reset when the page closes.</p>
+  </header>
+
+  <div class="stats" aria-live="polite">
+    <div class="stat"><b id="sTotal">0</b><span>In filter</span></div>
+    <div class="stat"><b id="sUnseen">0</b><span>Unseen</span></div>
+    <div class="stat l"><b id="sLearn">0</b><span>Still learning</span></div>
+    <div class="stat k"><b id="sKnown">0</b><span>Known</span></div>
+    <div class="stat"><b id="sPct">0%</b><span>Known</span></div>
+  </div>
+
+  <div class="fbar" id="filters">
+    <select id="topicSel" aria-label="Filter by topic"></select>
+    <select id="statusSel" aria-label="Filter by status">
+      <option value="all">All statuses</option>
+      <option value="unseen">Unseen</option>
+      <option value="learning">Still learning</option>
+      <option value="known">Known</option>
+      <option value="notknown">Not yet known</option>
+    </select>
+    <select id="typeSel" aria-label="Filter by card type">
+      <option value="all">All card types</option>
+      <option value="fact">Fact</option>
+      <option value="trap">Trap</option>
+      <option value="concept">Concept</option>
+    </select>
+    <div class="ftog">
+    <button type="button" id="fHi" aria-pressed="false">★ High-yield</button>
+    <button type="button" id="fPyq" aria-pressed="false">PYQ</button>
+    <button type="button" class="fclear" id="fClear" hidden>Clear</button>
+    </div>
+  </div>
+
+  <main>
+    <div class="card" id="card" tabindex="0" role="button" aria-expanded="false"></div>
+  </main>
+
+  <div class="controls">
+    <div class="row nav">
+      <button type="button" id="bPrev">Prev</button>
+      <button type="button" class="b-flip" id="bFlip">Show answer</button>
+      <button type="button" id="bNext">Next</button>
+    </div>
+    <div class="row mark">
+      <button type="button" class="b-learn" id="bLearn">Still learning</button>
+      <button type="button" class="b-known" id="bKnown">Known</button>
+    </div>
+    <div class="row tools">
+      <button type="button" id="bShuffle">Shuffle</button>
+      <button type="button" id="bOrder">Reset order</button>
+      <button type="button" id="bReset">Reset progress</button>
+      <button type="button" id="bTheme">Dark theme</button>
+    </div>
+  </div>
+  <p class="kbd">Keyboard: left and right arrows to move, Space or Enter to flip, K for known, L for still learning.</p>
+</div>
+
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="mbox">
+    <h2 id="mTitle">Reset progress?</h2>
+    <p id="mText">This clears every Known and Still learning mark saved in this browser.</p>
+    <div class="row mark">
+      <button type="button" id="mCancel">Cancel</button>
+      <button type="button" class="b-danger" id="mOk">Reset progress</button>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" id="cards-data">[{"id": "R01", "section": "Part 1 · RBI", "topic": "Part 1 · RBI - Evolution & Organisation", "type": "fact", "star": "hi", "front": "RBI's paid-up capital when it was set up in 1935 (unchanged since)?", "back": "**₹5 crore**", "pyq": "Asked: PFRDA 2025 Ph-I P2", "changed": false, "note": "Fully paid shares of ₹100 each; still ₹5 crore after nationalisation."}, {"id": "R07", "section": "Part 1 · RBI", "topic": "Part 1 · RBI - Subsidiaries", "type": "fact", "star": "hi", "front": "RBI's five wholly owned subsidiaries?", "back": "**DICGC, BRBNMPL, ReBIT, IFTAS, RBIH**", "pyq": "Asked: 'which is NOT an RBI subsidiary', PFRDA 2025 Ph-II · RBI Gr B 2026", "changed": false, "note": ""}, {"id": "R08", "section": "Part 1 · RBI", "topic": "Part 1 · RBI - Subsidiaries", "type": "trap", "star": "hi", "front": "PFRDA and NABARD are wholly owned subsidiaries of RBI. Correct?", "back": "**Wrong.** PFRDA is a statutory regulator under the Finance Ministry; NABARD is a DFI under the NABARD Act 1981. RBI's five: DICGC, BRBNMPL, ReBIT, IFTAS, RBIH.", "pyq": "Asked: PFRDA 2025 Ph-II · RBI Gr B 2026", "changed": false, "note": ""}, {"id": "R17", "section": "Part 1 · RBI", "topic": "Part 1 · RBI - Monetary Policy & Liquidity Tools", "type": "trap", "star": "hi", "front": "Under the LAF, repo absorbs liquidity and reverse repo releases it. Correct?", "back": "**Wrong: reversed.** Repo injects (banks borrow from RBI); reverse repo absorbs (banks lend surplus to RBI against G-secs). SDF also absorbs, without collateral.", "pyq": "Asked: SEBI 2018 Ph-II · RBI Gr B 2018", "changed": false, "note": ""}, {"id": "R19", "section": "Part 1 · RBI", "topic": "Part 1 · RBI - Monetary Policy & Liquidity Tools", "type": "fact", "star": "hi", "front": "Which RBI tool absorbs liquidity by letting banks park surplus funds without any collateral?", "back": "**Standing Deposit Facility (SDF)**", "pyq": "Asked: why RBI relies on SDF over reverse repo, PFRDA 2025 Ph-I P2", "changed": false, "note": ""}, {"id": "R21", "section": "Part 1 · RBI", "topic": "Part 1 · RBI - Monetary Policy & Liquidity Tools", "type": "trap", "star": "hi", "front": "Like the reverse repo, the SDF needs RBI to give G-secs as collateral. Correct?", "back": "**Wrong.** Reverse repo: RBI gives G-secs as collateral. SDF: banks simply deposit surplus with RBI, no collateral, so RBI isn't limited by its G-sec holdings. Both absorb liquidity.", "pyq": "Asked: PFRDA 2025 Ph-I P2", "changed": false, "note": ""}, {"id": "R25", "section": "Part 1 · RBI", "topic": "Part 1 · RBI - Foreign Exchange Operations", "type": "fact", "star": "hi", "front": "Components of India's forex reserves?", "back": "**Foreign currency assets, gold, SDRs, Reserve position with the IMF**", "pyq": "Asked: 'diamonds' as the odd one out, PFRDA 2021 Ph-II", "changed": false, "note": "Foreign currency assets are the largest component."}, {"id": "R27", "section": "Part 1 · RBI", "topic": "Part 1 · RBI - Foreign Exchange Operations", "type": "fact", "star": "hi", "front": "Why did RBI step up spot and forward FX interventions during the Russia–Ukraine war?", "back": "**To curb rupee volatility** as foreign investors pulled out", "pyq": "Asked: PFRDA 2025 Ph-I P2 · PYQ-sourced", "changed": false, "note": "Not to halt outflows, build reserves or push the rupee up."}, {"id": "R28", "section": "Part 1 · RBI", "topic": "Part 1 · RBI - Foreign Exchange Operations", "type": "fact", "star": "hi", "front": "A foreign bank's rupee account held with an Indian bank is called?", "back": "**Vostro account** ('your account with us')", "pyq": "Asked: nostro / vostro / loro, PFRDA 2022 Ph-I · PYQ-sourced", "changed": false, "note": ""}, {"id": "R29", "section": "Part 1 · RBI", "topic": "Part 1 · RBI - Foreign Exchange Operations", "type": "trap", "star": "hi", "front": "SBI's US-dollar account with Citibank, New York is a vostro account. Correct?", "back": "**Wrong: nostro** ('our account with you'; held abroad, in foreign currency). Vostro = a foreign bank's rupee account with an Indian bank. Loro = a third bank's account ('their account with them').", "pyq": "Asked: PFRDA 2022 Ph-I · PYQ-sourced", "changed": false, "note": ""}, {"id": "R30", "section": "Part 1 · RBI", "topic": "Part 1 · RBI - Foreign Exchange Operations", "type": "fact", "star": "hi", "front": "Bank of India holds a USD account with Citibank. Seen from Bank of Baroda, that account is called?", "back": "**Loro account** ('their account with them')", "pyq": "Asked: PFRDA 2022 Ph-I · PYQ-sourced", "changed": false, "note": ""}, {"id": "R31", "section": "Part 1 · RBI", "topic": "Part 1 · RBI - Financial Stability", "type": "fact", "star": "hi", "front": "Who heads the Financial Stability and Development Council (FSDC)?", "back": "**Union Finance Minister**", "pyq": "Asked: PFRDA 2021 Ph-I (GA)", "changed": false, "note": ""}, {"id": "R40", "section": "Part 1 · RBI", "topic": "Part 1 · RBI - Regulation & Supervision", "type": "fact", "star": "hi", "front": "A bank not listed in the Second Schedule of the RBI Act that can still borrow from RBI in an emergency is a?", "back": "**Non-scheduled bank**", "pyq": "Asked: PFRDA 2025 Ph-II · PYQ-sourced", "changed": false, "note": ""}, {"id": "R54", "section": "Part 1 · RBI", "topic": "Part 1 · RBI - Customer Protection & Publications", "type": "fact", "star": "hi", "front": "Which is NOT covered by RBI's Integrated Ombudsman Scheme: banks, NBFCs, payment system operators, housing finance companies?", "back": "**Housing Finance Companies**", "pyq": "Asked: PFRDA 2021 Ph-II · PYQ-sourced", "changed": false, "note": ""}, {"id": "D01", "section": "Part 1 · Debt & Money", "topic": "Part 1 · Debt & Money - Market Structure & Regulators", "type": "fact", "star": "hi", "front": "In which market are Treasury bills issued?", "back": "**Money market**", "pyq": "Asked: PFRDA 2025 Ph-I P2", "changed": false, "note": ""}, {"id": "D03", "section": "Part 1 · Debt & Money", "topic": "Part 1 · Debt & Money - Market Structure & Regulators", "type": "fact", "star": "hi", "front": "Regulator of the corporate debt market?", "back": "**SEBI**", "pyq": "Asked: PFRDA 2021 Ph-I", "changed": false, "note": ""}, {"id": "D04", "section": "Part 1 · Debt & Money", "topic": "Part 1 · Debt & Money - Market Structure & Regulators", "type": "trap", "star": "hi", "front": "RBI regulates the corporate bond market and SEBI regulates G-secs. Correct?", "back": "**Wrong: reversed.** RBI: money market, G-secs (including their issue) and the repo market. SEBI: corporate debt and debenture issues, plus settlement procedure on stock exchanges.", "pyq": "Asked: PFRDA 2021 Ph-I", "changed": false, "note": ""}, {"id": "D05", "section": "Part 1 · Debt & Money", "topic": "Part 1 · Debt & Money - Market Structure & Regulators", "type": "fact", "star": "hi", "front": "Default risk of Government securities?", "back": "**Zero**", "pyq": "Asked: PFRDA 2021 Ph-I", "changed": false, "note": ""}, {"id": "D12", "section": "Part 1 · Debt & Money", "topic": "Part 1 · Debt & Money - T-bills & CMBs", "type": "fact", "star": "hi", "front": "T-bill maturities?", "back": "**91, 182 and 364 days**", "pyq": "Asked: maximum T-bill tenor, SEBI 2025 Ph-I · IFSCA 2024 · listed in PFRDA 2025 Ph-I P2 explanation", "changed": false, "note": "The maximum is 364 days, not 365 or 366."}, {"id": "D18", "section": "Part 1 · Debt & Money", "topic": "Part 1 · Debt & Money - T-bills & CMBs", "type": "fact", "star": "hi", "front": "Tenure of Cash Management Bills (CMBs)?", "back": "**Less than 91 days**", "pyq": "Asked: PFRDA 2021 Ph-I · IFSCA 2024", "changed": false, "note": ""}, {"id": "D19", "section": "Part 1 · Debt & Money", "topic": "Part 1 · Debt & Money - T-bills & CMBs", "type": "trap", "star": "hi", "front": "CMBs are T-bills of 91–182 days issued to cover temporary cash mismatches. Correct?", "back": "**Wrong: CMBs run less than 91 days.** T-bills are 91/182/364 days. Both are issued by RBI for the Centre, at a discount, with T+1 settlement.", "pyq": "Asked: CMB tenure, PFRDA 2021 Ph-I", "changed": false, "note": ""}, {"id": "D20", "section": "Part 1 · Debt & Money", "topic": "Part 1 · Debt & Money - CDs, CPs & Other Short-term Instruments", "type": "trap", "star": "hi", "front": "Certificates of Deposit are issued by companies and Commercial Paper by banks. Correct?", "back": "**Wrong: reversed.** CDs: banks (SCBs, RRBs, SFBs) and AIFIs. CPs: companies, primary dealers, AIFIs. T-bills and CMBs: RBI for the Centre.", "pyq": "Asked: who issues CDs, SEBI 2018 Ph-I · CP issued by companies, RBI Gr B 2019", "changed": false, "note": ""}, {"id": "I02", "section": "Part 1 · Institutions", "topic": "Part 1 · Institutions - Major Regulatory Bodies (Regulator Map)", "type": "fact", "star": "hi", "front": "Regulator of mutual funds?", "back": "**SEBI**", "pyq": "Asked: PFRDA 2025 Ph-I P2 · SEBI 2022 Ph-I", "changed": false, "note": ""}, {"id": "I03", "section": "Part 1 · Institutions", "topic": "Part 1 · Institutions - Major Regulatory Bodies (Regulator Map)", "type": "fact", "star": "hi", "front": "Who regulates Regional Rural Banks?", "back": "**RBI**", "pyq": "Asked: PFRDA 2025 Ph-I P2 (key: PFRDA, RBI, SEBI)", "changed": false, "note": "Your brief and Pension deck card s2-084 pair RRBs with NABARD. EduTap's key and both summary sheets say RBI regulates RRBs and NABARD supervises them."}, {"id": "I04", "section": "Part 1 · Institutions", "topic": "Part 1 · Institutions - Major Regulatory Bodies (Regulator Map)", "type": "fact", "star": "hi", "front": "Who supervises Regional Rural Banks?", "back": "**NABARD**", "pyq": "Asked: PFRDA 2025 Ph-I P2 (explanation)", "changed": false, "note": ""}, {"id": "I05", "section": "Part 1 · Institutions", "topic": "Part 1 · Institutions - Major Regulatory Bodies (Regulator Map)", "type": "trap", "star": "hi", "front": "Pension–PFRDA, RRBs–NABARD, mutual funds–AMFI, insurance–IRDAI, NBFCs–SEBI. All correctly matched?", "back": "**No, three are wrong.** RRBs are regulated by RBI (NABARD only supervises). Mutual funds are regulated by SEBI (AMFI is the industry body). NBFCs are regulated by RBI. Pension–PFRDA and insurance–IRDAI are right.", "pyq": "Asked: PFRDA 2025 Ph-I P2 · SEBI 2022 Ph-I · SEBI 2020 Ph-I", "changed": false, "note": ""}, {"id": "I07", "section": "Part 1 · Institutions", "topic": "Part 1 · Institutions - Major Regulatory Bodies (Regulator Map)", "type": "fact", "star": "hi", "front": "Who regulates unlisted companies?", "back": "**Ministry of Corporate Affairs**", "pyq": "Asked: PFRDA 2022 Ph-I · PYQ-sourced", "changed": false, "note": "MCA administers the Companies Act 2013 and the LLP Act 2008, so it also oversees LLPs (IFSCA 2023)."}, {"id": "I11", "section": "Part 1 · Institutions", "topic": "Part 1 · Institutions - SEBI", "type": "fact", "star": "hi", "front": "Under SEBI's BRSR, which companies must disclose ESG information?", "back": "**Top 1,000 listed companies by market capitalisation**", "pyq": "Asked: PFRDA 2025 Ph-I P2 & P1", "changed": false, "note": "BRSR (2021) replaced Business Responsibility Reporting (BRR)."}, {"id": "I15", "section": "Part 1 · Institutions", "topic": "Part 1 · Institutions - AIFs, REITs, InvITs & CIS", "type": "fact", "star": "hi", "front": "Private equity in India is formed as a ___, registered with ___, and called ___?", "back": "**Trust; SEBI; Alternative Investment Fund** (Category II)", "pyq": "Asked: PFRDA 2025 Ph-II", "changed": false, "note": ""}, {"id": "I38", "section": "Part 1 · Institutions", "topic": "Part 1 · Institutions - Credit Guarantee Institutions & PFIs", "type": "fact", "star": "hi", "front": "Who guarantees loans under the Guaranteed Emergency Credit Line (GECL)?", "back": "**NCGTC** (100% guarantee)", "pyq": "Asked: PFRDA 2021 Ph-II", "changed": false, "note": ""}, {"id": "N03", "section": "Part 1 · Inclusion", "topic": "Part 1 · Inclusion - RBI Initiatives Before 2014", "type": "fact", "star": "hi", "front": "Which account is the core of 'access to banking services', with no minimum balance and free basic services?", "back": "**Basic Savings Bank Deposit Account (BSBDA)**", "pyq": "Asked: PFRDA 2021 Ph-I", "changed": false, "note": ""}, {"id": "N04", "section": "Part 1 · Inclusion", "topic": "Part 1 · Inclusion - RBI Initiatives Before 2014", "type": "fact", "star": "hi", "front": "Free withdrawals a month in a BSBDA?", "back": "**Four** (including ATM withdrawals)", "pyq": "Asked: PFRDA 2021 Ph-I (explanation)", "changed": false, "note": "No limit on number or value of deposits; ATM/RuPay debit card; simplified KYC."}, {"id": "N06", "section": "Part 1 · Inclusion", "topic": "Part 1 · Inclusion - RBI Initiatives Before 2014", "type": "trap", "star": "hi", "front": "A BSBDA is the 2014 PMJDY account that carries ₹2 lakh accident cover and a ₹10,000 overdraft. Correct?", "back": "**Wrong.** That describes PMJDY (Aug 2014), the Government mission. A BSBDA is RBI's standardised zero-balance account (2012), with 4 free withdrawals a month.", "pyq": "Asked: BSBDA, PFRDA 2021 Ph-I", "changed": false, "note": ""}, {"id": "N16", "section": "Part 1 · Inclusion", "topic": "Part 1 · Inclusion - Government Initiatives & Digital Rails", "type": "fact", "star": "hi", "front": "Who operates the Aadhaar-enabled Payment System (AePS)?", "back": "**NPCI**", "pyq": "Asked: PFRDA 2025 Ph-I P2 & P1", "changed": false, "note": ""}, {"id": "N17", "section": "Part 1 · Inclusion", "topic": "Part 1 · Inclusion - Government Initiatives & Digital Rails", "type": "fact", "star": "hi", "front": "The six services AePS supports?", "back": "**Cash deposit, cash withdrawal, balance enquiry, mini statement, Aadhaar-to-Aadhaar fund transfer, authentication (dual-auth) transactions**", "pyq": "Asked: PFRDA 2025 Ph-I P1 (explanation) · PYQ-sourced", "changed": false, "note": ""}, {"id": "N19", "section": "Part 1 · Inclusion", "topic": "Part 1 · Inclusion - Government Initiatives & Digital Rails", "type": "fact", "star": "hi", "front": "Under Direct Benefit Transfer, what does the Government transfer to beneficiaries?", "back": "**Subsidies**", "pyq": "Asked: PFRDA 2022 Ph-I", "changed": false, "note": "DBT began in January 2013; money goes into Aadhaar-linked bank accounts."}, {"id": "E03", "section": "Part 1 · Equity", "topic": "Part 1 · Equity - Shares & Valuation", "type": "fact", "star": "md", "front": "A share's P/B ratio is below 1 (market price below book value). The share is generally?", "back": "**Undervalued**", "pyq": "Asked: PFRDA 2022 Ph-II · PYQ-sourced", "changed": false, "note": "P/B = market price ÷ book value per share."}, {"id": "E04", "section": "Part 1 · Equity", "topic": "Part 1 · Equity - Shares & Valuation", "type": "concept", "star": "md", "front": "How do you get weighted-average EPS when shares are issued mid-year?", "back": "Weight new shares by the months they were outstanding. Example: 2,00,000 shares, plus 2,00,000 issued on 31 March with 9 months left. Weighted shares = 2,00,000 + 2,00,000 × 9/12 = 3,50,000. EPS = ₹4,00,000 profit ÷ 3,50,000 = ₹1.14.", "pyq": "Asked: PFRDA 2022 Ph-II · PYQ-sourced", "changed": false, "note": ""}, {"id": "E05", "section": "Part 1 · Equity", "topic": "Part 1 · Equity - IPO, FPO & Pricing", "type": "fact", "star": "hi", "front": "Option letting a company over-allot shares and use the money to buy shares back if the price falls below the issue price after listing?", "back": "**Green-shoe option**", "pyq": "Asked: PFRDA 2022 Ph-I", "changed": false, "note": ""}, {"id": "E06", "section": "Part 1 · Equity", "topic": "Part 1 · Equity - IPO, FPO & Pricing", "type": "fact", "star": "hi", "front": "Green-shoe over-allotment limit?", "back": "**Up to 15% of the issue size**", "pyq": "Asked: PFRDA 2022 Ph-I (explanation)", "changed": false, "note": "The proceeds are kept in a separate bank account for price stabilisation."}, {"id": "E08", "section": "Part 1 · Equity", "topic": "Part 1 · Equity - IPO, FPO & Pricing", "type": "trap", "star": "hi", "front": "Book building is the mechanism that stabilises a share's price just after listing. Correct?", "back": "**Wrong.** Book building discovers the issue price from bids within a price band; the green-shoe option stabilises the price after listing.", "pyq": "", "changed": false, "note": "Price band cap: at most 20% above the floor."}, {"id": "E32", "section": "Part 1 · Equity", "topic": "Part 1 · Equity - Green-shoe, DRs & Foreign Investment", "type": "fact", "star": "hi", "front": "Social Stock Exchange: minimum amount an NPO must have spent in the last financial year to register?", "back": "**₹50 lakh**", "pyq": "Asked: PFRDA 2022 Ph-II · PYQ-sourced", "changed": false, "note": "Same framework: minimum funding of ₹10 lakh in the past year, and valid 80G registration."}, {"id": "DV03", "section": "Part 2 · Derivatives", "topic": "Part 2 · Derivatives - Basics", "type": "fact", "star": "hi", "front": "Four types of derivative contracts?", "back": "**Forwards, futures, options, swaps**", "pyq": "Asked: SEBI 2018 Ph-II, PFRDA 2021 Ph-II", "changed": false, "note": "'Which is NOT a derivative' PYQs: credit agreement (SEBI 2018 Ph-II), debentures (PFRDA 2021 Ph-II)."}, {"id": "DV09", "section": "Part 2 · Derivatives", "topic": "Part 2 · Derivatives - Forwards vs Futures", "type": "trap", "star": "hi", "front": "Futures are traded OTC and forwards on exchanges. Correct?", "back": "**Wrong: reversed.** Forwards and swaps trade OTC; futures and options trade on exchanges.", "pyq": "Asked: RBI Gr B 2017, SEBI 2025 Ph-II", "changed": false, "note": "RBI 2017 asked which is generally NOT traded off-exchange: futures. Forward vs futures: price discovery not efficient vs efficient; counterparty risk exists vs taken over by the clearing agency; settlement physical vs cash or physical."}, {"id": "DV13", "section": "Part 2 · Derivatives", "topic": "Part 2 · Derivatives - Participants and Payoffs", "type": "fact", "star": "hi", "front": "Taking an equal and opposite position to protect against adverse price moves is called?", "back": "**Hedging**", "pyq": "Asked: RBI Gr B 2017, PFRDA 2022 Ph-I, IFSCA 2025", "changed": false, "note": "Hedgers lock in today's price (an exporter 'playing safe'). Price risk is transferred by hedging, not speculation or arbitrage."}, {"id": "DV17", "section": "Part 2 · Derivatives", "topic": "Part 2 · Derivatives - Margins and Leverage", "type": "trap", "star": "hi", "front": "Initial margin vs maintenance margin?", "back": "**Initial: deposited to open the trade. Maintenance: the minimum balance to keep it open**\nFalling to it triggers a margin call to top up to the initial margin.", "pyq": "Asked: SEBI 2020 Ph-II", "changed": false, "note": "Mark to market: profit or loss is settled in the margin account daily. Margins matter only for losses. Long position: margin call price = Price × (1 − IM) ÷ (1 − MM); ₹60 × 0.6 ÷ 0.8 = ₹45 (SEBI 2020; also in the PYQ Book as F-DER-02)."}, {"id": "DV18", "section": "Part 2 · Derivatives", "topic": "Part 2 · Derivatives - Margins and Leverage", "type": "fact", "star": "hi", "front": "How many futures contracts hedge a portfolio?", "back": "**Contracts = Portfolio value × Beta ÷ (Futures price × Lot size)**\n₹20,00,000 × 1.25 ÷ (₹1,050 × 100) = 23.8, so 24.", "pyq": "Asked: PFRDA 2025 Ph-II", "changed": false, "note": "A higher beta needs more contracts. The later market price (₹1,020) is a distractor."}, {"id": "DV20", "section": "Part 2 · Derivatives", "topic": "Part 2 · Derivatives - Pricing and Basis", "type": "trap", "star": "hi", "front": "Contango vs backwardation?", "back": "**Contango: futures price above spot (normal market), basis negative. Backwardation: futures below spot, basis positive.**", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "SEBI 2025 Ph-II statement 3 said the basis is positive in contango: false. Example: spot 40, futures 50, basis −10."}, {"id": "DV25", "section": "Part 2 · Derivatives", "topic": "Part 2 · Derivatives - Swaps and CDS", "type": "trap", "star": "hi", "front": "You must hold the underlying bond to buy a CDS. Correct?", "back": "**Wrong.** The protection buyer need not own the bond.", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "SEBI 2025 Ph-II: statements 1, 2 and 4 correct; 3 (only bondholders) false."}, {"id": "OP02", "section": "Part 2 · Options", "topic": "Part 2 · Options - Call and Put", "type": "trap", "star": "hi", "front": "Call option vs put option?", "back": "**Call: the holder's right to buy. Put: the holder's right to sell.**\nThe seller (writer) always carries the obligation.", "pyq": "Asked: RBI Gr B 2019", "changed": false, "note": "RBI 2019: the right to sell the security before maturity = put buyer."}, {"id": "OP04", "section": "Part 2 · Options", "topic": "Part 2 · Options - Call and Put", "type": "trap", "star": "hi", "front": "Maximum loss and maximum profit of a call buyer vs a call writer?", "back": "**Buyer: loss limited to the premium, profit unlimited. Writer: profit limited to the premium, loss unlimited.**", "pyq": "Asked: SEBI 2020 Ph-II", "changed": false, "note": "Buyer's P&L = (exit premium − entry premium) × lot × lots − costs: (80 − 50) × 75 × 10 − 225 = ₹22,275 (SEBI 2020). Put buyer: loss limited to premium, profit grows as price falls. Put writer: loss grows as price falls, capped when the price hits zero."}, {"id": "OP10", "section": "Part 2 · Options", "topic": "Part 2 · Options - Greeks and Pricing", "type": "fact", "star": "hi", "front": "Which option Greek measures the decline in option value as time passes?", "back": "**Theta** (time decay)", "pyq": "Asked: PFRDA 2022 Ph-II", "changed": false, "note": "Delta: premium change per unit change in the underlying. Gamma: change in delta (second derivative). Vega: sensitivity to volatility. Rho: sensitivity to the risk-free interest rate."}, {"id": "FX13", "section": "Part 2 · Forex Market", "topic": "Part 2 · Forex Market - LRS and NRI Accounts", "type": "trap", "star": "hi", "front": "NRE vs NRO vs FCNR accounts?", "back": "**NRE: rupee account for foreign earnings, fully repatriable, tax-free. NRO: rupee account for income earned in India, taxable. FCNR: term deposits in foreign currency, no currency risk.**", "pyq": "", "changed": false, "note": "NRO principal repatriable up to USD 1 million a year. SNRR: non-interest rupee account for specified transactions, repatriable."}, {"id": "AF02", "section": "Part 2 · Alternate Finance", "topic": "Part 2 · Alternate Finance - Leasing and Franchising", "type": "trap", "star": "hi", "front": "Operating lease vs financial lease?", "back": "**Operating: short-term, cancellable, asset returned (service lease). Financial: long-term, 'full payout' lease.**", "pyq": "", "changed": false, "note": ""}, {"id": "AF06", "section": "Part 2 · Alternate Finance", "topic": "Part 2 · Alternate Finance - Factoring and Forfaiting", "type": "trap", "star": "hi", "front": "Factoring with recourse vs without recourse?", "back": "**With recourse: the factor recovers from the seller if the debtor defaults. Without recourse: the factor bears the loss.**", "pyq": "", "changed": false, "note": ""}, {"id": "AF09", "section": "Part 2 · Alternate Finance", "topic": "Part 2 · Alternate Finance - Factoring and Forfaiting", "type": "trap", "star": "hi", "front": "Factoring vs discounting of bills?", "back": "**Factoring: bills receivable, recourse or non-recourse, ownership passes to the factor, Factoring Regulation Act 2011. Bill discounting: bill of exchange, always with recourse, ownership stays with the drawer, NI Act 1881.**", "pyq": "", "changed": false, "note": "Parties: factoring = debtor, customer, factor; discounting = drawer, drawee, discounting bank."}, {"id": "AF12", "section": "Part 2 · Alternate Finance", "topic": "Part 2 · Alternate Finance - Factoring and Forfaiting", "type": "trap", "star": "hi", "front": "Forfaiting vs international factoring?", "back": "**Forfaiting: medium to long-term receivables, capital goods, always non-recourse. International factoring: short-term, consumer goods, recourse or non-recourse.**", "pyq": "", "changed": false, "note": ""}, {"id": "AF14", "section": "Part 2 · Alternate Finance", "topic": "Part 2 · Alternate Finance - TReDS", "type": "trap", "star": "hi", "front": "TReDS platforms are market infrastructure institutions. Correct?", "back": "**Wrong.** They are RBI-authorised payment system operators, not MIIs. Settlement runs through RBI-regulated payment systems.", "pyq": "Asked: RBI Gr B 2025", "changed": false, "note": "RBI 2025: statements 1 (MSMEs discount receivables from corporate/government buyers) and 2 (multiple financiers bid) correct; 3 (MIIs) wrong. Flow: MSME uploads invoice, buyer accepts, MSME picks the best financier's bid, financier pays early."}, {"id": "AF17", "section": "Part 2 · Alternate Finance", "topic": "Part 2 · Alternate Finance - Crowdfunding, Angels, VCs and P2P", "type": "trap", "star": "hi", "front": "Peer-to-peer lending is unregulated in India. Correct?", "back": "**Wrong.** P2P platforms are regulated by RBI as NBFC-P2P (P2P Lending Platform Directions, 2017).", "pyq": "Asked: RBI Gr B 2017", "changed": false, "note": "RBI 2017 asked for the false statement. Registration needs net owned funds of at least ₹2 crore (₹20 million). Funds move only through an escrow account."}, {"id": "PP12", "section": "Part 2 · PPP", "topic": "Part 2 · PPP - PPP Models", "type": "trap", "star": "hi", "front": "DBFOT vs DBFOO?", "back": "**DBFOT: private designs, builds, finances, operates, then transfers; ownership risk with the government. DBFOO: the private party also owns the asset; all four risks private.**", "pyq": "", "changed": false, "note": "Both have indicative concession periods of 30-45 years. BOO is a DBFOO variant. BOOT: build, own, operate, then transfer."}, {"id": "PP15", "section": "Part 2 · PPP", "topic": "Part 2 · PPP - Appraisal and Support Schemes", "type": "fact", "star": "hi", "front": "Under the VGF scheme, maximum central government grant as a share of total project cost?", "back": "**20%** (the State or sponsoring authority may add up to 20%, total 40%)", "pyq": "Asked: PFRDA 2021 Ph-II", "changed": false, "note": "VGF = a capital grant for projects that are economically justified but not commercially viable."}, {"id": "TX02", "section": "Part 2 · Taxation", "topic": "Part 2 · Taxation - Direct Tax Basics", "type": "trap", "star": "hi", "front": "Direct vs indirect tax: where do impact and incidence fall?", "back": "**Direct: impact and incidence on the same person** (income tax). **Indirect: impact on the seller, incidence shifted to the consumer** (GST, customs).", "pyq": "", "changed": false, "note": "Impact = who pays the government first; incidence = who finally bears the burden."}, {"id": "TX14", "section": "Part 2 · Taxation", "topic": "Part 2 · Taxation - Direct Tax Basics", "type": "fact", "star": "hi", "front": "Which Indian tax is a form of Tobin tax?", "back": "**Securities Transaction Tax (STT)**", "pyq": "Asked: PFRDA 2021 Ph-II", "changed": false, "note": "Tobin (1972) proposed a tax on spot currency conversions to curb short-term speculation. Web check (Budget 2026-27, PRS): STT on futures raised 0.02% to 0.05%, options 0.10% to 0.15% of premium."}, {"id": "TX23", "section": "Part 2 · Taxation", "topic": "Part 2 · Taxation - GST", "type": "trap", "star": "hi", "front": "CGST + SGST vs IGST: when does each apply, and who collects?", "back": "**Intra-state: CGST (Centre) + SGST/UTGST (State) split equally. Inter-state, imports and SEZ supplies: IGST, collected by the Centre and passed to the consuming State.**", "pyq": "Asked: PFRDA 2025 Ph-II", "changed": false, "note": "The four components are CGST, SGST, UTGST, IGST. 'UIGST' does not exist. UTGST applies in UTs without a legislature (Chandigarh, Lakshadweep, A&N); Delhi and Puducherry use SGST."}, {"id": "TX24", "section": "Part 2 · Taxation", "topic": "Part 2 · Taxation - GST", "type": "fact", "star": "hi", "front": "Which GST applies to exports from India?", "back": "**IGST**, but exports are **zero-rated**: no tax, input credit refunded.", "pyq": "Asked: SEBI 2025 Ph-II, PFRDA 2025 Ph-I", "changed": false, "note": ""}, {"id": "TX25", "section": "Part 2 · Taxation", "topic": "Part 2 · Taxation - GST", "type": "trap", "star": "hi", "front": "Zero-rated vs exempt (nil-rated) vs non-GST supply?", "back": "**Zero-rated (exports, SEZ): 0% with ITC. Exempt/nil (fresh vegetables, school education): 0% and no ITC. Non-GST (petrol, liquor): outside GST.**", "pyq": "Asked: PFRDA 2025 Ph-I", "changed": false, "note": ""}, {"id": "TX26", "section": "Part 2 · Taxation", "topic": "Part 2 · Taxation - GST", "type": "trap", "star": "hi", "front": "Composite vs mixed supply: rate applied?", "back": "**Composite (naturally bundled, e.g. hotel room with breakfast): rate of the principal supply. Mixed (artificial bundle, e.g. gift hamper): the highest rate in the bundle.**", "pyq": "Asked: SEBI 2020 Ph-II", "changed": false, "note": ""}, {"id": "TX27", "section": "Part 2 · Taxation", "topic": "Part 2 · Taxation - GST", "type": "fact", "star": "hi", "front": "Inputs taxed at a higher GST rate than the output: what is it called?", "back": "**Inverted duty structure** (credit piles up; refund allowed)", "pyq": "Asked: PFRDA 2021 Ph-I", "changed": false, "note": ""}, {"id": "FC02", "section": "Part 2 · Finance Commission", "topic": "Part 2 · Finance Commission - Constitution and History", "type": "fact", "star": "hi", "front": "Main guiding principle when the FC fixes the States' share (vertical devolution)?", "back": "**Correct the vertical fiscal imbalance** between the Centre (more revenue) and States (more spending duties).", "pyq": "Asked: PFRDA 2025 Ph-I", "changed": false, "note": ""}, {"id": "FC03", "section": "Part 2 · Finance Commission", "topic": "Part 2 · Finance Commission - Constitution and History", "type": "trap", "star": "hi", "front": "Finance Commission vs Finance Ministry: who recommends the Centre-State tax split?", "back": "**Finance Commission** (constitutional, Art. 280) recommends the split and grants. The **Finance Ministry** prepares the Budget and accepts or rejects them; the Planning Commission/NITI Aayog never had this role.", "pyq": "Asked: NPS Trust 2025 Ph-II", "changed": false, "note": ""}, {"id": "FC08", "section": "Part 2 · Finance Commission", "topic": "Part 2 · Finance Commission - Devolution", "type": "trap", "star": "hi", "front": "15th FC vs 16th FC weights: income distance, population, area, demographic performance?", "back": "**15th: 45%, 15%, 15%, 12.5% (+ forest 10%, tax effort 2.5%). 16th: 42.5%, 17.5%, 10%, 10% (+ forest 10%, GDP contribution 10%).**", "pyq": "Asked: PFRDA 2022 Ph-II, SEBI 2024 Ph-II", "changed": false, "note": "PYQs on 'income distance 45%' and 'demographic performance 12.5%' are 15th FC figures."}, {"id": "FR05", "section": "Part 2 · FRBM", "topic": "Part 2 · FRBM - Act and Targets", "type": "fact", "star": "hi", "front": "FRBM clause that lets the government deviate from the annual deficit target in a calamity or a national-security situation?", "back": "**Escape clause**", "pyq": "Asked: PFRDA 2021 Ph-I", "changed": false, "note": ""}, {"id": "IN04", "section": "Part 2 · Inflation", "topic": "Part 2 · Inflation - Concepts", "type": "trap", "star": "hi", "front": "Stagflation vs disinflation vs deflation vs reflation vs skewflation?", "back": "**Stagflation: high inflation + high unemployment/stagnant growth. Disinflation: inflation slowing but still positive. Deflation: prices falling. Reflation: deliberate revival after a slowdown. Skewflation: price rises in a few items only.**", "pyq": "Asked: RBI Gr B 2019", "changed": false, "note": "US stagflation in the 1970s followed the oil shock."}, {"id": "IN06", "section": "Part 2 · Inflation", "topic": "Part 2 · Inflation - Concepts", "type": "trap", "star": "hi", "front": "Headline vs core inflation?", "back": "**Headline: all items including food and fuel (CPI-Combined in India). Core: excludes volatile food and fuel.**", "pyq": "Asked: PFRDA (year n/a)", "changed": false, "note": ""}, {"id": "IN08", "section": "Part 2 · Inflation", "topic": "Part 2 · Inflation - Indices and Targeting", "type": "fact", "star": "hi", "front": "Most significant price index in India (used for inflation targeting)?", "back": "**CPI (Combined)**, compiled monthly by the NSO (MoSPI). Not WPI or the GDP deflator.", "pyq": "Asked: PFRDA 2025 Ph-II, PFRDA (year n/a)", "changed": false, "note": ""}, {"id": "IN10", "section": "Part 2 · Inflation", "topic": "Part 2 · Inflation - Indices and Targeting", "type": "trap", "star": "hi", "front": "CPI rising while WPI falls means?", "back": "**Retail prices rising while wholesale prices decline** (e.g. retail food and services up, manufactured goods and fuel down).", "pyq": "Asked: RBI Gr B 2025", "changed": false, "note": ""}, {"id": "RM02", "section": "Part 2 · Risk Management", "topic": "Part 2 · Risk Management - Types of Risk", "type": "trap", "star": "hi", "front": "Market risk vs operational risk: what causes each?", "back": "**Market risk: external factors (interest rates, exchange rates, asset prices). Operational risk: inadequate or failed internal processes, people, systems** (or external events).", "pyq": "Asked: RBI Gr B 2019", "changed": false, "note": ""}, {"id": "BT04", "section": "Part 2 · Bonds and TVM", "topic": "Part 2 · Bonds and TVM - Bond Types", "type": "trap", "star": "hi", "front": "Municipal revenue bond vs general obligation bond?", "back": "**Revenue bond: for a specific project, repaid from its revenue (tolls, water fees). General obligation bond: backed by the issuer's general taxing power.**", "pyq": "Asked: NPS Trust 2025 Ph-II", "changed": false, "note": ""}, {"id": "BT06", "section": "Part 2 · Bonds and TVM", "topic": "Part 2 · Bonds and TVM - Bond Types", "type": "trap", "star": "hi", "front": "Bond vs equity: which feature belongs to bonds?", "back": "**Fixed income.** Equity: variable dividend and ownership dilution.", "pyq": "Asked: RBI Gr B 2019", "changed": false, "note": ""}, {"id": "BT08", "section": "Part 2 · Bonds and TVM", "topic": "Part 2 · Bonds and TVM - Yield and Price", "type": "trap", "star": "hi", "front": "Bond price and yield: which statement is false? 'When price increases, yield increases.'", "back": "**False: price and yield move inversely** (Malkiel's first property); the curve is convex, more so for longer maturities.", "pyq": "Asked: SEBI 2018 Ph-I", "changed": false, "note": ""}, {"id": "BT11", "section": "Part 2 · Bonds and TVM", "topic": "Part 2 · Bonds and TVM - Yield and Price", "type": "trap", "star": "hi", "front": "Clean price vs dirty price?", "back": "**Clean: quoted price without accrued interest. Dirty: clean + interest accrued since the last coupon** (what the buyer pays).", "pyq": "Asked: NPS Trust 2025 Ph-II", "changed": false, "note": ""}, {"id": "BT13", "section": "Part 2 · Bonds and TVM", "topic": "Part 2 · Bonds and TVM - Time Value of Money", "type": "trap", "star": "hi", "front": "Rule of 72 vs rule of 114 vs rule of 144?", "back": "**Years to double = 72 / r. To triple = 114 / r. To quadruple = 144 / r.**", "pyq": "Asked: SEBI 2024 Ph-II, RBI Gr B 2017", "changed": false, "note": ""}, {"id": "BK06", "section": "Part 2 · Banking", "topic": "Part 2 · Banking - Banking Operations", "type": "trap", "star": "hi", "front": "Hypothecation vs pledge vs mortgage: what passes to the lender?", "back": "**Hypothecation (movables): neither possession nor ownership. Pledge (movables): possession only. Mortgage (immovable): an interest in the property** (Transfer of Property Act 1882).", "pyq": "Asked: RBI Gr B 2019", "changed": false, "note": ""}, {"id": "FI01", "section": "Part 2 · Financial Inclusion", "topic": "Part 2 · Financial Inclusion - Social Security Schemes", "type": "trap", "star": "hi", "front": "PMJJBY vs PMSBY: cover type, sum, age band, premium?", "back": "**PMJJBY: life cover for death from any cause, ₹2 lakh, join at 18-50. PMSBY: accidental death/disability, ages 18-70, premium ₹20 a year.**", "pyq": "Asked: RBI Gr B 2023", "changed": false, "note": "Both are one-year covers renewed every 1 June to 31 May through bank or post office accounts with auto-debit. PMJJBY is offered through LIC and other life insurers."}, {"id": "EQ01", "section": "Part 2 · Equity Market", "topic": "Part 2 · Equity Market - Markets and Issues", "type": "trap", "star": "hi", "front": "Primary vs secondary market?", "back": "**Primary: new issues of securities (IPO, FPO). Secondary: trading of existing securities between investors.**", "pyq": "Asked: RBI Gr B 2017, RBI Gr B 2019", "changed": false, "note": ""}]</script>
+<script type="application/json" id="topics-data">["RBI - Evolution & Organisation","RBI - Subsidiaries","RBI - Monetary Policy & Liquidity Tools","RBI - Foreign Exchange Operations","RBI - Financial Stability","RBI - Regulation & Supervision","RBI - Banker to Banks & Government","RBI - Customer Protection & Publications","RBI - Currency Management & Payments","Debt & Money - Market Structure & Regulators","Debt & Money - Long-term Debt Instruments","Debt & Money - T-bills & CMBs","Debt & Money - CDs, CPs & Other Short-term Instruments","Debt & Money - Call Money, Repo & Triparty Repo","Debt & Money - RBI Platforms, CCIL & Debt Issues","Institutions - Major Regulatory Bodies (Regulator Map)","Institutions - SEBI","Institutions - AIFs, REITs, InvITs & CIS","Institutions - PFRDA, IFSCA & IRDAI","Institutions - AIFIs: NABARD","Institutions - AIFIs: SIDBI, EXIM, NHB, NaBFID","Institutions - Credit Guarantee Institutions & PFIs","Inclusion - Meaning, Pillars & Barriers","Inclusion - RBI Initiatives Before 2014","Inclusion - RBI Initiatives After 2014","Inclusion - Government Initiatives & Digital Rails","Inclusion - Microfinance, SHGs & JLGs","Equity - Shares & Valuation","Equity - Bonus & Rights Issues","Equity - IPO, FPO & Pricing","Equity - Investors, ASBA & IPO Rules","Equity - Indian Stock Market & Regulation","Equity - Green-shoe, DRs & Foreign Investment"]</script>
+<script id="deck-sync">
+/* DeckSync: cross-device sync of Known / Still learning marks through a private GitHub gist.
+   One token per device (localStorage 'pfrda_sync_token', shared by every deck on this site).
+   One secret gist holds one JSON file per deck. Local marks stay in the deck's own key, unchanged.
+   Merge: union of marks; where devices disagree, the most recent change wins. */
+(function(){
+'use strict';
+var TOKEN_KEY='pfrda_sync_token', GIST_KEY='pfrda_sync_gist', LAST_KEY='pfrda_sync_last';
+var DESC='PFRDA flashcard marks sync (do not delete)';
+var API='https://api.github.com';
+var has=function(o,k){return Object.prototype.hasOwnProperty.call(o,k);};
+function lsGet(k){try{return window.localStorage.getItem(k);}catch(e){return null;}}
+function lsSet(k,v){try{window.localStorage.setItem(k,v);return true;}catch(e){return false;}}
+function lsDel(k){try{window.localStorage.removeItem(k);}catch(e){}}
+function readJSON(k){var r=lsGet(k);if(!r)return null;try{var o=JSON.parse(r);return (o&&typeof o==='object')?o:null;}catch(e){return null;}}
+function clean(o){var p={};if(o)for(var k in o){if(has(o,k)&&(o[k]==='known'||o[k]==='learning'))p[k]=o[k];}return p;}
+function same(a,b){var k;for(k in a){if(has(a,k)&&a[k]!==b[k])return false;}for(k in b){if(has(b,k)&&a[k]!==b[k])return false;}return true;}
+
+var cfg=null, metaKey='', fileName='', meta=null, lastRemote={}, timer=null, busy=false, again=false, dirty=false, ui={};
+
+function token(){var t=lsGet(TOKEN_KEY);return t?t.trim():'';}
+function saveMeta(){lsSet(metaKey,JSON.stringify(meta));}
+function local(){return clean(readJSON(cfg.key));}
+function loadMeta(){
+  meta=readJSON(metaKey);
+  if(!meta||!meta.ts||!meta.snap){
+    /* First run: marks made before sync existed get time 1, so any later change on another device wins over them. */
+    var p=local();meta={ts:{},snap:{}};
+    for(var id in p){meta.ts[id]=1;meta.snap[id]=p[id];}
+    saveMeta();
+  }
+}
+/* Record a time for every card whose mark changed since the last look (mark, unmark, reset, restore). */
+function touch(){
+  if(!cfg)return;
+  var p=local(),now=Date.now(),ch=false,id,seen={};
+  for(id in p){if(has(p,id))seen[id]=1;}
+  for(id in meta.snap){if(has(meta.snap,id))seen[id]=1;}
+  for(id in seen){
+    if((p[id]||'')!==(meta.snap[id]||'')){
+      meta.ts[id]=Math.max(now,(meta.ts[id]||0)+1);
+      if(p[id])meta.snap[id]=p[id];else delete meta.snap[id];
+      ch=true;
+    }
+  }
+  if(ch){saveMeta();dirty=true;if(token())schedule(1500);renderUI();}
+}
+function pick(L,R){
+  if(L[1]>R[1])return L;
+  if(R[1]>L[1])return R;
+  if(L[0]===R[0])return L;
+  if(!L[0])return R;
+  if(!R[0])return L;
+  return ['learning',L[1]]; /* same time, different marks: keep the safer one */
+}
+function merge(rc){
+  touch();
+  var out={},id,seen={};
+  for(id in meta.ts){if(has(meta.ts,id))seen[id]=1;}
+  for(id in rc){if(has(rc,id))seen[id]=1;}
+  for(id in seen){
+    var L=[meta.snap[id]||'',+meta.ts[id]||0];
+    var r=rc[id],R=(r&&r.length===2)?[(r[0]==='known'||r[0]==='learning')?r[0]:'',+r[1]||0]:['',0];
+    var w=pick(L,R);
+    if(w[1]>0)out[id]=w;
+  }
+  var p={},ts={},push=false;
+  for(id in out){
+    ts[id]=out[id][1];if(out[id][0])p[id]=out[id][0];
+    var r2=rc[id];
+    if(!r2||r2[0]!==out[id][0]||+r2[1]!==out[id][1])push=true;
+  }
+  var before=local();
+  meta={ts:ts,snap:p};saveMeta();
+  if(!same(before,p)){lsSet(cfg.key,JSON.stringify(p));try{cfg.onRemote(clean(p));}catch(e){}}
+  return {cards:out,push:push};
+}
+function doc(cards){return JSON.stringify({v:1,deck:cfg.label||fileName,updated:new Date().toISOString(),cards:cards});}
+
+function api(method,path,body,keepalive){
+  var o={method:method,cache:'no-store',headers:{'Authorization':'Bearer '+token(),'Accept':'application/vnd.github+json'}};
+  if(body){o.body=JSON.stringify(body);o.headers['Content-Type']='application/json';}
+  if(keepalive)o.keepalive=true;
+  return fetch(API+path,o).then(function(r){
+    if(!r.ok){var e=new Error('HTTP '+r.status);e.status=r.status;throw e;}
+    return r.status===204?null:r.json();
+  });
+}
+function findOrCreate(){
+  return api('GET','/gists?per_page=100').then(function(list){
+    var m=(list||[]).filter(function(g){return g.description===DESC;});
+    m.sort(function(a,b){return a.created_at<b.created_at?-1:1;});
+    if(m.length)return api('GET','/gists/'+m[0].id);
+    var files={'README.md':{content:'Flashcard marks for the PFRDA decks. Written by the decks; please keep this gist.'}};
+    return api('POST','/gists',{description:DESC,public:false,files:files});
+  }).then(function(g){lsSet(GIST_KEY,g.id);return g;});
+}
+function getGist(){
+  var id=lsGet(GIST_KEY);
+  if(!id)return findOrCreate();
+  return api('GET','/gists/'+id).catch(function(e){if(e.status===404){lsDel(GIST_KEY);return findOrCreate();}throw e;});
+}
+function schedule(ms){clearTimeout(timer);timer=setTimeout(sync,ms);}
+function sync(){
+  clearTimeout(timer);
+  if(!cfg||!token())return;
+  if(busy){again=true;return;}
+  busy=true;setState('Syncing…','busy');
+  getGist().then(function(g){
+    var f=g.files&&g.files[fileName],rc={};
+    if(f&&f.content){try{var d=JSON.parse(f.content);if(d&&d.cards&&typeof d.cards==='object')rc=d.cards;}catch(e){}}
+    var res=merge(rc);
+    lastRemote=res.cards;
+    if(!res.push)return;
+    var files={};files[fileName]={content:doc(res.cards)};
+    return api('PATCH','/gists/'+g.id,{files:files});
+  }).then(function(){
+    dirty=false;lsSet(LAST_KEY,String(Date.now()));setState('','ok');
+  },function(e){
+    var s=e&&e.status;
+    setState(s===401?'Token rejected. Make a new one and connect again.':s===403||s===429?'GitHub is limiting requests. Will retry shortly.':s?'Sync failed ('+s+'). Will retry.':'Offline. Will sync when back online.','err');
+    if(s===401){lsDel(TOKEN_KEY);lsDel(GIST_KEY);setState('','');setNote('GitHub rejected that token. Check it was copied whole, or make a new one, then paste it again.');}
+    else schedule(60000);
+  }).then(function(){busy=false;if(again){again=false;schedule(300);}});
+}
+/* Leaving the page: push what we have without waiting for a read. */
+function flush(){
+  if(!dirty||!token()||busy)return;
+  var id=lsGet(GIST_KEY);if(!id)return;
+  touch();
+  var out={},k;
+  for(k in lastRemote){if(has(lastRemote,k))out[k]=lastRemote[k];}
+  for(k in meta.ts){if(has(meta.ts,k)){var L=[meta.snap[k]||'',+meta.ts[k]];out[k]=out[k]?pick(L,out[k]):L;}}
+  var files={};files[fileName]={content:doc(out)};
+  try{api('PATCH','/gists/'+id,{files:files},true).then(function(){dirty=false;},function(){});}catch(e){}
+}
+
+/* ---------- backup / restore (works with or without sync) ---------- */
+function backup(){
+  var data={deck:cfg.label||fileName,key:cfg.key,exported:new Date().toISOString(),marks:local()};
+  var blob=new Blob([JSON.stringify(data,null,1)],{type:'application/json'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=fileName.replace(/\.json$/,'')+'-marks-'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1500);
+  setNote('Backup saved: '+count(data.marks)+' marked cards.');
+}
+function restore(file){
+  var rd=new FileReader();
+  rd.onload=function(){
+    var d;try{d=JSON.parse(rd.result);}catch(e){setNote('That file is not a marks backup.');return;}
+    if(!d||!d.marks){setNote('That file is not a marks backup.');return;}
+    if(d.key&&d.key!==cfg.key&&!window.confirm('This backup is from another deck ('+(d.deck||d.key)+'). Restore it here anyway?'))return;
+    var p=clean(d.marks);
+    if(!window.confirm('Replace the marks in this deck with the '+count(p)+' marks in the backup?'))return;
+    lsSet(cfg.key,JSON.stringify(p));touch();
+    try{cfg.onRemote(p);}catch(e){}
+    setNote('Restored '+count(p)+' marks.');
+  };
+  rd.readAsText(file);
+}
+function count(p){var n=0;for(var k in p){if(has(p,k))n++;}return n;}
+
+/* ---------- UI ---------- */
+var CSS='.dsync{margin:14px 0 0;border:1px solid var(--line,#d5dbe5);border-radius:10px;background:var(--surface,var(--panel,#fff));color:var(--ink,#18233a);font-size:.875rem}'+
+'.dsync summary{cursor:pointer;padding:10px 12px;display:flex;gap:8px;align-items:center;list-style:none;min-height:44px}'+
+'.dsync summary::-webkit-details-marker{display:none}'+
+'.dsync summary b{font-weight:650}.dsync .dsst{margin-left:auto;color:var(--muted,#5b6578);font-size:.8rem;text-align:right}'+
+'.dsync .dsst.ok{color:var(--known,#2b8a3e)}.dsync .dsst.err{color:var(--changed,var(--learning,#a35f00))}'+
+'.dsync .dsb{padding:0 12px 12px;display:grid;gap:8px}.dsync p{margin:0;color:var(--muted,#5b6578)}'+
+'.dsync input[type=password]{font:inherit;font-size:16px;width:100%;padding:9px 10px;border:1px solid var(--line,#d5dbe5);border-radius:8px;background:var(--surface-2,var(--bg,#f5f7fa));color:inherit}'+
+'.dsync .dsr{display:flex;gap:8px;flex-wrap:wrap}.dsync .dsr button,.dsync .dsr label{flex:1 1 0;min-width:120px;min-height:40px;font:inherit;font-size:.82rem;font-weight:600;border:1px solid var(--line,#d5dbe5);border-radius:8px;background:var(--surface-2,var(--bg,#f5f7fa));color:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:6px 8px;text-align:center}'+
+'.dsync .dsr label input{display:none}.dsync hr{border:0;border-top:1px solid var(--line,#d5dbe5);margin:4px 0}.dsync .dsnote{color:var(--ink,#18233a)}.dsync [hidden]{display:none!important}';
+function el(tag,attrs,text){var e=document.createElement(tag);for(var k in attrs){if(has(attrs,k))e.setAttribute(k,attrs[k]);}if(text)e.textContent=text;return e;}
+function buildUI(anchor){
+  var st=el('style');st.textContent=CSS;document.head.appendChild(st);
+  var d=el('details',{'class':'dsync'});
+  var s=el('summary');s.appendChild(el('b',{},'Sync across devices'));ui.state=el('span',{'class':'dsst'});s.appendChild(ui.state);d.appendChild(s);
+  var b=el('div',{'class':'dsb'});d.appendChild(b);
+  ui.off=el('div',{'class':'dsb',style:'padding:0'});
+  ui.off.appendChild(el('p',{},'Paste your GitHub sync token. You do this once per device; every deck on this site then syncs.'));
+  ui.tok=el('input',{type:'password',autocomplete:'off',autocapitalize:'off',spellcheck:'false',placeholder:'ghp_…','aria-label':'GitHub sync token'});ui.off.appendChild(ui.tok);
+  var r1=el('div',{'class':'dsr'});var bc=el('button',{type:'button'},'Connect this device');r1.appendChild(bc);ui.off.appendChild(r1);
+  ui.on=el('div',{'class':'dsb',style:'padding:0'});
+  ui.msg=el('p');ui.on.appendChild(ui.msg);
+  var r2=el('div',{'class':'dsr'});var bs=el('button',{type:'button'},'Sync now');var bd=el('button',{type:'button'},'Disconnect this device');r2.appendChild(bs);r2.appendChild(bd);ui.on.appendChild(r2);
+  b.appendChild(ui.off);b.appendChild(ui.on);b.appendChild(el('hr'));
+  b.appendChild(el('p',{},'Safety copy of this deck’s marks as a file:'));
+  var r3=el('div',{'class':'dsr'});var bb=el('button',{type:'button'},'Back up marks');var lr=el('label',{},'Restore from backup');var fi=el('input',{type:'file',accept:'.json,application/json'});lr.appendChild(fi);r3.appendChild(bb);r3.appendChild(lr);b.appendChild(r3);
+  ui.note=el('p',{'class':'dsnote',role:'status'});b.appendChild(ui.note);
+  bc.addEventListener('click',function(){var t=ui.tok.value.trim();if(!t){ui.tok.focus();return;}lsSet(TOKEN_KEY,t);ui.tok.value='';renderUI();sync();});
+  bs.addEventListener('click',function(){sync();});
+  bd.addEventListener('click',function(){if(!window.confirm('Stop syncing on this device? Marks already here stay. Other decks on this device stop syncing too.'))return;lsDel(TOKEN_KEY);lsDel(GIST_KEY);setState('','');renderUI();});
+  bb.addEventListener('click',backup);
+  fi.addEventListener('change',function(){if(fi.files&&fi.files[0])restore(fi.files[0]);fi.value='';});
+  anchor.parentNode.insertBefore(d,anchor.nextSibling);
+  ui.root=d;
+}
+var stateText='',stateKind='';
+function setState(t,k){stateText=t;stateKind=k;renderUI();}
+function setNote(t){if(ui.note)ui.note.textContent=t;}
+function ago(ms){var m=Math.round(ms/60000);if(m<1)return 'just now';if(m<60)return m+' min ago';var h=Math.round(m/60);if(h<24)return h+' h ago';return Math.round(h/24)+' d ago';}
+function renderUI(){
+  if(!ui.root)return;
+  var on=!!token();
+  ui.off.hidden=on;ui.on.hidden=!on;
+  var last=+lsGet(LAST_KEY)||0;
+  var lbl=!on?'Off':stateKind==='busy'?'Syncing…':stateKind==='err'?'Not synced':dirty?'Changes waiting':last?'Synced '+ago(Date.now()-last):'On';
+  ui.state.textContent=lbl;
+  ui.state.className='dsst'+(on&&stateKind==='err'?' err':on&&stateKind==='ok'&&!dirty?' ok':'');
+  ui.msg.textContent=stateKind==='err'?stateText:(last?'Last synced '+ago(Date.now()-last)+'. Marks sync by themselves after each change and when you come back to this tab.':'Connected. First sync merges this device’s marks with the other device’s.');
+}
+
+window.DeckSync={
+  init:function(c){
+    try{
+      if(!c||!c.key||!window.localStorage)return;
+      cfg=c;metaKey=c.key+'_sync';fileName=c.key.replace(/_progress$/,'')+'.json';
+      loadMeta();touch();dirty=false;
+      if(c.anchor)buildUI(c.anchor);
+      renderUI();
+      if(token())sync();
+      document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'){if(token())schedule(300);}else flush();});
+      window.addEventListener('pagehide',flush);
+      window.addEventListener('online',function(){if(token())schedule(300);});
+      setInterval(renderUI,60000);
+    }catch(e){cfg=null;}
+  },
+  touch:function(){try{touch();}catch(e){}},
+  sync:sync
+};
+})();
+</script><!--/deck-sync-->
+<script>
+(function(){
+'use strict';
+var KEY='pfrda_fineve_nov2026_progress';
+var THEME_KEY='pfrda_fineve_nov2026_theme';
+var CARDS=JSON.parse(document.getElementById('cards-data').textContent);
+var TOPICS=JSON.parse(document.getElementById('topics-data').textContent);
+var $=function(id){return document.getElementById(id);};
+
+/* ---------- storage (never required) ---------- */
+var storageOk=true;
+function sGet(k){try{return window.localStorage.getItem(k);}catch(e){storageOk=false;return null;}}
+function sSet(k,v){try{window.localStorage.setItem(k,v);return true;}catch(e){storageOk=false;showBanner();return false;}}
+function sDel(k){try{window.localStorage.removeItem(k);}catch(e){storageOk=false;}}
+function showBanner(){ $('banner').hidden=false; }
+(function probe(){try{var t='__pfrda_probe__';window.localStorage.setItem(t,'1');window.localStorage.removeItem(t);}catch(e){storageOk=false;}})();
+
+var progress={};
+(function(){
+  var raw=sGet(KEY);
+  if(!raw) return;
+  try{
+    var o=JSON.parse(raw);
+    if(o && typeof o==='object'){
+      for(var k in o){ if(Object.prototype.hasOwnProperty.call(o,k) && (o[k]==='known'||o[k]==='learning')) progress[k]=o[k]; }
+    }
+  }catch(e){}
+})();
+function saveProgress(){ sSet(KEY,JSON.stringify(progress)); if(window.DeckSync)DeckSync.touch(); }
+
+/* ---------- theme ---------- */
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  $('bTheme').textContent = t==='dark' ? 'Light theme' : 'Dark theme';
+}
+var theme=sGet(THEME_KEY);
+if(theme!=='light' && theme!=='dark'){
+  theme=(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';
+}
+applyTheme(theme);
+
+/* ---------- state ---------- */
+var byId={};
+CARDS.forEach(function(c){byId[c.id]=c;});
+var baseOrder=CARDS.map(function(c){return c.id;});
+var order=baseOrder.slice();
+var filters={topics:[],type:'all',status:'all',hi:false,pyq:false};
+var view=[], pos=0, flipped=false;
+
+function statusOf(id){var s=progress[id];return (s==='known'||s==='learning')?s:'unseen';}
+function matches(c){
+  if(filters.topics.length && filters.topics.indexOf(c.topic)<0) return false;
+  if(filters.type!=='all' && c.type!==filters.type) return false;
+  if(filters.hi && c.star!=='hi') return false;
+  if(filters.pyq && !c.pyq) return false;
+  if(filters.status==='notknown'){ if(statusOf(c.id)==='known') return false; }
+  else if(filters.status!=='all' && statusOf(c.id)!==filters.status) return false;
+  return true;
+}
+function rebuild(keepId){
+  view=order.filter(function(id){return matches(byId[id]);});
+  var i=keepId?view.indexOf(keepId):-1;
+  pos=i>=0?i:0;
+  flipped=false;
+  render();
+}
+
+/* ---------- rendering ---------- */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmt(s){return esc(s).replace(/\*\*([\s\S]+?)\*\*/g,'<strong>$1</strong>');}
+var TYPE_LABEL={fact:'Fact',trap:'Trap',concept:'Concept'};
+var STATUS_LABEL={unseen:'Unseen',learning:'Still learning',known:'Known'};
+
+function renderStats(){
+  var n=view.length,k=0,l=0;
+  view.forEach(function(id){var s=statusOf(id); if(s==='known')k++; else if(s==='learning')l++;});
+  $('sTotal').textContent=n;
+  $('sUnseen').textContent=n-k-l;
+  $('sLearn').textContent=l;
+  $('sKnown').textContent=k;
+  $('sPct').textContent=(n?Math.round(k*100/n):0)+'%';
+}
+function renderCard(){
+  var el=$('card');
+  if(!view.length){
+    el.className='card empty';
+    el.removeAttribute('data-type');
+    el.setAttribute('aria-expanded','false');
+    el.setAttribute('aria-label','No cards match these filters');
+    el.innerHTML='<p class="q" style="margin:0">No cards match these filters.</p><p class="note" style="margin:0">Change or clear a filter above to widen the set.</p><button type="button" id="emptyClear">Clear filters</button>';
+    var b=$('emptyClear'); if(b) b.addEventListener('click',function(e){e.stopPropagation();clearFilters();});
+    return;
+  }
+  var c=byId[view[pos]], st=statusOf(c.id);
+  var h='<div class="meta">';
+  h+='<span class="badge b-type">'+TYPE_LABEL[c.type]+'</span>';
+  if(c.star==='hi') h+='<span class="badge b-star">★ High-yield</span>';
+  else if(c.star==='md') h+='<span class="badge b-star">☆ Medium</span>';
+  if(c.pyq) h+='<span class="badge b-pyq">'+esc(c.pyq)+'</span>';
+  h+='</div>';
+  h+='<div class="topic">'+esc(c.topic)+'</div>';
+  h+='<div class="q">'+fmt(c.front)+'</div>';
+  h+='<div class="hint">Tap the card or press Space to reveal the answer.</div>';
+  h+='<div class="a"><div class="ans">'+fmt(c.back)+'</div>';
+  if(c.note) h+='<div class="note">'+fmt(c.note)+'</div>';
+  h+='</div>';
+  h+='<div class="cfoot"><span>'+(pos+1)+' of '+view.length+(pos===view.length-1?' (end of set)':'')+'</span><span class="s-'+st+'">'+STATUS_LABEL[st]+'</span></div>';
+  el.className='card'+(flipped?' flipped':'');
+  el.setAttribute('data-type',c.type);
+  el.setAttribute('aria-expanded',flipped?'true':'false');
+  el.setAttribute('aria-label','Card '+(pos+1)+' of '+view.length+'. Press Space or Enter to '+(flipped?'hide':'show')+' the answer.');
+  el.innerHTML=h;
+}
+function renderControls(){
+  var has=view.length>0;
+  $('bPrev').disabled=!has||pos===0;
+  $('bNext').disabled=!has||pos>=view.length-1;
+  $('bFlip').disabled=!has;
+  $('bKnown').disabled=!has;
+  $('bLearn').disabled=!has;
+  $('bFlip').textContent=flipped?'Hide answer':'Show answer';
+}
+function render(){ renderCard(); renderControls(); renderStats(); renderFilterSummary(); }
+
+/* ---------- actions ---------- */
+function focusCard(){ try{$('card').focus({preventScroll:true});}catch(e){$('card').focus();} }
+function flip(){
+  if(!view.length) return;
+  flipped=!flipped;
+  var el=$('card');
+  el.classList.toggle('flipped',flipped);
+  el.setAttribute('aria-expanded',flipped?'true':'false');
+  $('bFlip').textContent=flipped?'Hide answer':'Show answer';
+}
+function go(d){
+  if(!view.length) return;
+  var p=pos+d;
+  if(p<0||p>=view.length) return;
+  pos=p; flipped=false; render();
+}
+function mark(val){
+  if(!view.length) return;
+  progress[view[pos]]=val;
+  saveProgress();
+  if(pos<view.length-1){pos++;flipped=false;}
+  render();
+}
+function shuffle(){
+  var keep=null;
+  for(var i=order.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=order[i];order[i]=order[j];order[j]=t;}
+  rebuild(keep);
+}
+function resetOrder(){ order=baseOrder.slice(); rebuild(null); }
+
+/* ---------- modal ---------- */
+var lastFocus=null;
+function openModal(){
+  lastFocus=document.activeElement;
+  $('mText').textContent='This clears every Known and Still learning mark for all '+CARDS.length+' cards saved in this browser.';
+  $('modal').hidden=false;
+  $('mCancel').focus();
+}
+function closeModal(){ $('modal').hidden=true; if(lastFocus&&lastFocus.focus) lastFocus.focus(); else focusCard(); }
+function doReset(){
+  progress={}; sDel(KEY); if(window.DeckSync)DeckSync.touch();
+  var cur=view.length?view[pos]:null;
+  $('modal').hidden=true;
+  rebuild(cur);
+  focusCard();
+}
+
+/* ---------- filters UI ---------- */
+/* Topic picker: one native select. Each area is an optgroup whose first option takes the whole area. */
+var PREF_KEY='pfrda_fineve_nov2026_filters';
+var topicCounts={}, groupOf={}, GROUPS=[], groupTopics={}, groupCounts={};
+CARDS.forEach(function(c){
+  topicCounts[c.topic]=(topicCounts[c.topic]||0)+1;
+  if(!groupOf[c.topic] || (groupOf[c.topic]==='Addendum' && c.section!=='Addendum')) groupOf[c.topic]=c.section;
+});
+TOPICS.forEach(function(t){
+  if(!topicCounts[t]) return;
+  var g=groupOf[t];
+  if(!groupTopics[g]){ GROUPS.push(g); groupTopics[g]=[]; groupCounts[g]=0; }
+  groupTopics[g].push(t); groupCounts[g]+=topicCounts[t];
+});
+function shortTopic(t,g){
+  var seps=[' — ',' - '];
+  for(var i=0;i<seps.length;i++){ if(t.indexOf(g+seps[i])===0) return t.slice((g+seps[i]).length); }
+  return t.replace(/^\d+\s+/,'');
+}
+(function buildTopics(){
+  var h='<option value="all">All topics ('+CARDS.length+')</option>';
+  GROUPS.forEach(function(g,gi){
+    h+='<optgroup label="'+esc(g)+'">';
+    h+='<option value="g:'+gi+'">All of '+esc(g)+' ('+groupCounts[g]+')</option>';
+    groupTopics[g].forEach(function(t){
+      h+='<option value="t:'+TOPICS.indexOf(t)+'">'+esc(shortTopic(t,g))+' ('+topicCounts[t]+')</option>';
+    });
+    h+='</optgroup>';
+  });
+  $('topicSel').innerHTML=h;
+})();
+var topicChoice='all';
+function topicsFor(v){
+  if(v.indexOf('g:')===0){ var g=GROUPS[+v.slice(2)]; return g?groupTopics[g].slice():[]; }
+  if(v.indexOf('t:')===0){ var t=TOPICS[+v.slice(2)]; return t?[t]:[]; }
+  return [];
+}
+function savePrefs(){
+  sSet(PREF_KEY,JSON.stringify({topic:topicChoice,type:filters.type,status:filters.status,hi:filters.hi,pyq:filters.pyq}));
+}
+function syncFilterUI(){
+  $('topicSel').value=topicChoice;
+  $('typeSel').value=filters.type;
+  $('statusSel').value=filters.status;
+  $('topicSel').classList.toggle('on',topicChoice!=='all');
+  $('typeSel').classList.toggle('on',filters.type!=='all');
+  $('statusSel').classList.toggle('on',filters.status!=='all');
+  $('fHi').setAttribute('aria-pressed',filters.hi?'true':'false');
+  $('fPyq').setAttribute('aria-pressed',filters.pyq?'true':'false');
+}
+(function loadPrefs(){
+  var raw=sGet(PREF_KEY); if(!raw) return;
+  try{
+    var o=JSON.parse(raw); if(!o||typeof o!=='object') return;
+    if(typeof o.topic==='string' && $('topicSel').querySelector('option[value="'+o.topic.replace(/"/g,'')+'"]')){ topicChoice=o.topic; filters.topics=topicsFor(o.topic); }
+    if(['all','fact','trap','concept'].indexOf(o.type)>=0) filters.type=o.type;
+    if(['all','unseen','learning','known','notknown'].indexOf(o.status)>=0) filters.status=o.status;
+    filters.hi=o.hi===true; filters.pyq=o.pyq===true;
+  }catch(e){}
+})();
+function onFilterChange(){
+  savePrefs();
+  syncFilterUI();
+  var cur=view.length?view[pos]:null;
+  rebuild(cur);
+}
+$('topicSel').addEventListener('change',function(){ topicChoice=this.value; filters.topics=topicsFor(topicChoice); onFilterChange(); });
+$('typeSel').addEventListener('change',function(){ filters.type=this.value; onFilterChange(); });
+$('statusSel').addEventListener('change',function(){ filters.status=this.value; onFilterChange(); });
+$('fHi').addEventListener('click',function(){ filters.hi=!filters.hi; onFilterChange(); });
+$('fPyq').addEventListener('click',function(){ filters.pyq=!filters.pyq; onFilterChange(); });
+function clearFilters(){
+  filters={topics:[],type:'all',status:'all',hi:false,pyq:false};
+  topicChoice='all';
+  onFilterChange();
+}
+$('fClear').addEventListener('click',clearFilters);
+function renderFilterSummary(){
+  var on=topicChoice!=='all'||filters.type!=='all'||filters.status!=='all'||filters.hi||filters.pyq;
+  $('fClear').hidden=!on;
+}
+syncFilterUI();
+
+/* ---------- wiring ---------- */
+$('card').addEventListener('click',function(e){
+  if(!view.length) return;
+  var sel=window.getSelection && String(window.getSelection());
+  if(sel && sel.length>0 && flipped) return;
+  flip();
+});
+function bind(id,fn){ $(id).addEventListener('click',function(){ fn(); if(id!=='bReset') focusCard(); }); }
+bind('bPrev',function(){go(-1);});
+bind('bNext',function(){go(1);});
+bind('bFlip',flip);
+bind('bKnown',function(){mark('known');});
+bind('bLearn',function(){mark('learning');});
+bind('bShuffle',shuffle);
+bind('bOrder',resetOrder);
+bind('bReset',openModal);
+bind('bTheme',function(){ theme=theme==='dark'?'light':'dark'; applyTheme(theme); sSet(THEME_KEY,theme); });
+$('mCancel').addEventListener('click',closeModal);
+$('mOk').addEventListener('click',doReset);
+$('modal').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
+
+document.addEventListener('keydown',function(e){
+  if(!$('modal').hidden){ if(e.key==='Escape'){e.preventDefault();closeModal();} return; }
+  if(e.ctrlKey||e.metaKey||e.altKey) return;
+  var t=e.target, tag=(t&&t.tagName||'').toLowerCase();
+  if(tag==='input'||tag==='select'||tag==='textarea'||tag==='summary'||(t&&t.isContentEditable)) return;
+  var k=e.key;
+  if(k===' '||k==='Spacebar'||k==='Enter'){
+    if(tag==='button') return;
+    e.preventDefault(); flip(); return;
+  }
+  if(k==='ArrowRight'){e.preventDefault();go(1);focusCard();return;}
+  if(k==='ArrowLeft'){e.preventDefault();go(-1);focusCard();return;}
+  if(k==='k'||k==='K'){e.preventDefault();mark('known');focusCard();return;}
+  if(k==='l'||k==='L'){e.preventDefault();mark('learning');focusCard();return;}
+});
+
+$('sub').textContent='PFRDA Grade A 2026 · Phase I Paper 2 · EduTap summaries + PYQs only. '+CARDS.length+' cards.';
+if(!storageOk) showBanner();
+rebuild(null);
+if(window.DeckSync)DeckSync.init({key:KEY,label:document.title,anchor:document.querySelector('.kbd')||$('modal'),onRemote:function(p){var cur=view.length?view[pos]:null,f=flipped;progress=p;rebuild(cur);if(f&&view[pos]===cur)flip();}});
+})();
+</script>
+</body>
+</html>

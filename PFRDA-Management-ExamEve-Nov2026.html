@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Management Exam-Eve</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#EEF1F5; --surface:#FFFFFF; --surface-2:#F5F7FA; --ink:#18233A; --muted:#5B6578; --line:#D5DBE5;
+  --fact:#2F4B7C; --trap:#7A3E9D; --concept:#0F766E; --changed:#D9480F;
+  --known:#2B8A3E; --learning:#A35F00; --star:#8A6A00; --focus:#2F6FEB; --on-solid:#FFFFFF;
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0F1522; --surface:#182133; --surface-2:#1E293D; --ink:#E7EBF2; --muted:#A3ACBE; --line:#2C3852;
+  --fact:#9DB8EA; --trap:#D1A3EC; --concept:#5ED0C2; --changed:#FF8A4C;
+  --known:#6CC77D; --learning:#F0B44C; --star:#E8C547; --focus:#7AA7FF; --on-solid:#0F1522;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans","Helvetica Neue",Arial,sans-serif;
+  font-size:16px; line-height:1.5; -webkit-text-size-adjust:100%; overflow-x:hidden;
+}
+.wrap{max-width:640px;margin:0 auto;padding:16px 14px calc(28px + env(safe-area-inset-bottom,0px))}
+header h1{font-size:1.3rem;line-height:1.25;margin:0;font-weight:750;letter-spacing:-0.01em}
+header p{margin:4px 0 0;color:var(--muted);font-size:.875rem}
+.banner{margin:12px 0 0;padding:10px 12px;border:1px solid var(--learning);border-radius:10px;color:var(--ink);background:var(--surface);font-size:.875rem}
+.banner[hidden]{display:none}
+
+.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:14px 0}
+.stat{background:var(--surface);padding:8px 2px 6px;text-align:center;min-width:0}
+.stat b{display:block;font-size:1.05rem;font-variant-numeric:tabular-nums;line-height:1.3}
+.stat span{display:block;font-size:.7rem;color:var(--muted);line-height:1.25}
+.stat.k b{color:var(--known)} .stat.l b{color:var(--learning)}
+
+/* Filter bar: compact native selects + toggles (same layout as the Management deck), so the card sits right below. */
+.fbar{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-bottom:14px}
+.fbar select{
+  font:inherit;font-size:.9rem;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;
+  min-height:44px;padding:8px 10px;width:100%;min-width:0;cursor:pointer;
+}
+.fbar #topicSel{grid-column:1/-1}
+.fbar select.on{border-color:var(--fact);box-shadow:inset 0 0 0 1px var(--fact)}
+.ftog{grid-column:1/-1;display:flex;gap:8px}
+.ftog button{flex:1 1 auto;min-width:0;min-height:44px;font-size:.86rem;font-weight:600;padding:6px 8px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ftog button[aria-pressed="true"]{color:var(--surface);background:var(--ink);border-color:var(--ink)}
+.ftog button.fclear{flex:0 0 auto;padding:6px 12px;color:var(--changed);border-color:var(--changed)}
+.ftog button.fclear[hidden]{display:none}
+.fbar select:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+
+.card{
+  --accent:var(--fact);
+  background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--accent);border-radius:12px;
+  padding:14px 16px 14px;min-height:min(52vh,460px);display:flex;flex-direction:column;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;outline:none;user-select:text;
+}
+.card[data-type="trap"]{--accent:var(--trap)}
+.card[data-type="concept"]{--accent:var(--concept)}
+.card:focus-visible{box-shadow:0 0 0 3px var(--focus)}
+.card.empty{cursor:default;border-left-color:var(--line);justify-content:center;align-items:flex-start;gap:12px}
+.meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.badge{font-size:.74rem;font-weight:650;padding:2px 8px;border-radius:999px;border:1px solid currentColor;line-height:1.35;max-width:100%;overflow-wrap:anywhere}
+.b-type{color:var(--accent)}
+.b-star{color:var(--star)}
+.b-pyq{color:var(--muted);font-weight:550;border-radius:8px}
+.topic{font-size:.8rem;color:var(--muted);margin:8px 0 0;overflow-wrap:anywhere}
+.q{font-size:1.2rem;font-weight:650;line-height:1.42;margin:14px 0 0;overflow-wrap:anywhere;white-space:pre-line}
+.hint{margin-top:auto;padding-top:18px;color:var(--muted);font-size:.85rem}
+.a{display:none;margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.card.flipped .a{display:block}
+.card.flipped .hint{display:none}
+.ans{font-size:1.14rem;line-height:1.5;overflow-wrap:anywhere;white-space:pre-line}
+.ans strong{font-weight:800}
+.card[data-type="concept"] .ans{font-size:1.02rem;line-height:1.6}
+.note{margin-top:10px;font-size:.82rem;line-height:1.45;color:var(--muted);overflow-wrap:anywhere}
+.cfoot{display:flex;justify-content:space-between;gap:10px;margin-top:16px;font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.cfoot .s-known{color:var(--known);font-weight:650}
+.cfoot .s-learning{color:var(--learning);font-weight:650}
+@media (prefers-reduced-motion:no-preference){
+  .card.flipped .a{animation:reveal .16s ease-out}
+  @keyframes reveal{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+}
+
+.controls{display:grid;gap:8px;margin-top:12px}
+.row{display:grid;gap:8px}
+.row.nav{grid-template-columns:1fr 1.35fr 1fr}
+.row.mark{grid-template-columns:1fr 1fr}
+.row.tools{grid-template-columns:repeat(4,minmax(0,1fr))}
+button{
+  font:inherit;min-height:48px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  font-weight:650;padding:8px 10px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+}
+button:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+button:disabled{opacity:.45;cursor:default}
+.b-flip{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.b-known{background:var(--known);border-color:var(--known);color:var(--on-solid)}
+.b-learn{background:var(--surface);border:2px solid var(--learning);color:var(--learning)}
+.row.tools button{font-size:.82rem;font-weight:550;color:var(--muted);min-height:44px;padding:6px 4px}
+.kbd{display:none;margin:12px 0 0;font-size:.8rem;color:var(--muted)}
+@media (hover:hover) and (pointer:fine){.kbd{display:block}}
+@media (max-width:380px){
+  .row.tools{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .q{font-size:1.12rem}
+}
+.modal{position:fixed;inset:0;background:rgba(10,14,24,.55);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+.modal[hidden]{display:none}
+.mbox{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:18px;max-width:420px;width:100%}
+.mbox h2{font-size:1.1rem;margin:0 0 6px}
+.mbox p{margin:0 0 16px;color:var(--muted);font-size:.92rem}
+.b-danger{background:var(--changed);border-color:var(--changed);color:var(--on-solid)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Management Exam-Eve (140 cards)</h1>
+    <p id="sub">PFRDA Grade A 2026 · Phase I Paper 2</p>
+    <p class="banner" id="banner" hidden>Progress can't be saved in this browser view, so your marks will reset when the page closes.</p>
+  </header>
+
+  <div class="stats" aria-live="polite">
+    <div class="stat"><b id="sTotal">0</b><span>In filter</span></div>
+    <div class="stat"><b id="sUnseen">0</b><span>Unseen</span></div>
+    <div class="stat l"><b id="sLearn">0</b><span>Still learning</span></div>
+    <div class="stat k"><b id="sKnown">0</b><span>Known</span></div>
+    <div class="stat"><b id="sPct">0%</b><span>Known</span></div>
+  </div>
+
+  <div class="fbar" id="filters">
+    <select id="topicSel" aria-label="Filter by topic"></select>
+    <select id="statusSel" aria-label="Filter by status">
+      <option value="all">All statuses</option>
+      <option value="unseen">Unseen</option>
+      <option value="learning">Still learning</option>
+      <option value="known">Known</option>
+      <option value="notknown">Not yet known</option>
+    </select>
+    <select id="typeSel" aria-label="Filter by card type">
+      <option value="all">All card types</option>
+      <option value="fact">Fact</option>
+      <option value="trap">Trap</option>
+      <option value="concept">Concept</option>
+    </select>
+    <div class="ftog">
+    <button type="button" id="fHi" aria-pressed="false">★ High-yield</button>
+    <button type="button" id="fPyq" aria-pressed="false">PYQ</button>
+    <button type="button" class="fclear" id="fClear" hidden>Clear</button>
+    </div>
+  </div>
+
+  <main>
+    <div class="card" id="card" tabindex="0" role="button" aria-expanded="false"></div>
+  </main>
+
+  <div class="controls">
+    <div class="row nav">
+      <button type="button" id="bPrev">Prev</button>
+      <button type="button" class="b-flip" id="bFlip">Show answer</button>
+      <button type="button" id="bNext">Next</button>
+    </div>
+    <div class="row mark">
+      <button type="button" class="b-learn" id="bLearn">Still learning</button>
+      <button type="button" class="b-known" id="bKnown">Known</button>
+    </div>
+    <div class="row tools">
+      <button type="button" id="bShuffle">Shuffle</button>
+      <button type="button" id="bOrder">Reset order</button>
+      <button type="button" id="bReset">Reset progress</button>
+      <button type="button" id="bTheme">Dark theme</button>
+    </div>
+  </div>
+  <p class="kbd">Keyboard: left and right arrows to move, Space or Enter to flip, K for known, L for still learning.</p>
+</div>
+
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="mbox">
+    <h2 id="mTitle">Reset progress?</h2>
+    <p id="mText">This clears every Known and Still learning mark saved in this browser.</p>
+    <div class="row mark">
+      <button type="button" id="mCancel">Cancel</button>
+      <button type="button" class="b-danger" id="mOk">Reset progress</button>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" id="cards-data">[{"id": "M1-L012", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Styles", "type": "fact", "star": "hi", "front": "There are various kinds of leadership which a leader can follow, in the same regard, identify the characteristic of the Participative Leadership, from the following given options\n\nA. Ensuring complete delegation of tasks\nB. Ensuring Due Importance is given to rewards\nC. Ensuring participation of customers in the company affairs.\nD. Ensuring Social Equality in the Team\nE. None of the above.", "back": "(D) Ensuring Social Equality in the Team\n\nParticipative (democratic) style gives equal treatment to everyone, with social equality.", "pyq": "Asked: RBI Grade B, Phase 2, 2017", "changed": false, "note": "Tier 1 · Lewin styles (autocratic / democratic / laissez-faire): asked 11× in the PYQs (RBI 4, PFRDA 4, IFSCA 2, SEBI 1); PFRDA 4×."}, {"id": "M1-L013", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Styles", "type": "fact", "star": "hi", "front": "From the following options, identify the theory of leadership, wherein a manager shares his decision-making power with his colleagues and asks for their opinion?\n\nA. Shared Leadership\nB. Participative Leadership\nC. Autocratic Leadership\nD. Paternalistic Leadership\nE. Servant Leadership", "back": "(B) Participative Leadership\n\nShares decision-making and asks for opinions = participative leadership.", "pyq": "Asked: RBI Grade B, Phase 2, 2017", "changed": false, "note": "Tier 1 · Lewin styles (autocratic / democratic / laissez-faire): asked 11× in the PYQs (RBI 4, PFRDA 4, IFSCA 2, SEBI 1); PFRDA 4×."}, {"id": "M1-L014", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Styles", "type": "fact", "star": "hi", "front": "In which of the following Leadership style, a leader gives reward when employees perform well and even has the power to punish them in case they do not comply to the given orders ?\n\nA. Transformational Leadership\nB. Participative Leadership\nC. Democratic Leadership\nD. Transactional Leadership\nE. None of the above", "back": "(D) Transactional Leadership\n\nReward for good work + punishment for non-compliance = transactional (carrot and stick).", "pyq": "Asked: RBI Grade B, Phase 2, 2017", "changed": false, "note": "Tier 1 · Transactional: asked 7× in the PYQs (RBI 4, SEBI 2, PFRDA 1); PFRDA 1×."}, {"id": "M1-L016", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Styles", "type": "fact", "star": "hi", "front": "In the field of leadership, managerial Leadership is also known as __________?\n\nA. Democratic Leadership\nB. Strategic Leadership\nC. Participative Leadership\nD. Transformational Leadership\nE. Transactional Leadership", "back": "(E) Transactional Leadership\n\nTransactional leadership is also known as managerial leadership.", "pyq": "Asked: RBI Grade B, Phase 2, 2017", "changed": false, "note": "Tier 1 · Transactional: asked 7× in the PYQs (RBI 4, SEBI 2, PFRDA 1); PFRDA 1×."}, {"id": "M1-L017", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Styles", "type": "fact", "star": "hi", "front": "Identify the Leadership theory wherein a leader has a complete trust in his Subordinates and seeks frequent suggestions from them and use them constructively?\n\nA. Transactional leader\nB. Autocratic leader\nC. Delegative leader\nD. Participative leader\nE. None of the above", "back": "(D) Participative leader\n\nComplete trust + frequent suggestions = participative. Delegative means complete freedom of decision-making for employees.", "pyq": "Asked: RBI Grade B, Phase 2, 2018", "changed": false, "note": "Tier 1 · Lewin styles (autocratic / democratic / laissez-faire): asked 11× in the PYQs (RBI 4, PFRDA 4, IFSCA 2, SEBI 1); PFRDA 4×."}, {"id": "M1-L020", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Styles", "type": "fact", "star": "hi", "front": "Identify the leadership style in which rewards are given for contingent Performance of an employee\n\nA. Transformational leadership style\nB. Managerial Grid leadership style\nC. Transactional leadership style\nD. Bureaucratic leadership style\nE. None of the above", "back": "(C) Transactional leadership style\n\nRewards contingent on performance = transactional (carrot and stick).", "pyq": "Asked: RBI Grade B, Phase 2, 2019", "changed": false, "note": "Tier 1 · Transactional: asked 7× in the PYQs (RBI 4, SEBI 2, PFRDA 1); PFRDA 1×."}, {"id": "M1-L021", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Styles", "type": "fact", "star": "hi", "front": "Which of the following is a key feature of Transactional Leadership?\n\nA. Encouraging employees to challenge existing systems continuously\nB. Motivating employees through rewards and penalties based on performance\nC. Inspiring employees through a long-term vision and personal influence\nD. Giving employees complete freedom without monitoring their performance\nE. Focusing primarily on creativity and organisational transformation", "back": "(B) Motivating employees through rewards and penalties based on performance\n\nTransactional leadership is an exchange: rewards for meeting standards, penalties for poor performance.", "pyq": "Asked: RBI Grade B, Phase 2, 2026", "changed": false, "note": "Tier 1 · Transactional: asked 7× in the PYQs (RBI 4, SEBI 2, PFRDA 1); PFRDA 1×."}, {"id": "M1-L024", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Styles", "type": "fact", "star": "hi", "front": "Transactional Leadership is a style of leadership in which leaders promote compliance by follower through both rewards and punishment. Transactional leadership is also known as _______?\n\nA. Management Leadership\nB. Participative Leadership\nC. Autocratic Leadership\nD. Transformational leadership\nE. Situational Leadership", "back": "(A) Management Leadership\n\nTransactional = management (managerial) leadership.", "pyq": "Asked: SEBI Grade A, Phase 1, 2022", "changed": false, "note": "Tier 1 · Transactional: asked 7× in the PYQs (RBI 4, SEBI 2, PFRDA 1); PFRDA 1×."}, {"id": "M1-L028", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Styles", "type": "fact", "star": "hi", "front": "A team works under two different managers. Manager 1 only gives instructions, does not invite input, and ignores feedback from team members. Manager 2 actively seeks feedback from team members, considers their suggestions, and then takes the final decision. Which of the following correctly identifies the leadership styles of Manager 1 and Manager 2 respectively?\n\nA. Democratic and Autocratic\nB. Autocratic and Democratic\nC. Laissez-faire and Bureaucratic\nD. Bureaucratic and Laissez-faire\nE. Transformational and Transactional", "back": "(B) Autocratic and Democratic\n\nManager 1 (orders, no input) = autocratic. Manager 2 (consults, then decides) = democratic.", "pyq": "Asked: SEBI Grade A, Phase 1, 2025", "changed": false, "note": "Tier 1 · Lewin styles (autocratic / democratic / laissez-faire): asked 11× in the PYQs (RBI 4, PFRDA 4, IFSCA 2, SEBI 1); PFRDA 4×."}, {"id": "M1-L029", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Styles", "type": "fact", "star": "hi", "front": "According to Burns, what is the key difference between transactional and transformational leadership?\n\nA. Transactional leadership focuses on rewards and exchanges, whereas transformational leadership works on morale and values.\nB. Transactional leadership inspires vision and change, whereas transformational leadership is based on routine supervision.\nC. Transactional leadership emphasizes moral development, whereas transformational leadership is based on penalties and rewards.\nD. Transactional leadership avoids formal authority, whereas transformational leadership depends only on positional power.\nE. Transactional leadership is concerned only with long-term vision, whereas transformational leadership", "back": "(A) Transactional leadership focuses on rewards and exchanges, whereas transformational leadership works on morale and values.\n\nBurns: transactional = rewards and exchanges; transformational = raising motivation, morale and values.", "pyq": "Asked: SEBI Grade A, Phase 2, 2025", "changed": false, "note": "Tier 1 · Transactional: asked 7× in the PYQs (RBI 4, SEBI 2, PFRDA 1); PFRDA 1×."}, {"id": "M1-L030", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Styles", "type": "fact", "star": "hi", "front": "__________ is one who makes subordinates feel that they are participating in decision making process even though he has already taken the decision\n\nA. Manipulative Autocratic Leader\nB. Democratic Leader\nC. Paternalistic Leader\nD. Free-rein Leader\nE. None of the above", "back": "(A) Manipulative Autocratic Leader\n\nManipulative autocrat: makes people believe they are participating, but the decision is already taken.", "pyq": "Asked: PFRDA Grade A, Phase 1, 2021", "changed": false, "note": "Tier 1 · Lewin styles (autocratic / democratic / laissez-faire): asked 11× in the PYQs (RBI 4, PFRDA 4, IFSCA 2, SEBI 1); PFRDA 4×."}, {"id": "M1-L032", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Styles", "type": "fact", "star": "hi", "front": "From the following given options identify the leadership style wherein a leader creates harmony in the workplace and make employees happy. The leader attempts to build strong relationships with employees in hopes of building loyalty\n\nA. Democratic Leadership\nB. Paternalistic leadership\nC. Affiliative leadership\nD. Autocratic leadership\nE. None of the above", "back": "(C) Affiliative leadership\n\nAffiliative leader's task: create harmony in the workplace and make employees happy.", "pyq": "Asked: PFRDA Grade A, Phase 1, 2022", "changed": false, "note": "Tier 1 · Goleman styles (coercive, affiliative…): asked 2× in the PYQs (PFRDA 2); PFRDA 2×."}, {"id": "M1-L033", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Styles", "type": "fact", "star": "hi", "front": "From the following given options identify the leadership style wherein a leader focuses on supervision, organization and performance and such leaders pay attention to followers' work in order to find faults and deviations\n\nA. Democratic Leadership\nB. Free-rein leadership\nC. Participative leadership\nD. Transactional leadership\nE. None of the above", "back": "(D) Transactional leadership\n\nSupervision, organisation, performance, and looking for faults and deviations = transactional.", "pyq": "Asked: PFRDA Grade A, Phase 1, 2022", "changed": false, "note": "Tier 1 · Transactional: asked 7× in the PYQs (RBI 4, SEBI 2, PFRDA 1); PFRDA 1×."}, {"id": "M1-L034", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Styles", "type": "fact", "star": "hi", "front": "Leadership can be defined as the process to guide the employees towards the achievement of organisational goal. In the same regard, which of the following leadership style if followed under Laissez Faire leadership?\n\nA. Autocratic Leadership style\nB. Democratic Leadership Style\nC. Delegative Leadership Style\nD. Paternalistic Leadership Style\nE. None of the above", "back": "(C) Delegative Leadership Style\n\nLaissez-faire is also known as delegative leadership.", "pyq": "Asked: PFRDA Grade A, Phase 2, 2022", "changed": false, "note": "Tier 1 · Lewin styles (autocratic / democratic / laissez-faire): asked 11× in the PYQs (RBI 4, PFRDA 4, IFSCA 2, SEBI 1); PFRDA 4×."}, {"id": "M1-L035", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Styles", "type": "fact", "star": "hi", "front": "Leadership is the art of motivating a group of people to act toward achieving a common goal. There are different leadership styles, in the same regard, identify the leadership style wherein a leader consults and invite the suggestions from the fellow team members\n\nA. Democratic Leadership Style\nB. Servant Leadership Style\nC. Narcissism Leadership Style\nD. Autocratic Leadership\nE. None of the above", "back": "(A) Democratic Leadership Style\n\nConsults and invites suggestions (style options) = democratic/participative.", "pyq": "Asked: PFRDA Grade A, Phase 2, 2022", "changed": false, "note": "Tier 1 · Lewin styles (autocratic / democratic / laissez-faire): asked 11× in the PYQs (RBI 4, PFRDA 4, IFSCA 2, SEBI 1); PFRDA 4×."}, {"id": "M1-L036", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Styles", "type": "fact", "star": "hi", "front": "There is a theory given by Goleman, which says 'do as I instruct', identify it?\n\nA. Affiliative Leadership\nB. Coercive Leadership\nC. Democratic Leadership\nD. Pacesetting Leadership\nE. Coaching Leadership", "back": "(B) Coercive Leadership\n\nGoleman's coercive style: authoritarian, demands immediate compliance ('do as I instruct').", "pyq": "Asked: PFRDA Grade A, Phase 2, 2025", "changed": false, "note": "Tier 1 · Goleman styles (coercive, affiliative…): asked 2× in the PYQs (PFRDA 2); PFRDA 2×."}, {"id": "M1-L037", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Styles", "type": "fact", "star": "hi", "front": "Which leadership style involves seeking input from employees in the decision-making process?\n\nA. Autocratic Leadership\nB. Democratic Leadership\nC. Delegative Leadership\nD. Transactional Leadership\nE. Transformational Leadership", "back": "(B) Democratic Leadership\n\nConsulting employees in decisions = democratic.", "pyq": "Asked: IFSCA Grade A, Phase 1, 2023", "changed": false, "note": "Tier 1 · Lewin styles (autocratic / democratic / laissez-faire): asked 11× in the PYQs (RBI 4, PFRDA 4, IFSCA 2, SEBI 1); PFRDA 4×."}, {"id": "M1-L039", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Styles", "type": "fact", "star": "hi", "front": "What is the other name for Laissez-faire leadership?\n\nA. Participative Leadership\nB. Delegative Leadership\nC. Autocratic Leadership\nD. Transactional Leadership\nE. Transformational Leadership", "back": "(B) Delegative Leadership\n\nLaissez-faire leaders delegate decision-making authority to the team and give minimal guidance, so it is also called delegative leadership.", "pyq": "Asked: PFRDA Grade A, Phase 1, 2025", "changed": false, "note": "Tier 1 · Lewin styles (autocratic / democratic / laissez-faire): asked 11× in the PYQs (RBI 4, PFRDA 4, IFSCA 2, SEBI 1); PFRDA 4×."}, {"id": "M1-L040", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Styles", "type": "fact", "star": "hi", "front": "Autocrat sub-type with a negative influence: group members are uninformed and afraid of the leader?", "back": "Strict autocrat", "pyq": "", "changed": false, "note": "Tier 1 · Lewin styles (autocratic / democratic / laissez-faire): asked 11× in the PYQs (RBI 4, PFRDA 4, IFSCA 2, SEBI 1); PFRDA 4×."}, {"id": "M1-L041", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Styles", "type": "fact", "star": "hi", "front": "Autocrat sub-type with a positive influence, using power to disperse rewards to the group, who can get high productivity?", "back": "Benevolent autocrat", "pyq": "", "changed": false, "note": "Tier 1 · Lewin styles (autocratic / democratic / laissez-faire): asked 11× in the PYQs (RBI 4, PFRDA 4, IFSCA 2, SEBI 1); PFRDA 4×."}, {"id": "M1-L042", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Styles", "type": "fact", "star": "hi", "front": "All decision-making powers centralised in the leader, as with dictators; the leader gives directions and the team follows and reports back?", "back": "Authoritarian (autocratic) leadership. Its three types: strict, benevolent, manipulative autocrat.", "pyq": "", "changed": false, "note": "Tier 1 · Lewin styles (autocratic / democratic / laissez-faire): asked 11× in the PYQs (RBI 4, PFRDA 4, IFSCA 2, SEBI 1); PFRDA 4×."}, {"id": "M1-L043", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Styles", "type": "fact", "star": "hi", "front": "Decision-making passed to subordinates, who get complete right and power to decide; the leader does not interfere; effective mainly in highly specialised fields?", "back": "Laissez-faire. Also called delegative, free reign or permissive style.", "pyq": "", "changed": false, "note": "Tier 1 · Lewin styles (autocratic / democratic / laissez-faire): asked 11× in the PYQs (RBI 4, PFRDA 4, IFSCA 2, SEBI 1); PFRDA 4×."}, {"id": "M1-L044", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Styles", "type": "fact", "star": "hi", "front": "Which style focuses on 'Management by Exception' (no interference until there is a problem), is a telling / Theory X style, and targets Maslow's lower needs?", "back": "Transactional leadership", "pyq": "", "changed": false, "note": "Tier 1 · Transactional: asked 7× in the PYQs (RBI 4, SEBI 2, PFRDA 1); PFRDA 1×."}, {"id": "M1-L045", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Styles", "type": "fact", "star": "hi", "front": "Transactional or transformational: which is a 'selling' or democratic style that believes workers have both extrinsic and intrinsic needs?", "back": "Transformational. (Transactional: telling/autocratic style; believes employees have only extrinsic needs.)", "pyq": "", "changed": false, "note": "Tier 1 · Transactional: asked 7× in the PYQs (RBI 4, SEBI 2, PFRDA 1); PFRDA 1×."}, {"id": "M1-L051", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Managerial Grid & Reddin 3-D", "type": "fact", "star": "hi", "front": "Under the concept of Managerial Grid, which type of leader has a concern for Production and he also has a concern for people?\n\nA. Country Club leader\nB. Team Manager leader\nC. Indifferent leader\nD. Impoverished leader\nE. None of the above", "back": "(B) Team Manager leader\n\nHigh concern for production and for people = Team management (9,9).", "pyq": "Asked: RBI Grade B, Phase 2, 2018", "changed": false, "note": "Tier 1 · Managerial Grid / Reddin 3-D: asked 8× in the PYQs (RBI 6, SEBI 1, PFRDA 1); PFRDA 1×."}, {"id": "M1-L052", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Managerial Grid & Reddin 3-D", "type": "fact", "star": "hi", "front": "In the field of management, Managerial Grid is given by ________________?\n\nA. Fred Fiedler\nB. Blake and Mouton\nC. Max Weber\nD. Robert House\nE. None of the above", "back": "(B) Blake and Mouton\n\nThe Managerial Grid is the Blake-Mouton grid.", "pyq": "Asked: RBI Grade B, Phase 2, 2018", "changed": false, "note": "Tier 1 · Managerial Grid / Reddin 3-D: asked 8× in the PYQs (RBI 6, SEBI 1, PFRDA 1); PFRDA 1×."}, {"id": "M1-L053", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Managerial Grid & Reddin 3-D", "type": "fact", "star": "hi", "front": "(Passage on the 3-D Reddin model of leadership.) Identify the leadership style wherein a leader enjoys involving team members, creating social bonds, and allows more freedom.\n\nA. Integrated leadership style\nB. Separated leadership style\nC. Related leadership style\nD. Dedicated leadership style\nE. None of the above", "back": "(C) Related leadership style\n\nReddin 3-D: the Related manager is low on task, high on relationship, and allows much more freedom.", "pyq": "Asked: RBI Grade B, Phase 2, 2019", "changed": false, "note": "Tier 1 · Managerial Grid / Reddin 3-D: asked 8× in the PYQs (RBI 6, SEBI 1, PFRDA 1); PFRDA 1×."}, {"id": "M1-L054", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Managerial Grid & Reddin 3-D", "type": "fact", "star": "hi", "front": "(Passage on the 3-D Reddin model of leadership.) Identify the leadership style wherein a manager retains the cooperative nature of the group and encourages 2-way communication.\n\nA. Integrated leadership style\nB. Separated leadership style\nC. Related leadership style\nD. Dedicated leadership style\nE. None of the above", "back": "(A) Integrated leadership style\n\nReddin 3-D: the Integrated manager is high on task and high on relationship, and facilitates two-way communication.", "pyq": "Asked: RBI Grade B, Phase 2, 2019", "changed": false, "note": "Tier 1 · Managerial Grid / Reddin 3-D: asked 8× in the PYQs (RBI 6, SEBI 1, PFRDA 1); PFRDA 1×."}, {"id": "M1-L055", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Managerial Grid & Reddin 3-D", "type": "fact", "star": "hi", "front": "The managerial grid theory on which the Reddin model is based, was given by which of the following personalities?\n\nA. Tannenbaum and Schmidt\nB. Blake and Mouton\nC. Huneryager and Heckman\nD. Hersey & Blanchard\nE. None of the above", "back": "(B) Blake and Mouton\n\nReddin's 3-D model is based on Blake and Mouton's Managerial Grid.", "pyq": "Asked: RBI Grade B, Phase 2, 2019", "changed": false, "note": "Tier 1 · Managerial Grid / Reddin 3-D: asked 8× in the PYQs (RBI 6, SEBI 1, PFRDA 1); PFRDA 1×."}, {"id": "M1-L056", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Managerial Grid & Reddin 3-D", "type": "fact", "star": "hi", "front": "Who developed the Managerial Grid, a framework for analyzing leadership styles?\n\nA. Herzberg and McClelland\nB. Blake and Mouton\nC. Maslow and Alderfer\nD. McGregor and Lewin\nE. Kotter and Bennis", "back": "(B) Blake and Mouton\n\nBlake and Mouton created the Managerial Grid (concern for people vs concern for production).", "pyq": "Asked: RBI Grade B, Phase 2, 2024", "changed": false, "note": "Tier 1 · Managerial Grid / Reddin 3-D: asked 8× in the PYQs (RBI 6, SEBI 1, PFRDA 1); PFRDA 1×."}, {"id": "M1-L057", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Managerial Grid & Reddin 3-D", "type": "fact", "star": "hi", "front": "In the Managerial Grid of leadership, which type of Leader is there at coordinates X-9 and Y-9?\n\nA. Indifferent leader\nB. Country Club leader\nC. Team manager leader\nD. Impoverished leader\nE. None of the above", "back": "(C) Team manager leader\n\nCoordinates 9,9 = Team manager.", "pyq": "Asked: SEBI Grade A, Phase 2, 2018", "changed": false, "note": "Tier 1 · Managerial Grid / Reddin 3-D: asked 8× in the PYQs (RBI 6, SEBI 1, PFRDA 1); PFRDA 1×."}, {"id": "M1-L058", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Managerial Grid & Reddin 3-D", "type": "fact", "star": "hi", "front": "As per the managerial grid, identify the leadership style wherein managers tries to bring the best of both worlds, he tries to maintain good relations with the employees and he also makes sures that task is performed as per best industry standards\n\nA. Produce or Perish Style\nB. Evade and Elude\nC. Task management\nD. Team management\nE. Compromising", "back": "(D) Team management\n\nBest of both worlds (people and task) = Team management (9,9).", "pyq": "Asked: PFRDA Grade A, Phase 1, 2022", "changed": false, "note": "Tier 1 · Managerial Grid / Reddin 3-D: asked 8× in the PYQs (RBI 6, SEBI 1, PFRDA 1); PFRDA 1×."}, {"id": "M1-L059", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Managerial Grid & Reddin 3-D", "type": "fact", "star": "hi", "front": "Blake & Mouton Managerial Grid: its two dimensions?", "back": "Concern for production (task) and concern for people (relationship).", "pyq": "", "changed": false, "note": "Tier 1 · Managerial Grid / Reddin 3-D: asked 8× in the PYQs (RBI 6, SEBI 1, PFRDA 1); PFRDA 1×."}, {"id": "M1-L060", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Managerial Grid & Reddin 3-D", "type": "fact", "star": "hi", "front": "Blake & Mouton: the five styles with grid positions (concern for production, concern for people)?", "back": "Impoverished 1,1; Country club 1,9; Middle of the road 5,5; Task 9,1; Team 9,9.", "pyq": "", "changed": false, "note": "Tier 1 · Managerial Grid / Reddin 3-D: asked 8× in the PYQs (RBI 6, SEBI 1, PFRDA 1); PFRDA 1×."}, {"id": "M1-L061", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Managerial Grid & Reddin 3-D", "type": "fact", "star": "hi", "front": "Grid style: high concern for people, low concern for production; manager seen as a 'big brother'; also called Accommodating, or Yield and comply?", "back": "Country Club management (1,9)", "pyq": "", "changed": false, "note": "Tier 1 · Managerial Grid / Reddin 3-D: asked 8× in the PYQs (RBI 6, SEBI 1, PFRDA 1); PFRDA 1×."}, {"id": "M1-L062", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Managerial Grid & Reddin 3-D", "type": "fact", "star": "hi", "front": "Grid style: high concern for production, low for people; also called Authority-obedience, Produce or Perish, Dictatorial, or Control and dominate?", "back": "Task management (9,1)", "pyq": "", "changed": false, "note": "Tier 1 · Managerial Grid / Reddin 3-D: asked 8× in the PYQs (RBI 6, SEBI 1, PFRDA 1); PFRDA 1×."}, {"id": "M1-L063", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Managerial Grid & Reddin 3-D", "type": "fact", "star": "hi", "front": "Grid style: failing on both task and people; also called Indifferent, or Evade and elude?", "back": "Impoverished management (1,1)", "pyq": "", "changed": false, "note": "Tier 1 · Managerial Grid / Reddin 3-D: asked 8× in the PYQs (RBI 6, SEBI 1, PFRDA 1); PFRDA 1×."}, {"id": "M1-L064", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Managerial Grid & Reddin 3-D", "type": "fact", "star": "hi", "front": "Grid style: balances company goals and workers' needs but gives away a bit of each; also called Status quo, or Balance and compromise?", "back": "Middle of the road (5,5)", "pyq": "", "changed": false, "note": "Tier 1 · Managerial Grid / Reddin 3-D: asked 8× in the PYQs (RBI 6, SEBI 1, PFRDA 1); PFRDA 1×."}, {"id": "M1-L065", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Managerial Grid & Reddin 3-D", "type": "fact", "star": "hi", "front": "Managerial Grid vs Ohio State model: which is attitudinal and which is behavioural?", "back": "Managerial Grid = attitudinal model; Ohio State model = behavioural model.", "pyq": "", "changed": false, "note": "Tier 1 · Managerial Grid / Reddin 3-D: asked 8× in the PYQs (RBI 6, SEBI 1, PFRDA 1); PFRDA 1×."}, {"id": "M1-L066", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Managerial Grid & Reddin 3-D", "type": "fact", "star": "hi", "front": "Updated Blake & Mouton grid: which two styles were added, and which has no fixed position on the grid?", "back": "Opportunistic and Paternalistic. Opportunistic (adopts whichever style is most likely to achieve objectives) has no fixed position.", "pyq": "", "changed": false, "note": "Tier 1 · Managerial Grid / Reddin 3-D: asked 8× in the PYQs (RBI 6, SEBI 1, PFRDA 1); PFRDA 1×."}, {"id": "M1-L067", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Managerial Grid & Reddin 3-D", "type": "fact", "star": "hi", "front": "W.J. Reddin's 3-D (tridimensional) grid: what third dimension does it add to task and relationship?", "back": "Effectiveness", "pyq": "", "changed": false, "note": "Tier 1 · Managerial Grid / Reddin 3-D: asked 8× in the PYQs (RBI 6, SEBI 1, PFRDA 1); PFRDA 1×."}, {"id": "M1-L068", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Managerial Grid & Reddin 3-D", "type": "fact", "star": "hi", "front": "Reddin: the four basic styles and their less-effective / more-effective versions?", "back": "Integrated: Compromiser / Executive. Dedicated: Autocrat / Benevolent Autocrat. Related: Missionary / Developer. Separated: Deserter / Bureaucrat.", "pyq": "", "changed": false, "note": "Tier 1 · Managerial Grid / Reddin 3-D: asked 8× in the PYQs (RBI 6, SEBI 1, PFRDA 1); PFRDA 1×."}, {"id": "M1-L069", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Managerial Grid & Reddin 3-D", "type": "fact", "star": "hi", "front": "Reddin: low on task and low on relationship; engaged in correcting deviations; formulates rules and imposes them on others?", "back": "Separated manager", "pyq": "", "changed": false, "note": "Tier 1 · Managerial Grid / Reddin 3-D: asked 8× in the PYQs (RBI 6, SEBI 1, PFRDA 1); PFRDA 1×."}, {"id": "M1-L070", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Managerial Grid & Reddin 3-D", "type": "fact", "star": "hi", "front": "Reddin: task-oriented and concerned only with production; retains power and responsibility, dictating roles to others?", "back": "Dedicated manager", "pyq": "", "changed": false, "note": "Tier 1 · Managerial Grid / Reddin 3-D: asked 8× in the PYQs (RBI 6, SEBI 1, PFRDA 1); PFRDA 1×."}, {"id": "M1-L071", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Trait & Behavioural Theories", "type": "fact", "star": "hi", "front": "Which of the following are the three leadership styles introduced by Kurt Lewin in 1930?\n\nA. Autocratic, Democratic, and Equity\nB. Autocratic, Democratic, and Laissez-faire.\nC. Autocratic, Delegative, and Equity\nD. Power, Democratic, and Equity\nE. Autocratic, Democratic, and Supportive", "back": "(B) Autocratic, Democratic, and Laissez-faire.\n\nLewin's three styles: autocratic, democratic, laissez-faire.", "pyq": "Asked: RBI Grade B, Phase 2, 2023", "changed": false, "note": "Tier 1 · Lewin styles (autocratic / democratic / laissez-faire): asked 11× in the PYQs (RBI 4, PFRDA 4, IFSCA 2, SEBI 1); PFRDA 4×."}, {"id": "M1-L074", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Trait & Behavioural Theories", "type": "fact", "star": "hi", "front": "Which of the following is not a leadership style under Kurt Lewin’s leadership style theory? ?\n\nA. Autocratic\nB. Democratic\nC. Laissez-faire\nD. Bureaucratic\nE. None of the above", "back": "(D) Bureaucratic\n\nLewin's three styles exclude Bureaucratic (Max Weber's work).", "pyq": "Asked: IFSCA Grade A, Phase 1, 2025", "changed": false, "note": "Tier 1 · Lewin styles (autocratic / democratic / laissez-faire): asked 11× in the PYQs (RBI 4, PFRDA 4, IFSCA 2, SEBI 1); PFRDA 4×."}, {"id": "M1-L082", "section": "Part 1 · Leadership", "topic": "Part 1 · Leadership - Trait & Behavioural Theories", "type": "fact", "star": "hi", "front": "Huneryager & Heckman: the four styles of management?", "back": "Dictatorial (100% centralised decision-making), Autocratic, Democratic, Laissez-faire (100% decentralised).", "pyq": "", "changed": false, "note": "Tier 1 · Lewin styles (autocratic / democratic / laissez-faire): asked 11× in the PYQs (RBI 4, PFRDA 4, IFSCA 2, SEBI 1); PFRDA 4×."}, {"id": "M1-M001", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Content Theories", "type": "fact", "star": "hi", "front": "Identify the framework developed by Frederick Herzberg, that suggests, there are certain factors in the workplace that can cause job satisfaction and a separate set of factors can cause dissatisfaction. Which theory are we talking about?\n\nA. Equity Theory\nB. Two-Factor Theory\nC. Self-Efficacy Theory\nD. Competency Theory\nE. None of the above", "back": "(B) Two-Factor Theory\n\nHerzberg's Two-Factor theory (Motivation-Hygiene theory).", "pyq": "Asked: RBI Grade B, Phase 2, 2017", "changed": false, "note": "Tier 1 · Herzberg: asked 5× in the PYQs (RBI 3, SEBI 1, PFRDA 1); PFRDA 1×."}, {"id": "M1-M002", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Content Theories", "type": "fact", "star": "hi", "front": "In the field of motivation, which of the following is not a hygiene factor as per Two Factor Theory?\n\nA. Supervision\nB. Recognition\nC. Salary\nD. Job Security\nE. None of the above", "back": "(B) Recognition\n\nRecognition is a motivator. Supervision, salary and job security are hygiene factors.", "pyq": "Asked: RBI Grade B, Phase 2, 2018", "changed": false, "note": "Tier 1 · Herzberg: asked 5× in the PYQs (RBI 3, SEBI 1, PFRDA 1); PFRDA 1×."}, {"id": "M1-M005", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Content Theories", "type": "fact", "star": "hi", "front": "Passage: Ram left a long-time job at XYZ to join ABC (small, huge growth potential) in a highly reputed position. ABC colleagues were unhappy because he was recruited from outside and promoted straight to a senior position. He later complained about poor working conditions (AC, desk, chair), was ignored, and left to start his own venture. As per Herzberg's theory, which need of Ram is not met when his working-conditions complaint is ignored?\n\nA. Satisfier needs.\nB. Hygiene needs\nC. Motivating needs\nD. Growth needs\nE. None of the above", "back": "(B) Hygiene needs\n\nWorking conditions are a hygiene factor, so a hygiene need is unmet.", "pyq": "Asked: RBI Grade B, Phase 2, 2022", "changed": false, "note": "Tier 1 · Herzberg: asked 5× in the PYQs (RBI 3, SEBI 1, PFRDA 1); PFRDA 1×."}, {"id": "M1-M008", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Content Theories", "type": "fact", "star": "hi", "front": "Passage: Abraham Maslow and David McClelland identified workplace motivational needs. McClelland proposed __X__ motivating elements, while Maslow presented the hierarchical need pyramid. Identify X.\n\nA. 1\nB. 2\nC. 3\nD. 4\nE. None of the above", "back": "(C) 3\n\nMcClelland's three needs: achievement, affiliation, power.", "pyq": "Asked: RBI Grade B, Phase 2, 2023", "changed": false, "note": "Tier 1 · Maslow: asked 6× in the PYQs (RBI 2, SEBI 2, PFRDA 2); PFRDA 2×."}, {"id": "M1-M009", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Content Theories", "type": "fact", "star": "hi", "front": "(Maslow and McClelland passage.) If an employee is currently at the Physiological needs level, what will be the highest level as per Maslow's theory?\n\nA. Safety Needs\nB. Security Needs\nC. Belonginess Needs\nD. Self Esteem Needs\nE. Self-Actualization Needs", "back": "(E) Self-Actualization Needs\n\nSelf-actualisation is the highest level of Maslow's hierarchy.", "pyq": "Asked: RBI Grade B, Phase 2, 2023", "changed": false, "note": "Tier 1 · Maslow: asked 6× in the PYQs (RBI 2, SEBI 2, PFRDA 2); PFRDA 2×."}, {"id": "M1-M011", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Content Theories", "type": "fact", "star": "hi", "front": "Motivation is defined as the process that initiates, guides, and maintains goal-oriented behaviors. In the same regard, which of the following is not need as per Maslow’s Theory?\n\nA. Esteem Need\nB. Self-Actualization Need\nC. Physical Need\nD. Physiological Need\nE. None of the above", "back": "(C) Physical Need\n\nMaslow: physiological, safety, social, esteem, self-actualisation. 'Physical need' is the trap.", "pyq": "Asked: SEBI Grade A, Phase 2, 2018", "changed": false, "note": "Tier 1 · Maslow: asked 6× in the PYQs (RBI 2, SEBI 2, PFRDA 2); PFRDA 2×."}, {"id": "M1-M014", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Content Theories", "type": "fact", "star": "hi", "front": "A bank offers the following facilities to its customers: • Basic Savings Bank Deposit Account (BSBDA) • Exclusive premium credit card benefits • Life and general insurance protection • Dedicated personal relationship manager Which of the following correctly matches these facilities with Maslow’s needs (in the same order)?\n\nA. Physiological Needs, Esteem Needs, Safety Needs, Social Needs\nB. Safety Needs, Esteem Needs, Physiological Needs, Social Needs\nC. Physiological Needs, Social Needs, Safety Needs, Esteem Needs\nD. Esteem Needs, Physiological Needs, Social Needs, Safety Needs\nE. Social Needs, Safety Needs, Esteem Needs, Physiological Needs", "back": "(A) Physiological Needs, Esteem Needs, Safety Needs, Social Needs\n\nBSBDA = basic access (physiological); premium card = status (esteem); insurance = security (safety); relationship manager = connection (social).", "pyq": "Asked: SEBI Grade A, Phase 2, 2025", "changed": false, "note": "Tier 1 · Maslow: asked 6× in the PYQs (RBI 2, SEBI 2, PFRDA 2); PFRDA 2×."}, {"id": "M1-M015", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Content Theories", "type": "fact", "star": "hi", "front": "As per Herzberg’s Two-Factor Theory, which of the following factors creates satisfaction but does not reduce dissatisfaction?\n\nA. Salary\nB. Company Policy\nC. Recognition\nD. Working Conditions\nE. Job Security", "back": "(C) Recognition\n\nRecognition is a motivator: it creates satisfaction. Hygiene factors only prevent dissatisfaction.", "pyq": "Asked: SEBI Grade A, Phase 2, 2025", "changed": false, "note": "Tier 1 · Herzberg: asked 5× in the PYQs (RBI 3, SEBI 1, PFRDA 1); PFRDA 1×."}, {"id": "M1-M016", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Content Theories", "type": "fact", "star": "hi", "front": "Identify the Motivation theory in which a person aims at gaining new knowledge, has a desire for beauty, and wants to help others, etc. is known as __________?\n\nA. Maslow’s Extended Theory of Motivation\nB. Alderfer’s ERG Theory\nC. Herzberg’s Two-Factor Theory\nD. Adam’s Equity Theory\nE. Vroom’s Expectancy Theory", "back": "(A) Maslow’s Extended Theory of Motivation\n\nKnowledge, beauty and helping others = Maslow's extended hierarchy (cognitive, aesthetic, transcendence).", "pyq": "Asked: PFRDA Grade A, Phase 1, 2021", "changed": false, "note": "Tier 1 · Maslow: asked 6× in the PYQs (RBI 2, SEBI 2, PFRDA 2); PFRDA 2×."}, {"id": "M1-M017", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Content Theories", "type": "fact", "star": "hi", "front": "Which of the following are two factors of Herzberg’s Two-Factor Theory of Motivation?\n\nA. Motivation and Self-Actualisation\nB. Hygiene Factors and Motivators\nC. Extrinsic Rewards and Intrinsic Rewards\nD. Leadership and Supervision\nE. Needs and Wants", "back": "(B) Hygiene Factors and Motivators\n\nHerzberg's two factors: hygiene factors and motivators.", "pyq": "Asked: PFRDA Grade A, Phase 1, 2025", "changed": false, "note": "Tier 1 · Herzberg: asked 5× in the PYQs (RBI 3, SEBI 1, PFRDA 1); PFRDA 1×."}, {"id": "M1-M019", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Content Theories", "type": "fact", "star": "hi", "front": "Self-esteem is under which level of Maslow's hierarchy?\n\nA. Level 1\nB. Level 2\nC. Level 3\nD. Level 4\nE. Level 5", "back": "(D) Level 4\n\nOrder: 1 physiological, 2 safety, 3 social, 4 esteem, 5 self-actualisation.", "pyq": "Asked: PFRDA Grade A, Phase 2, 2025", "changed": false, "note": "Tier 1 · Maslow: asked 6× in the PYQs (RBI 2, SEBI 2, PFRDA 2); PFRDA 2×."}, {"id": "M1-M022", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Content Theories", "type": "fact", "star": "hi", "front": "Maslow: lower-level needs are satisfied before higher ones. This concept is called?", "back": "Satisfaction progression", "pyq": "", "changed": false, "note": "Tier 1 · Maslow: asked 6× in the PYQs (RBI 2, SEBI 2, PFRDA 2); PFRDA 2×."}, {"id": "M1-M023", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Content Theories", "type": "fact", "star": "hi", "front": "Maslow: does a satisfied need motivate?", "back": "No. Only the next higher-order need motivates.", "pyq": "", "changed": false, "note": "Tier 1 · Maslow: asked 6× in the PYQs (RBI 2, SEBI 2, PFRDA 2); PFRDA 2×."}, {"id": "M1-M024", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Content Theories", "type": "fact", "star": "hi", "front": "Maslow's need level: primary needs created in an individual by nature (air, water, food, defecation). Without them we cannot live. Name the level.", "back": "Physiological needs", "pyq": "", "changed": false, "note": "Tier 1 · Maslow: asked 6× in the PYQs (RBI 2, SEBI 2, PFRDA 2); PFRDA 2×."}, {"id": "M1-M025", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Content Theories", "type": "fact", "star": "hi", "front": "Maslow's need level: after physiological needs, the individual wants physical safety and well-being (emotional security, financial security). Name the level.", "back": "Safety needs (also called Security needs)", "pyq": "", "changed": false, "note": "Tier 1 · Maslow: asked 6× in the PYQs (RBI 2, SEBI 2, PFRDA 2); PFRDA 2×."}, {"id": "M1-M026", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Content Theories", "type": "fact", "star": "hi", "front": "Maslow's need level: a sense of belonging to someone or a group; love, affection and friendship from fellow beings. Name the level.", "back": "Needs of belongingness (the Social needs; the 'social/love need' in the sheet's ERG mapping)", "pyq": "", "changed": false, "note": "Tier 1 · Maslow: asked 6× in the PYQs (RBI 2, SEBI 2, PFRDA 2); PFRDA 2×."}, {"id": "M1-M027", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Content Theories", "type": "fact", "star": "hi", "front": "Maslow's need level: the need to feel respected, with self-respect and being accepted and valued by others. It has a 'lower' version (respect from others: status, recognition, fame, prestige, attention) and a 'higher' version (self-respect: strength, competence, mastery, self-confidence, independence, freedom). Name the level.", "back": "Esteem needs. The 'higher' (self-respect) version takes precedence over the 'lower' version.", "pyq": "", "changed": false, "note": "Tier 1 · Maslow: asked 6× in the PYQs (RBI 2, SEBI 2, PFRDA 2); PFRDA 2×."}, {"id": "M1-M028", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Content Theories", "type": "fact", "star": "hi", "front": "Maslow's need level: the individual recognises his strengths and weaknesses fully, and wants to do extra-ordinary work based on his potentialities. It can be achieved only when each of the other levels has been mastered, not just understood. Name the level.", "back": "Needs of self-actualization (the top level of the original five)", "pyq": "", "changed": false, "note": "Tier 1 · Maslow: asked 6× in the PYQs (RBI 2, SEBI 2, PFRDA 2); PFRDA 2×."}, {"id": "M1-M029", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Content Theories", "type": "fact", "star": "hi", "front": "Maslow's extended hierarchy: the three additions, and which is the new highest level?", "back": "Cognitive needs (knowledge and understanding), need for aesthetics, transcendence (helping others find fulfilment). Transcendence sits above self-actualization as the highest level.", "pyq": "", "changed": false, "note": "Tier 1 · Maslow: asked 6× in the PYQs (RBI 2, SEBI 2, PFRDA 2); PFRDA 2×."}, {"id": "M1-M036", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Content Theories", "type": "fact", "star": "hi", "front": "Herzberg: hygiene factors relate to job ___; motivators relate to job ___?", "back": "Hygiene = job context (extrinsic; also called maintenance factors or dissatisfiers). Motivators = job content (intrinsic; satisfiers).", "pyq": "", "changed": false, "note": "Tier 1 · Herzberg: asked 5× in the PYQs (RBI 3, SEBI 1, PFRDA 1); PFRDA 1×."}, {"id": "M1-M037", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Content Theories", "type": "fact", "star": "hi", "front": "Herzberg: list the hygiene factors and the motivators given in the sheet.", "back": "Hygiene: company policy, administrative policies, supervision and salary, interpersonal relations and working conditions, job security. Motivators: achievement and recognition, work itself, responsibility and advancement, growth and promotion.", "pyq": "", "changed": false, "note": "Tier 1 · Herzberg: asked 5× in the PYQs (RBI 3, SEBI 1, PFRDA 1); PFRDA 1×."}, {"id": "M1-M038", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Content Theories", "type": "fact", "star": "hi", "front": "According to Herzberg, the opposite of 'Satisfaction' is? The opposite of 'Dissatisfaction'?", "back": "'No satisfaction'; 'No dissatisfaction'.", "pyq": "", "changed": false, "note": "Tier 1 · Herzberg: asked 5× in the PYQs (RBI 3, SEBI 1, PFRDA 1); PFRDA 1×."}, {"id": "M1-M039", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Content Theories", "type": "fact", "star": "hi", "front": "Herzberg vs Maslow: where do Maslow's needs fall among Herzberg's factors?", "back": "Physiological, security and social = maintenance (hygiene). Self-fulfilment = motivators. Esteem is split: status-type esteem is maintenance, recognition-type esteem is a motivator.", "pyq": "", "changed": false, "note": "Tier 1 · Herzberg: asked 5× in the PYQs (RBI 3, SEBI 1, PFRDA 1); PFRDA 1×."}, {"id": "M1-M084", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Morale & Incentives", "type": "fact", "star": "hi", "front": "Identify the concept, which would drive all the team members to work persistently and consistently in pursuit of a common goal\n\nA. Motivation\nB. Morale\nC. Self-Confidence\nD. Self-Esteem\nE. Determination", "back": "(B) Morale\n\nPulling together persistently and consistently towards a common purpose = morale.", "pyq": "Asked: RBI Grade B, Phase 2, 2017", "changed": false, "note": "Tier 1 · Morale: asked 10× in the PYQs (RBI 5, SEBI 4, PFRDA 1); PFRDA 1×."}, {"id": "M1-M085", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Morale & Incentives", "type": "fact", "star": "hi", "front": "A person's love for his job determines how loyal he is to the company; a loyal person stays committed at all times. What keeps the person loyal or attached to the company during bad times?\n\nA. Motivation\nB. Morale\nC. Emotional Connect\nD. Self-Determination\nE. Psychological Connect", "back": "(B) Morale\n\nHigh morale keeps employees loyal to the firm.", "pyq": "Asked: RBI Grade B, Phase 2, 2017", "changed": false, "note": "Tier 1 · Morale: asked 10× in the PYQs (RBI 5, SEBI 4, PFRDA 1); PFRDA 1×."}, {"id": "M1-M086", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Morale & Incentives", "type": "fact", "star": "hi", "front": "Which of the following is the indicator of ‘Low Morale’ in the team?\n\nA. High Output\nB. Low level of motivation of some employees\nC. High labor turnover\nD. High level of motivation\nE. None of the above", "back": "(C) High labor turnover\n\nLow morale shows as lethargy, apathy, absenteeism, turnover, dissatisfaction and conflict.", "pyq": "Asked: RBI Grade B, Phase 2, 2019", "changed": false, "note": "Tier 1 · Morale: asked 10× in the PYQs (RBI 5, SEBI 4, PFRDA 1); PFRDA 1×."}, {"id": "M1-M087", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Morale & Incentives", "type": "fact", "star": "hi", "front": "In an organization, employee morale can be boosted by providing?\n\nA. High incentives to best performer\nB. Higher bonus to best Performer\nC. Incentives to only some top 5% people\nD. Equal opportunities to earn incentives\nE. None of the above", "back": "(D) Equal opportunities to earn incentives\n\nEqual opportunities to earn incentives lift group morale; the other options lift individual motivation.", "pyq": "Asked: RBI Grade B, Phase 2, 2019", "changed": false, "note": "Tier 1 · Morale: asked 10× in the PYQs (RBI 5, SEBI 4, PFRDA 1); PFRDA 1×."}, {"id": "M1-M088", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Morale & Incentives", "type": "fact", "star": "hi", "front": "In the most general management parlance, the best strategy to boost morale of a team is _____________ ?\n\nA. To provide incentives to individuals immediately after the target is achieved.\nB. To provide incentives to all the employees at the same time\nC. To provide higher bonuses\nD. To reward a select few employees\nE. None of the above", "back": "(B) To provide incentives to all the employees at the same time\n\nIncentives to all at the same time build group morale; the other options target individual motivation.", "pyq": "Asked: RBI Grade B, Phase 2, 2019", "changed": false, "note": "Tier 1 · Morale: asked 10× in the PYQs (RBI 5, SEBI 4, PFRDA 1); PFRDA 1×."}, {"id": "M1-M090", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Morale & Incentives", "type": "fact", "star": "hi", "front": "Read the following statements and then select the correct statement regarding the difference between Morale and Motivation\n\nA. Motivation motivates whereas Morale inspires.\nB. Motivation Inspires Whereas Morale Motivates\nC. Motivation is a group concept whereas Morale is an Individual Concept\nD. Motivation is an Individual concept whereas Morale is a group Concept.\nE. None of the above", "back": "(D) Motivation is an Individual concept whereas Morale is a group Concept.\n\nMotivation is an individual concept; morale is a group concept.", "pyq": "Asked: SEBI Grade A, Phase 2, 2020", "changed": false, "note": "Tier 1 · Morale: asked 10× in the PYQs (RBI 5, SEBI 4, PFRDA 1); PFRDA 1×."}, {"id": "M1-M091", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Morale & Incentives", "type": "fact", "star": "hi", "front": "Which of the following is an implication of the high morale in the Organization?\n\nA. Creates inter group conflicts\nB. Reduces conflict and promote orderly resolution\nC. Not obeying the hierarchy of command\nD. Defy the orders from senior team members\nE. None of the above", "back": "(B) Reduces conflict and promote orderly resolution\n\nHigh morale brings immediate conflict identification and resolution.", "pyq": "Asked: SEBI Grade A, Phase 1, 2022", "changed": false, "note": "Tier 1 · Morale: asked 10× in the PYQs (RBI 5, SEBI 4, PFRDA 1); PFRDA 1×."}, {"id": "M1-M092", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Morale & Incentives", "type": "fact", "star": "hi", "front": "Which of the following is true for organizational Morale but not for motivation?\n\nA. Morale deals with the work environment and is primary factor driving the organization\nB. Morale acquires primary concern in every organization\nC. Morale is an internal-psychological drive of an individual which urges him to behave in a specific manner\nD. High Morale leads to high motivation of employees\nE. None of the above", "back": "(A) Morale deals with the work environment and is primary factor driving the organization\n\nMorale deals with the work environment and drives the whole organisation.", "pyq": "Asked: SEBI Grade A, Phase 2, 2022", "changed": false, "note": "Tier 1 · Morale: asked 10× in the PYQs (RBI 5, SEBI 4, PFRDA 1); PFRDA 1×."}, {"id": "M1-M094", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Morale & Incentives", "type": "fact", "star": "hi", "front": "What is the key impact of higher morale in a company?\n\nA. Increased Employee Turnover\nB. Reduced Costs\nC. Increased Productivity\nD. Increased Absenteeism\nE. Decreased Efficiency", "back": "(C) Increased Productivity\n\nHigher morale generally leads to increased productivity.", "pyq": "Asked: SEBI Grade A, Phase 2, 2024", "changed": false, "note": "Tier 1 · Morale: asked 10× in the PYQs (RBI 5, SEBI 4, PFRDA 1); PFRDA 1×."}, {"id": "M1-M095", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Morale & Incentives", "type": "fact", "star": "hi", "front": "Although Motivation and Morale are closely related concepts, however there exist some different between morale and motivation. In the same regard, which of the following statement is correct\n\nA. High morale essentially results in greatly motivated employees\nB. High Moral always leads to higher productivity\nC. High morale is a primary phenomenon\nD. Morale is concerned with overall attitude of the group towards the Organization and management\nE. None of the above", "back": "(D) Morale is concerned with overall attitude of the group towards the Organization and management\n\nMorale = overall attitude of the group towards the organisation and management.", "pyq": "Asked: PFRDA Grade A, Phase 2, 2022", "changed": false, "note": "Tier 1 · Morale: asked 10× in the PYQs (RBI 5, SEBI 4, PFRDA 1); PFRDA 1×."}, {"id": "M1-M096", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Morale & Incentives", "type": "fact", "star": "hi", "front": "Morale is also known as?", "back": "Esprit de corps", "pyq": "", "changed": false, "note": "Tier 1 · Morale: asked 10× in the PYQs (RBI 5, SEBI 4, PFRDA 1); PFRDA 1×."}, {"id": "M1-M097", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Morale & Incentives", "type": "fact", "star": "hi", "front": "Teamwork, organisational commitment, zeal, enthusiasm and a sense of belongingness denote?", "back": "High morale. (Low morale: lethargy, apathy, absenteeism, turnover, dissatisfaction, conflicts.)", "pyq": "", "changed": false, "note": "Tier 1 · Morale: asked 10× in the PYQs (RBI 5, SEBI 4, PFRDA 1); PFRDA 1×."}, {"id": "M1-M098", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Morale & Incentives", "type": "fact", "star": "hi", "front": "The six factors affecting morale in the sheet?", "back": "The organisation; nature of work; level of job satisfaction; level of supervision; workers' perception of the reward system; off-the-job activities of the employee.", "pyq": "", "changed": false, "note": "Tier 1 · Morale: asked 10× in the PYQs (RBI 5, SEBI 4, PFRDA 1); PFRDA 1×."}, {"id": "M1-M099", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Morale & Incentives", "type": "fact", "star": "hi", "front": "Are morale and productivity directly related?", "back": "No. There is some positive correlation but no absolute relation; morale is only one factor (technology, training, supervision also matter). High morale with low productivity is possible, and vice versa.", "pyq": "", "changed": false, "note": "Tier 1 · Morale: asked 10× in the PYQs (RBI 5, SEBI 4, PFRDA 1); PFRDA 1×."}, {"id": "M1-M100", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Morale & Incentives", "type": "fact", "star": "hi", "front": "When is high morale associated with low productivity?", "back": "When employees are merely happy but not motivated to work (also inefficient supervision, faulty materials, low skills, old technology).", "pyq": "", "changed": false, "note": "Tier 1 · Morale: asked 10× in the PYQs (RBI 5, SEBI 4, PFRDA 1); PFRDA 1×."}, {"id": "M1-M101", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Morale & Incentives", "type": "fact", "star": "hi", "front": "When is low morale associated with high productivity, and can it last?", "back": "Under strict supervision, better technology and severe punishments. It cannot be sustained for long.", "pyq": "", "changed": false, "note": "Tier 1 · Morale: asked 10× in the PYQs (RBI 5, SEBI 4, PFRDA 1); PFRDA 1×."}, {"id": "M1-M102", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Morale & Incentives", "type": "fact", "star": "hi", "front": "How is morale measured?", "back": "By observation; by employees' attitude through morale indicators (absenteeism, number of accidents, grievances, labour turnover); by morale survey.", "pyq": "", "changed": false, "note": "Tier 1 · Morale: asked 10× in the PYQs (RBI 5, SEBI 4, PFRDA 1); PFRDA 1×."}, {"id": "M1-M103", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Morale & Incentives", "type": "fact", "star": "hi", "front": "Motivation vs morale: which is the primary concern and which a secondary phenomenon?", "back": "Motivation acquires primary concern (high motivation essentially leads to higher productivity). Morale is a secondary phenomenon (high morale may not raise productivity).", "pyq": "", "changed": false, "note": "Tier 1 · Morale: asked 10× in the PYQs (RBI 5, SEBI 4, PFRDA 1); PFRDA 1×."}, {"id": "M1-M104", "section": "Part 1 · Motivation", "topic": "Part 1 · Motivation - Morale & Incentives", "type": "fact", "star": "hi", "front": "Does higher motivation lead to higher morale? Does high morale lead to highly motivated employees?", "back": "Higher motivation often leads to higher morale. High morale does not essentially result in greatly motivated employees.", "pyq": "", "changed": false, "note": "Tier 1 · Morale: asked 10× in the PYQs (RBI 5, SEBI 4, PFRDA 1); PFRDA 1×."}, {"id": "M2002", "section": "Part 2 · Nature & Scope", "topic": "Part 2 · Nature & Scope - Definition & Functions", "type": "trap", "star": "hi", "front": "Fayol's 5 functions vs the modern 5 functions (Koontz and O'Donnell)?", "back": "**Fayol: Planning, Organising, Commanding, Coordinating, Controlling\nModern: Planning, Organising, Staffing, Directing, Controlling (POSDC)**", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "Modern authors do not treat coordination as a separate function. PYQ distractors swapped in Coordinating, Motivating, Supervising or Evaluating for one of the five."}, {"id": "M2005", "section": "Part 2 · Nature & Scope", "topic": "Part 2 · Nature & Scope - Features & Objectives", "type": "fact", "star": "hi", "front": "Which feature of management: go by rules, deals with rank and file, authority falls down the levels?", "back": "**Management is a system of authority**", "pyq": "Asked: PFRDA 2021 Ph-I", "changed": false, "note": "Summary: managers at different levels hold varying authority, decreasing as you move down. PYQ distractors: dynamic function, social process, universal, profession."}, {"id": "M2009", "section": "Part 2 · Nature & Scope", "topic": "Part 2 · Nature & Scope - Administration vs Management", "type": "trap", "star": "hi", "front": "Administration vs management: thinking or doing, level, and where the term is used?", "back": "**Administration: determinative thinking function, policy and objectives, top level, government offices\nManagement: doing function, executes decisions, middle and lower level, business**", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "PYQ: long-term vision (A), day-to-day execution (M), frames objectives (A), supervises routine operations (M), so A-M-A-M. Administration faces the external environment; management deals with internal forces."}, {"id": "M2010", "section": "Part 2 · Nature & Scope", "topic": "Part 2 · Nature & Scope - Levels & Skills", "type": "fact", "star": "hi", "front": "Top, middle, supervisory management: role and time dimension?", "back": "**Top: strategic, long term\nMiddle: tactical, medium term\nSupervisory: operational, day to day**", "pyq": "Asked: PFRDA 2021 Ph-II", "changed": false, "note": "PYQ: top management formulates corporate-level strategy (distractors business level, functional level). Top = board, CEO, GMs; few people, broad creative work, job hard to measure. Supervisory = foremen, supervisors; many people, routine work."}, {"id": "M2012", "section": "Part 2 · Nature & Scope", "topic": "Part 2 · Nature & Scope - Levels & Skills", "type": "trap", "star": "hi", "front": "Katz skill mix by level (conceptual / technical / human)?", "back": "**Top: 60 / 20 / 20\nMiddle: 20 / 60 / 20\nSupervisory: 05 / 65 / 30**", "pyq": "Asked: SEBI 2025 Ph-I, NPS Trust 2025 Ph-II", "changed": false, "note": "So front-line managers need technical skill most, and conceptual skill matters most at the top. Key conflicts: SEBI 2025 key says B (Human) but the explanation says C (Technical); follow Technical. NPS 2025 Ph-II asked 'conceptual skills make a ___ understand how parts of a company affect each other': key says Team, but the summary ties conceptual skill to top management, so Executive fits better."}, {"id": "M2013", "section": "Part 2 · Nature & Scope", "topic": "Part 2 · Nature & Scope - Efficiency & Effectiveness", "type": "trap", "star": "hi", "front": "Efficiency vs effectiveness?", "back": "**Efficiency: input-output relationship, means, doing things right, internal\nEffectiveness: goal achievement, ends, doing right things, external**", "pyq": "Asked: RBI 2018 Ph-II, SEBI 2018 Ph-II, SEBI 2024 Ph-II, NPS Trust 2025 Ph-I", "changed": false, "note": "PYQs: 'ratio of input to output in a time frame with regard to quality' = efficiency (RBI 2018, SEBI 2018); 'doing the right things' = effectiveness (SEBI 2024); manager minimising waste and maximising output from given inputs = efficiency (NPS 2025)."}, {"id": "M2028", "section": "Part 2 · Schools of Thought", "topic": "Part 2 · Schools of Thought - Fayol & Weber", "type": "trap", "star": "hi", "front": "Unity of command vs unity of direction?", "back": "**Unity of command: one boss per subordinate (avoids conflict)\nUnity of direction: one unit, one plan (avoids duplication)**", "pyq": "Asked: RBI 2017 Ph-II", "changed": false, "note": "RBI 2017: per Fayol, dual command is a source of conflict. Unity of command concerns personnel; unity of direction concerns the department or organisation."}, {"id": "M2032", "section": "Part 2 · Schools of Thought", "topic": "Part 2 · Schools of Thought - Fayol & Weber", "type": "trap", "star": "hi", "front": "Taylor vs Fayol?", "back": "**Taylor: bottom-up, shop floor, narrow, scientific observation\nFayol: top-down, higher management, wider, principles from personal experience**", "pyq": "Asked: RBI 2025 Ph-II", "changed": false, "note": "RBI 2025 passage: the thinker most associated with a strict hierarchy and clear lines of authority = Henry Fayol (Weber was not an option; distractors Taylor, Mayo, Barnard, Drucker)."}, {"id": "M2036", "section": "Part 2 · Schools of Thought", "topic": "Part 2 · Schools of Thought - Systems & Modern", "type": "fact", "star": "hi", "front": "Which theory sees the organisation as interacting, interdependent subsystems?", "back": "**Systems theory** (1960s)", "pyq": "Asked: PFRDA 2022 Ph-I", "changed": false, "note": "Subsystems: technical, social, power, managerial. Other features: synergy, multidisciplinary, dynamic, open adaptive system."}, {"id": "M2039", "section": "Part 2 · Schools of Thought", "topic": "Part 2 · Schools of Thought - Systems & Modern", "type": "fact", "star": "hi", "front": "Which theory integrates the classical model with behavioural science?", "back": "**Modern theory**", "pyq": "Asked: PFRDA 2022 Ph-II", "changed": false, "note": "Supplementary: modern theories = systems, quantitative and contingency approaches. Distractors: period, social, learning, traditional theory."}, {"id": "M2044", "section": "Part 2 · Planning & Decisions", "topic": "Part 2 · Planning & Decisions - Planning Basics", "type": "fact", "star": "hi", "front": "Which function chooses goals and actions, then strategies and resources to reach them?", "back": "**Planning**; deciding in advance what to do and how", "pyq": "Asked: PFRDA 2021 Ph-I, PFRDA 2025 Ph-II", "changed": false, "note": "PFRDA 2025 Ph-II asked the same fact: laying objectives and goals = planning. Planning is the process; a plan is the commitment it produces (e.g. a five-year plan)."}, {"id": "M2046", "section": "Part 2 · Planning & Decisions", "topic": "Part 2 · Planning & Decisions - Planning Basics", "type": "trap", "star": "hi", "front": "Steps in planning: summary's 7 vs the SEBI 2025 8-step order?", "back": "**Summary (7): objectives, premises, identify alternatives, evaluate\nthen select, implement, follow-up\nPYQ (8): objectives, premises, identify, evaluate\nthen select, derivative plans, implement, review**", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "PYQ answer 3-1-5-2-4-8-6-7. Source conflict: the summary's 7-step figure has no 'formulating derivative plans'; the PYQ places it after selecting the best alternative."}, {"id": "M2048", "section": "Part 2 · Planning & Decisions", "topic": "Part 2 · Planning & Decisions - Types of Plans", "type": "trap", "star": "hi", "front": "Strategic vs tactical planning?", "back": "**Strategic: upper management, external focus, long term, less detailed, done first\nTactical: lower managers, internal focus, short term, more detailed, based on strategic**", "pyq": "Asked: SEBI 2018 Ph-II, SEBI 2024 Ph-II, IFSCA 2023", "changed": false, "note": "PYQs: plan under 1 year = tactical (SEBI 2018); strategic planning is forward-looking (SEBI 2024); long-period plan = strategic (IFSCA 2023). Short-term = within 1 year; long-term usually 3 to 5 years. Conflict: the IFSCA explanation puts tactical at 1-3 years."}, {"id": "M2049", "section": "Part 2 · Planning & Decisions", "topic": "Part 2 · Planning & Decisions - Types of Plans", "type": "trap", "star": "hi", "front": "Which plan links tactical and strategic plans and focuses on day-to-day operations?", "back": "**Operational planning**", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": "Source conflict: the summary says tactical planning is 'also known as operational planning'; the PYQ treats operational as a separate level translating strategy into daily tasks. Distractors: contingency, strategic, tactical, project planning."}, {"id": "M2053", "section": "Part 2 · Planning & Decisions", "topic": "Part 2 · Planning & Decisions - Types of Plans", "type": "trap", "star": "hi", "front": "Policy vs procedure vs rule?", "back": "**Policy: general guide to thinking, some discretion\nProcedure: chronological steps, not flexible\nRule: what must or must not be done, no deviation**", "pyq": "Asked: SEBI 2018 Ph-II", "changed": false, "note": "PYQ: unambiguous action for late workers or absenteeism = a rule. Method = standard way of doing a routine task."}, {"id": "M2058", "section": "Part 2 · Planning & Decisions", "topic": "Part 2 · Planning & Decisions - Strategy", "type": "trap", "star": "hi", "front": "Global business strategies by cost and customisation?", "back": "**Global: low cost, standard\nMulti-domestic: high cost, customised\nInternational: moderate cost, little customisation\nTransnational: low cost, customised**", "pyq": "", "changed": false, "note": "Driven by two pressures: cost minimisation and local responsiveness."}, {"id": "M2059", "section": "Part 2 · Planning & Decisions", "topic": "Part 2 · Planning & Decisions - Strategy", "type": "trap", "star": "hi", "front": "BCG matrix: the four cells?", "back": "**Star: high share, high growth\nCash cow: high share, low growth\nQuestion mark: low share, high growth\nDog: low share, low growth**", "pyq": "", "changed": false, "note": ""}, {"id": "M2065", "section": "Part 2 · Planning & Decisions", "topic": "Part 2 · Planning & Decisions - Decision Making", "type": "trap", "star": "hi", "front": "Programmed vs non-programmed; strategic vs tactical decisions?", "back": "**Programmed: routine, set criteria. Non-programmed: no set rules\nStrategic: whole organisation, mostly non-programmed, long term, top\nTactical: day-to-day, programmed, short term, delegable**", "pyq": "", "changed": false, "note": "Policy decisions are taken by top management; operating decisions by lower management."}, {"id": "M2066", "section": "Part 2 · Planning & Decisions", "topic": "Part 2 · Planning & Decisions - Decision Making", "type": "trap", "star": "hi", "front": "Economic man vs administrative man model?", "back": "**Economic man: all alternatives, perfect rationality, maximise\nAdministrative man: satisfactory alternative, bounded rationality, rules of thumb, satisfice**", "pyq": "", "changed": false, "note": ""}, {"id": "M2068", "section": "Part 2 · Planning & Decisions", "topic": "Part 2 · Planning & Decisions - Decision Making", "type": "trap", "star": "hi", "front": "Decision criteria under uncertainty?", "back": "**Maximax (optimistic): best of the best payoffs\nMaximin (pessimistic): best of the worst payoffs\nMinimax regret\nInsufficient reason: best average payoff**", "pyq": "Asked: RBI 2018 Ph-II", "changed": false, "note": "RBI 2018: pick the best among the worst outcomes = max-min decision matrix. Under risk, use expected value (profit × probability)."}, {"id": "M2070", "section": "Part 2 · Planning & Decisions", "topic": "Part 2 · Planning & Decisions - Decision Making", "type": "trap", "star": "hi", "front": "SMART goals: the two keyed versions?", "back": "**SEBI 2025: Specific, Measurable, Achievable, Relevant, Time-bound\nIFSCA 2023: Specific, Measurable, Achievable, Realistic, Timely**", "pyq": "Asked: SEBI 2025 Ph-II, IFSCA 2023", "changed": false, "note": "Source conflict: the two PYQ files key R and T differently. Pick whichever version appears among the options. Not in the summary sheets."}, {"id": "M2072", "section": "Part 2 · Organising", "topic": "Part 2 · Organising - Concept & Formal vs Informal", "type": "trap", "star": "hi", "front": "Staffing vs organising?", "back": "**Staffing: hiring and training people\nOrganising: assigning roles and tasks**", "pyq": "Asked: SEBI 2025 Ph-I", "changed": false, "note": "Distractors reversed the two or tied them to planning, directing, strategy or motivation."}, {"id": "M2073", "section": "Part 2 · Organising", "topic": "Part 2 · Organising - Concept & Formal vs Informal", "type": "trap", "star": "hi", "front": "Which is NOT a feature of formal organisation?", "back": "**Being based on personal and social relationships** (that is informal organisation)", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "Formal: deliberately created, defined authority and responsibility, rules, stable, clear chain of command. Informal: social network, no set objectives or rules, unstable, uses the grapevine, acts as a safety valve, resists change."}, {"id": "M2074", "section": "Part 2 · Organising", "topic": "Part 2 · Organising - Structures", "type": "trap", "star": "hi", "front": "Line vs line-and-staff vs functional organisation?", "back": "**Line: oldest, simplest, straight vertical authority, small firms\nLine and staff: line 'doers' plus advisory staff 'thinkers', large firms\nFunctional: specialists order within their function (introduced by Taylor)**", "pyq": "", "changed": false, "note": ""}, {"id": "M2081", "section": "Part 2 · Organising", "topic": "Part 2 · Organising - Power & Authority", "type": "trap", "star": "hi", "front": "Raven's power bases: positional vs personal?", "back": "**Positional (formal): legitimate, reward, coercive, information\nPersonal: expert, referent, charismatic**", "pyq": "Asked: RBI 2018 Ph-II, RBI 2023 Ph-II", "changed": false, "note": "PYQ: positional (legitimate, reward, coercive), personal (knowledge, referent). Source conflict: the summary also lists information power as positional, which the keyed option leaves out; the PDF dates this question 2023 in Section A and 2018 in Section C. Power bases also appear in your existing Management deck."}, {"id": "M2082", "section": "Part 2 · Organising", "topic": "Part 2 · Organising - Power & Authority", "type": "trap", "star": "hi", "front": "Reward vs coercive power?", "back": "**Reward: rewards, promotes or grants key resources\nCoercive: subordinate perceives the boss can punish or take things away**", "pyq": "Asked: RBI 2018 Ph-II", "changed": false, "note": "Both positional. Distractors: title, expert, legitimate, referent power."}, {"id": "M2087", "section": "Part 2 · Organising", "topic": "Part 2 · Organising - Delegation & Decentralisation", "type": "trap", "star": "hi", "front": "Delegation vs decentralisation?", "back": "**Delegation: individual act, limited scope, responsibility stays, can be withdrawn\nDecentralisation: general policy at all levels, wide scope, more total, an extension of delegation**", "pyq": "", "changed": false, "note": ""}, {"id": "M2089", "section": "Part 2 · Organising", "topic": "Part 2 · Organising - Groups, Conflict & Coordination", "type": "trap", "star": "hi", "front": "Group cohesion vs group dynamics?", "back": "**Cohesion: degree of attachment that keeps members intact\nDynamics: the face-to-face social process of interaction**", "pyq": "Asked: RBI 2017 Ph-II", "changed": false, "note": "RBI 2017: the processes that keep members intact and attached = group cohesion. Cohesive groups conform more and act in unison."}, {"id": "M2099", "section": "Part 2 · Controlling", "topic": "Part 2 · Controlling - Control Process & Types", "type": "trap", "star": "hi", "front": "Feedforward vs concurrent vs feedback control?", "back": "**Feedforward: checks inputs, anticipates deviations (predictive)\nConcurrent: monitors ongoing work\nFeedback: compares after completion (top management mostly uses this)**", "pyq": "Asked: RBI 2018 Ph-II, IFSCA 2024", "changed": false, "note": "RBI 2018: speculating deviations rather than comparing after completion = feedforward. IFSCA 2024: feedforward is predictive (distractors corrective, diagnostic, reactive)."}, {"id": "M2106", "section": "Part 2 · Controlling", "topic": "Part 2 · Controlling - Control Techniques", "type": "trap", "star": "hi", "front": "EOQ vs ABC analysis?", "back": "**EOQ: order size minimising total ordering plus carrying cost\nABC: classify by value; A items (high value, few) get most attention**", "pyq": "Asked: RBI 2018 Ph-II", "changed": false, "note": "EOQ = √(2 × annual quantity × ordering cost ÷ carrying cost per unit); e.g. √(2 × 5,000 × 100 ÷ 1) = 1,000 units."}, {"id": "M2107", "section": "Part 2 · Controlling", "topic": "Part 2 · Controlling - Control Techniques", "type": "trap", "star": "hi", "front": "PERT vs CPM: origin and full form?", "back": "**PERT: Programme Evaluation and Review Technique, US Navy 1958\nCPM: Critical Path Method, DuPont**", "pyq": "Asked: SEBI 2020 Ph-II", "changed": false, "note": "Expected time = (o + 4m + p) ÷ 6. The critical path is the longest path; delay on it delays the project. Gantt chart cannot show links between task groups; milestone budgeting partly fixes that."}, {"id": "M2110", "section": "Part 2 · Managerial Roles", "topic": "Part 2 · Managerial Roles - Mintzberg's Roles", "type": "fact", "star": "hi", "front": "Mintzberg's 10 roles in 3 groups?", "back": "**Interpersonal: figurehead, leader, liaison\nInformational: monitor, disseminator, spokesperson\nDecisional: entrepreneur, disturbance handler, resource allocator, negotiator**", "pyq": "Asked: PFRDA 2021 Ph-II", "changed": false, "note": "PFRDA 2021: being a source of inspiration, acting as leader and doing liaison between groups = interpersonal roles."}, {"id": "M2111", "section": "Part 2 · Managerial Roles", "topic": "Part 2 · Managerial Roles - Mintzberg's Roles", "type": "trap", "star": "hi", "front": "Figurehead vs spokesperson?", "back": "**Figurehead: ceremonial and symbolic, e.g. representing the firm at industry meetings\nSpokesperson: speaks for the firm to outsiders, e.g. addresses a customer-supplier meeting**", "pyq": "Asked: SEBI 2020 Ph-II, RBI 2019 Ph-II", "changed": false, "note": "Both keyed answers: SEBI 2020 industry meetings = figurehead; RBI 2019 addressing a meeting organised by customers and suppliers = spokesperson. Read who organised the meeting."}, {"id": "M2112", "section": "Part 2 · Managerial Roles", "topic": "Part 2 · Managerial Roles - Mintzberg's Roles", "type": "trap", "star": "hi", "front": "Monitor vs disseminator?", "back": "**Monitor: constantly collects information inside and outside\nDisseminator: shares information with subordinates**", "pyq": "Asked: PFRDA 2022 Ph-I, RBI 2019 Ph-II, SEBI 2020 Ph-II, SEBI 2025 Ph-I", "changed": false, "note": "Disseminator PYQs: shares information received from outside (RBI 2019); informs employees of policies (SEBI 2020); shares information internally and builds trust (SEBI 2025, key B but explanation C, follow C)."}, {"id": "M2115", "section": "Part 2 · Managerial Roles", "topic": "Part 2 · Managerial Roles - Lesser-Known Roles", "type": "fact", "star": "hi", "front": "Link building role?", "back": "**Two-way communication between management and employees; motivates staff to believe they contribute to the betterment of society; gives credibility to the task**", "pyq": "Asked: PFRDA 2021 Ph-I, PFRDA 2022 Ph-II", "changed": false, "note": "PFRDA asked this twice: 2021 Ph-I as 'management that motivates employees to work for the betterment of society', 2022 Ph-II as the role description."}, {"id": "M2116", "section": "Part 2 · Managerial Roles", "topic": "Part 2 · Managerial Roles - Lesser-Known Roles", "type": "trap", "star": "hi", "front": "Enabling vs synergising role?", "back": "**Enabling: creates a favourable cooperative environment for man, material and machine\nSynergising: uses it so the combined result exceeds the sum of parts**", "pyq": "Asked: SEBI 2022 Ph-I, SEBI 2024 Ph-II", "changed": false, "note": "SEBI 2022: favourable cooperative environment for man, material and machine = enabling role. SEBI 2024: combined team effort greater than the sum of individual efforts = synergy."}, {"id": "M2117", "section": "Part 2 · Managerial Roles", "topic": "Part 2 · Managerial Roles - Lesser-Known Roles", "type": "trap", "star": "hi", "front": "Developmental vs performance management role?", "back": "**Developmental: career planning, training and development\nPerformance management: solves problems, gives feedback, recognises, trains, monitors work**", "pyq": "Asked: SEBI 2020 Ph-II, SEBI 2022 Ph-II", "changed": false, "note": "SEBI 2020: HR manager's role in career planning and training = developmental. SEBI 2022: solves problems, feedback, recognition, monitoring = performance management."}, {"id": "M2123", "section": "Part 2 · HRD Concept & Jobs", "topic": "Part 2 · HRD Concept & Jobs - Concept, Principles & Goals", "type": "fact", "star": "hi", "front": "Seven principles of HRD?", "back": "**Organisation-wide capabilities, potential maximisation, autonomy, proper delegation\nParticipative decision making, change management, periodic review**", "pyq": "Asked: PFRDA 2022 Ph-II", "changed": false, "note": "PFRDA 2022: employees should get enough freedom in their own domain = principle of autonomy (distractors potential maximisation, organisation-wide capabilities, proper delegation)."}, {"id": "M2125", "section": "Part 2 · HRD Concept & Jobs", "topic": "Part 2 · HRD Concept & Jobs - Concept, Principles & Goals", "type": "trap", "star": "hi", "front": "Which is NOT an HRD function per Nadler, and NOT an HRD intervention per Drucker?", "back": "**Nadler: performance appraisal (HRD = training, education, development)\nDrucker: establishing organisational structures**", "pyq": "Asked: SEBI 2025 Ph-II, IFSCA 2025", "changed": false, "note": "From the PYQ explanations. Key error: the IFSCA 2025 key says C (development for future jobs) but the explanation says E (establishing organisational structures); follow E. For Drucker, performance appraisal counts as an HRD intervention."}, {"id": "M2129", "section": "Part 2 · HRD Concept & Jobs", "topic": "Part 2 · HRD Concept & Jobs - HR Planning & Mobility", "type": "trap", "star": "hi", "front": "Recruitment vs selection?", "back": "**Recruitment: attracting applicants (positive process)\nSelection: picking the right candidate (negative process, rejects many)**", "pyq": "Asked: IFSCA 2023", "changed": false, "note": "IFSCA 2023 'process of recruiting and onboarding suitable candidates' keyed B, Selection, but its explanation argues Recruitment. The summary definitions support selection as picking the candidate. Treat as a disputed key."}, {"id": "M2131", "section": "Part 2 · HRD Concept & Jobs", "topic": "Part 2 · HRD Concept & Jobs - Job Analysis & Design", "type": "trap", "star": "hi", "front": "Job analysis vs job design?", "back": "**Job analysis: procedure to identify job content (activities) and requirements to perform it\nJob design: specifies contents, methods and relationships to meet technical, organisational and personal needs**", "pyq": "Asked: RBI 2017 Ph-II", "changed": false, "note": "Both asked in RBI 2017. Job design follows job analysis."}, {"id": "M2132", "section": "Part 2 · HRD Concept & Jobs", "topic": "Part 2 · HRD Concept & Jobs - Job Analysis & Design", "type": "trap", "star": "hi", "front": "Job description vs job specification?", "back": "**Description: written why and how of the job, duties, working conditions\nSpecification: qualifications needed for the job**", "pyq": "Asked: RBI 2018 Ph-II, SEBI 2018 Ph-II", "changed": false, "note": "Both come out of job analysis: description = nature of the job; specification = characteristics of the person."}, {"id": "M2133", "section": "Part 2 · HRD Concept & Jobs", "topic": "Part 2 · HRD Concept & Jobs - Job Analysis & Design", "type": "trap", "star": "hi", "front": "Job enrichment vs job enlargement vs job rotation?", "back": "**Enrichment: vertical, adds the boss's responsibility and autonomy\nEnlargement: horizontal, adds peers' tasks\nRotation: moving between jobs at intervals**", "pyq": "Asked: NPS Trust 2025 Ph-I", "changed": false, "note": "NPS 2025: adding responsibility, skill development and autonomy to make work meaningful = job enrichment. Job simplification (e.g. fast food) splits jobs into small parts."}, {"id": "M2137", "section": "Part 2 · Training & Career", "topic": "Part 2 · Training & Career - Career Planning", "type": "trap", "star": "hi", "front": "Career path vs career line vs career ladder?", "back": "**Path: sequence of roles a person moves through\nLine: area or function of work\nLadder: vertical move up within a line or department**", "pyq": "Asked: RBI 2019 Ph-II, SEBI 2024 Ph-II", "changed": false, "note": "RBI 2019 asked path and ladder. SEBI 2024: HRD subsystem for career path, growth plans and development = career path management."}, {"id": "M2138", "section": "Part 2 · Training & Career", "topic": "Part 2 · Training & Career - Career Planning", "type": "fact", "star": "hi", "front": "Programmes matching individual needs and goals with organisational opportunities?", "back": "**Career development**", "pyq": "Asked: PFRDA 2021 Ph-II, PFRDA 2021 Ph-I", "changed": false, "note": "PFRDA 2021 Ph-I: training employees for other functions beyond their own job = career development. Career plan sets the path; development prepares the person before each move."}, {"id": "M2140", "section": "Part 2 · Training & Career", "topic": "Part 2 · Training & Career - Career Planning", "type": "trap", "star": "hi", "front": "Succession vs replacement planning; Stoner's four types?", "back": "**Succession: develops new leaders in advance\nReplacement: ready backup for sudden exits ('truck lists')\nStars, solid citizens, learners, deadwood**", "pyq": "", "changed": false, "note": "Stars: high performance, high potential. Solid citizens: high performance, low potential. Learners: low performance, high potential. Deadwood: low, low."}, {"id": "M2147", "section": "Part 2 · Appraisal & Pay", "topic": "Part 2 · Appraisal & Pay - Performance Appraisal", "type": "trap", "star": "hi", "front": "Performance vs potential vs psychological appraisal?", "back": "**Performance: past results\nPotential: future-oriented, finds hidden talent for higher roles\nPsychological: a type of potential appraisal using personality traits**", "pyq": "Asked: SEBI 2024 Ph-I, RBI 2019 Ph-II", "changed": false, "note": "SEBI 2024: identifying and improving skills of those with promotion potential = potential appraisal. RBI 2019: analysing personality and psychological processes for future potential = psychological appraisal."}, {"id": "M2148", "section": "Part 2 · Appraisal & Pay", "topic": "Part 2 · Appraisal & Pay - Performance Appraisal", "type": "trap", "star": "hi", "front": "Directive vs non-directive vs eclectic counselling?", "back": "**Directive: counsellor-centred, intellectual\nNon-directive (permissive): client-centred, emotional\nEclectic (cooperative): in between**", "pyq": "Asked: PFRDA 2022 Ph-II", "changed": false, "note": "PFRDA 2022: manager helps the employee handle problems, raising productivity = career counselling."}, {"id": "M2153", "section": "Part 2 · OB & Business Fringe", "topic": "Part 2 · OB & Business Fringe - Culture & Change", "type": "trap", "star": "hi", "front": "Lewin vs Kotter vs ADKAR change models?", "back": "**Lewin: unfreeze, change, refreeze (plus force-field analysis)\nKotter (1996): 8 steps from urgency to making change stick\nADKAR (Jeff Hiatt): awareness, desire, knowledge, ability, reinforcement**", "pyq": "", "changed": false, "note": "OB fringe note flags Lewin, McKinsey 7-S, Kotter, ADKAR, Bridges and Kubler-Ross as important. Kotter and Schlesinger (1979) gave 6 ways to overcome resistance, from education to coercion."}, {"id": "M2155", "section": "Part 2 · OB & Business Fringe", "topic": "Part 2 · OB & Business Fringe - Psychology & Personality", "type": "trap", "star": "hi", "front": "Freud's id, ego and superego?", "back": "**Id: pleasure principle, unconscious\nEgo: referee, conscious and unconscious\nSuperego: morality principle, conscious**", "pyq": "", "changed": false, "note": "Freud: love and aggression are Eros and Thanatos; libido fuels all three. Type A (Friedman and Rosenman): restless, impatient, multitasking; Type B: relaxed."}, {"id": "M2162", "section": "Part 2 · OB & Business Fringe", "topic": "Part 2 · OB & Business Fringe - Business Organisation", "type": "trap", "star": "hi", "front": "Corporate vs non-corporate entities?", "back": "**Corporate (company, LLP, cooperative): separate legal entity, limited liability, perpetual succession\nNon-corporate (sole proprietor, HUF, partnership): no separate entity, unlimited liability**", "pyq": "", "changed": false, "note": "HUF: Karta has unlimited liability, co-parceners limited. Partnership max 50 partners (Companies Rules 2014). Private company 2 to 200 members; public company minimum 7. OPC idea from the J.J. Irani committee."}]</script>
+<script type="application/json" id="topics-data">["Nature & Scope - Definition & Functions", "Nature & Scope - Features & Objectives", "Nature & Scope - Administration vs Management", "Nature & Scope - Levels & Skills", "Nature & Scope - Efficiency & Effectiveness", "Nature & Scope - Science, Art, Profession", "Nature & Scope - Scope, Ethics & Others", "Schools of Thought - Classical & Scientific", "Schools of Thought - Fayol & Weber", "Schools of Thought - Human Relations & Social System", "Schools of Thought - Systems & Modern", "Planning & Decisions - Planning Basics", "Planning & Decisions - Types of Plans", "Planning & Decisions - Strategy", "Planning & Decisions - MBO", "Planning & Decisions - Decision Making", "Organising - Concept & Formal vs Informal", "Organising - Structures", "Organising - Departmentation & Span", "Organising - Power & Authority", "Organising - Delegation & Decentralisation", "Organising - Groups, Conflict & Coordination", "Staffing & Directing - Staffing", "Staffing & Directing - Directing & Supervision", "Controlling - Control Process & Types", "Controlling - Control Techniques", "Managerial Roles - Mintzberg's Roles", "Managerial Roles - Lesser-Known Roles", "Managerial Roles - Nudge Theory", "HRD Concept & Jobs - Concept, Principles & Goals", "HRD Concept & Jobs - HR Planning & Mobility", "HRD Concept & Jobs - Job Analysis & Design", "Training & Career - Training", "Training & Career - Career Planning", "Training & Career - OD & Self-Development", "Appraisal & Pay - Performance Appraisal", "Appraisal & Pay - Compensation", "OB & Business Fringe - Culture & Change", "OB & Business Fringe - Psychology & Personality", "OB & Business Fringe - Teams, Negotiation & Risk", "OB & Business Fringe - Business Organisation"]</script>
+<script id="deck-sync">
+/* DeckSync: cross-device sync of Known / Still learning marks through a private GitHub gist.
+   One token per device (localStorage 'pfrda_sync_token', shared by every deck on this site).
+   One secret gist holds one JSON file per deck. Local marks stay in the deck's own key, unchanged.
+   Merge: union of marks; where devices disagree, the most recent change wins. */
+(function(){
+'use strict';
+var TOKEN_KEY='pfrda_sync_token', GIST_KEY='pfrda_sync_gist', LAST_KEY='pfrda_sync_last';
+var DESC='PFRDA flashcard marks sync (do not delete)';
+var API='https://api.github.com';
+var has=function(o,k){return Object.prototype.hasOwnProperty.call(o,k);};
+function lsGet(k){try{return window.localStorage.getItem(k);}catch(e){return null;}}
+function lsSet(k,v){try{window.localStorage.setItem(k,v);return true;}catch(e){return false;}}
+function lsDel(k){try{window.localStorage.removeItem(k);}catch(e){}}
+function readJSON(k){var r=lsGet(k);if(!r)return null;try{var o=JSON.parse(r);return (o&&typeof o==='object')?o:null;}catch(e){return null;}}
+function clean(o){var p={};if(o)for(var k in o){if(has(o,k)&&(o[k]==='known'||o[k]==='learning'))p[k]=o[k];}return p;}
+function same(a,b){var k;for(k in a){if(has(a,k)&&a[k]!==b[k])return false;}for(k in b){if(has(b,k)&&a[k]!==b[k])return false;}return true;}
+
+var cfg=null, metaKey='', fileName='', meta=null, lastRemote={}, timer=null, busy=false, again=false, dirty=false, ui={};
+
+function token(){var t=lsGet(TOKEN_KEY);return t?t.trim():'';}
+function saveMeta(){lsSet(metaKey,JSON.stringify(meta));}
+function local(){return clean(readJSON(cfg.key));}
+function loadMeta(){
+  meta=readJSON(metaKey);
+  if(!meta||!meta.ts||!meta.snap){
+    /* First run: marks made before sync existed get time 1, so any later change on another device wins over them. */
+    var p=local();meta={ts:{},snap:{}};
+    for(var id in p){meta.ts[id]=1;meta.snap[id]=p[id];}
+    saveMeta();
+  }
+}
+/* Record a time for every card whose mark changed since the last look (mark, unmark, reset, restore). */
+function touch(){
+  if(!cfg)return;
+  var p=local(),now=Date.now(),ch=false,id,seen={};
+  for(id in p){if(has(p,id))seen[id]=1;}
+  for(id in meta.snap){if(has(meta.snap,id))seen[id]=1;}
+  for(id in seen){
+    if((p[id]||'')!==(meta.snap[id]||'')){
+      meta.ts[id]=Math.max(now,(meta.ts[id]||0)+1);
+      if(p[id])meta.snap[id]=p[id];else delete meta.snap[id];
+      ch=true;
+    }
+  }
+  if(ch){saveMeta();dirty=true;if(token())schedule(1500);renderUI();}
+}
+function pick(L,R){
+  if(L[1]>R[1])return L;
+  if(R[1]>L[1])return R;
+  if(L[0]===R[0])return L;
+  if(!L[0])return R;
+  if(!R[0])return L;
+  return ['learning',L[1]]; /* same time, different marks: keep the safer one */
+}
+function merge(rc){
+  touch();
+  var out={},id,seen={};
+  for(id in meta.ts){if(has(meta.ts,id))seen[id]=1;}
+  for(id in rc){if(has(rc,id))seen[id]=1;}
+  for(id in seen){
+    var L=[meta.snap[id]||'',+meta.ts[id]||0];
+    var r=rc[id],R=(r&&r.length===2)?[(r[0]==='known'||r[0]==='learning')?r[0]:'',+r[1]||0]:['',0];
+    var w=pick(L,R);
+    if(w[1]>0)out[id]=w;
+  }
+  var p={},ts={},push=false;
+  for(id in out){
+    ts[id]=out[id][1];if(out[id][0])p[id]=out[id][0];
+    var r2=rc[id];
+    if(!r2||r2[0]!==out[id][0]||+r2[1]!==out[id][1])push=true;
+  }
+  var before=local();
+  meta={ts:ts,snap:p};saveMeta();
+  if(!same(before,p)){lsSet(cfg.key,JSON.stringify(p));try{cfg.onRemote(clean(p));}catch(e){}}
+  return {cards:out,push:push};
+}
+function doc(cards){return JSON.stringify({v:1,deck:cfg.label||fileName,updated:new Date().toISOString(),cards:cards});}
+
+function api(method,path,body,keepalive){
+  var o={method:method,cache:'no-store',headers:{'Authorization':'Bearer '+token(),'Accept':'application/vnd.github+json'}};
+  if(body){o.body=JSON.stringify(body);o.headers['Content-Type']='application/json';}
+  if(keepalive)o.keepalive=true;
+  return fetch(API+path,o).then(function(r){
+    if(!r.ok){var e=new Error('HTTP '+r.status);e.status=r.status;throw e;}
+    return r.status===204?null:r.json();
+  });
+}
+function findOrCreate(){
+  return api('GET','/gists?per_page=100').then(function(list){
+    var m=(list||[]).filter(function(g){return g.description===DESC;});
+    m.sort(function(a,b){return a.created_at<b.created_at?-1:1;});
+    if(m.length)return api('GET','/gists/'+m[0].id);
+    var files={'README.md':{content:'Flashcard marks for the PFRDA decks. Written by the decks; please keep this gist.'}};
+    return api('POST','/gists',{description:DESC,public:false,files:files});
+  }).then(function(g){lsSet(GIST_KEY,g.id);return g;});
+}
+function getGist(){
+  var id=lsGet(GIST_KEY);
+  if(!id)return findOrCreate();
+  return api('GET','/gists/'+id).catch(function(e){if(e.status===404){lsDel(GIST_KEY);return findOrCreate();}throw e;});
+}
+function schedule(ms){clearTimeout(timer);timer=setTimeout(sync,ms);}
+function sync(){
+  clearTimeout(timer);
+  if(!cfg||!token())return;
+  if(busy){again=true;return;}
+  busy=true;setState('Syncing…','busy');
+  getGist().then(function(g){
+    var f=g.files&&g.files[fileName],rc={};
+    if(f&&f.content){try{var d=JSON.parse(f.content);if(d&&d.cards&&typeof d.cards==='object')rc=d.cards;}catch(e){}}
+    var res=merge(rc);
+    lastRemote=res.cards;
+    if(!res.push)return;
+    var files={};files[fileName]={content:doc(res.cards)};
+    return api('PATCH','/gists/'+g.id,{files:files});
+  }).then(function(){
+    dirty=false;lsSet(LAST_KEY,String(Date.now()));setState('','ok');
+  },function(e){
+    var s=e&&e.status;
+    setState(s===401?'Token rejected. Make a new one and connect again.':s===403||s===429?'GitHub is limiting requests. Will retry shortly.':s?'Sync failed ('+s+'). Will retry.':'Offline. Will sync when back online.','err');
+    if(s===401){lsDel(TOKEN_KEY);lsDel(GIST_KEY);setState('','');setNote('GitHub rejected that token. Check it was copied whole, or make a new one, then paste it again.');}
+    else schedule(60000);
+  }).then(function(){busy=false;if(again){again=false;schedule(300);}});
+}
+/* Leaving the page: push what we have without waiting for a read. */
+function flush(){
+  if(!dirty||!token()||busy)return;
+  var id=lsGet(GIST_KEY);if(!id)return;
+  touch();
+  var out={},k;
+  for(k in lastRemote){if(has(lastRemote,k))out[k]=lastRemote[k];}
+  for(k in meta.ts){if(has(meta.ts,k)){var L=[meta.snap[k]||'',+meta.ts[k]];out[k]=out[k]?pick(L,out[k]):L;}}
+  var files={};files[fileName]={content:doc(out)};
+  try{api('PATCH','/gists/'+id,{files:files},true).then(function(){dirty=false;},function(){});}catch(e){}
+}
+
+/* ---------- backup / restore (works with or without sync) ---------- */
+function backup(){
+  var data={deck:cfg.label||fileName,key:cfg.key,exported:new Date().toISOString(),marks:local()};
+  var blob=new Blob([JSON.stringify(data,null,1)],{type:'application/json'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=fileName.replace(/\.json$/,'')+'-marks-'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1500);
+  setNote('Backup saved: '+count(data.marks)+' marked cards.');
+}
+function restore(file){
+  var rd=new FileReader();
+  rd.onload=function(){
+    var d;try{d=JSON.parse(rd.result);}catch(e){setNote('That file is not a marks backup.');return;}
+    if(!d||!d.marks){setNote('That file is not a marks backup.');return;}
+    if(d.key&&d.key!==cfg.key&&!window.confirm('This backup is from another deck ('+(d.deck||d.key)+'). Restore it here anyway?'))return;
+    var p=clean(d.marks);
+    if(!window.confirm('Replace the marks in this deck with the '+count(p)+' marks in the backup?'))return;
+    lsSet(cfg.key,JSON.stringify(p));touch();
+    try{cfg.onRemote(p);}catch(e){}
+    setNote('Restored '+count(p)+' marks.');
+  };
+  rd.readAsText(file);
+}
+function count(p){var n=0;for(var k in p){if(has(p,k))n++;}return n;}
+
+/* ---------- UI ---------- */
+var CSS='.dsync{margin:14px 0 0;border:1px solid var(--line,#d5dbe5);border-radius:10px;background:var(--surface,var(--panel,#fff));color:var(--ink,#18233a);font-size:.875rem}'+
+'.dsync summary{cursor:pointer;padding:10px 12px;display:flex;gap:8px;align-items:center;list-style:none;min-height:44px}'+
+'.dsync summary::-webkit-details-marker{display:none}'+
+'.dsync summary b{font-weight:650}.dsync .dsst{margin-left:auto;color:var(--muted,#5b6578);font-size:.8rem;text-align:right}'+
+'.dsync .dsst.ok{color:var(--known,#2b8a3e)}.dsync .dsst.err{color:var(--changed,var(--learning,#a35f00))}'+
+'.dsync .dsb{padding:0 12px 12px;display:grid;gap:8px}.dsync p{margin:0;color:var(--muted,#5b6578)}'+
+'.dsync input[type=password]{font:inherit;font-size:16px;width:100%;padding:9px 10px;border:1px solid var(--line,#d5dbe5);border-radius:8px;background:var(--surface-2,var(--bg,#f5f7fa));color:inherit}'+
+'.dsync .dsr{display:flex;gap:8px;flex-wrap:wrap}.dsync .dsr button,.dsync .dsr label{flex:1 1 0;min-width:120px;min-height:40px;font:inherit;font-size:.82rem;font-weight:600;border:1px solid var(--line,#d5dbe5);border-radius:8px;background:var(--surface-2,var(--bg,#f5f7fa));color:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:6px 8px;text-align:center}'+
+'.dsync .dsr label input{display:none}.dsync hr{border:0;border-top:1px solid var(--line,#d5dbe5);margin:4px 0}.dsync .dsnote{color:var(--ink,#18233a)}.dsync [hidden]{display:none!important}';
+function el(tag,attrs,text){var e=document.createElement(tag);for(var k in attrs){if(has(attrs,k))e.setAttribute(k,attrs[k]);}if(text)e.textContent=text;return e;}
+function buildUI(anchor){
+  var st=el('style');st.textContent=CSS;document.head.appendChild(st);
+  var d=el('details',{'class':'dsync'});
+  var s=el('summary');s.appendChild(el('b',{},'Sync across devices'));ui.state=el('span',{'class':'dsst'});s.appendChild(ui.state);d.appendChild(s);
+  var b=el('div',{'class':'dsb'});d.appendChild(b);
+  ui.off=el('div',{'class':'dsb',style:'padding:0'});
+  ui.off.appendChild(el('p',{},'Paste your GitHub sync token. You do this once per device; every deck on this site then syncs.'));
+  ui.tok=el('input',{type:'password',autocomplete:'off',autocapitalize:'off',spellcheck:'false',placeholder:'ghp_…','aria-label':'GitHub sync token'});ui.off.appendChild(ui.tok);
+  var r1=el('div',{'class':'dsr'});var bc=el('button',{type:'button'},'Connect this device');r1.appendChild(bc);ui.off.appendChild(r1);
+  ui.on=el('div',{'class':'dsb',style:'padding:0'});
+  ui.msg=el('p');ui.on.appendChild(ui.msg);
+  var r2=el('div',{'class':'dsr'});var bs=el('button',{type:'button'},'Sync now');var bd=el('button',{type:'button'},'Disconnect this device');r2.appendChild(bs);r2.appendChild(bd);ui.on.appendChild(r2);
+  b.appendChild(ui.off);b.appendChild(ui.on);b.appendChild(el('hr'));
+  b.appendChild(el('p',{},'Safety copy of this deck’s marks as a file:'));
+  var r3=el('div',{'class':'dsr'});var bb=el('button',{type:'button'},'Back up marks');var lr=el('label',{},'Restore from backup');var fi=el('input',{type:'file',accept:'.json,application/json'});lr.appendChild(fi);r3.appendChild(bb);r3.appendChild(lr);b.appendChild(r3);
+  ui.note=el('p',{'class':'dsnote',role:'status'});b.appendChild(ui.note);
+  bc.addEventListener('click',function(){var t=ui.tok.value.trim();if(!t){ui.tok.focus();return;}lsSet(TOKEN_KEY,t);ui.tok.value='';renderUI();sync();});
+  bs.addEventListener('click',function(){sync();});
+  bd.addEventListener('click',function(){if(!window.confirm('Stop syncing on this device? Marks already here stay. Other decks on this device stop syncing too.'))return;lsDel(TOKEN_KEY);lsDel(GIST_KEY);setState('','');renderUI();});
+  bb.addEventListener('click',backup);
+  fi.addEventListener('change',function(){if(fi.files&&fi.files[0])restore(fi.files[0]);fi.value='';});
+  anchor.parentNode.insertBefore(d,anchor.nextSibling);
+  ui.root=d;
+}
+var stateText='',stateKind='';
+function setState(t,k){stateText=t;stateKind=k;renderUI();}
+function setNote(t){if(ui.note)ui.note.textContent=t;}
+function ago(ms){var m=Math.round(ms/60000);if(m<1)return 'just now';if(m<60)return m+' min ago';var h=Math.round(m/60);if(h<24)return h+' h ago';return Math.round(h/24)+' d ago';}
+function renderUI(){
+  if(!ui.root)return;
+  var on=!!token();
+  ui.off.hidden=on;ui.on.hidden=!on;
+  var last=+lsGet(LAST_KEY)||0;
+  var lbl=!on?'Off':stateKind==='busy'?'Syncing…':stateKind==='err'?'Not synced':dirty?'Changes waiting':last?'Synced '+ago(Date.now()-last):'On';
+  ui.state.textContent=lbl;
+  ui.state.className='dsst'+(on&&stateKind==='err'?' err':on&&stateKind==='ok'&&!dirty?' ok':'');
+  ui.msg.textContent=stateKind==='err'?stateText:(last?'Last synced '+ago(Date.now()-last)+'. Marks sync by themselves after each change and when you come back to this tab.':'Connected. First sync merges this device’s marks with the other device’s.');
+}
+
+window.DeckSync={
+  init:function(c){
+    try{
+      if(!c||!c.key||!window.localStorage)return;
+      cfg=c;metaKey=c.key+'_sync';fileName=c.key.replace(/_progress$/,'')+'.json';
+      loadMeta();touch();dirty=false;
+      if(c.anchor)buildUI(c.anchor);
+      renderUI();
+      if(token())sync();
+      document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'){if(token())schedule(300);}else flush();});
+      window.addEventListener('pagehide',flush);
+      window.addEventListener('online',function(){if(token())schedule(300);});
+      setInterval(renderUI,60000);
+    }catch(e){cfg=null;}
+  },
+  touch:function(){try{touch();}catch(e){}},
+  sync:sync
+};
+})();
+</script><!--/deck-sync-->
+<script>
+(function(){
+'use strict';
+var KEY='pfrda_mgmteve_nov2026_progress';
+var THEME_KEY='pfrda_mgmteve_nov2026_theme';
+var CARDS=JSON.parse(document.getElementById('cards-data').textContent);
+var TOPICS=JSON.parse(document.getElementById('topics-data').textContent);
+var $=function(id){return document.getElementById(id);};
+
+/* ---------- storage (never required) ---------- */
+var storageOk=true;
+function sGet(k){try{return window.localStorage.getItem(k);}catch(e){storageOk=false;return null;}}
+function sSet(k,v){try{window.localStorage.setItem(k,v);return true;}catch(e){storageOk=false;showBanner();return false;}}
+function sDel(k){try{window.localStorage.removeItem(k);}catch(e){storageOk=false;}}
+function showBanner(){ $('banner').hidden=false; }
+(function probe(){try{var t='__pfrda_probe__';window.localStorage.setItem(t,'1');window.localStorage.removeItem(t);}catch(e){storageOk=false;}})();
+
+var progress={};
+(function(){
+  var raw=sGet(KEY);
+  if(!raw) return;
+  try{
+    var o=JSON.parse(raw);
+    if(o && typeof o==='object'){
+      for(var k in o){ if(Object.prototype.hasOwnProperty.call(o,k) && (o[k]==='known'||o[k]==='learning')) progress[k]=o[k]; }
+    }
+  }catch(e){}
+})();
+function saveProgress(){ sSet(KEY,JSON.stringify(progress)); if(window.DeckSync)DeckSync.touch(); }
+
+/* ---------- theme ---------- */
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  $('bTheme').textContent = t==='dark' ? 'Light theme' : 'Dark theme';
+}
+var theme=sGet(THEME_KEY);
+if(theme!=='light' && theme!=='dark'){
+  theme=(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';
+}
+applyTheme(theme);
+
+/* ---------- state ---------- */
+var byId={};
+CARDS.forEach(function(c){byId[c.id]=c;});
+var baseOrder=CARDS.map(function(c){return c.id;});
+var order=baseOrder.slice();
+var filters={topics:[],type:'all',status:'all',hi:false,pyq:false};
+var view=[], pos=0, flipped=false;
+
+function statusOf(id){var s=progress[id];return (s==='known'||s==='learning')?s:'unseen';}
+function matches(c){
+  if(filters.topics.length && filters.topics.indexOf(c.topic)<0) return false;
+  if(filters.type!=='all' && c.type!==filters.type) return false;
+  if(filters.hi && c.star!=='hi') return false;
+  if(filters.pyq && !c.pyq) return false;
+  if(filters.status==='notknown'){ if(statusOf(c.id)==='known') return false; }
+  else if(filters.status!=='all' && statusOf(c.id)!==filters.status) return false;
+  return true;
+}
+function rebuild(keepId){
+  view=order.filter(function(id){return matches(byId[id]);});
+  var i=keepId?view.indexOf(keepId):-1;
+  pos=i>=0?i:0;
+  flipped=false;
+  render();
+}
+
+/* ---------- rendering ---------- */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmt(s){return esc(s).replace(/\*\*([\s\S]+?)\*\*/g,'<strong>$1</strong>');}
+var TYPE_LABEL={fact:'Fact',trap:'Trap',concept:'Concept'};
+var STATUS_LABEL={unseen:'Unseen',learning:'Still learning',known:'Known'};
+
+function renderStats(){
+  var n=view.length,k=0,l=0;
+  view.forEach(function(id){var s=statusOf(id); if(s==='known')k++; else if(s==='learning')l++;});
+  $('sTotal').textContent=n;
+  $('sUnseen').textContent=n-k-l;
+  $('sLearn').textContent=l;
+  $('sKnown').textContent=k;
+  $('sPct').textContent=(n?Math.round(k*100/n):0)+'%';
+}
+function renderCard(){
+  var el=$('card');
+  if(!view.length){
+    el.className='card empty';
+    el.removeAttribute('data-type');
+    el.setAttribute('aria-expanded','false');
+    el.setAttribute('aria-label','No cards match these filters');
+    el.innerHTML='<p class="q" style="margin:0">No cards match these filters.</p><p class="note" style="margin:0">Change or clear a filter above to widen the set.</p><button type="button" id="emptyClear">Clear filters</button>';
+    var b=$('emptyClear'); if(b) b.addEventListener('click',function(e){e.stopPropagation();clearFilters();});
+    return;
+  }
+  var c=byId[view[pos]], st=statusOf(c.id);
+  var h='<div class="meta">';
+  h+='<span class="badge b-type">'+TYPE_LABEL[c.type]+'</span>';
+  if(c.star==='hi') h+='<span class="badge b-star">★ High-yield</span>';
+  else if(c.star==='md') h+='<span class="badge b-star">☆ Medium</span>';
+  if(c.pyq) h+='<span class="badge b-pyq">'+esc(c.pyq)+'</span>';
+  h+='</div>';
+  h+='<div class="topic">'+esc(c.topic)+'</div>';
+  h+='<div class="q">'+fmt(c.front)+'</div>';
+  h+='<div class="hint">Tap the card or press Space to reveal the answer.</div>';
+  h+='<div class="a"><div class="ans">'+fmt(c.back)+'</div>';
+  if(c.note) h+='<div class="note">'+fmt(c.note)+'</div>';
+  h+='</div>';
+  h+='<div class="cfoot"><span>'+(pos+1)+' of '+view.length+(pos===view.length-1?' (end of set)':'')+'</span><span class="s-'+st+'">'+STATUS_LABEL[st]+'</span></div>';
+  el.className='card'+(flipped?' flipped':'');
+  el.setAttribute('data-type',c.type);
+  el.setAttribute('aria-expanded',flipped?'true':'false');
+  el.setAttribute('aria-label','Card '+(pos+1)+' of '+view.length+'. Press Space or Enter to '+(flipped?'hide':'show')+' the answer.');
+  el.innerHTML=h;
+}
+function renderControls(){
+  var has=view.length>0;
+  $('bPrev').disabled=!has||pos===0;
+  $('bNext').disabled=!has||pos>=view.length-1;
+  $('bFlip').disabled=!has;
+  $('bKnown').disabled=!has;
+  $('bLearn').disabled=!has;
+  $('bFlip').textContent=flipped?'Hide answer':'Show answer';
+}
+function render(){ renderCard(); renderControls(); renderStats(); renderFilterSummary(); }
+
+/* ---------- actions ---------- */
+function focusCard(){ try{$('card').focus({preventScroll:true});}catch(e){$('card').focus();} }
+function flip(){
+  if(!view.length) return;
+  flipped=!flipped;
+  var el=$('card');
+  el.classList.toggle('flipped',flipped);
+  el.setAttribute('aria-expanded',flipped?'true':'false');
+  $('bFlip').textContent=flipped?'Hide answer':'Show answer';
+}
+function go(d){
+  if(!view.length) return;
+  var p=pos+d;
+  if(p<0||p>=view.length) return;
+  pos=p; flipped=false; render();
+}
+function mark(val){
+  if(!view.length) return;
+  progress[view[pos]]=val;
+  saveProgress();
+  if(pos<view.length-1){pos++;flipped=false;}
+  render();
+}
+function shuffle(){
+  var keep=null;
+  for(var i=order.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=order[i];order[i]=order[j];order[j]=t;}
+  rebuild(keep);
+}
+function resetOrder(){ order=baseOrder.slice(); rebuild(null); }
+
+/* ---------- modal ---------- */
+var lastFocus=null;
+function openModal(){
+  lastFocus=document.activeElement;
+  $('mText').textContent='This clears every Known and Still learning mark for all '+CARDS.length+' cards saved in this browser.';
+  $('modal').hidden=false;
+  $('mCancel').focus();
+}
+function closeModal(){ $('modal').hidden=true; if(lastFocus&&lastFocus.focus) lastFocus.focus(); else focusCard(); }
+function doReset(){
+  progress={}; sDel(KEY); if(window.DeckSync)DeckSync.touch();
+  var cur=view.length?view[pos]:null;
+  $('modal').hidden=true;
+  rebuild(cur);
+  focusCard();
+}
+
+/* ---------- filters UI ---------- */
+/* Topic picker: one native select. Each area is an optgroup whose first option takes the whole area. */
+var PREF_KEY='pfrda_mgmteve_nov2026_filters';
+var topicCounts={}, groupOf={}, GROUPS=[], groupTopics={}, groupCounts={};
+CARDS.forEach(function(c){
+  topicCounts[c.topic]=(topicCounts[c.topic]||0)+1;
+  if(!groupOf[c.topic] || (groupOf[c.topic]==='Addendum' && c.section!=='Addendum')) groupOf[c.topic]=c.section;
+});
+TOPICS.forEach(function(t){
+  if(!topicCounts[t]) return;
+  var g=groupOf[t];
+  if(!groupTopics[g]){ GROUPS.push(g); groupTopics[g]=[]; groupCounts[g]=0; }
+  groupTopics[g].push(t); groupCounts[g]+=topicCounts[t];
+});
+function shortTopic(t,g){
+  var seps=[' — ',' - '];
+  for(var i=0;i<seps.length;i++){ if(t.indexOf(g+seps[i])===0) return t.slice((g+seps[i]).length); }
+  return t.replace(/^\d+\s+/,'');
+}
+(function buildTopics(){
+  var h='<option value="all">All topics ('+CARDS.length+')</option>';
+  GROUPS.forEach(function(g,gi){
+    h+='<optgroup label="'+esc(g)+'">';
+    h+='<option value="g:'+gi+'">All of '+esc(g)+' ('+groupCounts[g]+')</option>';
+    groupTopics[g].forEach(function(t){
+      h+='<option value="t:'+TOPICS.indexOf(t)+'">'+esc(shortTopic(t,g))+' ('+topicCounts[t]+')</option>';
+    });
+    h+='</optgroup>';
+  });
+  $('topicSel').innerHTML=h;
+})();
+var topicChoice='all';
+function topicsFor(v){
+  if(v.indexOf('g:')===0){ var g=GROUPS[+v.slice(2)]; return g?groupTopics[g].slice():[]; }
+  if(v.indexOf('t:')===0){ var t=TOPICS[+v.slice(2)]; return t?[t]:[]; }
+  return [];
+}
+function savePrefs(){
+  sSet(PREF_KEY,JSON.stringify({topic:topicChoice,type:filters.type,status:filters.status,hi:filters.hi,pyq:filters.pyq}));
+}
+function syncFilterUI(){
+  $('topicSel').value=topicChoice;
+  $('typeSel').value=filters.type;
+  $('statusSel').value=filters.status;
+  $('topicSel').classList.toggle('on',topicChoice!=='all');
+  $('typeSel').classList.toggle('on',filters.type!=='all');
+  $('statusSel').classList.toggle('on',filters.status!=='all');
+  $('fHi').setAttribute('aria-pressed',filters.hi?'true':'false');
+  $('fPyq').setAttribute('aria-pressed',filters.pyq?'true':'false');
+}
+(function loadPrefs(){
+  var raw=sGet(PREF_KEY); if(!raw) return;
+  try{
+    var o=JSON.parse(raw); if(!o||typeof o!=='object') return;
+    if(typeof o.topic==='string' && $('topicSel').querySelector('option[value="'+o.topic.replace(/"/g,'')+'"]')){ topicChoice=o.topic; filters.topics=topicsFor(o.topic); }
+    if(['all','fact','trap','concept'].indexOf(o.type)>=0) filters.type=o.type;
+    if(['all','unseen','learning','known','notknown'].indexOf(o.status)>=0) filters.status=o.status;
+    filters.hi=o.hi===true; filters.pyq=o.pyq===true;
+  }catch(e){}
+})();
+function onFilterChange(){
+  savePrefs();
+  syncFilterUI();
+  var cur=view.length?view[pos]:null;
+  rebuild(cur);
+}
+$('topicSel').addEventListener('change',function(){ topicChoice=this.value; filters.topics=topicsFor(topicChoice); onFilterChange(); });
+$('typeSel').addEventListener('change',function(){ filters.type=this.value; onFilterChange(); });
+$('statusSel').addEventListener('change',function(){ filters.status=this.value; onFilterChange(); });
+$('fHi').addEventListener('click',function(){ filters.hi=!filters.hi; onFilterChange(); });
+$('fPyq').addEventListener('click',function(){ filters.pyq=!filters.pyq; onFilterChange(); });
+function clearFilters(){
+  filters={topics:[],type:'all',status:'all',hi:false,pyq:false};
+  topicChoice='all';
+  onFilterChange();
+}
+$('fClear').addEventListener('click',clearFilters);
+function renderFilterSummary(){
+  var on=topicChoice!=='all'||filters.type!=='all'||filters.status!=='all'||filters.hi||filters.pyq;
+  $('fClear').hidden=!on;
+}
+syncFilterUI();
+
+/* ---------- wiring ---------- */
+$('card').addEventListener('click',function(e){
+  if(!view.length) return;
+  var sel=window.getSelection && String(window.getSelection());
+  if(sel && sel.length>0 && flipped) return;
+  flip();
+});
+function bind(id,fn){ $(id).addEventListener('click',function(){ fn(); if(id!=='bReset') focusCard(); }); }
+bind('bPrev',function(){go(-1);});
+bind('bNext',function(){go(1);});
+bind('bFlip',flip);
+bind('bKnown',function(){mark('known');});
+bind('bLearn',function(){mark('learning');});
+bind('bShuffle',shuffle);
+bind('bOrder',resetOrder);
+bind('bReset',openModal);
+bind('bTheme',function(){ theme=theme==='dark'?'light':'dark'; applyTheme(theme); sSet(THEME_KEY,theme); });
+$('mCancel').addEventListener('click',closeModal);
+$('mOk').addEventListener('click',doReset);
+$('modal').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
+
+document.addEventListener('keydown',function(e){
+  if(!$('modal').hidden){ if(e.key==='Escape'){e.preventDefault();closeModal();} return; }
+  if(e.ctrlKey||e.metaKey||e.altKey) return;
+  var t=e.target, tag=(t&&t.tagName||'').toLowerCase();
+  if(tag==='input'||tag==='select'||tag==='textarea'||tag==='summary'||(t&&t.isContentEditable)) return;
+  var k=e.key;
+  if(k===' '||k==='Spacebar'||k==='Enter'){
+    if(tag==='button') return;
+    e.preventDefault(); flip(); return;
+  }
+  if(k==='ArrowRight'){e.preventDefault();go(1);focusCard();return;}
+  if(k==='ArrowLeft'){e.preventDefault();go(-1);focusCard();return;}
+  if(k==='k'||k==='K'){e.preventDefault();mark('known');focusCard();return;}
+  if(k==='l'||k==='L'){e.preventDefault();mark('learning');focusCard();return;}
+});
+
+$('sub').textContent='PFRDA Grade A 2026 · Phase II Paper 2 · EduTap summaries, supplementary notes + PYQs only. '+CARDS.length+' cards.';
+if(!storageOk) showBanner();
+rebuild(null);
+if(window.DeckSync)DeckSync.init({key:KEY,label:document.title,anchor:document.querySelector('.kbd')||$('modal'),onRemote:function(p){var cur=view.length?view[pos]:null,f=flipped;progress=p;rebuild(cur);if(f&&view[pos]===cur)flip();}});
+})();
+</script>
+</body>
+</html>

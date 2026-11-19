@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Costing Exam-Eve</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#EEF1F5; --surface:#FFFFFF; --surface-2:#F5F7FA; --ink:#18233A; --muted:#5B6578; --line:#D5DBE5;
+  --fact:#2F4B7C; --trap:#7A3E9D; --concept:#0F766E; --changed:#D9480F;
+  --known:#2B8A3E; --learning:#A35F00; --star:#8A6A00; --focus:#2F6FEB; --on-solid:#FFFFFF;
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0F1522; --surface:#182133; --surface-2:#1E293D; --ink:#E7EBF2; --muted:#A3ACBE; --line:#2C3852;
+  --fact:#9DB8EA; --trap:#D1A3EC; --concept:#5ED0C2; --changed:#FF8A4C;
+  --known:#6CC77D; --learning:#F0B44C; --star:#E8C547; --focus:#7AA7FF; --on-solid:#0F1522;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans","Helvetica Neue",Arial,sans-serif;
+  font-size:16px; line-height:1.5; -webkit-text-size-adjust:100%; overflow-x:hidden;
+}
+.wrap{max-width:640px;margin:0 auto;padding:16px 14px calc(28px + env(safe-area-inset-bottom,0px))}
+header h1{font-size:1.3rem;line-height:1.25;margin:0;font-weight:750;letter-spacing:-0.01em}
+header p{margin:4px 0 0;color:var(--muted);font-size:.875rem}
+.banner{margin:12px 0 0;padding:10px 12px;border:1px solid var(--learning);border-radius:10px;color:var(--ink);background:var(--surface);font-size:.875rem}
+.banner[hidden]{display:none}
+
+.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:14px 0}
+.stat{background:var(--surface);padding:8px 2px 6px;text-align:center;min-width:0}
+.stat b{display:block;font-size:1.05rem;font-variant-numeric:tabular-nums;line-height:1.3}
+.stat span{display:block;font-size:.7rem;color:var(--muted);line-height:1.25}
+.stat.k b{color:var(--known)} .stat.l b{color:var(--learning)}
+
+/* Filter bar: compact native selects + toggles (same layout as the Management deck), so the card sits right below. */
+.fbar{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-bottom:14px}
+.fbar select{
+  font:inherit;font-size:.9rem;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;
+  min-height:44px;padding:8px 10px;width:100%;min-width:0;cursor:pointer;
+}
+.fbar #topicSel{grid-column:1/-1}
+.fbar select.on{border-color:var(--fact);box-shadow:inset 0 0 0 1px var(--fact)}
+.ftog{grid-column:1/-1;display:flex;gap:8px}
+.ftog button{flex:1 1 auto;min-width:0;min-height:44px;font-size:.86rem;font-weight:600;padding:6px 8px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ftog button[aria-pressed="true"]{color:var(--surface);background:var(--ink);border-color:var(--ink)}
+.ftog button.fclear{flex:0 0 auto;padding:6px 12px;color:var(--changed);border-color:var(--changed)}
+.ftog button.fclear[hidden]{display:none}
+.fbar select:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+
+.card{
+  --accent:var(--fact);
+  background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--accent);border-radius:12px;
+  padding:14px 16px 14px;min-height:min(52vh,460px);display:flex;flex-direction:column;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;outline:none;user-select:text;
+}
+.card[data-type="trap"]{--accent:var(--trap)}
+.card[data-type="concept"]{--accent:var(--concept)}
+.card:focus-visible{box-shadow:0 0 0 3px var(--focus)}
+.card.empty{cursor:default;border-left-color:var(--line);justify-content:center;align-items:flex-start;gap:12px}
+.meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.badge{font-size:.74rem;font-weight:650;padding:2px 8px;border-radius:999px;border:1px solid currentColor;line-height:1.35;max-width:100%;overflow-wrap:anywhere}
+.b-type{color:var(--accent)}
+.b-star{color:var(--star)}
+.b-pyq{color:var(--muted);font-weight:550;border-radius:8px}
+.topic{font-size:.8rem;color:var(--muted);margin:8px 0 0;overflow-wrap:anywhere}
+.q{font-size:1.2rem;font-weight:650;line-height:1.42;margin:14px 0 0;overflow-wrap:anywhere}
+.hint{margin-top:auto;padding-top:18px;color:var(--muted);font-size:.85rem}
+.a{display:none;margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.card.flipped .a{display:block}
+.card.flipped .hint{display:none}
+.ans{font-size:1.14rem;line-height:1.5;overflow-wrap:anywhere;white-space:pre-line}
+.ans strong{font-weight:800}
+.card[data-type="concept"] .ans{font-size:1.02rem;line-height:1.6}
+.note{margin-top:10px;font-size:.82rem;line-height:1.45;color:var(--muted);overflow-wrap:anywhere}
+.cfoot{display:flex;justify-content:space-between;gap:10px;margin-top:16px;font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.cfoot .s-known{color:var(--known);font-weight:650}
+.cfoot .s-learning{color:var(--learning);font-weight:650}
+@media (prefers-reduced-motion:no-preference){
+  .card.flipped .a{animation:reveal .16s ease-out}
+  @keyframes reveal{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+}
+
+.controls{display:grid;gap:8px;margin-top:12px}
+.row{display:grid;gap:8px}
+.row.nav{grid-template-columns:1fr 1.35fr 1fr}
+.row.mark{grid-template-columns:1fr 1fr}
+.row.tools{grid-template-columns:repeat(4,minmax(0,1fr))}
+button{
+  font:inherit;min-height:48px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  font-weight:650;padding:8px 10px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+}
+button:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+button:disabled{opacity:.45;cursor:default}
+.b-flip{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.b-known{background:var(--known);border-color:var(--known);color:var(--on-solid)}
+.b-learn{background:var(--surface);border:2px solid var(--learning);color:var(--learning)}
+.row.tools button{font-size:.82rem;font-weight:550;color:var(--muted);min-height:44px;padding:6px 4px}
+.kbd{display:none;margin:12px 0 0;font-size:.8rem;color:var(--muted)}
+@media (hover:hover) and (pointer:fine){.kbd{display:block}}
+@media (max-width:380px){
+  .row.tools{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .q{font-size:1.12rem}
+}
+.modal{position:fixed;inset:0;background:rgba(10,14,24,.55);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+.modal[hidden]{display:none}
+.mbox{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:18px;max-width:420px;width:100%}
+.mbox h2{font-size:1.1rem;margin:0 0 6px}
+.mbox p{margin:0 0 16px;color:var(--muted);font-size:.92rem}
+.b-danger{background:var(--changed);border-color:var(--changed);color:var(--on-solid)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Costing Exam-Eve (68 cards)</h1>
+    <p id="sub">PFRDA Grade A 2026 · Phase I Paper 2</p>
+    <p class="banner" id="banner" hidden>Progress can't be saved in this browser view, so your marks will reset when the page closes.</p>
+  </header>
+
+  <div class="stats" aria-live="polite">
+    <div class="stat"><b id="sTotal">0</b><span>In filter</span></div>
+    <div class="stat"><b id="sUnseen">0</b><span>Unseen</span></div>
+    <div class="stat l"><b id="sLearn">0</b><span>Still learning</span></div>
+    <div class="stat k"><b id="sKnown">0</b><span>Known</span></div>
+    <div class="stat"><b id="sPct">0%</b><span>Known</span></div>
+  </div>
+
+  <div class="fbar" id="filters">
+    <select id="topicSel" aria-label="Filter by topic"></select>
+    <select id="statusSel" aria-label="Filter by status">
+      <option value="all">All statuses</option>
+      <option value="unseen">Unseen</option>
+      <option value="learning">Still learning</option>
+      <option value="known">Known</option>
+      <option value="notknown">Not yet known</option>
+    </select>
+    <select id="typeSel" aria-label="Filter by card type">
+      <option value="all">All card types</option>
+      <option value="fact">Fact</option>
+      <option value="trap">Trap</option>
+      <option value="concept">Concept</option>
+    </select>
+    <div class="ftog">
+    <button type="button" id="fHi" aria-pressed="false">★ High-yield</button>
+    <button type="button" id="fPyq" aria-pressed="false">PYQ</button>
+    <button type="button" class="fclear" id="fClear" hidden>Clear</button>
+    </div>
+  </div>
+
+  <main>
+    <div class="card" id="card" tabindex="0" role="button" aria-expanded="false"></div>
+  </main>
+
+  <div class="controls">
+    <div class="row nav">
+      <button type="button" id="bPrev">Prev</button>
+      <button type="button" class="b-flip" id="bFlip">Show answer</button>
+      <button type="button" id="bNext">Next</button>
+    </div>
+    <div class="row mark">
+      <button type="button" class="b-learn" id="bLearn">Still learning</button>
+      <button type="button" class="b-known" id="bKnown">Known</button>
+    </div>
+    <div class="row tools">
+      <button type="button" id="bShuffle">Shuffle</button>
+      <button type="button" id="bOrder">Reset order</button>
+      <button type="button" id="bReset">Reset progress</button>
+      <button type="button" id="bTheme">Dark theme</button>
+    </div>
+  </div>
+  <p class="kbd">Keyboard: left and right arrows to move, Space or Enter to flip, K for known, L for still learning.</p>
+</div>
+
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="mbox">
+    <h2 id="mTitle">Reset progress?</h2>
+    <p id="mText">This clears every Known and Still learning mark saved in this browser.</p>
+    <div class="row mark">
+      <button type="button" id="mCancel">Cancel</button>
+      <button type="button" class="b-danger" id="mOk">Reset progress</button>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" id="cards-data">[{"id": "CT001", "section": "Overview of Cost & Mgmt Accounting", "topic": "Overview of Cost & Mgmt Accounting - Meaning, Scope & Objectives", "type": "fact", "star": "hi", "front": "Financial, cost and management accounting: what does each do, and which suits decision-making best?", "back": "**Management accounting** (strategic role) suits decision-making best\n1. Financial: P&L, Balance Sheet, Cash Flow Statement; overall performance and position\n2. Cost: ascertains and analyses cost of products; cost determination and cost control\n3. Management: uses both to aid decision-making, planning, controlling", "pyq": "Asked: PFRDA 2021 Ph-II, SEBI 2025 Ph-II", "changed": false, "note": "Financial and cost accounting deal with what has already happened; management accounting guides future actions. p21b distractors: financial, cost, either. s25b asked how the management accountant's role has changed: strategic role (not variable analysis, historical reporting, cost recording, routine bookkeeping)."}, {"id": "CT002", "section": "Overview of Cost & Mgmt Accounting", "topic": "Overview of Cost & Mgmt Accounting - Meaning, Scope & Objectives", "type": "trap", "star": "hi", "front": "Costing vs cost accounting vs cost accountancy?", "back": "1. **Costing**: finding the cost of a product or service by any process or technique, plus planning and controlling it\n2. **Cost accounting**: begins with recording expenditure, ends with statistical data for reports and analysis; wider than costing\n3. **Cost accountancy**: applying costing and cost accounting principles, methods and techniques to the science, art and practice of cost control and ascertainment of profitability", "pyq": "Asked: PFRDA 2021 Ph-II", "changed": false, "note": "p21b: 'process of accounting for cost which begins with recording of expenditure and ends with preparation of statistical data' = Cost Accounting (distractors: costing, cost accountancy, both A and B). Your attempt picked Cost Accountancy. Cost accountancy is the practice of costing and cost accounting."}, {"id": "CT003", "section": "Overview of Cost & Mgmt Accounting", "topic": "Overview of Cost & Mgmt Accounting - Meaning, Scope & Objectives", "type": "fact", "star": "hi", "front": "Six areas in the scope of cost accounting?", "back": "1. **Costing**: ascertaining cost of products, processes, jobs, services\n2. **Cost bookkeeping**: full record of costs from incurrence till charged to the product\n3. **Cost analysis**: evaluating and classifying cost components\n4. **Cost control**: actual vs predetermined standards (variances)\n5. **Cost reports**: periodic (weekly, monthly) reports for management\n6. **Cost audit**: verifying cost accounts and that the system is followed", "pyq": "Asked: PFRDA 2021 Ph-II, IFSCA 2025", "changed": false, "note": "p21b: Tax planning is NOT in the scope. i25: cost analysis = evaluating cost components (direct/indirect, fixed/variable, controllable/uncontrollable). 'Comparing actual and budgeted results' is cost control, not analysis; other i25 distractors: estimating future prices, calculating taxes, studying consumer demand."}, {"id": "CT004", "section": "Overview of Cost & Mgmt Accounting", "topic": "Overview of Cost & Mgmt Accounting - Meaning, Scope & Objectives", "type": "trap", "star": "hi", "front": "Primary objective of cost accounting? Name the other two objectives too.", "back": "**Ascertainment of cost** (accumulating and ascertaining cost for each cost object)\nOthers: 1. cost control and cost reduction 2. guide to business policy", "pyq": "Asked: PFRDA 2025 Ph-II", "changed": false, "note": "p25b distractors: cost bookkeeping, cost audit, cost control, decision making. Your ink says the main purpose is cost analysis and cost control (not max profit) and your attempt picked Cost Control, but the printed summary and the key both say ascertainment. A cost object may be a unit, job, operation, process, department or service."}, {"id": "CT005", "section": "Overview of Cost & Mgmt Accounting", "topic": "Overview of Cost & Mgmt Accounting - Meaning, Scope & Objectives", "type": "trap", "star": "hi", "front": "Cost control vs cost reduction: which is preventive and which is corrective?", "back": "**Cost control = preventive**: keeps spending in line with predetermined standards, avoiding excess cost in advance\n**Cost reduction = corrective**: cuts cost below existing standards; works even when good cost control exists", "pyq": "Asked: SEBI 2025 Ph-I", "changed": false, "note": "s25a: 'Cost reduction is a ___ function and operates even when an efficient cost control system exists' = Corrective (distractors: selective, preventive, extensive, detective)."}, {"id": "CT015", "section": "Overview of Cost & Mgmt Accounting", "topic": "Overview of Cost & Mgmt Accounting - Methods & Techniques", "type": "fact", "star": "hi", "front": "Which costing method suits cycle (bicycle) manufacturing?", "back": "**Multiple costing**: two or more methods for one product\n1. Wires and frames: process costing\n2. Tyres (made in lots): batch costing\n3. Final custom assembly: job costing", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": "s24b distractors: job, process, batch, contract costing. Used where a product has many components, each made differently."}, {"id": "CT017", "section": "Overview of Cost & Mgmt Accounting", "topic": "Overview of Cost & Mgmt Accounting - Classification of Costs", "type": "trap", "star": "hi", "front": "Direct vs indirect cost: basis of the split, and examples?", "back": "**Traceability**: traceable to a product = direct; otherwise indirect\nDirect: raw material, direct wages, steel in a machine, cloth and tailor's wages for a shirt\nIndirect: factory rent, managers' salaries, lighting; allocated or apportioned on a reasonable basis", "pyq": "Asked: SEBI 2025 Ph-I", "changed": false, "note": "s25a: '___ of cost means the degree of relationship between cost and the option' = Traceability (distractors: stability, divisibility, variability, feasibility)."}, {"id": "CT018", "section": "Overview of Cost & Mgmt Accounting", "topic": "Overview of Cost & Mgmt Accounting - Classification of Costs", "type": "trap", "star": "hi", "front": "Indirect cost: store services for canteen, starch for yarn, 2 batteries per radio, carton, or jute for bag?", "back": "**Store services for canteen**: cannot be identified with a particular product; the others trace to the product (direct)", "pyq": "Asked: SEBI 2022 Ph-I", "changed": false, "note": "Section C's last line says 'Option B', a typo; its key and its own reasoning give A."}, {"id": "CT021", "section": "Overview of Cost & Mgmt Accounting", "topic": "Overview of Cost & Mgmt Accounting - Classification of Costs", "type": "fact", "star": "hi", "front": "A rickshaw charges ₹120 fixed plus ₹15 per km. Which type of cost is this?", "back": "**Semi-variable cost**: has both a fixed and a variable component", "pyq": "Asked: IFSCA 2023", "changed": false, "note": "Distractors: fixed, variable, direct, indirect. Semi-variable cost is not taught in the summary; this is from the PYQ explanation."}, {"id": "CT027", "section": "Overview of Cost & Mgmt Accounting", "topic": "Overview of Cost & Mgmt Accounting - Costs for Decision Making", "type": "trap", "star": "hi", "front": "Differential (incremental) cost vs marginal cost?", "back": "**Differential**: increase or decrease in total cost from an alternative course of action (cost of one alternative minus the other)\n**Marginal**: additional cost of producing one more unit = variable cost", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": "s24b: cost ₹30,000 at 70% activity and ₹39,000 at 85% gives differential cost ₹9,000. Marginal (variable) costing charges only variable costs to products."}, {"id": "CT028", "section": "Overview of Cost & Mgmt Accounting", "topic": "Overview of Cost & Mgmt Accounting - Costs for Decision Making", "type": "trap", "star": "hi", "front": "Imputed cost: other names, classic example, and its opposite?", "back": "**Imputed = notional = implicit cost**: no cash outlay, not recorded in books\nExample: interest on own capital or internal funds not actually paid\nOpposite: **out-of-pocket (explicit) cost**: cash outlay (wages, material, insurance, power); can be fixed or variable", "pyq": "Asked: SEBI 2022 Ph-I, SEBI 2025 Ph-I, IFSCA 2023", "changed": false, "note": "s22a: imputed = Notional cost. s25a: interest on internal funds = Imputed cost (not out-of-pocket, sunk, relevant). i23: interest on own funds = Notional cost (key). The summary equates imputed with implicit and calls implicit costs 'economic costs', so i23's 'Implicit' and s25a's 'Economic cost' options also fit; go with the keys."}, {"id": "CT029", "section": "Overview of Cost & Mgmt Accounting", "topic": "Overview of Cost & Mgmt Accounting - Costs for Decision Making", "type": "fact", "star": "hi", "front": "Which is a notional cost: absorption, historical, standard or lean costing?", "back": "**Standard costing**: a budgeted cost, not an actual cost, like a notional cost", "pyq": "Asked: SEBI 2022 Ph-I", "changed": false, "note": "From the PYQ explanation (and your ink: std cost is also a notional cost); the printed summary doesn't say this. Notional cost example: the firm uses the owner's car without paying rent."}, {"id": "CT030", "section": "Overview of Cost & Mgmt Accounting", "topic": "Overview of Cost & Mgmt Accounting - Costs for Decision Making", "type": "fact", "star": "hi", "front": "Opportunity cost: meaning, type, and the summary's example?", "back": "**Value of the best alternative foregone (sacrifice) when a choice is made**; an **implicit** cost\nExample: debentures at 17% chosen over FD at 10%; the FD return is the opportunity cost", "pyq": "Asked: PFRDA 2025 Ph-II, IFSCA 2023", "changed": false, "note": "p25b distractors: monetary cost of production, labour cost on a project, fixed cost, sum of explicit costs. i23 distractors: incremental, sunk, explicit. Similar to imputed cost; not recorded in the books."}, {"id": "CT034", "section": "Overview of Cost & Mgmt Accounting", "topic": "Overview of Cost & Mgmt Accounting - Elements of Cost & Cost Sheet", "type": "fact", "star": "hi", "front": "Examples of direct (chargeable) expenses? Is royalty based on production one?", "back": "**Yes, royalty is a direct expense**\n1. Hire of special plant for a particular job\n2. Travel to secure a particular contract\n3. Patent rights; experimental costs\n4. Special drawings, designs, layouts\n5. Job processing charges; royalty paid in mining\n6. Depreciation or hire of plant used at a contract site", "pyq": "Asked: SEBI 2024 Ph-I", "changed": false, "note": "s24a: royalty paid to the state government based on production = Direct expense (key). Section C admits 'variable expense' is partly right, but direct is preferred as it traces to units. Indirect expenses: rent and rates, depreciation, lighting and power, advertising, insurance, repairs."}, {"id": "CT037", "section": "Overview of Cost & Mgmt Accounting", "topic": "Overview of Cost & Mgmt Accounting - Elements of Cost & Cost Sheet", "type": "fact", "star": "hi", "front": "Cost sheet build-up from prime cost to sales?", "back": "1. **Prime cost** = DM + DL + direct expenses\n2. + factory overhead = **works (factory) cost**\n3. + office and admin overhead = **cost of production**\n4. + selling and distribution overhead = **total cost / cost of sales**\n5. + profit = **sales**\n6. **Conversion cost** = factory cost − direct material", "pyq": "Asked: SEBI 2022 Ph-II, PFRDA 2025 Ph-II", "changed": false, "note": "s22b: prime cost excludes all overheads (DM ₹1,00,000 + DL ₹68,000 = ₹1,68,000; fixed and variable OH ignored). p25b: factory rent ₹3,000 and depreciation ₹2,000 are factory OH, so factory cost = ₹55,000. A cost sheet shows total cost and cost per unit."}, {"id": "CT038", "section": "Overview of Cost & Mgmt Accounting", "topic": "Overview of Cost & Mgmt Accounting - Elements of Cost & Cost Sheet", "type": "trap", "star": "hi", "front": "What is in and what is out of cost of production?", "back": "**In**: prime cost + factory overhead + office and admin overhead\n**Out**: selling and distribution overhead (added only for cost of sales)", "pyq": "Asked: SEBI 2024 Ph-II, IFSCA 2024", "changed": false, "note": "s24b: material 600 + labour 150 + set-up 200 + mfg OH 30 = ₹980; selling OH excluded. i24 key: cost of production = DM + DL + factory overhead (the only option with no selling expense). By the summary that is works cost; cost of production also adds admin overhead."}, {"id": "CT048", "section": "Material Cost", "topic": "Material Cost - ABC Analysis", "type": "trap", "star": "hi", "front": "Which is a technique of inventory management: ABC analysis, standard costing, marginal costing or process costing?", "back": "**ABC analysis**\nStandard, marginal and process costing are costing methods, not inventory techniques", "pyq": "Asked: SEBI 2020 Ph-II", "changed": false, "note": "Other inventory-control techniques in the summary: stock levels (max, min, reorder), EOQ, JIT purchasing, proper purchase procedure, proper storage, inventory turnover ratio (to review slow and non-moving items), perpetual inventory system, material budgets (budgetary control) and fixation of material cost standards (used in standard costing)."}, {"id": "CT049", "section": "Material Cost", "topic": "Material Cost - ABC Analysis", "type": "fact", "star": "hi", "front": "ABC analysis: what principle is it based on, and how are A, B and C items split?", "back": "**Pareto 80:20 rule; a selective control**\nA: about 10% of quantity, 70% of value, strict control\nB: 30% of quantity, 25% of value, moderate control\nC: 60% of quantity, 5% of value, loose control\nLimitation: ignores low-cost items that may be vital", "pyq": "Asked: SEBI 2025 Ph-I", "changed": false, "note": "SEBI 2025 asked 'Pareto analysis is also known as?': ABC, not VED, FSN, JIT or inventory turnover (VED and FSN are not defined in your summary). Text range: A items are 10-20% of quantity but 70-80% of value. Advantages: closer control where large capital is invested; investment regulated, funds best used."}, {"id": "CT055", "section": "Material Cost", "topic": "Material Cost - Purchasing & Stores", "type": "trap", "star": "hi", "front": "Raw material purchases cost more than expected. Who is responsible?", "back": "**Purchase Manager**: procures materials, negotiates with suppliers, ensures the best price", "pyq": "Asked: SEBI 2024 Ph-II", "changed": false, "note": "Distractors: Production, Finance, Marketing and Operations Manager."}, {"id": "CT060", "section": "Material Cost", "topic": "Material Cost - Pricing of Issues", "type": "fact", "star": "hi", "front": "Simple average vs periodic simple average vs moving simple average?", "back": "**Simple average: average of prices, ignoring quantities**; for stable prices, equal lots or small stock value\nPeriodic: same, but computed periodically (month-end), not at each issue\nMoving: periodic averages further averaged over a set number of periods", "pyq": "Asked: SEBI 2022 Ph-II", "changed": false, "note": "SEBI 2022 Ph-II 'simple price moving average' numerical: (₹20 + ₹22) ÷ 2 = ₹21 × 50 units = ₹1,050. Divya's ink: with FIFO flow assumed, prices of lots already exhausted are left out of the average."}, {"id": "CT061", "section": "Material Cost", "topic": "Material Cost - Pricing of Issues", "type": "fact", "star": "hi", "front": "Which pricing method suits large fluctuations in purchase price, and how does it work?", "back": "**Weighted average**: total cost ÷ total quantity, recomputed after every purchase; smooths out fluctuations\nPros: fewer calculations, no unrealised profit or loss\nCons: not current market price; many calculations if frequent buys; decimals; old extreme prices linger", "pyq": "Asked: IFSCA 2023", "changed": false, "note": "IFSCA 2023 distractors: FIFO, LIFO, specific identification, all of the above. Divya's ink: weighted average is not the simple average of the two rates."}, {"id": "CT080", "section": "Labour Cost", "topic": "Labour Cost - Wage & Incentive Plans", "type": "trap", "star": "hi", "front": "Which does NOT split semi-variable cost: graphical, simultaneous equations, high-low, least squares, straight piece?", "back": "**Straight piece method**: a wage payment method (fixed rate × units), not a cost segregation technique", "pyq": "Asked: SEBI 2022 Ph-II", "changed": false, "note": "Segregation methods per the PYQ explanation: scatter graph (graphical), high-low, simultaneous equations, least squares, regression analysis."}, {"id": "CT088", "section": "Labour Cost", "topic": "Labour Cost - Labour Turnover", "type": "fact", "star": "hi", "front": "What is labour turnover, and the four ways to measure it?", "back": "**Rate of change in the composition of the labour force** in a period, against a suitable index\nEach ÷ average workers × 100: additions, separations, replacements, flux (separations + replacements)", "pyq": "Asked: SEBI 2020 Ph-I", "changed": false, "note": "SEBI 2020 distractors: number of people working now; number who left last period; rate of change in wages. Replacement method ignores both additions and separations."}, {"id": "CT094", "section": "Overheads", "topic": "Overheads - Classification", "type": "trap", "star": "hi", "front": "Classify by function: factory workers' canteen, advertising, works manager's salary, legal expenses, carriage outwards.", "back": "1. Canteen for factory workers: **Production**\n2. Advertising: **Selling and distribution**\n3. Works manager's salary: **Production**\n4. Legal expenses: **Administration**\n5. Carriage outwards: **Selling and distribution**", "pyq": "Asked: SEBI 2024 Ph-II, IFSCA 2023", "changed": false, "note": "SEBI 2024 Ph-II (canteen) distractors: administrative, S&D, direct costs, financial overheads (interest on loans). IFSCA 2023 (advertising) distractors: fixed cost, administration, factory overheads. More production: factory rent, depreciation of plant, internal transport, inspector's and watchman's wages. Admin: MD's salary, directors' remuneration, office rent, depreciation of office furniture. S&D: packing material, catalogues, salesmen, warehouse staff, delivery van drivers, showroom, rent of warehouse, bad debts, insurance of goods in transit. Your ink queries bad debts ('Distribution OH?'); the printed text lists them under S&D."}, {"id": "CT095", "section": "Overheads", "topic": "Overheads - Classification", "type": "fact", "star": "hi", "front": "Classification by behaviour: the three types, with examples?", "back": "1. **Fixed**: rent and rates, managerial salaries, building depreciation, postage, legal expenses\n2. **Variable**: indirect materials, indirect labour, salesmen's commission, power, fuel\n3. **Semi-variable**: supervisory salaries, depreciation, repairs and maintenance", "pyq": "Asked: PFRDA 2022 Ph-II", "changed": false, "note": "PFRDA 2022 Ph-II: of manufacturing cost, total cost, marginal cost and variable cost, only variable cost is a behaviour-based category. Variable overheads move with output; fixed do not change with activity; semi-variable vary partly with volume and are partly constant. Trap: building depreciation is fixed but depreciation in general is semi-variable."}, {"id": "CT109", "section": "Overheads", "topic": "Overheads - Under/Over-absorption", "type": "trap", "star": "hi", "front": "Under/over-absorption due to normal factors is treated by?", "back": "**Supplementary rate** (plus rate for under-, minus rate for over-absorption)\nAbnormal factors: transferred to **Costing P&L Account**", "pyq": "Asked: SEBI 2020 Ph-II", "changed": false, "note": "SEBI 2020 Ph-II distractors: Financial P&L, Costing P&L, not rectified. Supplementary rate = under/over-absorbed amount ÷ actual base. Section C also says normal-factor amounts 'can' go to Costing P&L, so B is arguable; the key is C. The summary itself says: write off under-absorption (deduct from profit) and write back over-absorption (add to profit) in the P&L Account."}, {"id": "CT115", "section": "Activity Based Costing", "topic": "Activity Based Costing - Terms & Cost Drivers", "type": "fact", "star": "hi", "front": "In ABC, costs are allocated to cost objects based on what?", "back": "**Cost drivers**: factors that cause a change in the cost of an activity", "pyq": "Asked: SEBI 2024 Ph-I", "changed": false, "note": "s24a distractors: cost unit, cost centres, cost absorption, cost allocation."}, {"id": "CT121", "section": "Marginal Costing", "topic": "Marginal Costing - Concept and Features", "type": "trap", "star": "hi", "front": "Which is NOT a variable cost: material, direct labour, selling commission or administration cost?", "back": "**Administration cost** (generally fixed; does not move with production)", "pyq": "Asked: PFRDA 2025 Ph-II", "changed": false, "note": "PFRDA 2025 Ph-II asked which statement on variable costs is incorrect: 'Administration cost is a variable cost'. True statements: cost varies directly with production; material is a typical variable cost; direct labour can be treated as variable; selling commission varies with sales. The summary adds that administration overhead can have a variable part as well as a fixed part."}, {"id": "CT122", "section": "Marginal Costing", "topic": "Marginal Costing - Concept and Features", "type": "fact", "star": "hi", "front": "What is marginal cost?", "back": "**The increase in total cost from producing one more unit**; equals variable cost per unit when fixed cost stays constant", "pyq": "Asked: PFRDA 2022 Ph-I, SEBI 2022 Ph-II", "changed": false, "note": "Pen example: total cost of 1 pen is 6 and of 2 pens is 10, so the 2nd pen's marginal cost = 4 = variable cost per pen. PFRDA 2022 Ph-I worded it 'change in total cost when quantity produced is incremented by one' and keyed 'Marginal Costing' (others: total, process, unit costing). SEBI 2022 Ph-II had the same wording as a TRUE statement."}, {"id": "CT123", "section": "Marginal Costing", "topic": "Marginal Costing - Concept and Features", "type": "trap", "star": "hi", "front": "Is marginal costing a method of costing like job or process costing?", "back": "**No. It is a technique (system of presenting sales and cost data)** to guide managers' short-term decisions", "pyq": "Asked: SEBI 2022 Ph-II", "changed": false, "note": "Methods are job, batch, process, contract and operating costing. Marginal costing guides decisions like sales mix selection and acceptance of a special order, and is used for cost control, budgeting and profit planning. SEBI 2022 Ph-II: 'It is a method of costing like Job Costing and Service Costing' was the incorrect statement."}, {"id": "CT125", "section": "Marginal Costing", "topic": "Marginal Costing - Concept and Features", "type": "fact", "star": "hi", "front": "Total variable (marginal) cost is made up of?", "back": "**Total direct cost + variable overheads**\n1. Direct material\n2. Direct labour\n3. Variable production overhead\n4. Variable administration overhead\n5. Variable selling overhead", "pyq": "Asked: PFRDA 2021 Ph-I", "changed": false, "note": "Assumes all direct material and labour are variable. PFRDA 2021 Ph-I distractors: total fixed cost + direct labour; direct expenses + direct materials; fixed + variable overheads; prime cost + fixed overheads."}, {"id": "CT126", "section": "Marginal Costing", "topic": "Marginal Costing - Concept and Features", "type": "fact", "star": "hi", "front": "Features of marginal costing?", "back": "1. **Only variable costs** used for unit cost\n2. **Fixed costs are period costs**, written off in full\n3. Used for **short-term (under one year) decisions**\n4. Sales minus variable cost = **contribution**; fixed costs set against it", "pyq": "Asked: SEBI 2022 Ph-II", "changed": false, "note": "Why it is needed: the traditional cost sheet is functional (production, administration, selling and distribution) and does not separate fixed and variable costs; the marginal costing format does, which helps planning, control and decisions. SEBI 2022 Ph-II had feature 3 as a TRUE statement."}, {"id": "CT127", "section": "Marginal Costing", "topic": "Marginal Costing - Contribution and P/V Ratio", "type": "fact", "star": "hi", "front": "What is contribution?", "back": "**Sales minus variable cost**; it covers fixed cost first, the rest is profit; if it falls short of fixed cost, there is a loss", "pyq": "Asked: SEBI 2025 Ph-II, PFRDA 2021 Ph-I", "changed": false, "note": "Surplus after all variable costs, manufacturing and non-manufacturing. SEBI 2025 Ph-II distractors: fixed cost minus profit, sales minus fixed cost, variable cost minus fixed cost. PFRDA 2021 Ph-I numerical: sales ₹25,000 at 40% P/V gives contribution ₹10,000 against fixed cost ₹20,000, so a loss of ₹10,000."}, {"id": "CT129", "section": "Marginal Costing", "topic": "Marginal Costing - Contribution and P/V Ratio", "type": "fact", "star": "hi", "front": "What is the P/V ratio?", "back": "**Contribution ÷ sales**, as a %; also called the contribution-sales (C/S) ratio", "pyq": "Asked: SEBI 2020 Ph-I", "changed": false, "note": "Shows the rate at which each rupee of sales is available to cover fixed costs and give profit (37.5% means ₹37.50 contribution per ₹100 of sales). Same answer per unit or in total; stays constant while selling price and variable cost per unit are constant. Your note: 'profit-volume' is a misnomer, it is really C/S. SEBI 2020 Ph-I: ₹40,000 ÷ ₹2,00,000 = 20%."}, {"id": "CT130", "section": "Marginal Costing", "topic": "Marginal Costing - Contribution and P/V Ratio", "type": "trap", "star": "hi", "front": "If the P/V ratio is 30% of sales, what makes up the other 70%?", "back": "**Variable costs**", "pyq": "Asked: SEBI 2024 Ph-I", "changed": false, "note": "SEBI 2024 Ph-I distractors: fixed costs, gross profit, net profit, operating expenses. P/V ratio + variable cost ratio = 100%."}, {"id": "CT134", "section": "Marginal Costing", "topic": "Marginal Costing - Break-even and Margin of Safety", "type": "trap", "star": "hi", "front": "At the break-even point, total contribution equals?", "back": "**Total fixed cost** (profit is zero)", "pyq": "Asked: SEBI 2024 Ph-II, IFSCA 2024", "changed": false, "note": "So P/V ratio = fixed cost ÷ break-even sales. SEBI 2024 Ph-II: ₹5 lakh ÷ ₹20 lakh = 25%. IFSCA 2024: ₹60,000 ÷ ₹1,50,000 = 40% (the ₹12 variable cost per unit was not needed)."}, {"id": "CT136", "section": "Marginal Costing", "topic": "Marginal Costing - Break-even and Margin of Safety", "type": "trap", "star": "hi", "front": "Price ₹30 with a 10% trade discount: which price goes into the BEP?", "back": "**₹27, the price net of trade discount**", "pyq": "Asked: SEBI 2022 Ph-II", "changed": false, "note": "SEBI 2022 Ph-II: variable cost ₹12 + ₹6 + ₹3 (50% of labour) = ₹21, contribution ₹6, BEP = ₹60,000 ÷ 6 = 10,000 units."}, {"id": "CT137", "section": "Marginal Costing", "topic": "Marginal Costing - Break-even and Margin of Safety", "type": "fact", "star": "hi", "front": "What is the margin of safety?", "back": "**Budgeted (or actual) sales minus break-even sales**; how far sales can drop before losses begin", "pyq": "Asked: PFRDA 2025 Ph-I, IFSCA 2024", "changed": false, "note": "In units or value: sales ₹10,00,000 − break-even sales ₹6,00,000 = MOS ₹4,00,000. PFRDA 2025 Ph-I: Total sales − break-even sales = MOS (not contribution margin or profit). IFSCA 2024 distractors: sales at BEP; sales minus variable cost (contribution); fixed cost ÷ contribution margin (BEP); total sales minus total cost (profit)."}, {"id": "CT142", "section": "Marginal Costing", "topic": "Marginal Costing - Multi-product and Semi-variable Costs", "type": "fact", "star": "hi", "front": "Which method splits a semi-variable cost using the highest and lowest activity levels?", "back": "**High/low point method**: variable cost per unit = change in cost ÷ change in output", "pyq": "Asked: PFRDA 2022 Ph-II", "changed": false, "note": "Then fixed cost = total cost at any level − units × variable cost per unit. PFRDA 2022 Ph-II: (₹24,00,000 − ₹22,00,000) ÷ (18,000 − 16,000) = ₹100 per unit."}, {"id": "CT153", "section": "Marginal Costing", "topic": "Marginal Costing - Decisions, Advantages and Limitations", "type": "fact", "star": "hi", "front": "What is target cost?", "back": "**Selling price minus desired profit**; works backward from the market price", "pyq": "Asked: PFRDA 2025 Ph-II", "changed": false, "note": "PFRDA 2025 Ph-II: revenue 50,000 × ₹5,000 = ₹25 crore; desired profit 15% of ₹60 crore = ₹9 crore; target cost ₹16 crore = ₹3,200 per unit. Target costing is not in the summary; this is from the PYQ explanation."}, {"id": "CT172", "section": "Unit / Output Costing", "topic": "Unit / Output Costing - Cost Sheet", "type": "trap", "star": "hi", "front": "Cost of conversion means?", "back": "**Cost of production minus direct material**, i.e. direct labour + production overheads", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "SEBI 2025 Ph-II distractors also subtract DL, DE or production overheads. Conversion cost = cost of converting raw materials into finished goods; it excludes raw material. Conflict: Section C treats cost of production as DM + DL + production overheads, whereas the summary's cost sheet adds office and admin overheads to works cost to reach cost of production. The key is A."}, {"id": "CT174", "section": "Job & Batch Costing", "topic": "Job & Batch Costing - Features & Users", "type": "fact", "star": "hi", "front": "Which costing method suits work done to a customer's specific order, e.g. a highly customised product?", "back": "**Job costing**: no mass production; jobs are dissimilar, non-repetitive and not comparable.", "pyq": "Asked: PFRDA 2026 Ph-I (your paper), PFRDA 2021 Ph-II", "changed": false, "note": "p26a options: Process, Job, Service, Operating. p21b (products or services against specific orders, as distinct from continuous production for stock): Job, Process, Unit, Both A and B, None. Process and Unit costing suit continuous mass production. 'On its own premises' also rules out contract costing, whose work is done at the site."}, {"id": "CT178", "section": "Job & Batch Costing", "topic": "Job & Batch Costing - Features & Users", "type": "trap", "star": "hi", "front": "Job costing is used in which industry: retail, service, mass production, construction or process manufacturing?", "back": "**Construction**: each project is unique with its own specifications (a builder treats each custom home as a job).", "pyq": "Asked: IFSCA 2025", "changed": false, "note": "Mass production and process manufacturing use process costing. Section B of the EduTap key omits this question; Section C gives D (Construction), which matches the summary's custom-homes example."}, {"id": "CT183", "section": "Job & Batch Costing", "topic": "Job & Batch Costing - Batch Costing", "type": "trap", "star": "hi", "front": "Batch costing is an extension of, a type of, or classified under which costing method?", "back": "**Job costing**: each batch is treated as a separate job (cost unit).", "pyq": "Asked: SEBI 2025 Ph-II, PFRDA 2025 Ph-I, IFSCA 2023", "changed": false, "note": "Distractors used: Process, Contract, Operation, Operating, Service, Marginal, Standard costing. Contract costing is the other variant of job costing, not its parent. Standard costing is a cost control technique, not a costing method (PYQ explanation)."}, {"id": "CT187", "section": "Job & Batch Costing", "topic": "Job & Batch Costing - Economic Batch Quantity", "type": "fact", "star": "hi", "front": "What is the Economic Batch Quantity (EBQ)?", "back": "**The batch size at which total set-up cost plus carrying (holding) cost is minimum**; at EBQ the two costs are equal.", "pyq": "Asked: IFSCA 2024, PFRDA 2022 Ph-II", "changed": false, "note": "i24 distractors: EOQ (optimal order quantity for buying inventory, not batch production), Maximum Production Quantity, JIT, Minimum Stock Level. Also called Optimum Batch Quantity (OBQ). p22b asked the calculation: √(2 × 5,000 × 1,000 ÷ 10) = 1,000 units."}, {"id": "CT190", "section": "Contract Costing", "topic": "Contract Costing - Features & Parties", "type": "fact", "star": "hi", "front": "Contract costing is used in which business domain?", "back": "**Construction / real estate**: buildings, roads, bridges, dams, towers, plant erection, ships.", "pyq": "Asked: PFRDA 2022 Ph-I", "changed": false, "note": "p22a options: Textile, Agriculture, Real Estate (answer), Marketing, None. The Job Costing summary also names civil engineering and shipbuilding; a hospital contract's cost may be divided by beds, floors or square feet."}, {"id": "CT203", "section": "Process & Operation Costing", "topic": "Process & Operation Costing - Features & Industries", "type": "trap", "star": "hi", "front": "Which costing method suits sugar, cement (three-step process) or a bakery making biscuits in high volume?", "back": "**Process Costing**\nSummary's industries: soap, sugar, chemicals, oil refining, cement, paper, steel, paint, textiles, food processing, biscuits, box making, canning, coke, meat, milk dairy, plastics", "pyq": "Asked: PFRDA 2025 Ph-II, IFSCA 2025, PFRDA 2026 Ph-I (your paper)", "changed": false, "note": "Distractors: Job, Batch, Contract, Unit Costing, ABC. Job = customised products; batch = distinct batches; contract = long-term construction; 'unit costing' is a general term (PFRDA 2025 explanation). Sugar stages: crushing, clarification, evaporation, crystallisation, centrifugation. For biscuits the cue is 'high volume': the Job & Batch Costing sheet lists bakeries and confectioneries under batch costing, but this PYQ's answer is Process Costing."}, {"id": "CT211", "section": "Process & Operation Costing", "topic": "Process & Operation Costing - Process Losses & Abnormal Gain", "type": "trap", "star": "hi", "front": "Spoilage from an inefficient process, controllable in the ordinary course of business, is called?", "back": "**Abnormal Spoilage**\nCharged to Costing P&L A/c, not included in product cost", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "Distractors: Ordinary Spoilage, Operational Spoilage, Normal Spoilage, Normal Defects. Normal spoilage occurs under efficient operating conditions and is unavoidable; abnormal spoilage arises from inefficiency, machine breakdown or poor supervision."}, {"id": "CT212", "section": "Process & Operation Costing", "topic": "Process & Operation Costing - Process Losses & Abnormal Gain", "type": "fact", "star": "hi", "front": "When is there an abnormal loss, and when an abnormal gain?", "back": "Actual loss **more** than normal loss: **abnormal loss**\nActual loss **less** than normal loss: **abnormal gain** (also called abnormal efficiency or abnormal advantage)", "pyq": "Asked: SEBI 2024 Ph-II, PFRDA 2025 Ph-I", "changed": false, "note": "Quick test: expected output = input − normal loss; output below it is abnormal loss, above it abnormal gain. SEBI 2024: 300 input, 30% normal loss, 190 output gives abnormal loss 20. PFRDA 2025: 200, 10%, 150 gives abnormal loss 30. Summary: 100 input, 5% normal; output 93 gives abnormal loss 2, output 97 gives abnormal gain 2."}, {"id": "CT213", "section": "Process & Operation Costing", "topic": "Process & Operation Costing - Process Losses & Abnormal Gain", "type": "fact", "star": "hi", "front": "How is normal loss treated in the process account?", "back": "**Its cost is absorbed by the good units**, raising the cost per good unit\nScrap value of normal loss is **credited to the Process A/c**", "pyq": "Asked: PFRDA 2026 Ph-I (your paper)", "changed": false, "note": "Normal loss is usually a % of input. Loss with no physical existence (evaporation, chemical reaction) carries no value. Summary example: ₹13,000 for 1,000 kg, 10% normal loss: ₹14.44 per unit with nil scrap, ₹14.33 with ₹1 scrap (₹13 if no loss). Your PFRDA 2026 paper: (₹2,00,000 − 1,000 × ₹2) ÷ 9,000 = ₹22."}, {"id": "CT214", "section": "Process & Operation Costing", "topic": "Process & Operation Costing - Process Losses & Abnormal Gain", "type": "trap", "star": "hi", "front": "Which process loss is NOT allowed to affect the cost of good units?", "back": "**Abnormal loss**\nValued at the normal cost per unit and moved to Abnormal Loss A/c; scrap sale of those units credited there; balance to **Costing P&L A/c**", "pyq": "Asked: IFSCA 2024", "changed": false, "note": "Distractors: Normal loss (absorbed by good units), Scrap loss and Wastage loss (factored into production cost), Rework loss. Absorbing abnormal loss would distort the true cost of production. Costing P&L A/c holds items outside regular production cost: abnormal losses, abnormal gains, non-recurring items. Example: 5 units × ₹1.75 = ₹8.75, scrap ₹1.25, ₹7.50 to Costing P&L, cutting profit from ₹100 to ₹92.50."}, {"id": "CT216", "section": "Process & Operation Costing", "topic": "Process & Operation Costing - Equivalent Production", "type": "fact", "star": "hi", "front": "What is equivalent production?", "back": "**Production of a process expressed in completed units**: WIP units × degree of completion\nDegree may be overall, or separate for material, labour and overheads", "pyq": "Asked: SEBI 2020 Ph-II", "changed": false, "note": "50 WIP units 60% complete = 30 units; one finished chair plus one half-done = 1.5. SEBI 2020: 6,600 transferred + 60% of 1,000 WIP = 7,200. Needed because a period's process cost covers opening WIP, closing WIP and completed units. Separate degrees example: 500 WIP at 100/60/30% gives 500/300/150 units."}, {"id": "CT234", "section": "Joint & By-products", "topic": "Joint & By-products - By-product Accounting", "type": "trap", "star": "hi", "front": "If a by-product has no realisable value, its cost is?", "back": "**Borne by the good units (main product)**\nNo separate account is kept", "pyq": "Asked: IFSCA 2023", "changed": false, "note": "Distractors: treated as a gain, carried forward to the next period, doesn't affect anything, none of the above. With only minimal value (₹20 out of ₹10,000), the value is credited to the Process A/c or to Costing P&L as miscellaneous income."}, {"id": "CT237", "section": "Service Costing", "topic": "Service Costing - Concept & Industries", "type": "fact", "star": "hi", "front": "Which industries generally use service costing?", "back": "1. **Transport: road, railways, airways, shipping**\n2. **Electricity, water and gas supply**\n3. **Hospitals and nursing homes**\n4. **Cinemas, canteens and hotels**\n5. **Computer centres, schools and colleges**\n6. **Local authority, powerhouse in a factory**", "pyq": "Asked: PFRDA 2026 Ph-I (your paper)", "changed": false, "note": "Your PFRDA 2026 Ph-I paper: answer Airline industry; distractors toy manufacturing, automobile manufacturing and 'both' (manufacturers, not service providers)."}, {"id": "CT247", "section": "Standard Costing & Variances", "topic": "Standard Costing & Variances - Concept & Objectives", "type": "fact", "star": "hi", "front": "In standard costing, costs ascertained before production begins are called?", "back": "**Pre-determined costs**\nbenchmarks set from standard prices and expected efficiency", "pyq": "Asked: SEBI 2024 Ph-I", "changed": false, "note": "Distractors: Actual, Estimated, Variable, Fixed costs. Estimated costs are also fixed in advance, but the standard costing term is pre-determined costs."}, {"id": "CT248", "section": "Standard Costing & Variances", "topic": "Standard Costing & Variances - Concept & Objectives", "type": "fact", "star": "hi", "front": "Cost control mainly includes?", "back": "**Comparison of actual cost with set standards**\nvariances are analysed and corrective action taken", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "Distractors: estimating future profits and dividends, preparing only final accounts at year end, increasing expenditure to improve quality, recording transactions without analysis."}, {"id": "CT255", "section": "Standard Costing & Variances", "topic": "Standard Costing & Variances - Types & Setting of Standards", "type": "fact", "star": "hi", "front": "Standard set under perfect conditions: no wastage, no idle time, maximum efficiency?", "back": "**Ideal standard**\nassumes 100% worker effort and no machine breakdown; theoretical, rarely attainable", "pyq": "Asked: SEBI 2025 Ph-II", "changed": false, "note": "Distractors: Basic, Current, Normal, Attainable Standard. PYQ explanation adds it is used mainly for benchmarking and motivation."}, {"id": "CT258", "section": "Standard Costing & Variances", "topic": "Standard Costing & Variances - Material Variances", "type": "fact", "star": "hi", "front": "Material cost variance splits into which variances?", "back": "**Price variance + Usage variance**\nwith two or more materials, Usage = **Mix + Yield**", "pyq": "Asked: PFRDA 2021 Ph-I", "changed": false, "note": "Favourable when standard material cost of actual output > actual cost; adverse when lower. Actual output is the basis for standard cost. PFRDA 2021: cost 24,000 F and usage 30,975 F give price 6,975 A."}, {"id": "CT260", "section": "Standard Costing & Variances", "topic": "Standard Costing & Variances - Material Variances", "type": "fact", "star": "hi", "front": "Material usage variance: when does it arise, and who is accountable?", "back": "**Actual quantity used differs from standard quantity for actual output**\naccountable: **production manager**", "pyq": "Asked: PFRDA 2026 Ph-I (your paper)", "changed": false, "note": "More than standard = adverse. Your PFRDA 2026 paper: 2 kg × 1,000 units = 2,000 kg standard, 2,100 kg used, × ₹10 = ₹1,000 A (not F, and not ₹2,000)."}, {"id": "CT262", "section": "Standard Costing & Variances", "topic": "Standard Costing & Variances - Labour Variances", "type": "trap", "star": "hi", "front": "Labour rate variance: what does it compare, and on which hours?", "back": "**Actual wage rate vs standard rate, on actual hours worked**\nAH × (SR − AR); actual rate below standard = favourable", "pyq": "Asked: SEBI 2024 Ph-II, SEBI 2025 Ph-II", "changed": false, "note": "Both PYQs give standard hours as a red herring: SEBI 2024 (SR 2.5, AR 2.2, AH 500) = ₹150 F; SEBI 2025 (SR 2.2, AR 2, AH 475) = ₹95 F. Summary cause: a shortage of workers forces paying ₹20 an hour against standard ₹10, adverse."}, {"id": "CT275", "section": "Budgets & Budgetary Control", "topic": "Budgets & Budgetary Control - Budget Basics", "type": "fact", "star": "hi", "front": "What is a budget as per CIMA?", "back": "**A plan quantified in monetary terms, prepared and approved before a defined period**, showing planned income, expenditure and capital employed to attain an objective; can also be stated in quantities", "pyq": "Asked: SEBI 2022 Ph-I", "changed": false, "note": "Simple meaning: a plan of operation in money terms with a forecast of income and expenditure, usually for 12 months. Features: 1. quantitative or monetary 2. prepared in advance (2013-14 budget made in 2012-13) 3. definite period 4. in line with business policies 5. objectives and responsibility clearly stated 6. monitored, flexible for mid-term revision 7. whole-organisation commitment 8. covers all material aspects. SEBI 2022 Ph-I had 'quantifiable in monetary or quantity or both terms' as a TRUE statement."}, {"id": "CT284", "section": "Budgets & Budgetary Control", "topic": "Budgets & Budgetary Control - Master & Functional Budgets", "type": "fact", "star": "hi", "front": "While preparing the Master Budget, which budget is generally the key (limiting) factor?", "back": "**Sales Budget**: the cornerstone of budget preparation and the basis for all other budgets", "pyq": "Asked: PFRDA 2026 Ph-I (your paper)", "changed": false, "note": "Your paper's distractors: Production budget, Cash budget, Labour budget, Direct expenses and purchase budget. The budget for the principal budget factor is prepared first; production, material and S&D budgets all follow from expected sales. The summary notes the key factor can also be raw material, labour or plant capacity in a given case."}, {"id": "CT288", "section": "Budgets & Budgetary Control", "topic": "Budgets & Budgetary Control - Cash Budget", "type": "trap", "star": "hi", "front": "Which does NOT appear in a Cash Budget: debtor collections, depreciation, cash sales, cash disbursement?", "back": "**Depreciation**: a non-cash expense, so its cash outflow is zero", "pyq": "Asked: SEBI 2020 Ph-II", "changed": false, "note": "Summary example: machine ₹20 lakh, depreciation ₹2 lakh, cash outflow for depreciation = 0. Depreciation enters the Budgeted P&L (via the capex budget), not the cash budget."}, {"id": "CT294", "section": "Budgets & Budgetary Control", "topic": "Budgets & Budgetary Control - ZBB, Performance & Responsibility", "type": "trap", "star": "hi", "front": "Which is a modern management accounting technique: HRA, statistical reports, responsibility accounting or BEP?", "back": "**Responsibility Accounting**: individuals or departments get authority over their area and are held personally accountable for its costs", "pyq": "Asked: SEBI 2022 Ph-II", "changed": false, "note": "EduTap's modern techniques: marginal costing, capital budgeting, inventory valuation, product costing, responsibility accounting. Its explanation calls Human Resource Accounting, statistical reports and break-even analysis 'not included' (odd, as break-even sits within marginal costing; follow the key)."}, {"id": "CT295", "section": "Budgets & Budgetary Control", "topic": "Budgets & Budgetary Control - Budgetary Control", "type": "fact", "star": "hi", "front": "What is budgetary control, and what are its four steps?", "back": "**Planning, coordinating and controlling activities through budgets, comparing actuals with budgets**\n1. Establish budgets\n2. Assign executives' responsibilities\n3. Compare actuals with budgets\n4. Analyse variances, take corrective action", "pyq": "Asked: PFRDA 2022 Ph-II", "changed": false, "note": "PFRDA 2022 Ph-II correct statement: 'Budgetary control is used to compare actual results against the budget'."}, {"id": "CT296", "section": "Budgets & Budgetary Control", "topic": "Budgets & Budgetary Control - Budgetary Control", "type": "fact", "star": "hi", "front": "Advantages of budgetary control?", "back": "1. **Maximum profit through optimum use of resources**\n2. **Facilitates management by exception**\n3. Budgets motivate people towards objectives\n4. **Basis for internal audit**", "pyq": "Asked: SEBI 2022 Ph-I", "changed": false, "note": "PFRDA 2022 explanation adds: performance measurement of departments and cost centres, finds areas for cost reduction, supports incentive schemes, cost reduction is the primary target, improves coordination, helps long-term goals."}, {"id": "CT297", "section": "Budgets & Budgetary Control", "topic": "Budgets & Budgetary Control - Budgetary Control", "type": "trap", "star": "hi", "front": "Odd one out as a feature of budgetary control: past-performance plan, defined structure, no MBE, quantifiable?", "back": "**'Budgeting does not facilitate management by exception'** is false: MBE (acting only on significant deviations) is an advantage", "pyq": "Asked: SEBI 2022 Ph-I", "changed": false, "note": "True features in the options: a plan based on past performance and rational judgement of future factors; clearly defined structure with responsibility assigned to identifiable units; quantifiable in money, quantity or both. MBE example: controller reports only expenses over $10,000 or 20% above budget, saving management time."}, {"id": "CT298", "section": "Budgets & Budgetary Control", "topic": "Budgets & Budgetary Control - Budgetary Control", "type": "trap", "star": "hi", "front": "Budgetary control: does it increase or decrease coordination, and is it time-consuming and costly?", "back": "**Increases coordination; yes, it is time-consuming and costly**; it understands (does not overlook) manufacturing operations", "pyq": "Asked: PFRDA 2022 Ph-II", "changed": false, "note": "PFRDA 2022 Ph-II wrong options: overlooks manufacturing, decreases coordination, not time-consuming or costly. Disadvantages per explanation: figures often need revision; time-consuming and costly; inter-department coordination is hard; needs top management support; constant comparison with budget can hurt motivation."}]</script>
+<script type="application/json" id="topics-data">["Overview of Cost & Mgmt Accounting - Meaning, Scope & Objectives", "Overview of Cost & Mgmt Accounting - Cost, Cost Centre, Unit & Object", "Overview of Cost & Mgmt Accounting - Methods & Techniques", "Overview of Cost & Mgmt Accounting - Classification of Costs", "Overview of Cost & Mgmt Accounting - Costs for Decision Making", "Overview of Cost & Mgmt Accounting - Elements of Cost & Cost Sheet", "Overview of Cost & Mgmt Accounting - Cost Audit & CAS", "Material Cost - Basics & Inventory Control", "Material Cost - ABC Analysis", "Material Cost - Stock Levels & EOQ", "Material Cost - Purchasing & Stores", "Material Cost - Pricing of Issues", "Material Cost - Material Losses", "Material Cost - VED, FSN & EOQ Assumptions", "Labour Cost - Basics & Control", "Labour Cost - Time Keeping & Work Study", "Labour Cost - Idle Time & Overtime", "Labour Cost - Wage & Incentive Plans", "Labour Cost - Treatment & CAS-7", "Labour Cost - Labour Turnover", "Overheads - Basics & Collection", "Overheads - Classification", "Overheads - Allocation & Apportionment", "Overheads - Secondary Distribution", "Overheads - Absorption", "Overheads - Under/Over-absorption", "Activity Based Costing - Traditional vs ABC", "Activity Based Costing - Terms & Cost Drivers", "Activity Based Costing - Steps, Merits & Limits", "Marginal Costing - Concept and Features", "Marginal Costing - Contribution and P/V Ratio", "Marginal Costing - Break-even and Margin of Safety", "Marginal Costing - Multi-product and Semi-variable Costs", "Marginal Costing - CVP Charts and Changes", "Marginal Costing - Decisions, Advantages and Limitations", "Marginal Costing - Absorption vs Marginal Costing", "Marginal Costing - Make or Buy & Shut-down", "Unit / Output Costing - Concept & Industries", "Unit / Output Costing - Cost Sheet", "Unit / Output Costing - Estimated Cost Sheet", "Job & Batch Costing - Features & Users", "Job & Batch Costing - Procedure & Cost Sheet", "Job & Batch Costing - Advantages & Limitations", "Job & Batch Costing - Batch Costing", "Job & Batch Costing - Economic Batch Quantity", "Contract Costing - Features & Parties", "Contract Costing - Contract Account Items", "Contract Costing - Clauses, WIP & Retention", "Contract Costing - Profit on Incomplete Contracts", "Process & Operation Costing - Features & Industries", "Process & Operation Costing - Process vs Job Costing", "Process & Operation Costing - Process Losses & Abnormal Gain", "Process & Operation Costing - Equivalent Production", "Process & Operation Costing - Inter-process Profit", "Joint & By-products - Joint vs By-products", "Joint & By-products - Joint Cost Apportionment", "Joint & By-products - By-product Accounting", "Joint & By-products - Further Processing Decision", "Service Costing - Concept & Industries", "Service Costing - Cost Units", "Service Costing - Transport Costing", "Service Costing - Powerhouse, Canteen, Hotel & Hospital", "Standard Costing & Variances - Concept & Objectives", "Standard Costing & Variances - Types & Setting of Standards", "Standard Costing & Variances - Material Variances", "Standard Costing & Variances - Labour Variances", "Standard Costing & Variances - Overhead Variances", "Standard Costing & Variances - Sales Variances", "Standard Costing & Variances - Advantages, Limits & Control", "Budgets & Budgetary Control - Budget Basics", "Budgets & Budgetary Control - Preparation & Key Factor", "Budgets & Budgetary Control - Master & Functional Budgets", "Budgets & Budgetary Control - Cash Budget", "Budgets & Budgetary Control - Classification & Flexible Budget", "Budgets & Budgetary Control - ZBB, Performance & Responsibility", "Budgets & Budgetary Control - Budgetary Control", "Budgets & Budgetary Control - Budget vs Forecast & Other Budgets"]</script>
+<script id="deck-sync">
+/* DeckSync: cross-device sync of Known / Still learning marks through a private GitHub gist.
+   One token per device (localStorage 'pfrda_sync_token', shared by every deck on this site).
+   One secret gist holds one JSON file per deck. Local marks stay in the deck's own key, unchanged.
+   Merge: union of marks; where devices disagree, the most recent change wins. */
+(function(){
+'use strict';
+var TOKEN_KEY='pfrda_sync_token', GIST_KEY='pfrda_sync_gist', LAST_KEY='pfrda_sync_last';
+var DESC='PFRDA flashcard marks sync (do not delete)';
+var API='https://api.github.com';
+var has=function(o,k){return Object.prototype.hasOwnProperty.call(o,k);};
+function lsGet(k){try{return window.localStorage.getItem(k);}catch(e){return null;}}
+function lsSet(k,v){try{window.localStorage.setItem(k,v);return true;}catch(e){return false;}}
+function lsDel(k){try{window.localStorage.removeItem(k);}catch(e){}}
+function readJSON(k){var r=lsGet(k);if(!r)return null;try{var o=JSON.parse(r);return (o&&typeof o==='object')?o:null;}catch(e){return null;}}
+function clean(o){var p={};if(o)for(var k in o){if(has(o,k)&&(o[k]==='known'||o[k]==='learning'))p[k]=o[k];}return p;}
+function same(a,b){var k;for(k in a){if(has(a,k)&&a[k]!==b[k])return false;}for(k in b){if(has(b,k)&&a[k]!==b[k])return false;}return true;}
+
+var cfg=null, metaKey='', fileName='', meta=null, lastRemote={}, timer=null, busy=false, again=false, dirty=false, ui={};
+
+function token(){var t=lsGet(TOKEN_KEY);return t?t.trim():'';}
+function saveMeta(){lsSet(metaKey,JSON.stringify(meta));}
+function local(){return clean(readJSON(cfg.key));}
+function loadMeta(){
+  meta=readJSON(metaKey);
+  if(!meta||!meta.ts||!meta.snap){
+    /* First run: marks made before sync existed get time 1, so any later change on another device wins over them. */
+    var p=local();meta={ts:{},snap:{}};
+    for(var id in p){meta.ts[id]=1;meta.snap[id]=p[id];}
+    saveMeta();
+  }
+}
+/* Record a time for every card whose mark changed since the last look (mark, unmark, reset, restore). */
+function touch(){
+  if(!cfg)return;
+  var p=local(),now=Date.now(),ch=false,id,seen={};
+  for(id in p){if(has(p,id))seen[id]=1;}
+  for(id in meta.snap){if(has(meta.snap,id))seen[id]=1;}
+  for(id in seen){
+    if((p[id]||'')!==(meta.snap[id]||'')){
+      meta.ts[id]=Math.max(now,(meta.ts[id]||0)+1);
+      if(p[id])meta.snap[id]=p[id];else delete meta.snap[id];
+      ch=true;
+    }
+  }
+  if(ch){saveMeta();dirty=true;if(token())schedule(1500);renderUI();}
+}
+function pick(L,R){
+  if(L[1]>R[1])return L;
+  if(R[1]>L[1])return R;
+  if(L[0]===R[0])return L;
+  if(!L[0])return R;
+  if(!R[0])return L;
+  return ['learning',L[1]]; /* same time, different marks: keep the safer one */
+}
+function merge(rc){
+  touch();
+  var out={},id,seen={};
+  for(id in meta.ts){if(has(meta.ts,id))seen[id]=1;}
+  for(id in rc){if(has(rc,id))seen[id]=1;}
+  for(id in seen){
+    var L=[meta.snap[id]||'',+meta.ts[id]||0];
+    var r=rc[id],R=(r&&r.length===2)?[(r[0]==='known'||r[0]==='learning')?r[0]:'',+r[1]||0]:['',0];
+    var w=pick(L,R);
+    if(w[1]>0)out[id]=w;
+  }
+  var p={},ts={},push=false;
+  for(id in out){
+    ts[id]=out[id][1];if(out[id][0])p[id]=out[id][0];
+    var r2=rc[id];
+    if(!r2||r2[0]!==out[id][0]||+r2[1]!==out[id][1])push=true;
+  }
+  var before=local();
+  meta={ts:ts,snap:p};saveMeta();
+  if(!same(before,p)){lsSet(cfg.key,JSON.stringify(p));try{cfg.onRemote(clean(p));}catch(e){}}
+  return {cards:out,push:push};
+}
+function doc(cards){return JSON.stringify({v:1,deck:cfg.label||fileName,updated:new Date().toISOString(),cards:cards});}
+
+function api(method,path,body,keepalive){
+  var o={method:method,cache:'no-store',headers:{'Authorization':'Bearer '+token(),'Accept':'application/vnd.github+json'}};
+  if(body){o.body=JSON.stringify(body);o.headers['Content-Type']='application/json';}
+  if(keepalive)o.keepalive=true;
+  return fetch(API+path,o).then(function(r){
+    if(!r.ok){var e=new Error('HTTP '+r.status);e.status=r.status;throw e;}
+    return r.status===204?null:r.json();
+  });
+}
+function findOrCreate(){
+  return api('GET','/gists?per_page=100').then(function(list){
+    var m=(list||[]).filter(function(g){return g.description===DESC;});
+    m.sort(function(a,b){return a.created_at<b.created_at?-1:1;});
+    if(m.length)return api('GET','/gists/'+m[0].id);
+    var files={'README.md':{content:'Flashcard marks for the PFRDA decks. Written by the decks; please keep this gist.'}};
+    return api('POST','/gists',{description:DESC,public:false,files:files});
+  }).then(function(g){lsSet(GIST_KEY,g.id);return g;});
+}
+function getGist(){
+  var id=lsGet(GIST_KEY);
+  if(!id)return findOrCreate();
+  return api('GET','/gists/'+id).catch(function(e){if(e.status===404){lsDel(GIST_KEY);return findOrCreate();}throw e;});
+}
+function schedule(ms){clearTimeout(timer);timer=setTimeout(sync,ms);}
+function sync(){
+  clearTimeout(timer);
+  if(!cfg||!token())return;
+  if(busy){again=true;return;}
+  busy=true;setState('Syncing…','busy');
+  getGist().then(function(g){
+    var f=g.files&&g.files[fileName],rc={};
+    if(f&&f.content){try{var d=JSON.parse(f.content);if(d&&d.cards&&typeof d.cards==='object')rc=d.cards;}catch(e){}}
+    var res=merge(rc);
+    lastRemote=res.cards;
+    if(!res.push)return;
+    var files={};files[fileName]={content:doc(res.cards)};
+    return api('PATCH','/gists/'+g.id,{files:files});
+  }).then(function(){
+    dirty=false;lsSet(LAST_KEY,String(Date.now()));setState('','ok');
+  },function(e){
+    var s=e&&e.status;
+    setState(s===401?'Token rejected. Make a new one and connect again.':s===403||s===429?'GitHub is limiting requests. Will retry shortly.':s?'Sync failed ('+s+'). Will retry.':'Offline. Will sync when back online.','err');
+    if(s===401){lsDel(TOKEN_KEY);lsDel(GIST_KEY);setState('','');setNote('GitHub rejected that token. Check it was copied whole, or make a new one, then paste it again.');}
+    else schedule(60000);
+  }).then(function(){busy=false;if(again){again=false;schedule(300);}});
+}
+/* Leaving the page: push what we have without waiting for a read. */
+function flush(){
+  if(!dirty||!token()||busy)return;
+  var id=lsGet(GIST_KEY);if(!id)return;
+  touch();
+  var out={},k;
+  for(k in lastRemote){if(has(lastRemote,k))out[k]=lastRemote[k];}
+  for(k in meta.ts){if(has(meta.ts,k)){var L=[meta.snap[k]||'',+meta.ts[k]];out[k]=out[k]?pick(L,out[k]):L;}}
+  var files={};files[fileName]={content:doc(out)};
+  try{api('PATCH','/gists/'+id,{files:files},true).then(function(){dirty=false;},function(){});}catch(e){}
+}
+
+/* ---------- backup / restore (works with or without sync) ---------- */
+function backup(){
+  var data={deck:cfg.label||fileName,key:cfg.key,exported:new Date().toISOString(),marks:local()};
+  var blob=new Blob([JSON.stringify(data,null,1)],{type:'application/json'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=fileName.replace(/\.json$/,'')+'-marks-'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1500);
+  setNote('Backup saved: '+count(data.marks)+' marked cards.');
+}
+function restore(file){
+  var rd=new FileReader();
+  rd.onload=function(){
+    var d;try{d=JSON.parse(rd.result);}catch(e){setNote('That file is not a marks backup.');return;}
+    if(!d||!d.marks){setNote('That file is not a marks backup.');return;}
+    if(d.key&&d.key!==cfg.key&&!window.confirm('This backup is from another deck ('+(d.deck||d.key)+'). Restore it here anyway?'))return;
+    var p=clean(d.marks);
+    if(!window.confirm('Replace the marks in this deck with the '+count(p)+' marks in the backup?'))return;
+    lsSet(cfg.key,JSON.stringify(p));touch();
+    try{cfg.onRemote(p);}catch(e){}
+    setNote('Restored '+count(p)+' marks.');
+  };
+  rd.readAsText(file);
+}
+function count(p){var n=0;for(var k in p){if(has(p,k))n++;}return n;}
+
+/* ---------- UI ---------- */
+var CSS='.dsync{margin:14px 0 0;border:1px solid var(--line,#d5dbe5);border-radius:10px;background:var(--surface,var(--panel,#fff));color:var(--ink,#18233a);font-size:.875rem}'+
+'.dsync summary{cursor:pointer;padding:10px 12px;display:flex;gap:8px;align-items:center;list-style:none;min-height:44px}'+
+'.dsync summary::-webkit-details-marker{display:none}'+
+'.dsync summary b{font-weight:650}.dsync .dsst{margin-left:auto;color:var(--muted,#5b6578);font-size:.8rem;text-align:right}'+
+'.dsync .dsst.ok{color:var(--known,#2b8a3e)}.dsync .dsst.err{color:var(--changed,var(--learning,#a35f00))}'+
+'.dsync .dsb{padding:0 12px 12px;display:grid;gap:8px}.dsync p{margin:0;color:var(--muted,#5b6578)}'+
+'.dsync input[type=password]{font:inherit;font-size:16px;width:100%;padding:9px 10px;border:1px solid var(--line,#d5dbe5);border-radius:8px;background:var(--surface-2,var(--bg,#f5f7fa));color:inherit}'+
+'.dsync .dsr{display:flex;gap:8px;flex-wrap:wrap}.dsync .dsr button,.dsync .dsr label{flex:1 1 0;min-width:120px;min-height:40px;font:inherit;font-size:.82rem;font-weight:600;border:1px solid var(--line,#d5dbe5);border-radius:8px;background:var(--surface-2,var(--bg,#f5f7fa));color:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:6px 8px;text-align:center}'+
+'.dsync .dsr label input{display:none}.dsync hr{border:0;border-top:1px solid var(--line,#d5dbe5);margin:4px 0}.dsync .dsnote{color:var(--ink,#18233a)}.dsync [hidden]{display:none!important}';
+function el(tag,attrs,text){var e=document.createElement(tag);for(var k in attrs){if(has(attrs,k))e.setAttribute(k,attrs[k]);}if(text)e.textContent=text;return e;}
+function buildUI(anchor){
+  var st=el('style');st.textContent=CSS;document.head.appendChild(st);
+  var d=el('details',{'class':'dsync'});
+  var s=el('summary');s.appendChild(el('b',{},'Sync across devices'));ui.state=el('span',{'class':'dsst'});s.appendChild(ui.state);d.appendChild(s);
+  var b=el('div',{'class':'dsb'});d.appendChild(b);
+  ui.off=el('div',{'class':'dsb',style:'padding:0'});
+  ui.off.appendChild(el('p',{},'Paste your GitHub sync token. You do this once per device; every deck on this site then syncs.'));
+  ui.tok=el('input',{type:'password',autocomplete:'off',autocapitalize:'off',spellcheck:'false',placeholder:'ghp_…','aria-label':'GitHub sync token'});ui.off.appendChild(ui.tok);
+  var r1=el('div',{'class':'dsr'});var bc=el('button',{type:'button'},'Connect this device');r1.appendChild(bc);ui.off.appendChild(r1);
+  ui.on=el('div',{'class':'dsb',style:'padding:0'});
+  ui.msg=el('p');ui.on.appendChild(ui.msg);
+  var r2=el('div',{'class':'dsr'});var bs=el('button',{type:'button'},'Sync now');var bd=el('button',{type:'button'},'Disconnect this device');r2.appendChild(bs);r2.appendChild(bd);ui.on.appendChild(r2);
+  b.appendChild(ui.off);b.appendChild(ui.on);b.appendChild(el('hr'));
+  b.appendChild(el('p',{},'Safety copy of this deck’s marks as a file:'));
+  var r3=el('div',{'class':'dsr'});var bb=el('button',{type:'button'},'Back up marks');var lr=el('label',{},'Restore from backup');var fi=el('input',{type:'file',accept:'.json,application/json'});lr.appendChild(fi);r3.appendChild(bb);r3.appendChild(lr);b.appendChild(r3);
+  ui.note=el('p',{'class':'dsnote',role:'status'});b.appendChild(ui.note);
+  bc.addEventListener('click',function(){var t=ui.tok.value.trim();if(!t){ui.tok.focus();return;}lsSet(TOKEN_KEY,t);ui.tok.value='';renderUI();sync();});
+  bs.addEventListener('click',function(){sync();});
+  bd.addEventListener('click',function(){if(!window.confirm('Stop syncing on this device? Marks already here stay. Other decks on this device stop syncing too.'))return;lsDel(TOKEN_KEY);lsDel(GIST_KEY);setState('','');renderUI();});
+  bb.addEventListener('click',backup);
+  fi.addEventListener('change',function(){if(fi.files&&fi.files[0])restore(fi.files[0]);fi.value='';});
+  anchor.parentNode.insertBefore(d,anchor.nextSibling);
+  ui.root=d;
+}
+var stateText='',stateKind='';
+function setState(t,k){stateText=t;stateKind=k;renderUI();}
+function setNote(t){if(ui.note)ui.note.textContent=t;}
+function ago(ms){var m=Math.round(ms/60000);if(m<1)return 'just now';if(m<60)return m+' min ago';var h=Math.round(m/60);if(h<24)return h+' h ago';return Math.round(h/24)+' d ago';}
+function renderUI(){
+  if(!ui.root)return;
+  var on=!!token();
+  ui.off.hidden=on;ui.on.hidden=!on;
+  var last=+lsGet(LAST_KEY)||0;
+  var lbl=!on?'Off':stateKind==='busy'?'Syncing…':stateKind==='err'?'Not synced':dirty?'Changes waiting':last?'Synced '+ago(Date.now()-last):'On';
+  ui.state.textContent=lbl;
+  ui.state.className='dsst'+(on&&stateKind==='err'?' err':on&&stateKind==='ok'&&!dirty?' ok':'');
+  ui.msg.textContent=stateKind==='err'?stateText:(last?'Last synced '+ago(Date.now()-last)+'. Marks sync by themselves after each change and when you come back to this tab.':'Connected. First sync merges this device’s marks with the other device’s.');
+}
+
+window.DeckSync={
+  init:function(c){
+    try{
+      if(!c||!c.key||!window.localStorage)return;
+      cfg=c;metaKey=c.key+'_sync';fileName=c.key.replace(/_progress$/,'')+'.json';
+      loadMeta();touch();dirty=false;
+      if(c.anchor)buildUI(c.anchor);
+      renderUI();
+      if(token())sync();
+      document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'){if(token())schedule(300);}else flush();});
+      window.addEventListener('pagehide',flush);
+      window.addEventListener('online',function(){if(token())schedule(300);});
+      setInterval(renderUI,60000);
+    }catch(e){cfg=null;}
+  },
+  touch:function(){try{touch();}catch(e){}},
+  sync:sync
+};
+})();
+</script><!--/deck-sync-->
+<script>
+(function(){
+'use strict';
+var KEY='pfrda_costeve_nov2026_progress';
+var THEME_KEY='pfrda_costeve_nov2026_theme';
+var CARDS=JSON.parse(document.getElementById('cards-data').textContent);
+var TOPICS=JSON.parse(document.getElementById('topics-data').textContent);
+var $=function(id){return document.getElementById(id);};
+
+/* ---------- storage (never required) ---------- */
+var storageOk=true;
+function sGet(k){try{return window.localStorage.getItem(k);}catch(e){storageOk=false;return null;}}
+function sSet(k,v){try{window.localStorage.setItem(k,v);return true;}catch(e){storageOk=false;showBanner();return false;}}
+function sDel(k){try{window.localStorage.removeItem(k);}catch(e){storageOk=false;}}
+function showBanner(){ $('banner').hidden=false; }
+(function probe(){try{var t='__pfrda_probe__';window.localStorage.setItem(t,'1');window.localStorage.removeItem(t);}catch(e){storageOk=false;}})();
+
+var progress={};
+(function(){
+  var raw=sGet(KEY);
+  if(!raw) return;
+  try{
+    var o=JSON.parse(raw);
+    if(o && typeof o==='object'){
+      for(var k in o){ if(Object.prototype.hasOwnProperty.call(o,k) && (o[k]==='known'||o[k]==='learning')) progress[k]=o[k]; }
+    }
+  }catch(e){}
+})();
+function saveProgress(){ sSet(KEY,JSON.stringify(progress)); if(window.DeckSync)DeckSync.touch(); }
+
+/* ---------- theme ---------- */
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  $('bTheme').textContent = t==='dark' ? 'Light theme' : 'Dark theme';
+}
+var theme=sGet(THEME_KEY);
+if(theme!=='light' && theme!=='dark'){
+  theme=(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';
+}
+applyTheme(theme);
+
+/* ---------- state ---------- */
+var byId={};
+CARDS.forEach(function(c){byId[c.id]=c;});
+var baseOrder=CARDS.map(function(c){return c.id;});
+var order=baseOrder.slice();
+var filters={topics:[],type:'all',status:'all',hi:false,pyq:false};
+var view=[], pos=0, flipped=false;
+
+function statusOf(id){var s=progress[id];return (s==='known'||s==='learning')?s:'unseen';}
+function matches(c){
+  if(filters.topics.length && filters.topics.indexOf(c.topic)<0) return false;
+  if(filters.type!=='all' && c.type!==filters.type) return false;
+  if(filters.hi && c.star!=='hi') return false;
+  if(filters.pyq && !c.pyq) return false;
+  if(filters.status==='notknown'){ if(statusOf(c.id)==='known') return false; }
+  else if(filters.status!=='all' && statusOf(c.id)!==filters.status) return false;
+  return true;
+}
+function rebuild(keepId){
+  view=order.filter(function(id){return matches(byId[id]);});
+  var i=keepId?view.indexOf(keepId):-1;
+  pos=i>=0?i:0;
+  flipped=false;
+  render();
+}
+
+/* ---------- rendering ---------- */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmt(s){return esc(s).replace(/\*\*([\s\S]+?)\*\*/g,'<strong>$1</strong>');}
+var TYPE_LABEL={fact:'Fact',trap:'Trap',concept:'Concept'};
+var STATUS_LABEL={unseen:'Unseen',learning:'Still learning',known:'Known'};
+
+function renderStats(){
+  var n=view.length,k=0,l=0;
+  view.forEach(function(id){var s=statusOf(id); if(s==='known')k++; else if(s==='learning')l++;});
+  $('sTotal').textContent=n;
+  $('sUnseen').textContent=n-k-l;
+  $('sLearn').textContent=l;
+  $('sKnown').textContent=k;
+  $('sPct').textContent=(n?Math.round(k*100/n):0)+'%';
+}
+function renderCard(){
+  var el=$('card');
+  if(!view.length){
+    el.className='card empty';
+    el.removeAttribute('data-type');
+    el.setAttribute('aria-expanded','false');
+    el.setAttribute('aria-label','No cards match these filters');
+    el.innerHTML='<p class="q" style="margin:0">No cards match these filters.</p><p class="note" style="margin:0">Change or clear a filter above to widen the set.</p><button type="button" id="emptyClear">Clear filters</button>';
+    var b=$('emptyClear'); if(b) b.addEventListener('click',function(e){e.stopPropagation();clearFilters();});
+    return;
+  }
+  var c=byId[view[pos]], st=statusOf(c.id);
+  var h='<div class="meta">';
+  h+='<span class="badge b-type">'+TYPE_LABEL[c.type]+'</span>';
+  if(c.star==='hi') h+='<span class="badge b-star">★ High-yield</span>';
+  else if(c.star==='md') h+='<span class="badge b-star">☆ Medium</span>';
+  if(c.pyq) h+='<span class="badge b-pyq">'+esc(c.pyq)+'</span>';
+  h+='</div>';
+  h+='<div class="topic">'+esc(c.topic)+'</div>';
+  h+='<div class="q">'+fmt(c.front)+'</div>';
+  h+='<div class="hint">Tap the card or press Space to reveal the answer.</div>';
+  h+='<div class="a"><div class="ans">'+fmt(c.back)+'</div>';
+  if(c.note) h+='<div class="note">'+fmt(c.note)+'</div>';
+  h+='</div>';
+  h+='<div class="cfoot"><span>'+(pos+1)+' of '+view.length+(pos===view.length-1?' (end of set)':'')+'</span><span class="s-'+st+'">'+STATUS_LABEL[st]+'</span></div>';
+  el.className='card'+(flipped?' flipped':'');
+  el.setAttribute('data-type',c.type);
+  el.setAttribute('aria-expanded',flipped?'true':'false');
+  el.setAttribute('aria-label','Card '+(pos+1)+' of '+view.length+'. Press Space or Enter to '+(flipped?'hide':'show')+' the answer.');
+  el.innerHTML=h;
+}
+function renderControls(){
+  var has=view.length>0;
+  $('bPrev').disabled=!has||pos===0;
+  $('bNext').disabled=!has||pos>=view.length-1;
+  $('bFlip').disabled=!has;
+  $('bKnown').disabled=!has;
+  $('bLearn').disabled=!has;
+  $('bFlip').textContent=flipped?'Hide answer':'Show answer';
+}
+function render(){ renderCard(); renderControls(); renderStats(); renderFilterSummary(); }
+
+/* ---------- actions ---------- */
+function focusCard(){ try{$('card').focus({preventScroll:true});}catch(e){$('card').focus();} }
+function flip(){
+  if(!view.length) return;
+  flipped=!flipped;
+  var el=$('card');
+  el.classList.toggle('flipped',flipped);
+  el.setAttribute('aria-expanded',flipped?'true':'false');
+  $('bFlip').textContent=flipped?'Hide answer':'Show answer';
+}
+function go(d){
+  if(!view.length) return;
+  var p=pos+d;
+  if(p<0||p>=view.length) return;
+  pos=p; flipped=false; render();
+}
+function mark(val){
+  if(!view.length) return;
+  progress[view[pos]]=val;
+  saveProgress();
+  if(pos<view.length-1){pos++;flipped=false;}
+  render();
+}
+function shuffle(){
+  var keep=null;
+  for(var i=order.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=order[i];order[i]=order[j];order[j]=t;}
+  rebuild(keep);
+}
+function resetOrder(){ order=baseOrder.slice(); rebuild(null); }
+
+/* ---------- modal ---------- */
+var lastFocus=null;
+function openModal(){
+  lastFocus=document.activeElement;
+  $('mText').textContent='This clears every Known and Still learning mark for all '+CARDS.length+' cards saved in this browser.';
+  $('modal').hidden=false;
+  $('mCancel').focus();
+}
+function closeModal(){ $('modal').hidden=true; if(lastFocus&&lastFocus.focus) lastFocus.focus(); else focusCard(); }
+function doReset(){
+  progress={}; sDel(KEY); if(window.DeckSync)DeckSync.touch();
+  var cur=view.length?view[pos]:null;
+  $('modal').hidden=true;
+  rebuild(cur);
+  focusCard();
+}
+
+/* ---------- filters UI ---------- */
+/* Topic picker: one native select. Each area is an optgroup whose first option takes the whole area. */
+var PREF_KEY='pfrda_costeve_nov2026_filters';
+var topicCounts={}, groupOf={}, GROUPS=[], groupTopics={}, groupCounts={};
+CARDS.forEach(function(c){
+  topicCounts[c.topic]=(topicCounts[c.topic]||0)+1;
+  if(!groupOf[c.topic] || (groupOf[c.topic]==='Addendum' && c.section!=='Addendum')) groupOf[c.topic]=c.section;
+});
+TOPICS.forEach(function(t){
+  if(!topicCounts[t]) return;
+  var g=groupOf[t];
+  if(!groupTopics[g]){ GROUPS.push(g); groupTopics[g]=[]; groupCounts[g]=0; }
+  groupTopics[g].push(t); groupCounts[g]+=topicCounts[t];
+});
+function shortTopic(t,g){
+  var seps=[' — ',' - '];
+  for(var i=0;i<seps.length;i++){ if(t.indexOf(g+seps[i])===0) return t.slice((g+seps[i]).length); }
+  return t.replace(/^\d+\s+/,'');
+}
+(function buildTopics(){
+  var h='<option value="all">All topics ('+CARDS.length+')</option>';
+  GROUPS.forEach(function(g,gi){
+    h+='<optgroup label="'+esc(g)+'">';
+    h+='<option value="g:'+gi+'">All of '+esc(g)+' ('+groupCounts[g]+')</option>';
+    groupTopics[g].forEach(function(t){
+      h+='<option value="t:'+TOPICS.indexOf(t)+'">'+esc(shortTopic(t,g))+' ('+topicCounts[t]+')</option>';
+    });
+    h+='</optgroup>';
+  });
+  $('topicSel').innerHTML=h;
+})();
+var topicChoice='all';
+function topicsFor(v){
+  if(v.indexOf('g:')===0){ var g=GROUPS[+v.slice(2)]; return g?groupTopics[g].slice():[]; }
+  if(v.indexOf('t:')===0){ var t=TOPICS[+v.slice(2)]; return t?[t]:[]; }
+  return [];
+}
+function savePrefs(){
+  sSet(PREF_KEY,JSON.stringify({topic:topicChoice,type:filters.type,status:filters.status,hi:filters.hi,pyq:filters.pyq}));
+}
+function syncFilterUI(){
+  $('topicSel').value=topicChoice;
+  $('typeSel').value=filters.type;
+  $('statusSel').value=filters.status;
+  $('topicSel').classList.toggle('on',topicChoice!=='all');
+  $('typeSel').classList.toggle('on',filters.type!=='all');
+  $('statusSel').classList.toggle('on',filters.status!=='all');
+  $('fHi').setAttribute('aria-pressed',filters.hi?'true':'false');
+  $('fPyq').setAttribute('aria-pressed',filters.pyq?'true':'false');
+}
+(function loadPrefs(){
+  var raw=sGet(PREF_KEY); if(!raw) return;
+  try{
+    var o=JSON.parse(raw); if(!o||typeof o!=='object') return;
+    if(typeof o.topic==='string' && $('topicSel').querySelector('option[value="'+o.topic.replace(/"/g,'')+'"]')){ topicChoice=o.topic; filters.topics=topicsFor(o.topic); }
+    if(['all','fact','trap','concept'].indexOf(o.type)>=0) filters.type=o.type;
+    if(['all','unseen','learning','known','notknown'].indexOf(o.status)>=0) filters.status=o.status;
+    filters.hi=o.hi===true; filters.pyq=o.pyq===true;
+  }catch(e){}
+})();
+function onFilterChange(){
+  savePrefs();
+  syncFilterUI();
+  var cur=view.length?view[pos]:null;
+  rebuild(cur);
+}
+$('topicSel').addEventListener('change',function(){ topicChoice=this.value; filters.topics=topicsFor(topicChoice); onFilterChange(); });
+$('typeSel').addEventListener('change',function(){ filters.type=this.value; onFilterChange(); });
+$('statusSel').addEventListener('change',function(){ filters.status=this.value; onFilterChange(); });
+$('fHi').addEventListener('click',function(){ filters.hi=!filters.hi; onFilterChange(); });
+$('fPyq').addEventListener('click',function(){ filters.pyq=!filters.pyq; onFilterChange(); });
+function clearFilters(){
+  filters={topics:[],type:'all',status:'all',hi:false,pyq:false};
+  topicChoice='all';
+  onFilterChange();
+}
+$('fClear').addEventListener('click',clearFilters);
+function renderFilterSummary(){
+  var on=topicChoice!=='all'||filters.type!=='all'||filters.status!=='all'||filters.hi||filters.pyq;
+  $('fClear').hidden=!on;
+}
+syncFilterUI();
+
+/* ---------- wiring ---------- */
+$('card').addEventListener('click',function(e){
+  if(!view.length) return;
+  var sel=window.getSelection && String(window.getSelection());
+  if(sel && sel.length>0 && flipped) return;
+  flip();
+});
+function bind(id,fn){ $(id).addEventListener('click',function(){ fn(); if(id!=='bReset') focusCard(); }); }
+bind('bPrev',function(){go(-1);});
+bind('bNext',function(){go(1);});
+bind('bFlip',flip);
+bind('bKnown',function(){mark('known');});
+bind('bLearn',function(){mark('learning');});
+bind('bShuffle',shuffle);
+bind('bOrder',resetOrder);
+bind('bReset',openModal);
+bind('bTheme',function(){ theme=theme==='dark'?'light':'dark'; applyTheme(theme); sSet(THEME_KEY,theme); });
+$('mCancel').addEventListener('click',closeModal);
+$('mOk').addEventListener('click',doReset);
+$('modal').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
+
+document.addEventListener('keydown',function(e){
+  if(!$('modal').hidden){ if(e.key==='Escape'){e.preventDefault();closeModal();} return; }
+  if(e.ctrlKey||e.metaKey||e.altKey) return;
+  var t=e.target, tag=(t&&t.tagName||'').toLowerCase();
+  if(tag==='input'||tag==='select'||tag==='textarea'||tag==='summary'||(t&&t.isContentEditable)) return;
+  var k=e.key;
+  if(k===' '||k==='Spacebar'||k==='Enter'){
+    if(tag==='button') return;
+    e.preventDefault(); flip(); return;
+  }
+  if(k==='ArrowRight'){e.preventDefault();go(1);focusCard();return;}
+  if(k==='ArrowLeft'){e.preventDefault();go(-1);focusCard();return;}
+  if(k==='k'||k==='K'){e.preventDefault();mark('known');focusCard();return;}
+  if(k==='l'||k==='L'){e.preventDefault();mark('learning');focusCard();return;}
+});
+
+$('sub').textContent='PFRDA Grade A 2026 · Phase II Paper 2 · EduTap summaries + PYQs only. '+CARDS.length+' cards.';
+if(!storageOk) showBanner();
+rebuild(null);
+if(window.DeckSync)DeckSync.init({key:KEY,label:document.title,anchor:document.querySelector('.kbd')||$('modal'),onRemote:function(p){var cur=view.length?view[pos]:null,f=flipped;progress=p;rebuild(cur);if(f&&view[pos]===cur)flip();}});
+})();
+</script>
+</body>
+</html>
